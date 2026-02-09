@@ -3,7 +3,7 @@ import React from 'react';
 const ConnectionPageJury = () => {
   return (
     <div className="min-h-screen bg-indigo-50 flex items-center justify-center">
-      <div className="bg-white shadow-md rounded-lg p-8 max-w-md w-full">
+      <div className="text-black shadow-md rounded-lg p-8 max-w-md w-full">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Connexion Jury</h1>
         <form className="space-y-4">
           <div>
@@ -29,7 +29,7 @@ const ConnectionPageJury = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="w-full bg-indigo-600 py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Se connecter
           </button>
