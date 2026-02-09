@@ -1,3 +1,5 @@
+import Header from '../../components/layouts/Header.jsx';
+import Footer from '../../components/layouts/Footer.jsx';
 function Home() {
   return (
     <>
