@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // 1. Imports Pages Publiques
-import Home from './pages/Home.jsx';
+import Home from './pages/Home/Home.jsx';
 import SubmissionPage from './pages/Submission/SubmissionPage.jsx';
 import LoginAdmin from './pages/LoginAdmin.jsx'; 
 
 // 2. Imports Layouts
-import AdminLayout from './Layout/AdminLayout.jsx';
-import PublicLayout from './Layout/PublicLayout.jsx';
+import AdminLayout from './Layouts/AdminLayout.jsx';
+import PublicLayout from './Layouts/PublicLayout.jsx';
 
 // 3. Imports Pages Admin
 import FilmsList from './pages/Admin/FilmsList.jsx';
