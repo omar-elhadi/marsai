@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const links = [
-    { name: 'Home', href: '#', active: false },
-    { name: 'Events', href: '#', active: false },
-    { name: 'Contact', href: '#', active: false },
+    { name: 'Home', href: '/', active: false },
+    { name: 'Soumettre', href: '/soumettre', active: false },
+    { name: 'Contact', href: '/contact', active: false },
   ];
 
   return (
@@ -23,9 +24,9 @@ const Header = () => {
         {/* Liens de navigation */}
         <div className="flex items-center space-x-4">
           {links.map((link) => (
-            <a
+            <Link
               key={link.name}
-              href={link.href}
+              to={link.href}
               className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                 link.active 
                   ? 'bg-[#1f2937] text-white shadow-sm' 
@@ -33,7 +34,7 @@ const Header = () => {
               }`}
             >
               {link.name}
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -41,15 +42,15 @@ const Header = () => {
       {/* Partie Droite : Outils & Profil */}
       <div className="flex items-center space-x-5">
           {/* Nouveau Bouton : Ajouté ici */}
-<a 
-  href="#" 
+<Link 
+  to="/soumettre" 
   className="hidden md:flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-md transition-all duration-300 shadow-lg active:scale-95"
 >
   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
   </svg>
   Soumettre un film
-            </a>  
+            </Link>  
         </div>
     </nav>
   );

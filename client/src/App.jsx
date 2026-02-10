@@ -6,6 +6,7 @@ import SubmissionPage from '@/pages/Submission/SubmissionPage.jsx';
 import LoginAdmin from '@/pages/LoginAdmin.jsx'; 
 import ConnectionPage from '@/pages/Jury/ConnectionPage.jsx';
 import Newsletters from '@/pages/Newsletters.jsx';
+import Contact from '@/pages/Contact/Contact.jsx';  
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -27,6 +28,7 @@ function App() {
            <Route path="/" element={<Home />} />
            <Route path="/soumettre" element={<SubmissionPage />} />
            <Route path="/login" element={<LoginAdmin />} />
+           <Route path="/contact" element={<Contact />} />
         </Route>
 
         {/* --- ZONE ADMIN --- */}
