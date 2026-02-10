@@ -7,6 +7,8 @@ const Header = () => {
     { name: 'Galerie', href: '/galerie', active: false },
     { name: 'Events', href: '#', active: false },
     { name: 'Contact', href: '#', active: false },
+    { name: 'Soumettre', href: '/soumettre', active: false },
+    { name: 'Contact', href: '/contact', active: false },
   ];
 
   return (
