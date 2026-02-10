@@ -113,7 +113,7 @@ components/
 │   ├── Input/
 │   ├── Modal/
 │   └── Card/
-├── layout/              # Composants spécifiques au layout
+├── layouts/              # Composants spécifiques au layout
 │   ├── Header/
 │   ├── Footer/
 │   └── Sidebar/
@@ -230,7 +230,7 @@ pages/
 **Exemple :**
 ```jsx
 // pages/Dashboard/Dashboard.jsx
-import { StatsCard } from './components/StatsCard';
+import { StatsCard } from '@/components/StatsCard';
 import { Button } from '@/components/common/Button';
 import styles from './Dashboard.module.css';
 
@@ -268,8 +268,8 @@ layouts/
 **Exemple :**
 ```jsx
 // layouts/MainLayout.jsx
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layouts/Header';
+import { Footer } from '@/components/layouts/Footer';
 
 export const MainLayout = ({ children }) => {
   return (
