@@ -34,7 +34,7 @@ function Footer() {
               <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Calendrier</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-              <li><a href="/login-admin" className="hover:text-white transition-colors">Se connecter</a></li>
+              <li><a href="/login" className="hover:text-white transition-colors">Se connecter</a></li>
             </ul>
           </div>
 
