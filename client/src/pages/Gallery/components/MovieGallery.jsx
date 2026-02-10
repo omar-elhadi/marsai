@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import MovieCard from './MovieCard';
-import { movies } from '../data/movies';
+import { movies } from '../../../data/movies';
 
 const MovieGallery = () => {
   const [visibleCount, setVisibleCount] = useState(9);

@@ -1,4 +1,4 @@
-import MovieGallery from '../../components/MovieGallery';
+import MovieGallery from './components/MovieGallery';
 
 const GalleryPage = () => {
   return (

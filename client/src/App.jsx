@@ -6,7 +6,7 @@ import SubmissionPage from '@/pages/Submission/SubmissionPage.jsx';
 import LoginAdmin from '@/pages/LoginAdmin.jsx'; 
 import ConnectionPage from '@/pages/Jury/ConnectionPage.jsx';
 import Newsletters from '@/pages/Newsletters.jsx';
-import GalleryPage from '@/pages/Gallery/GalleryPage.jsx';
+import Gallery from '@/pages/Gallery/Gallery.jsx';
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -26,7 +26,7 @@ function App() {
          <Route path="/Newsletters" element={<Newsletters />} />
           <Route path="/ConnectionPage" element={<ConnectionPage />} />
            <Route path="/" element={<Home />} />
-           <Route path="/galerie" element={<GalleryPage />} />
+           <Route path="/galerie" element={<Gallery />} />
            <Route path="/soumettre" element={<SubmissionPage />} />
            <Route path="/login" element={<LoginAdmin />} />
         </Route>
