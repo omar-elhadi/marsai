@@ -22,7 +22,6 @@ Suivez toujours cet ordre dans vos composants :
 
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import './Button.css';
 
 /**
  * Composant Button réutilisable
@@ -126,7 +125,7 @@ const users = [];                          // Ambigu (nombre? liste?)
 // ❌ MAUVAIS : Composant qui fait trop de choses
 const UserDashboard = () => {
   return (
-    <div>
+    <main>
       {/* Profil jury */}
       <div className="profile">
         <img src="..." alt="..." />
@@ -142,7 +141,7 @@ const UserDashboard = () => {
       <form>
         {/* ... */}
       </form>
-    </div>
+    </main>
   );
 };
 
@@ -171,11 +170,11 @@ const CommentForm = ({ onSubmit }) => (
 // Composant principal qui orchestre
 const UserDashboard = () => {
   return (
-    <div>
+    <main>
       <UserProfile name="..." avatarUrl="..." />
       <PostList posts={[]} />
       <CommentForm onSubmit={() => {}} />
-    </div>
+    </main>
   );
 };
 ```
