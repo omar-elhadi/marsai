@@ -128,3 +128,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+# Audit system outputs (ajoutés manuellement)
+audit-output/
+.pull-journal/
+audit-system/audit-output/
