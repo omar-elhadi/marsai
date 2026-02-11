@@ -1,0 +1,80 @@
+.
+├── audit-output
+│   └── structure.txt
+├── audit-system
+│   ├── 01-extract.sh
+│   └── audit-output
+│       ├── config-files.txt
+│       ├── db-files.txt
+│       ├── files-size.txt
+│       ├── git-history.txt
+│       ├── routes-raw.txt
+│       └── structure.txt
+├── client
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── jsconfig.json
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   └── vite.svg
+│   ├── README.md
+│   ├── src
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── components
+│   │   │   ├── Button.jsx
+│   │   │   └── layouts
+│   │   │       ├── Footer.jsx
+│   │   │       └── Header.jsx
+│   │   ├── data
+│   │   │   └── mockData.js
+│   │   ├── index.css
+│   │   ├── index.cssbase
+│   │   ├── Layouts
+│   │   │   ├── AdminLayout.jsx
+│   │   │   └── PublicLayout.jsx
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── Admin
+│   │   │   │   ├── DashboardHome.jsx
+│   │   │   │   └── FilmsList.jsx
+│   │   │   ├── Home
+│   │   │   │   └── Home.jsx
+│   │   │   ├── Jury
+│   │   │   │   └── ConnectionPage.jsx
+│   │   │   ├── LoginAdmin.jsx
+│   │   │   └── Submission
+│   │   │       ├── SubmissionForm.jsx
+│   │   │       └── SubmissionPage.jsx
+│   │   └── styles
+│   │       └── Variables.css
+│   └── vite.config.js
+├── docs
+│   ├── CONVENTIONS_REACT.md
+│   ├── ENVIRONNEMENT_ET_CONFIGURATION.md
+│   └── STRUCTURE_PROJET.md
+├── README.md
+└── server
+    ├── package-lock.json
+    ├── package.json
+    ├── prisma
+    │   ├── migrations
+    │   │   ├── 20260204142616_init
+    │   │   │   └── migration.sql
+    │   │   └── migration_lock.toml
+    │   └── schema.prisma
+    └── src
+        ├── controllers
+        │   └── auth.controller.js
+        ├── index.js
+        ├── routes
+        │   └── auth.routes.js
+        ├── services
+        │   └── auth.service.js
+        ├── utils
+        │   └── createAdmin.js
+        └── validators
+            └── auth.validator.js
+
+28 directories, 50 files

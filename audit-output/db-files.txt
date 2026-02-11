@@ -1,0 +1,3 @@
+./server/node_modules/.prisma/client/schema.prisma
+./server/prisma/migrations
+./server/prisma/schema.prisma
