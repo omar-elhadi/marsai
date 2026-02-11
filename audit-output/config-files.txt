@@ -1,0 +1,9 @@
+./.env.local
+./server/package-lock.json
+./server/package.json
+./server/.env
+./client/jsconfig.json
+./client/vite.config.js
+./client/package-lock.json
+./client/package.json
+./client/eslint.config.js
