@@ -3,3 +3,18 @@ node_modules
 .env
 
 /src/generated/prisma
+
+
+# AUDIT-SYSTEM
+# Données extraites (générées dynamiquement)
+audit-output/
+*.txt
+!*.sh
+
+# Journaux de pull (générés dynamiquement)
+.pull-journal/
+
+# Mais garder les scripts
+!01-extract.sh
+!02-analyze.sh
+!03-pull-journal.sh
