@@ -1,4 +1,8 @@
 import "dotenv/config";
+if (!process.env.JWT_SECRET) {
+  console.error("❌ ERREUR : JWT_SECRET est manquant dans le fichier .env");
+  process.exit(1);
+}
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
