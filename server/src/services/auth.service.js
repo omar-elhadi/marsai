@@ -1,35 +1,40 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const mysql = require('mysql2/promise');
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import prisma from "../utils/prisma.js";
 
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL missing in environment');
-}
+export const loginAdmin = async (email, password) => {
+  // 1. Chercher l'utilisateur
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-const pool = mysql.createPool(databaseUrl);
+  // 2. Vérification existence et rôle
+  if (!user || user.role !== "ADMIN") {
+    throw new Error("Identifiants incorrects ou accès refusé.");
+  }
 
-async function loginAdmin(email, password) {
-  const [rows] = await pool.query(
-    'SELECT id, email, role, password FROM users WHERE email = ? LIMIT 1',
-    [email]
-  );
-  const user = rows && rows[0];
-  if (!user) return null;
-  if (user.role !== 'ADMIN') return null;
+  // 3. Vérification mot de passe
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return null;
+  if (!isPasswordValid) {
+    throw new Error("Identifiants incorrects.");
+  }
 
-  if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET missing in .env');
-
+  // 4. Génération du Token
   const token = jwt.sign(
     { sub: user.id, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: "24h" },
   );
 
-  return { token, user: { id: user.id, email: user.email, role: user.role } };
-}
-
-module.exports = { loginAdmin };
+  // 5. Retour des infos (sans le mot de passe)
+  return {
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    },
+  };
+};
