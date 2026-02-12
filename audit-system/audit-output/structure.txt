@@ -1,5 +1,0 @@
-.
-└── audit-output
-    └── structure.txt
-
-2 directories, 1 file
