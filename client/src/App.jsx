@@ -8,6 +8,7 @@ import ConnectionPage from '@/pages/Jury/ConnectionPage.jsx';
 import Newsletters from '@/pages/Newsletters.jsx';
 import Gallery from '@/pages/Gallery/Gallery.jsx';
 import Contact from '@/pages/Contact/Contact.jsx';
+import Mention from '@/pages/Legals/Mention.jsx';
 import VotesJury from '@/pages/Jury/VotesJury.jsx';
 
 // 2. Imports Layouts
@@ -32,6 +33,7 @@ function App() {
            <Route path="/soumettre" element={<SubmissionPage />} />
            <Route path="/login" element={<LoginAdmin />} />
            <Route path="/contact" element={<Contact />} />
+          <Route path="/Mention" element={<Mention />} />
           <Route path="/VotesJury" element={<VotesJury />} />
         </Route>
 
