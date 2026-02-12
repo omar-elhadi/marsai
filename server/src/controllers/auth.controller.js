@@ -1,28 +1,36 @@
-const { loginSchema } = require('../validators/auth.validator.js');
-const { loginAdmin } = require('../services/auth.service.js');
+import { loginSchema } from "../validators/auth.validator.js";
+import { loginAdmin } from "../services/auth.service.js";
 
-async function login(req, res) {
+/**
+ * Gère la requête de connexion administrateur.
+ * Reçoit email/password, valide, et renvoie le token.
+ */
+export const login = async (req, res) => {
   try {
+    // 1. Validation des données entrantes (Zod)
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
-        error: 'Invalid request body',
+        error: "Données invalides",
         details: parsed.error.flatten(),
       });
     }
 
     const { email, password } = parsed.data;
 
+    // 2. Appel au service métier (qui utilise Prisma maintenant)
     const result = await loginAdmin(email, password);
+
+    // 3. Gestion des erreurs métier
     if (!result) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      // On reste vague pour la sécurité (ne pas dire si c'est l'email ou le mdp qui est faux)
+      return res.status(401).json({ error: "Identifiants incorrects" });
     }
 
+    // 4. Succès
     return res.status(200).json(result);
   } catch (e) {
-    console.error('login error:', e);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Erreur Login Controller:", e);
+    return res.status(500).json({ error: "Erreur serveur interne" });
   }
-}
-
-module.exports = { login };
+};

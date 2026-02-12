@@ -1,31 +1,29 @@
-require('dotenv').config({ override: true });
-
-const express = require('express');
-const cors = require('cors');
-
-const authRoutes = require('./routes/auth.routes.js'); // si ton projet utilise .js partout
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
+const PORT = process.env.PORT || 5001;
 
+// Middlewares
 app.use(
   cors({
-    origin: ['http://localhost:5173'], 
+    origin: "http://localhost:5173", // Ton Frontend
     credentials: true,
-  })
+  }),
 );
-
 app.use(express.json());
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+// Routes
+app.use("/api/auth", authRoutes);
+
+// Route de base (Juste pour vérifier que le serveur est en vie)
+app.get("/", (req, res) => {
+  res.send("🚀 API Marsai Festival en ligne");
 });
 
-// Routes auth
-app.use('/api/auth', authRoutes);
-
-// Listen
-const PORT = Number(process.env.PORT) || 5000;
+// Démarrage
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`✅ Serveur prêt sur http://localhost:${PORT}`);
 });
