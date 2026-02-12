@@ -1,33 +1,76 @@
-import "dotenv/config";
-if (!process.env.JWT_SECRET) {
-  console.error("❌ ERREUR : JWT_SECRET est manquant dans le fichier .env");
-  process.exit(1);
-}
+/**
+ * POINT D'ENTRÉE DU SERVEUR - MARSAI FESTIVAL
+ * Ce fichier configure le serveur Express, les middlewares de sécurité
+ * et connecte les différentes routes de l'API.
+ */
+
+import "dotenv/config"; // Charge les variables d'environnement (.env)
 import express from "express";
 import cors from "cors";
+
+// --- IMPORT DES ROUTES ---
 import authRoutes from "./routes/auth.routes.js";
+// Importez vos futures routes ici :
+// import movieRoutes from "./routes/movie.routes.js";
+
+// --- GARDE-FOU (FAIL-SAFE) ---
+// On vérifie que les variables critiques sont présentes avant de démarrer.
+if (!process.env.JWT_SECRET) {
+  console.error("❌ ERREUR : JWT_SECRET est manquant dans le fichier .env");
+  process.exit(1); // Arrête le processus en cas de danger sécuritaire
+}
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middlewares
+// --- MIDDLEWARES GLOBAUX ---
+
+/**
+ * Configuration du CORS (Cross-Origin Resource Sharing)
+ * Autorise les requêtes provenant uniquement de l'URL définie dans le .env
+ */
 app.use(
   cors({
-    origin: "http://localhost:5173", // Ton Frontend
-    credentials: true,
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true, // Autorise l'envoi de cookies/headers d'auth
   }),
 );
+
+/**
+ * Middleware pour parser le JSON
+ * Permet de lire le contenu des requêtes (req.body)
+ */
 app.use(express.json());
 
-// Routes
+// --- ROUTES DE L'API ---
+
+// Routes d'authentification (Login, Profile, etc.)
 app.use("/api/auth", authRoutes);
 
-// Route de base (Juste pour vérifier que le serveur est en vie)
+// Futures routes à implémenter :
+// app.use("/api/movies", movieRoutes);
+
+/**
+ * Route de santé (Health Check)
+ * Utile pour vérifier que le serveur répond sans passer par l'authentification
+ */
 app.get("/", (req, res) => {
-  res.send("🚀 API Marsai Festival en ligne");
+  res.status(200).json({
+    status: "OK",
+    message: "🚀 API Marsai Festival opérationnelle",
+  });
 });
 
-// Démarrage
+// --- GESTION DES ERREURS GLOBALES ---
+// Capture les erreurs 404 (Route non trouvée)
+app.use((req, res) => {
+  res.status(404).json({ message: "Ressource introuvable." });
+});
+
+// --- DÉMARRAGE DU SERVEUR ---
 app.listen(PORT, () => {
-  console.log(`✅ Serveur prêt sur http://localhost:${PORT}`);
+  console.log("-------------------------------------------------");
+  console.log(`✅ Serveur prêt sur : http://localhost:${PORT}`);
+  console.log(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
+  console.log("-------------------------------------------------");
 });
