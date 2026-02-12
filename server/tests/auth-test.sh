@@ -1,17 +1,37 @@
 #!/bin/bash
 
-# Couleurs pour la lisibilité
+# ==============================================================================
+# SCRIPT DE TEST : MIDDLEWARES AUTHENTIFICATION
+# Usage: ./tests/auth-test.sh
+# ==============================================================================
+
+# --- CONFIGURATION ---
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m'
+NC='\033[0m' # No Color
+API_URL="http://localhost:5001/api/auth"
 
-echo "--- 🛡️ TEST DU MIDDLEWARE VERIFYTOKEN ---"
+# --- ZONE DE TOKEN ---
+# Pour générer un nouveau token, lance cette commande dans ton terminal :
+# node -e "console.log(require('jsonwebtoken').sign({ id: 1, role: 'ADMIN' }, 'super_secret_key_marsai_2024', { expiresIn: '1h' }))"
+VALID_ADMIN_TOKEN="METS_TON_TOKEN_ICI_SANS_LES_CHEVRONS"
 
-# 1. Test sans token (Doit échouer avec une 403)
-echo -e "\n1. Test sans Token (Attendu: 403):"
-curl -X GET http://localhost:5001/api/auth/profile -i | grep "HTTP/1.1 403" && echo -e "${GREEN}SUCCESS${NC}" || echo -e "${RED}FAILED${NC}"
+echo -e "${NC}--- 🛡️  AUDIT DE SÉCURITÉ : MIDDLEWARES ---"
 
-# 2. Test avec un mauvais token (Doit échouer avec une 401)
-echo -e "\n2. Test avec Token invalide (Attendu: 401):"
-curl -X GET http://localhost:5001/api/auth/profile \
-     -H "Authorization: Bearer mauvais_token" -i | grep "HTTP/1.1 401" && echo -e "${GREEN}SUCCESS${NC}" || echo -e "${RED}FAILED${NC}"
+# 1. TEST : AUCUN TOKEN
+echo -e "\n1. Accès sans token (Attendu: 403 Forbidden):"
+curl -s -X GET "$API_URL/admin-only" -i | grep "403" && echo -e "${GREEN}SUCCESS${NC}" || echo -e "${RED}FAILED${NC}"
+
+# 2. TEST : TOKEN CORROMPU
+echo -e "\n2. Accès token invalide (Attendu: 401 Unauthorized):"
+curl -s -X GET "$API_URL/admin-only" \
+     -H "Authorization: Bearer mauvais_token" -i | grep "401" && echo -e "${GREEN}SUCCESS${NC}" || echo -e "${RED}FAILED${NC}"
+
+# 3. TEST : ADMIN LÉGITIME
+echo -e "\n3. Accès Admin valide (Attendu: 200 OK):"
+if [ "$VALID_ADMIN_TOKEN" == "METS_TON_TOKEN_ICI_SANS_LES_CHEVRONS" ]; then
+    echo -e "${RED}ERREUR : Tu n'as pas rempli le token dans le script !${NC}"
+else
+    curl -s -X GET "$API_URL/admin-only" \
+         -H "Authorization: Bearer $VALID_ADMIN_TOKEN" -i | grep "200" && echo -e "${GREEN}SUCCESS${NC}" || echo -e "${RED}FAILED${NC}"
+fi
