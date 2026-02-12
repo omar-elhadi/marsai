@@ -6,10 +6,9 @@ const Header = () => {
     { name: 'Home', href: '/', active: false },
     { name: 'Galerie', href: '/galerie', active: false },
     { name: 'Events', href: '#', active: false },
-    { name: 'Soumettre', href: '/soumettre', active: false },
     { name: 'Contact', href: '/contact', active: false },
   ];
-
+ 
   return (
     <nav className="flex items-center justify-between bg-[#111827] px-6 py-3 w-full border-b border-gray-800">
       
@@ -41,7 +40,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Partie Droite : Outils & Profil */}
+      {/* Partie Droite : Outils et Profil */}
       <div className="flex items-center space-x-5">
           {/* Nouveau Bouton : Ajouté ici */}
 <Link 
