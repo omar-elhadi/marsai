@@ -7,9 +7,7 @@
 import "dotenv/config"; // Charge les variables d'environnement (.env)
 import express from "express";
 import cors from "cors";
-import fileRoute from "../routes/file.js";
-
-
+import fileRoute from "./routes/file.js";
 
 // --- IMPORT DES ROUTES ---
 import authRoutes from "./routes/auth.routes.js";
@@ -50,6 +48,14 @@ app.use("/api/file", fileRoute);
  * Permet de lire le contenu des requêtes (req.body)
  */
 app.use(express.json());
+
+/**
+ * Route de test pour vérifier que le serveur peut servir des fichiers statiques
+ * Utile pour tester les uploads sans passer par le frontend
+ */
+app.get("/test-upload", (req, res) => {
+  res.sendFile("tests/test-upload.html", { root: process.cwd() });
+});
 
 // --- ROUTES DE L'API ---
 

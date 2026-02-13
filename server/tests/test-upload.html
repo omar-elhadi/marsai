@@ -1,0 +1,596 @@
+<!doctype html>
+<!--
+  PAGE DE TEST - TÉLÉVERSEMENT DE FICHIERS S3
+  ============================================
+  Cette page permet de tester le workflow complet d'upload de fichiers vers AWS S3
+  via l'API Express backend. Elle offre deux fonctionnalités principales :
+  1. Téléverser un fichier vers S3 (POST /api/file)
+  2. Générer une URL présignée pour accéder à un fichier (GET /api/file)
+-->
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test de Téléversement S3</title>
+    <style>
+      /* =====================================
+         STYLES GLOBAUX
+         ===================================== */
+
+      /* Réinitialisation des marges et paddings pour tous les éléments */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Configuration du body avec centrage vertical et horizontal */
+      body {
+        background: #030410;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* =====================================
+         CONTENEUR PRINCIPAL
+         ===================================== */
+
+      /* Carte principale contenant tous les éléments */
+      .container {
+        background: rgb(10, 7, 7);
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        max-width: 800px;
+        width: 100%;
+      }
+
+      /* =====================================
+         TITRES ET TEXTES
+         ===================================== */
+
+      /* Titre principal de la page */
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+
+      /* Sous-titre descriptif */
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+      }
+
+      /* =====================================
+         SECTIONS (Upload et Get URL)
+         ===================================== */
+
+      /* Conteneur pour chaque section fonctionnelle */
+      .section {
+        margin-bottom: 40px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #667eea; /* Barre de couleur à gauche */
+      }
+
+      /* Titres de section avec icônes emoji */
+      .section h2 {
+        color: #444;
+        margin-bottom: 20px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Icône pour la section upload */
+      .section h2::before {
+        content: "📤";
+        font-size: 24px;
+      }
+
+      /* Icône pour la section get URL */
+      .section:last-of-type h2::before {
+        content: "🔗";
+      }
+
+      /* =====================================
+         FORMULAIRES
+         ===================================== */
+
+      /* Groupe de champs de formulaire */
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      /* Labels des champs de formulaire */
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      /* Champs de saisie (fichier et texte) */
+      input[type="file"],
+      input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      /* État focus des champs de saisie */
+      input[type="file"]:focus,
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      /* =====================================
+         BOUTONS
+         ===================================== */
+
+      /* Styles des boutons principaux */
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #124ba2 100%);
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      /* Effet hover sur les boutons */
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      /* Effet click sur les boutons */
+      button:active {
+        transform: translateY(0);
+      }
+
+      /* État désactivé des boutons */
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* =====================================
+         ZONES DE RÉPONSE (Success/Error)
+         ===================================== */
+
+      /* Conteneur de réponse (caché par défaut) */
+      .response {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        display: none;
+      }
+
+      /* Affichage de la réponse */
+      .response.show {
+        display: block;
+      }
+
+      /* Réponse de succès (bordure verte) */
+      .response.success {
+        border-left: 4px solid #4caf50;
+      }
+
+      /* Réponse d'erreur (bordure rouge) */
+      .response.error {
+        border-left: 4px solid #f44336;
+      }
+
+      /* Titre de la réponse */
+      .response h3 {
+        margin-bottom: 10px;
+        font-size: 16px;
+      }
+
+      /* Couleur du titre en cas de succès */
+      .response.success h3 {
+        color: #4caf50;
+      }
+
+      /* Couleur du titre en cas d'erreur */
+      .response.error h3 {
+        color: #f44336;
+      }
+
+      /* =====================================
+         AFFICHAGE DES DONNÉES JSON
+         ===================================== */
+
+      /* Bloc de code pour afficher les réponses JSON */
+      pre {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      /* =====================================
+         INFORMATIONS SUR LE FICHIER
+         ===================================== */
+
+      /* Encadré d'informations sur le fichier uploadé */
+      .file-info {
+        margin-top: 10px;
+        padding: 10px;
+        background: #e8f5e9;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      /* Lien vers le fichier uploadé */
+      .url-link {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 16px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: background 0.3s ease;
+      }
+
+      /* Effet hover sur le lien */
+      .url-link:hover {
+        background: #569ba2;
+      }
+
+      /* =====================================
+         ANIMATION DE CHARGEMENT
+         ===================================== */
+
+      /* Conteneur du spinner */
+      .loading {
+        display: inline-block;
+        margin-left: 10px;
+      }
+
+      /* Spinner de chargement animé */
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      /* Animation de rotation du spinner */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Conteneur principal de la page -->
+    <div class="container">
+      <!-- En-tête de la page -->
+      <h1>Test de Téléversement S3</h1>
+      <p class="subtitle">
+        Testez vos fonctionnalités de téléversement et de récupération de
+        fichiers AWS S3
+      </p>
+
+      <!-- =====================================
+           SECTION UPLOAD DE FICHIERS
+           ===================================== -->
+      <div class="section">
+        <h2>Téléverser un Fichier</h2>
+        <!-- Formulaire d'upload -->
+        <form id="uploadForm">
+          <div class="form-group">
+            <label for="fileInput"
+              >Sélectionnez un fichier à téléverser (max 10 Mo) :</label
+            >
+            <input type="file" id="fileInput" name="file" required />
+          </div>
+          <button type="submit" id="uploadBtn">Téléverser le Fichier</button>
+        </form>
+
+        <!-- Zone d'affichage de la réponse d'upload -->
+        <div id="uploadResponse" class="response"></div>
+      </div>
+
+      <!-- =====================================
+           SECTION RÉCUPÉRATION D'URL
+           ===================================== -->
+      <div class="section">
+        <h2>Obtenir l'URL du Fichier</h2>
+        <!-- Formulaire de récupération d'URL -->
+        <form id="getUrlForm">
+          <div class="form-group">
+            <label for="keyInput">Entrez la clé du fichier :</label>
+            <input
+              type="text"
+              id="keyInput"
+              name="key"
+              placeholder="ex: grp2/1770992980022-test-upload.txt"
+              required
+            />
+          </div>
+          <button type="submit" id="getUrlBtn">Obtenir l'URL Présignée</button>
+        </form>
+
+        <!-- Zone d'affichage de la réponse URL -->
+        <div id="urlResponse" class="response"></div>
+      </div>
+    </div>
+
+    <script>
+      /* =====================================
+         CONFIGURATION DE L'API
+         ===================================== */
+
+      // URL de base de l'API backend
+      const API_BASE = "http://localhost:5001/api";
+
+      /* =====================================
+         GESTION DU FORMULAIRE D'UPLOAD
+         ===================================== */
+
+      /**
+       * Gestionnaire d'événement pour le formulaire d'upload de fichiers
+       * Envoie le fichier sélectionné au serveur via une requête POST multipart/form-data
+       */
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", async (e) => {
+          // Empêche le rechargement de la page
+          e.preventDefault();
+
+          // Récupération des éléments du DOM
+          const fileInput = document.getElementById("fileInput");
+          const uploadBtn = document.getElementById("uploadBtn");
+          const responseDiv = document.getElementById("uploadResponse");
+
+          // Validation : vérifier qu'un fichier a été sélectionné
+          if (!fileInput.files[0]) {
+            showResponse(responseDiv, "error", "Aucun fichier sélectionné");
+            return;
+          }
+
+          // Préparation des données à envoyer (FormData pour multipart)
+          const formData = new FormData();
+          formData.append("file", fileInput.files[0]);
+
+          // Désactivation du bouton et affichage du spinner pendant l'upload
+          uploadBtn.disabled = true;
+          uploadBtn.innerHTML =
+            'Téléversement en cours... <span class="spinner"></span>';
+          responseDiv.classList.remove("show");
+
+          try {
+            // Envoi de la requête POST vers l'API
+            const response = await fetch(`${API_BASE}/file`, {
+              method: "POST",
+              body: formData,
+            });
+
+            // Récupération de la réponse JSON
+            const data = await response.json();
+
+            // Traitement selon le statut de la réponse
+            if (response.ok) {
+              // Succès : affichage de la réponse
+              showResponse(
+                responseDiv,
+                "success",
+                "Fichier téléversé avec succès !",
+                data,
+              );
+
+              // Auto-remplissage du champ "key" pour faciliter le test de récupération
+              document.getElementById("keyInput").value = data.key;
+            } else {
+              // Échec : affichage de l'erreur
+              showResponse(
+                responseDiv,
+                "error",
+                "Échec du téléversement",
+                data,
+              );
+            }
+          } catch (error) {
+            // Erreur réseau : affichage d'un message d'erreur générique
+            showResponse(responseDiv, "error", "Erreur réseau", {
+              error: error.message,
+            });
+          } finally {
+            // Réactivation du bouton et restauration du texte original
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = "Téléverser le Fichier";
+          }
+        });
+
+      /* =====================================
+         GESTION DU FORMULAIRE DE RÉCUPÉRATION D'URL
+         ===================================== */
+
+      /**
+       * Gestionnaire d'événement pour le formulaire de récupération d'URL
+       * Génère une URL présignée pour accéder à un fichier déjà uploadé
+       */
+      document
+        .getElementById("getUrlForm")
+        .addEventListener("submit", async (e) => {
+          // Empêche le rechargement de la page
+          e.preventDefault();
+
+          // Récupération des éléments du DOM
+          const keyInput = document.getElementById("keyInput");
+          const getUrlBtn = document.getElementById("getUrlBtn");
+          const responseDiv = document.getElementById("urlResponse");
+
+          // Validation : vérifier qu'une clé a été entrée
+          if (!keyInput.value.trim()) {
+            showResponse(
+              responseDiv,
+              "error",
+              "Veuillez entrer une clé de fichier",
+            );
+            return;
+          }
+
+          // Désactivation du bouton et affichage du spinner
+          getUrlBtn.disabled = true;
+          getUrlBtn.innerHTML =
+            'Récupération en cours... <span class="spinner"></span>';
+          responseDiv.classList.remove("show");
+
+          try {
+            // Envoi de la requête GET avec la clé en paramètre
+            const response = await fetch(
+              `${API_BASE}/file?key=${encodeURIComponent(keyInput.value)}`,
+            );
+            const data = await response.json();
+
+            // Traitement selon le statut de la réponse
+            if (response.ok) {
+              // Succès : affichage de l'URL présignée
+              showResponse(
+                responseDiv,
+                "success",
+                "URL présignée générée !",
+                data,
+                true,
+              );
+            } else {
+              // Échec : affichage de l'erreur
+              showResponse(
+                responseDiv,
+                "error",
+                "Échec de récupération de l'URL",
+                data,
+              );
+            }
+          } catch (error) {
+            // Erreur réseau : affichage d'un message d'erreur
+            showResponse(responseDiv, "error", "Erreur réseau", {
+              error: error.message,
+            });
+          } finally {
+            // Réactivation du bouton et restauration du texte
+            getUrlBtn.disabled = false;
+            getUrlBtn.textContent = "Obtenir l'URL Présignée";
+          }
+        });
+
+      /* =====================================
+         FONCTION UTILITAIRE D'AFFICHAGE
+         ===================================== */
+
+      /**
+       * Affiche une réponse dans l'interface utilisateur
+       * @param {HTMLElement} element - L'élément où afficher la réponse
+       * @param {string} type - Le type de réponse ('success' ou 'error')
+       * @param {string} title - Le titre de la réponse
+       * @param {Object} data - Les données à afficher (optionnel)
+       * @param {boolean} isUrl - Indique si c'est une réponse URL (optionnel)
+       */
+      function showResponse(element, type, title, data = null, isUrl = false) {
+        // Application des classes CSS appropriées
+        element.className = `response ${type} show`;
+
+        // Construction du HTML de la réponse
+        let html = `<h3>${title}</h3>`;
+
+        // Affichage des données si présentes
+        if (data) {
+          // Affichage du JSON formaté
+          html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+          // Ajout d'un lien pour ouvrir le fichier si une URL est présente
+          if (type === "success" && data.url) {
+            html += `<a href="${data.url}" target="_blank" class="url-link">Ouvrir le fichier dans un nouvel onglet</a>`;
+          }
+
+          // Affichage des informations détaillées du fichier
+          if (type === "success" && data.key) {
+            html += `<div class="file-info">
+                        <strong>Clé du fichier :</strong> ${data.key}<br>
+                        ${data.fileName ? `<strong>Nom original :</strong> ${data.fileName}<br>` : ""}
+                        ${data.size ? `<strong>Taille :</strong> ${(data.size / 1024).toFixed(2)} Ko` : ""}
+                    </div>`;
+          }
+        }
+
+        // Injection du HTML dans l'élément
+        element.innerHTML = html;
+      }
+
+      /* =====================================
+         GESTION DU DRAG & DROP
+         ===================================== */
+
+      // Récupération du conteneur principal
+      const container = document.querySelector(".container");
+
+      /**
+       * Événement dragover : permet le dépôt de fichiers
+       * Change la couleur de la bordure pour indiquer la zone de dépôt
+       */
+      container.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        container.style.borderColor = "#667eea";
+      });
+
+      /**
+       * Événement dragleave : restaure l'apparence normale
+       * Quand le fichier quitte la zone de dépôt
+       */
+      container.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        container.style.borderColor = "#e0e0e0";
+      });
+
+      /**
+       * Événement drop : gère le dépôt du fichier
+       * Assigne les fichiers déposés au champ input de fichier
+       */
+      container.addEventListener("drop", (e) => {
+        e.preventDefault();
+        container.style.borderColor = "#e0e0e0";
+
+        // Récupération du champ input et assignation des fichiers déposés
+        const fileInput = document.getElementById("fileInput");
+        fileInput.files = e.dataTransfer.files;
+      });
+    </script>
+  </body>
+</html>
