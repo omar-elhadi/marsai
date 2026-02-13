@@ -10,6 +10,7 @@ import Gallery from '@/pages/Gallery/Gallery.jsx';
 import Contact from '@/pages/Contact/Contact.jsx';
 import Mention from '@/pages/Legals/Mention.jsx';
 import VotesJury from '@/pages/Jury/VotesJury.jsx';
+import Cookies from '@/pages/Legals/cookies.jsx';
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -18,6 +19,7 @@ import PublicLayout from './Layouts/PublicLayout.jsx';
 // 3. Imports Pages Admin
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
+import { Import } from 'lucide-react';
 
 function App() {
   return (
@@ -35,6 +37,7 @@ function App() {
            <Route path="/contact" element={<Contact />} />
           <Route path="/Mention" element={<Mention />} />
           <Route path="/VotesJury" element={<VotesJury />} />
+          <Route path="/cookies" element={<Cookies />} />
         </Route>
 
         {/* --- ZONE ADMIN --- */}
