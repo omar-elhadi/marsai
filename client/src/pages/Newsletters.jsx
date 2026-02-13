@@ -20,6 +20,26 @@ function NewsletterPopUp() {
 
   if (!open) return null;
 
+const uploadFile = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json();
+  return data.key; // à stocker en BDD via ton backend
+};
+
+const getFileUrl = async (key) => {
+  const res = await fetch(`/api/file?key=${encodeURIComponent(key)}`);
+  const data = await res.json();
+  return data.url;
+};
+
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
