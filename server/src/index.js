@@ -7,6 +7,9 @@
 import "dotenv/config"; // Charge les variables d'environnement (.env)
 import express from "express";
 import cors from "cors";
+import fileRoute from "../routes/file.js";
+
+
 
 // --- IMPORT DES ROUTES ---
 import authRoutes from "./routes/auth.routes.js";
@@ -35,6 +38,12 @@ app.use(
     credentials: true, // Autorise l'envoi de cookies/headers d'auth
   }),
 );
+
+/**
+ * Configuration S3 (fichiers uploadés)
+ */
+
+app.use("/api/file", fileRoute);
 
 /**
  * Middleware pour parser le JSON
