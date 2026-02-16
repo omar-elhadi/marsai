@@ -26,7 +26,7 @@ function Home() {
 
       {/* JURY */}
       <section id="jury" className="bg-gray-100 py-16 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className=" text-black max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-6">Le Jury</h2>
           <ul className="space-y-3">
             <li>
@@ -67,7 +67,7 @@ function Home() {
       {/* RÈGLES */}
       <section id="regles" className="bg-gray-100 py-16 px-6">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Règles de l'événement</h2>
+          <h2 className="text-3xl text-black font-bold mb-4">Règles de l'événement</h2>
           <ol className="list-decimal list-inside space-y-2 text-gray-700">
             <li>Tous les participants doivent respecter le règlement.</li>
             <li>La participation peut se faire individuellement ou en équipe.</li>
@@ -112,7 +112,7 @@ function Home() {
 
       {/* PARTENAIRES */}
       <section id="partenaires" className="bg-gray-100 py-16 px-6">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="text-black max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">Nos Partenaires</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
             <img src="https://via.placeholder.com/150x80?text=Partenaire+1" alt="Partenaire 1" />
