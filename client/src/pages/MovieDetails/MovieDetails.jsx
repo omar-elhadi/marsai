@@ -1,7 +1,7 @@
 import React from 'react';
-import VideoPlayer from '../../components/VideoPlayer/VideoPlayer';
-import DirectorInfo from '../../components/DirectorInfo/DirectorInfo';
-import Synopsis from '../../components/Synopsis/Synopsis';
+import VideoPlayer from './components/VideoPlayer';
+import DirectorInfo from './components/DirectorInfo';
+import Synopsis from './components/Synopsis';
 
 const MovieDetails = () => {
   // Données temporaires pour l'exemple

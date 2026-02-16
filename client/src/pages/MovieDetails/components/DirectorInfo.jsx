@@ -1,5 +1,5 @@
 import React from 'react';
-import SocialLinks from '../SocialLinks/SocialLinks';
+import SocialLinks from './SocialLinks';
 
 const DirectorInfo = ({ director, aiTools, socialMedia }) => {
   return (
