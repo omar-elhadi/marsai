@@ -30,6 +30,13 @@ export const login = async (req, res) => {
     // 4. Succès
     return res.status(200).json(result);
   } catch (e) {
+    // Si l'erreur est celle qu'on a lancée volontairement dans le service
+    if (e.message === "Identifiants incorrects.") {
+      // On renvoie un code 401 (Non autorisé) proprement
+      return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+    }
+
+    // Sinon, c'est un vrai bug technique (ex: base de données éteinte)
     console.error("Erreur Login Controller:", e);
     return res.status(500).json({ error: "Erreur serveur interne" });
   }
