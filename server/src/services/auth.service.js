@@ -8,9 +8,9 @@ export const loginAdmin = async (email, password) => {
     where: { email },
   });
 
-  // 2. Vérification existence et rôle
-  if (!user || user.role !== "ADMIN") {
-    throw new Error("Identifiants incorrects ou accès refusé.");
+  // 2. Vérification existence (on enlève la barrière ADMIN ici)
+  if (!user) {
+    throw new Error("Identifiants incorrects.");
   }
 
   // 3. Vérification mot de passe
