@@ -10,10 +10,11 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  name      String
   email     String   @unique
   password  String
-  role      UserRole @default(JURY)
+  firstName String   // Ajouté
+  lastName  String   // Ajouté
+  role      Role     @default(JURY)
   createdAt DateTime @default(now())
 
   votes     Vote[]
@@ -107,4 +108,10 @@ model NewsletterSubscriber {
   subscribedAt     DateTime @default(now())
 
   @@map("newsletter_subscribers")
+}
+
+enum Role {
+  ADMIN
+  JURY
+  USER
 }

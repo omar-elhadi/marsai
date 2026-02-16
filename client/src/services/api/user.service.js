@@ -1,41 +1,82 @@
-// On utilise une variable d'environnement ou l'URL par défaut de ton serveur local
 const API_URL = "http://localhost:5001/api";
 
 export const userService = {
   /**
-   * Récupère tous les jurys
-   * @param {string} token - Le JWT de l'admin connecté
+   * Récupère la liste de tous les utilisateurs (Jurys + Admins)
    */
   getAll: async (token) => {
-    const response = await fetch(`${API_URL}/users`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Échec de la récupération des jurys");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "Erreur lors de la récupération des utilisateurs",
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw error;
     }
-    return response.json();
   },
 
   /**
-   * Supprime un utilisateur
+   * Crée un nouvel utilisateur (Jury)
+   * Nommé 'register' pour correspondre à l'appel dans AdminDashboard.jsx
    */
-  delete: async (id, token) => {
-    const response = await fetch(`${API_URL}/users/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  register: async (userData, token) => {
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
 
-    if (!response.ok) {
-      throw new Error("Erreur lors de la suppression");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Erreur lors de la création de l'utilisateur",
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw error;
     }
-    return true; // Succès 204
+  },
+
+  /**
+   * Supprime un utilisateur par son ID
+   */
+  delete: async (userId, token) => {
+    try {
+      const response = await fetch(`${API_URL}/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de la suppression");
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
   },
 };

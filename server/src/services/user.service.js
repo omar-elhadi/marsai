@@ -6,17 +6,19 @@ const prisma = new PrismaClient();
 export const userService = {
   // Créer un utilisateur (Jury ou autre)
   create: async (userData) => {
-    const { email, password, name, role } = userData;
+    const { email, password, firstName, lastName, role } = userData;
+
+    // ✅ ACTIVÉ : Hachage du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
     return await prisma.user.create({
       data: {
         email,
-        name,
+        password: hashedPassword, // ✅ On enregistre la version sécurisée
+        firstName,
+        lastName,
         role: role || "JURY",
-        password: hashedPassword,
       },
-      select: { id: true, email: true, name: true, role: true },
     });
   },
 
@@ -26,7 +28,8 @@ export const userService = {
       select: {
         id: true,
         email: true,
-        name: true,
+        firstName: true, // ✅ Mis à jour
+        lastName: true, // ✅ Mis à jour
         role: true,
         createdAt: true,
       },
