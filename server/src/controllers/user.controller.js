@@ -40,4 +40,17 @@ export const userController = {
         .json({ error: "Impossible de récupérer les utilisateurs" });
     }
   },
+
+  // --- MÉTHODE À RAJOUTER ---
+  remove: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await userService.delete(id);
+      res.status(204).send(); // Succès, pas de contenu à renvoyer
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la suppression de l'utilisateur" });
+    }
+  },
 };

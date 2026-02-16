@@ -7,15 +7,19 @@ const router = express.Router();
 /**
  * @route   POST /api/users
  * @desc    Créer un nouveau jury (Admin uniquement)
- * @access  Private/Admin
  */
 router.post("/", verifyToken, isAdmin, userController.create);
 
 /**
  * @route   GET /api/users
  * @desc    Lister tous les utilisateurs (Admin uniquement)
- * @access  Private/Admin
  */
 router.get("/", verifyToken, isAdmin, userController.list);
+
+/**
+ * @route   DELETE /api/users/:id
+ * @desc    Supprimer un utilisateur (Admin uniquement)
+ */
+router.delete("/:id", verifyToken, isAdmin, userController.remove); // <-- Ajoute cette ligne
 
 export default router;
