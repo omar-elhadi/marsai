@@ -26,7 +26,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
 // Import du nouveau composant de gestion des utilisateurs
-import { AdminDashboard } from './pages/admin/AdminDashboard.jsx';
+import { AdminDashboard } from './pages/Admin/AdminDashboard.jsx';
 
 function App() {
   return (
