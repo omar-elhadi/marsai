@@ -4,13 +4,13 @@ function PolitiqueDeConfidentialite() {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <div className="privacy-policy bg-black text-white p-8 rounded-lg shadow-md font-serif">
+    <div className="privacy-policy bg-black text-white p-8 rounded-lg shadow-md font-serif flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6 bg-black text-white p-4 rounded text-center italic">Politique de Confidentialité</h1>
-      <div className="space-y-6 leading-relaxed">
+      <div className="space-y-6 leading-relaxed w-full max-w-2xl">
         <div>
           <button
-            onClick={() => setOpenIndex(openIndex === 0 ? null : 0)}
-            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
+            onClick={() => toggleAccordion(0)}
+            className="w-full text-center text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
           >
             Données collectées
           </button>
@@ -25,8 +25,8 @@ function PolitiqueDeConfidentialite() {
         </div>
         <div>
           <button
-            onClick={() => setOpenIndex(openIndex === 1 ? null : 1)}
-            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
+            onClick={() => toggleAccordion(1)}
+            className="w-full text-center text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
           >
             Mesures de sécurité
           </button>
@@ -41,8 +41,8 @@ function PolitiqueDeConfidentialite() {
         </div>
         <div>
           <button
-            onClick={() => setOpenIndex(openIndex === 2 ? null : 2)}
-            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
+            onClick={() => toggleAccordion(2)}
+            className="w-full text-center text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
           >
             Acceptation des pratiques
           </button>
