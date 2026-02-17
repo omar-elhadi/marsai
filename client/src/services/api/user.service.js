@@ -79,4 +79,31 @@ export const userService = {
       throw error;
     }
   },
+
+  /**
+   * Met à jour un utilisateur existant
+   */
+  update: async (userId, userData, token) => {
+    try {
+      const response = await fetch(`${API_URL}/users/${userId}`, {
+        method: "PUT", // On utilise PUT pour la modification
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Erreur lors de la mise à jour de l'utilisateur",
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
 };
