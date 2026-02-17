@@ -13,6 +13,7 @@ import VotesJury from '@/pages/Jury/VotesJury.jsx';
 import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
+import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -23,7 +24,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
 // Import du nouveau composant de gestion des utilisateurs
-import { AdminDashboard } from './pages/admin/AdminDashboard.jsx'; 
+import { AdminDashboard } from './pages/admin/AdminDashboard.jsx';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path="/VotesJury" element={<VotesJury />} />
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
+          <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
           <Route path="/film/:id" element={<MovieDetails />} />
         </Route>
 
