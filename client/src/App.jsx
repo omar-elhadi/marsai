@@ -18,6 +18,7 @@ import AdminLayout from './Layouts/AdminLayout.jsx';
 import PublicLayout from './Layouts/PublicLayout.jsx';
 
 // 3. Imports Pages Admin
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
 // Import du nouveau composant de gestion des utilisateurs
@@ -43,19 +44,21 @@ function App() {
           <Route path="/film/:id" element={<MovieDetails />} />
         </Route>
 
-        {/* --- ZONE ADMIN --- */}
-        <Route path="/admin" element={<AdminLayout />}>
-          
-          {/* Vue d'ensemble (Stats) */}
-          <Route index element={<DashboardHome />} />
-          
-          {/* Liste des films */}
-          <Route path="films" element={<FilmsList />} />
-          
-          {/* Gestion des Jurys (Maintenant connecté au Backend) */}
-          <Route path="users" element={<AdminDashboard />} />
-          
-          <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
+    {/* --- ZONE ADMIN SÉCURISÉE --- */}
+        <Route element={<ProtectedRoute />}> {/* <-- Le verrou est ICI */}
+          <Route path="/admin" element={<AdminLayout />}>
+            
+            {/* http://localhost:5173/admin */}
+            <Route index element={<DashboardHome />} />
+            
+            {/* http://localhost:5173/admin/films */}
+            <Route path="films" element={<FilmsList />} />
+            
+            {/* http://localhost:5173/admin/users */}
+            <Route path="users" element={<AdminDashboard />} />
+            
+            <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
+          </Route>
         </Route>
 
       </Routes>
