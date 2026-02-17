@@ -15,6 +15,7 @@ import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialit
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
 import FAQ from '@/components/Ressources/F-A-Q.jsx';
+import Calendrier from './components/Ressources/calendrier.jsx';
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -48,6 +49,7 @@ function App() {
           <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
           <Route path="/film/:id" element={<MovieDetails />} />
           <Route path="/F-A-Q" element={<FAQ />} />
+          <Route path="/calendrier" element={<Calendrier />} />
         </Route>
 
     {/* --- ZONE ADMIN SÉCURISÉE --- */}
