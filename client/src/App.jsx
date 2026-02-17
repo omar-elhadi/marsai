@@ -11,6 +11,7 @@ import Contact from '@/pages/Contact/Contact.jsx';
 import Mention from '@/pages/Legals/Mention.jsx';
 import VotesJury from '@/pages/Jury/VotesJury.jsx';
 import Cookies from '@/pages/Legals/cookies.jsx';
+import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 
 // 2. Imports Layouts
@@ -41,6 +42,7 @@ function App() {
           <Route path="/Mention" element={<Mention />} />
           <Route path="/VotesJury" element={<VotesJury />} />
           <Route path="/cookies" element={<Cookies />} />
+          <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
           <Route path="/film/:id" element={<MovieDetails />} />
         </Route>
 
