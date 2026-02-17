@@ -12,6 +12,7 @@ import fileRoute from "./routes/file.js";
 // --- IMPORT DES ROUTES ---
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import submissionRoutes from "./routes/submission.routes.js";
 // Importez vos futures routes ici :
 // import movieRoutes from "./routes/movie.routes.js";
 
@@ -63,6 +64,9 @@ app.get("/test-upload", (req, res) => {
 // Routes d'authentification (Login, Profile, etc.)
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+
+// Routes de soumission de films
+app.use("/api/submissions", submissionRoutes);
 
 /**
  * Route de santé (Health Check)
