@@ -7,8 +7,10 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // États pour la modale et le formulaire (Mis à jour avec firstName/lastName)
+  // États pour la modale
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null); // null = Création, objet = Édition
+  
   const [formData, setFormData] = useState({ 
     firstName: '', 
     lastName: '', 
@@ -38,18 +40,55 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleCreate = async (e) => {
+  // --- Ouvre la modale en mode édition avec les données pré-remplies ---
+  const handleEditClick = (user) => {
+    setEditingUser(user);
+    setFormData({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: '', // Vide par défaut pour l'update
+      role: user.role
+    });
+    setIsModalOpen(true);
+  };
+
+  // --- LOGIQUE DE SOUMISSION UNIQUE (Création OU Update) ---
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Appel au service register avec les nouveaux champs
-      const newUser = await userService.register(formData, token); 
-      setUsers([...users, newUser]); 
-      setIsModalOpen(false); 
-      // Reset du formulaire
-      setFormData({ firstName: '', lastName: '', email: '', password: '', role: 'JURY' }); 
+      // 1. Préparation du payload (données à envoyer)
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+      };
+
+      // 2. On n'ajoute le password que s'il est rempli (évite l'erreur Zod)
+      if (formData.password && formData.password.trim() !== "") {
+        payload.password = formData.password;
+      }
+
+      if (editingUser) {
+        // Cas MISE À JOUR
+        const updatedUser = await userService.update(editingUser.id, payload, token);
+        setUsers(users.map(u => u.id === editingUser.id ? updatedUser : u));
+      } else {
+        // Cas CRÉATION (ici le password est requis par le formulaire)
+        const newUser = await userService.register(formData, token); 
+        setUsers([...users, newUser]); 
+      }
+      
+      closeModal();
     } catch (err) {
-      alert("Erreur lors de la création : " + err.message);
+      alert("Erreur : " + err.message);
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingUser(null);
+    setFormData({ firstName: '', lastName: '', email: '', password: '', role: 'JURY' });
   };
 
   const handleDelete = async (id, lastName) => {
@@ -73,7 +112,7 @@ export const AdminDashboard = () => {
           <p className="text-gray-400 mt-2">{users.length} membres actifs.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => { setEditingUser(null); setIsModalOpen(true); }}
           className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20"
         >
           + Ajouter un Jury
@@ -94,7 +133,6 @@ export const AdminDashboard = () => {
             {users.map((user) => (
               <tr key={user.id} className="hover:bg-white/5 transition-colors group">
                 <td className="p-4">
-                  {/* Affichage Prénom + NOM */}
                   <div className="font-medium text-gray-100">
                     {user.firstName} <span className="uppercase">{user.lastName}</span>
                   </div>
@@ -103,12 +141,20 @@ export const AdminDashboard = () => {
                 <td className="p-4 italic text-sm text-indigo-400">{user.role}</td>
                 <td className="p-4 text-right">
                   {user.role !== 'ADMIN' && (
-                    <button 
-                      onClick={() => handleDelete(user.id, user.lastName)} 
-                      className="text-red-500 hover:text-red-400 text-xs font-bold px-3 py-1 bg-red-500/10 rounded-lg"
-                    >
-                      SUPPRIMER
-                    </button>
+                    <div className="flex justify-end gap-2">
+                      <button 
+                        onClick={() => handleEditClick(user)} 
+                        className="text-indigo-400 hover:text-indigo-300 text-xs font-bold px-3 py-1 bg-indigo-500/10 rounded-lg"
+                      >
+                        MODIFIER
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(user.id, user.lastName)} 
+                        className="text-red-500 hover:text-red-400 text-xs font-bold px-3 py-1 bg-red-500/10 rounded-lg"
+                      >
+                        SUPPRIMER
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -117,12 +163,14 @@ export const AdminDashboard = () => {
         </table>
       </div>
 
-      {/* MODALE D'AJOUT */}
+      {/* MODALE UNIQUE (AJOUT OU MODIF) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-gray-900 border border-gray-700 w-full max-w-md p-8 rounded-2xl shadow-2xl">
-            <h2 className="text-2xl font-bold mb-6">Nouveau Jury</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
+            <h2 className="text-2xl font-bold mb-6">
+              {editingUser ? `Modifier ${editingUser.firstName}` : 'Nouveau Jury'}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Prénom</label>
@@ -153,27 +201,23 @@ export const AdminDashboard = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Mot de passe temporaire</label>
+                <label className="block text-sm text-gray-400 mb-1">
+                  {editingUser ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe temporaire'}
+                </label>
                 <input 
-                  type="password" required
+                  type="password" 
+                  required={!editingUser} 
                   className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                 />
               </div>
               <div className="flex gap-3 mt-8">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold"
-                >
+                <button type="button" onClick={closeModal} className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold">
                   Annuler
                 </button>
-                <button 
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold"
-                >
-                  Créer
+                <button type="submit" className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-bold">
+                  {editingUser ? 'Mettre à jour' : 'Créer'}
                 </button>
               </div>
             </form>
