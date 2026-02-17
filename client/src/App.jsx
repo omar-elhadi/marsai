@@ -20,7 +20,8 @@ import PublicLayout from './Layouts/PublicLayout.jsx';
 // 3. Imports Pages Admin
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
-import { Import } from 'lucide-react';
+// Import du nouveau composant de gestion des utilisateurs
+import { AdminDashboard } from './pages/admin/AdminDashboard.jsx'; 
 
 function App() {
   return (
@@ -29,13 +30,13 @@ function App() {
         
         {/* --- ZONE PUBLIQUE --- */}
         <Route element={<PublicLayout />}>
-         <Route path="/Newsletters" element={<Newsletters />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/Newsletters" element={<Newsletters />} />
           <Route path="/ConnectionPage" element={<ConnectionPage />} />
-           <Route path="/" element={<Home />} />
-           <Route path="/galerie" element={<Gallery />} />
-           <Route path="/soumettre" element={<SubmissionPage />} />
-           <Route path="/login" element={<LoginAdmin />} />
-           <Route path="/contact" element={<Contact />} />
+          <Route path="/galerie" element={<Gallery />} />
+          <Route path="/soumettre" element={<SubmissionPage />} />
+          <Route path="/login" element={<LoginAdmin />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/Mention" element={<Mention />} />
           <Route path="/VotesJury" element={<VotesJury />} />
           <Route path="/cookies" element={<Cookies />} />
@@ -51,7 +52,9 @@ function App() {
           {/* Liste des films */}
           <Route path="films" element={<FilmsList />} />
           
-          <Route path="users" element={<div className="text-white">Gestion Jury (À venir)</div>} />
+          {/* Gestion des Jurys (Maintenant connecté au Backend) */}
+          <Route path="users" element={<AdminDashboard />} />
+          
           <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
         </Route>
 
@@ -59,6 +62,5 @@ function App() {
     </BrowserRouter>
   );
 }
-
 
 export default App;
