@@ -1,17 +1,15 @@
-// create-admin.js
 import { PrismaClient } from "@prisma/client";
-// Importe ton système de hashage si tu en as un (ex: bcrypt)
-// import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedPassword = await bcrypt.hash("admin123", 10);
 
   const admin = await prisma.user.create({
     data: {
       email: "admin@marsai.local",
-      password: "admin123", // Mets le hash ici si nécessaire
+      password: hashedPassword,
       firstName: "Super",
       lastName: "Admin",
       role: "ADMIN",
