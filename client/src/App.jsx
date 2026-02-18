@@ -14,6 +14,8 @@ import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
+import FAQ from '@/components/Ressources/F-A-Q.jsx';
+import Calendrier from './components/Ressources/calendrier.jsx';
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -24,7 +26,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
 // Import du nouveau composant de gestion des utilisateurs
-import { AdminDashboard } from './pages/admin/AdminDashboard.jsx';
+import { AdminDashboard } from './pages/Admin/AdminDashboard.jsx';
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
           <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
           <Route path="/film/:id" element={<MovieDetails />} />
+          <Route path="/F-A-Q" element={<FAQ />} />
+          <Route path="/calendrier" element={<Calendrier />} />
         </Route>
 
     {/* --- ZONE ADMIN SÉCURISÉE --- */}

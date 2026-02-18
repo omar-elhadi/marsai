@@ -17,9 +17,15 @@ router.post("/", verifyToken, isAdmin, userController.create);
 router.get("/", verifyToken, isAdmin, userController.list);
 
 /**
+ * @route   PUT /api/users/:id
+ * @desc    Modifier un utilisateur (Admin uniquement)
+ */
+router.put("/:id", verifyToken, isAdmin, userController.update); // <--- AJOUTE CETTE LIGNE
+
+/**
  * @route   DELETE /api/users/:id
  * @desc    Supprimer un utilisateur (Admin uniquement)
  */
-router.delete("/:id", verifyToken, isAdmin, userController.remove); // <-- Ajoute cette ligne
+router.delete("/:id", verifyToken, isAdmin, userController.remove);
 
 export default router;
