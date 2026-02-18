@@ -1,48 +1,51 @@
 /**
  * CONTROLLER DE SOUMISSION - MARSAI FESTIVAL
- * 
+ *
  * Gère les requêtes HTTP pour la soumission de films.
  * - Validation des données d'entrée
  * - Orchestration du service de soumission
  * - Gestion des erreurs et réponses HTTP
- * 
+ *
  * Convention suivie : /docs/CONVENTIONS_EXPRESS.md
  */
 
-import { z } from 'zod';
+import { z } from "zod";
 import {
   submitFilm,
   getSubmissionStatus,
   getSubmitterFilms,
-} from '../services/submission.service.js';
+} from "../services/submission.service.js";
 
 /**
  * Schéma de validation Zod pour les données de soumission
  */
 const submissionSchema = z.object({
   // Informations du submitter
-  firstName: z.string().min(2, 'Prénom trop court').max(100),
-  lastName: z.string().min(2, 'Nom trop court').max(100),
-  email: z.string().email('Email invalide'),
+  firstName: z.string().min(2, "Prénom trop court").max(100),
+  lastName: z.string().min(2, "Nom trop court").max(100),
+  email: z.string().email("Email invalide"),
 
   // Informations du film
-  title: z.string().min(3, 'Titre trop court').max(200),
-  description: z.string().min(10, 'Description trop courte').max(2000),
-  country: z.string().min(2, 'Pays invalide').max(100),
-  aiToolsUsed: z.string().min(5, 'Veuillez détailler les outils IA utilisés').max(1000),
+  title: z.string().min(3, "Titre trop court").max(200),
+  description: z.string().min(10, "Description trop courte").max(2000),
+  country: z.string().min(2, "Pays invalide").max(100),
+  aiToolsUsed: z
+    .string()
+    .min(5, "Veuillez détailler les outils IA utilisés")
+    .max(1000),
 });
 
 /**
  * POST /api/submissions
  * Soumet un nouveau film avec fichier vidéo
- * 
+ *
  * @param {Request} req - Requête Express (doit contenir req.file et req.body)
  * @param {Response} res - Réponse Express
  */
 export const createSubmission = async (req, res) => {
   try {
-    console.log('\n📥 NOUVELLE REQUÊTE DE SOUMISSION');
-    console.log('===================================\n');
+    console.log("\n📥 NOUVELLE REQUÊTE DE SOUMISSION");
+    console.log("===================================\n");
 
     // ============================================================
     // 1. VALIDATION DU FICHIER VIDÉO
@@ -50,12 +53,12 @@ export const createSubmission = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        error: 'Aucun fichier vidéo fourni',
-        message: 'Veuillez sélectionner une vidéo à soumettre.',
+        error: "Aucun fichier vidéo fourni",
+        message: "Veuillez sélectionner une vidéo à soumettre.",
       });
     }
 
-    console.log('📦 Fichier reçu:');
+    console.log("📦 Fichier reçu:");
     console.log(`   Nom: ${req.file.originalname}`);
     console.log(`   Taille: ${(req.file.size / 1024 / 1024).toFixed(2)} MB`);
     console.log(`   Type MIME: ${req.file.mimetype}\n`);
@@ -63,20 +66,23 @@ export const createSubmission = async (req, res) => {
     // ============================================================
     // 2. VALIDATION DES DONNÉES DU FORMULAIRE
     // ============================================================
-    console.log('📋 Validation des données du formulaire...\n');
-    
+    console.log("📋 Validation des données du formulaire...\n");
+    console.log("📦 Données reçues du formulaire:");
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log("\n");
+
     let formData;
     try {
       formData = submissionSchema.parse(req.body);
-      console.log('✅ Données du formulaire validées\n');
+      console.log("✅ Données du formulaire validées\n");
     } catch (zodError) {
-      console.error('❌ Données du formulaire invalides:', zodError.errors);
-      
+      console.error("❌ Données du formulaire invalides:", zodError.errors);
+
       return res.status(400).json({
         success: false,
-        error: 'Données du formulaire invalides',
+        error: "Données du formulaire invalides",
         details: zodError.errors.map((err) => ({
-          field: err.path.join('.'),
+          field: err.path.join("."),
           message: err.message,
         })),
       });
@@ -103,41 +109,43 @@ export const createSubmission = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('\n❌ ERREUR CONTROLLER SOUMISSION:', error.message);
+    console.error("\n❌ ERREUR CONTROLLER SOUMISSION:", error.message);
     console.error(error.stack);
 
     // Gestion des erreurs spécifiques
-    if (error.message.includes('Vidéo invalide')) {
+    if (error.message.includes("Vidéo invalide")) {
       return res.status(400).json({
         success: false,
-        error: 'Vidéo non conforme aux critères du festival',
+        error: "Vidéo non conforme aux critères du festival",
         message: error.message,
       });
     }
 
-    if (error.message.includes('Quota YouTube dépassé')) {
+    if (error.message.includes("Quota YouTube dépassé")) {
       return res.status(503).json({
         success: false,
-        error: 'Service temporairement indisponible',
-        message: 'Le quota YouTube a été atteint. Veuillez réessayer demain.',
+        error: "Service temporairement indisponible",
+        message: "Le quota YouTube a été atteint. Veuillez réessayer demain.",
       });
     }
 
-    if (error.message.includes('Authentification YouTube')) {
-      console.error('🚨 PROBLÈME DE CONFIGURATION YOUTUBE - CONTACTER L\'ADMIN');
+    if (error.message.includes("Authentification YouTube")) {
+      console.error("🚨 PROBLÈME DE CONFIGURATION YOUTUBE - CONTACTER L'ADMIN");
       return res.status(500).json({
         success: false,
-        error: 'Erreur de configuration',
-        message: 'Une erreur technique est survenue. L\'équipe a été notifiée.',
+        error: "Erreur de configuration",
+        message: "Une erreur technique est survenue. L'équipe a été notifiée.",
       });
     }
 
     // Erreur générique
     return res.status(500).json({
       success: false,
-      error: 'Erreur lors de la soumission',
-      message: 'Une erreur inattendue est survenue. Veuillez réessayer plus tard.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      error: "Erreur lors de la soumission",
+      message:
+        "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -145,7 +153,7 @@ export const createSubmission = async (req, res) => {
 /**
  * GET /api/submissions/:token
  * Récupère le statut d'une soumission par son token
- * 
+ *
  * @param {Request} req - Requête Express (doit contenir req.params.token)
  * @param {Response} res - Réponse Express
  */
@@ -156,7 +164,7 @@ export const getSubmission = async (req, res) => {
     if (!token) {
       return res.status(400).json({
         success: false,
-        error: 'Token de soumission manquant',
+        error: "Token de soumission manquant",
       });
     }
 
@@ -184,20 +192,20 @@ export const getSubmission = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('❌ Erreur récupération soumission:', error.message);
+    console.error("❌ Erreur récupération soumission:", error.message);
 
-    if (error.message === 'Soumission non trouvée') {
+    if (error.message === "Soumission non trouvée") {
       return res.status(404).json({
         success: false,
-        error: 'Soumission non trouvée',
-        message: 'Aucune soumission ne correspond à ce token.',
+        error: "Soumission non trouvée",
+        message: "Aucune soumission ne correspond à ce token.",
       });
     }
 
     return res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération',
-      message: 'Une erreur est survenue.',
+      error: "Erreur lors de la récupération",
+      message: "Une erreur est survenue.",
     });
   }
 };
@@ -205,7 +213,7 @@ export const getSubmission = async (req, res) => {
 /**
  * GET /api/submissions/submitter/:email
  * Récupère toutes les soumissions d'un submitter par email
- * 
+ *
  * @param {Request} req - Requête Express (doit contenir req.params.email)
  * @param {Response} res - Réponse Express
  */
@@ -216,7 +224,7 @@ export const getSubmitterSubmissions = async (req, res) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        error: 'Email manquant',
+        error: "Email manquant",
       });
     }
 
@@ -227,7 +235,7 @@ export const getSubmitterSubmissions = async (req, res) => {
     } catch {
       return res.status(400).json({
         success: false,
-        error: 'Email invalide',
+        error: "Email invalide",
       });
     }
 
@@ -248,12 +256,15 @@ export const getSubmitterSubmissions = async (req, res) => {
       })),
     });
   } catch (error) {
-    console.error('❌ Erreur récupération soumissions submitter:', error.message);
+    console.error(
+      "❌ Erreur récupération soumissions submitter:",
+      error.message,
+    );
 
     return res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération',
-      message: 'Une erreur est survenue.',
+      error: "Erreur lors de la récupération",
+      message: "Une erreur est survenue.",
     });
   }
 };
@@ -261,14 +272,14 @@ export const getSubmitterSubmissions = async (req, res) => {
 /**
  * GET /api/submissions/stats
  * Récupère les statistiques globales de soumissions (admin)
- * 
+ *
  * @param {Request} req - Requête Express
  * @param {Response} res - Réponse Express
  */
 export const getSubmissionStats = async (req, res) => {
   try {
     // Import dynamique de prisma pour éviter les dépendances circulaires
-    const prisma = (await import('../utils/prisma.js')).default;
+    const prisma = (await import("../utils/prisma.js")).default;
 
     const [
       totalFilms,
@@ -280,12 +291,12 @@ export const getSubmissionStats = async (req, res) => {
       youtubePending,
     ] = await Promise.all([
       prisma.film.count(),
-      prisma.film.count({ where: { status: 'PENDING' } }),
-      prisma.film.count({ where: { status: 'APPROVED' } }),
-      prisma.film.count({ where: { status: 'REJECTED' } }),
-      prisma.film.count({ where: { youtubeStatus: 'APPROVED' } }),
-      prisma.film.count({ where: { youtubeStatus: 'REJECTED' } }),
-      prisma.film.count({ where: { youtubeStatus: 'PENDING' } }),
+      prisma.film.count({ where: { status: "PENDING" } }),
+      prisma.film.count({ where: { status: "APPROVED" } }),
+      prisma.film.count({ where: { status: "REJECTED" } }),
+      prisma.film.count({ where: { youtubeStatus: "APPROVED" } }),
+      prisma.film.count({ where: { youtubeStatus: "REJECTED" } }),
+      prisma.film.count({ where: { youtubeStatus: "PENDING" } }),
     ]);
 
     return res.status(200).json({
@@ -305,11 +316,11 @@ export const getSubmissionStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('❌ Erreur récupération statistiques:', error.message);
+    console.error("❌ Erreur récupération statistiques:", error.message);
 
     return res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques',
+      error: "Erreur lors de la récupération des statistiques",
     });
   }
 };
