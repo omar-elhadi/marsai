@@ -1,28 +1,25 @@
 /**
  * SERVICE YOUTUBE - MARSAI FESTIVAL
- * 
+ *
  * Ce service gère toutes les interactions avec YouTube Data API v3 :
  * - Upload de vidéos vers YouTube
  * - Vérification du statut de modération
  * - Récupération des métadonnées vidéo
  * - Gestion des erreurs et retry automatique
- * 
+ *
  * @see https://developers.google.com/youtube/v3/docs
  */
 
-import fs from 'fs';
-import path from 'path';
-import { Readable } from 'stream';
+import { Readable } from "stream";
 import {
   getYouTubeAuthClient,
   getAuthenticatedYouTubeClient,
   DEFAULT_VIDEO_CONFIG,
-  YOUTUBE_CATEGORIES,
-} from '../config/youtube.js';
+} from "../config/youtube.js";
 
 /**
  * Uploads une vidéo vers YouTube
- * 
+ *
  * @param {Buffer} videoBuffer - Buffer de la vidéo
  * @param {Object} metadata - Métadonnées de la vidéo
  * @param {string} metadata.title - Titre de la vidéo
@@ -44,29 +41,26 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
     // 3. Préparation des métadonnées pour YouTube
     const videoMetadata = {
       snippet: {
-        title: metadata.title || 'Film soumis au MarsAI Festival',
-        description: metadata.description || 'Court-métrage créé avec l\'IA',
-        tags: metadata.tags || ['MarsAI', 'Festival', 'IA', 'Court-métrage'],
-        categoryId: metadata.categoryId || YOUTUBE_CATEGORIES.SHORT_MOVIES,
-        defaultLanguage: 'fr',
-        defaultAudioLanguage: 'fr',
+        title: metadata.title || "Film soumis au MarsAI Festival",
+        description: metadata.description || "Court-métrage créé avec l'IA",
+        tags: metadata.tags || ["MarsAI", "Festival", "IA", "Court-métrage"],
+        defaultLanguage: "fr",
+        defaultAudioLanguage: "fr",
       },
       status: {
-        privacyStatus: metadata.privacyStatus || DEFAULT_VIDEO_CONFIG.privacyStatus,
+        privacyStatus:
+          metadata.privacyStatus || DEFAULT_VIDEO_CONFIG.privacyStatus,
         embeddable: true,
         publicStatsViewable: true,
         selfDeclaredMadeForKids: false,
       },
-      recordingDetails: {
-        recordingDate: new Date().toISOString(),
-      },
     };
 
-    console.log('📤 Upload vers YouTube en cours...');
-    
+    console.log("📤 Upload vers YouTube en cours...");
+
     // 4. Upload de la vidéo
     const response = await youtube.videos.insert({
-      part: ['snippet', 'status', 'contentDetails'],
+      part: ["snippet", "status", "contentDetails"],
       requestBody: videoMetadata,
       media: {
         body: videoStream,
@@ -91,21 +85,25 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
       duration: response.data.contentDetails?.duration,
     };
   } catch (error) {
-    console.error('❌ Erreur upload YouTube:', error);
-    
+    console.error("❌ Erreur upload YouTube:", error);
+
     // Gestion des erreurs spécifiques YouTube
     if (error.code === 401) {
-      throw new Error('Authentification YouTube échouée. Vérifiez vos credentials OAuth.');
+      throw new Error(
+        "Authentification YouTube échouée. Vérifiez vos credentials OAuth.",
+      );
     }
-    
+
     if (error.code === 403) {
-      const errorMessage = error.message || '';
-      if (errorMessage.includes('quota')) {
-        throw new Error('Quota YouTube dépassé. Réessayez demain ou augmentez votre quota.');
+      const errorMessage = error.message || "";
+      if (errorMessage.includes("quota")) {
+        throw new Error(
+          "Quota YouTube dépassé. Réessayez demain ou augmentez votre quota.",
+        );
       }
       throw new Error(`Accès refusé par YouTube : ${errorMessage}`);
     }
-    
+
     if (error.code === 400) {
       throw new Error(`Données invalides : ${error.message}`);
     }
@@ -116,7 +114,7 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
 
 /**
  * Récupère le statut de modération d'une vidéo YouTube
- * 
+ *
  * @param {string} videoId - ID de la vidéo YouTube
  * @returns {Promise<Object>} Statut de modération et détails
  */
@@ -127,7 +125,7 @@ export const checkVideoModerationStatus = async (videoId) => {
 
     // Récupération des informations de la vidéo
     const response = await youtube.videos.list({
-      part: ['status', 'contentDetails', 'snippet', 'processingDetails'],
+      part: ["status", "contentDetails", "snippet", "processingDetails"],
       id: [videoId],
     });
 
@@ -148,57 +146,61 @@ export const checkVideoModerationStatus = async (videoId) => {
       license: status.license,
       embeddable: status.embeddable,
       publicStatsViewable: status.publicStatsViewable,
-      
+
       // Statut de traitement
       processingStatus: processingDetails?.processingStatus,
       processingProgress: processingDetails?.processingProgress,
-      
+
       // Content rating (restrictions d'âge, etc.)
       contentRating: contentDetails?.contentRating || {},
-      
+
       // Détection de contenu
-      hasContentIssues: status.uploadStatus === 'rejected' || status.uploadStatus === 'failed',
+      hasContentIssues:
+        status.uploadStatus === "rejected" || status.uploadStatus === "failed",
       rejectionReason: status.rejectionReason || null,
       failureReason: status.failureReason || null,
-      
+
       // Métadonnées
       duration: contentDetails?.duration,
       definition: contentDetails?.definition,
       caption: contentDetails?.caption,
-      
+
       // URL et titre
       title: video.snippet.title,
       videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
     };
 
     // Détermination du statut global
-    if (status.uploadStatus === 'processed') {
+    if (status.uploadStatus === "processed") {
       moderationStatus.approved = true;
-      moderationStatus.message = 'Vidéo approuvée et disponible';
-    } else if (status.uploadStatus === 'uploaded' || status.uploadStatus === 'processing') {
+      moderationStatus.message = "Vidéo approuvée et disponible";
+    } else if (
+      status.uploadStatus === "uploaded" ||
+      status.uploadStatus === "processing"
+    ) {
       moderationStatus.approved = false;
       moderationStatus.pending = true;
-      moderationStatus.message = 'Vidéo en cours de traitement par YouTube';
-    } else if (status.uploadStatus === 'rejected') {
+      moderationStatus.message = "Vidéo en cours de traitement par YouTube";
+    } else if (status.uploadStatus === "rejected") {
       moderationStatus.approved = false;
       moderationStatus.rejected = true;
-      moderationStatus.message = `Vidéo rejetée : ${status.rejectionReason || 'raison inconnue'}`;
-    } else if (status.uploadStatus === 'failed') {
+      moderationStatus.message = `Vidéo rejetée : ${status.rejectionReason || "raison inconnue"}`;
+    } else if (status.uploadStatus === "failed") {
       moderationStatus.approved = false;
       moderationStatus.failed = true;
-      moderationStatus.message = `Échec de l'upload : ${status.failureReason || 'raison inconnue'}`;
+      moderationStatus.message = `Échec de l'upload : ${status.failureReason || "raison inconnue"}`;
     }
 
     return moderationStatus;
   } catch (error) {
-    console.error('❌ Erreur vérification statut YouTube:', error);
+    console.error("❌ Erreur vérification statut YouTube:", error);
     throw new Error(`Impossible de vérifier le statut : ${error.message}`);
   }
 };
 
 /**
  * Attend que YouTube finisse de traiter la vidéo (polling)
- * 
+ *
  * @param {string} videoId - ID de la vidéo
  * @param {number} maxAttempts - Nombre maximum de tentatives (défaut: 20)
  * @param {number} intervalMs - Intervalle entre tentatives en ms (défaut: 10000)
@@ -207,20 +209,22 @@ export const checkVideoModerationStatus = async (videoId) => {
 export const waitForVideoProcessing = async (
   videoId,
   maxAttempts = 20,
-  intervalMs = 10000
+  intervalMs = 10000,
 ) => {
   console.log(`⏳ Attente du traitement de la vidéo ${videoId}...`);
-  
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const status = await checkVideoModerationStatus(videoId);
-      
+
       console.log(`[${attempt}/${maxAttempts}] Statut: ${status.uploadStatus}`);
 
       // Si traité ou rejeté, on retourne le statut
-      if (status.uploadStatus === 'processed' || 
-          status.uploadStatus === 'rejected' || 
-          status.uploadStatus === 'failed') {
+      if (
+        status.uploadStatus === "processed" ||
+        status.uploadStatus === "rejected" ||
+        status.uploadStatus === "failed"
+      ) {
         console.log(`✅ Traitement terminé: ${status.message}`);
         return status;
       }
@@ -231,13 +235,16 @@ export const waitForVideoProcessing = async (
         await new Promise((resolve) => setTimeout(resolve, intervalMs));
       }
     } catch (error) {
-      console.error(`❌ Erreur lors de la tentative ${attempt}:`, error.message);
-      
+      console.error(
+        `❌ Erreur lors de la tentative ${attempt}:`,
+        error.message,
+      );
+
       // Si c'est la dernière tentative, on lance l'erreur
       if (attempt === maxAttempts) {
         throw error;
       }
-      
+
       // Sinon on continue
       await new Promise((resolve) => setTimeout(resolve, intervalMs));
     }
@@ -255,7 +262,7 @@ export const waitForVideoProcessing = async (
 
 /**
  * Met à jour les métadonnées d'une vidéo YouTube existante
- * 
+ *
  * @param {string} videoId - ID de la vidéo
  * @param {Object} updates - Nouvelles métadonnées
  * @returns {Promise<Object>} Vidéo mise à jour
@@ -266,7 +273,7 @@ export const updateVideoMetadata = async (videoId, updates) => {
     const youtube = getAuthenticatedYouTubeClient(oauth2Client);
 
     const response = await youtube.videos.update({
-      part: ['snippet', 'status'],
+      part: ["snippet", "status"],
       requestBody: {
         id: videoId,
         snippet: updates.snippet || {},
@@ -276,14 +283,14 @@ export const updateVideoMetadata = async (videoId, updates) => {
 
     return response.data;
   } catch (error) {
-    console.error('❌ Erreur mise à jour vidéo:', error);
+    console.error("❌ Erreur mise à jour vidéo:", error);
     throw new Error(`Impossible de mettre à jour la vidéo : ${error.message}`);
   }
 };
 
 /**
  * Supprime une vidéo de YouTube
- * 
+ *
  * @param {string} videoId - ID de la vidéo à supprimer
  * @returns {Promise<boolean>} True si suppression réussie
  */
@@ -299,14 +306,14 @@ export const deleteVideo = async (videoId) => {
     console.log(`🗑️  Vidéo ${videoId} supprimée de YouTube`);
     return true;
   } catch (error) {
-    console.error('❌ Erreur suppression vidéo:', error);
+    console.error("❌ Erreur suppression vidéo:", error);
     throw new Error(`Impossible de supprimer la vidéo : ${error.message}`);
   }
 };
 
 /**
  * Récupère les statistiques d'une vidéo
- * 
+ *
  * @param {string} videoId - ID de la vidéo
  * @returns {Promise<Object>} Statistiques (vues, likes, comments)
  */
@@ -316,7 +323,7 @@ export const getVideoStatistics = async (videoId) => {
     const youtube = getAuthenticatedYouTubeClient(oauth2Client);
 
     const response = await youtube.videos.list({
-      part: ['statistics', 'snippet'],
+      part: ["statistics", "snippet"],
       id: [videoId],
     });
 
@@ -325,7 +332,7 @@ export const getVideoStatistics = async (videoId) => {
     }
 
     const video = response.data.items[0];
-    
+
     return {
       videoId,
       title: video.snippet.title,
@@ -336,25 +343,27 @@ export const getVideoStatistics = async (videoId) => {
       favoriteCount: parseInt(video.statistics.favoriteCount || 0),
     };
   } catch (error) {
-    console.error('❌ Erreur récupération statistiques:', error);
-    throw new Error(`Impossible de récupérer les statistiques : ${error.message}`);
+    console.error("❌ Erreur récupération statistiques:", error);
+    throw new Error(
+      `Impossible de récupérer les statistiques : ${error.message}`,
+    );
   }
 };
 
 /**
  * Transforme un objet de métadonnées de film en format YouTube
- * 
+ *
  * @param {Object} film - Objet film de la base de données
  * @returns {Object} Métadonnées formatées pour YouTube
  */
 export const formatFilmMetadataForYouTube = (film) => {
   const tags = [
-    'MarsAI Festival',
-    'Intelligence Artificielle',
-    'Court-métrage',
-    'IA',
+    "MarsAI Festival",
+    "Intelligence Artificielle",
+    "Court-métrage",
+    "IA",
     film.country,
-    ...film.aiToolsUsed.split(',').map(tool => tool.trim()),
+    ...film.aiToolsUsed.split(",").map((tool) => tool.trim()),
   ].filter(Boolean);
 
   return {
@@ -369,7 +378,6 @@ ${film.description}
 Soumis au MarsAI Festival - Premier festival international de films créés avec l'IA
     `.trim(),
     tags,
-    categoryId: YOUTUBE_CATEGORIES.SHORT_MOVIES,
-    privacyStatus: 'unlisted', // Non-listé par défaut pour modération interne
+    privacyStatus: "unlisted", // Non-listé par défaut pour modération interne
   };
 };
