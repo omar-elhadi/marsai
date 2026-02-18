@@ -1,4 +1,5 @@
 import Reveal from '../../components/animations/Reveal';
+import Parallax from '@/components/animations/Parallax';
 
 function Home() {
   return (
@@ -68,6 +69,28 @@ function Home() {
         </ul>
       </section>
 
+{/* LIEU : L'immersion géographique sans altération */}
+<section id="lieu" className="max-w-5xl mx-auto py-32 px-6">
+  <Reveal>
+    <h2 className="text-4xl font-bold mb-12">Lieu de l'événement</h2>
+  </Reveal>
+  
+  <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl border border-zinc-800">
+    <Parallax speed={1.15} className="h-full w-full">
+      <iframe
+        title="Plan du lieu"
+        src="https://www.google.com/maps/embed?pb=..." // Votre lien
+        width="100%"
+        height="120%" 
+        className="w-full h-full" 
+        style={{ border: 0, marginTop: "-10%" }} 
+        allowFullScreen
+        loading="lazy"
+      ></iframe>
+    </Parallax>
+  </div>
+</section>
+
       {/* CTA : L'appel à l'action sans fioriture */}
       <section className="bg-white text-black py-32 text-center px-6">
         <Reveal>
@@ -81,6 +104,30 @@ function Home() {
           </a>
         </Reveal>
       </section>
+
+      {/* PARTENAIRES : La constellation */}
+<section id="partenaires" className="bg-zinc-950 py-32 px-6">
+  <div className="max-w-5xl mx-auto text-center">
+    <Reveal>
+      <h2 className="text-4xl font-bold mb-20">Nos Partenaires</h2>
+    </Reveal>
+    
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center">
+      {/* Chaque partenaire a une vitesse différente (1.05, 1.1, 1.15...) */}
+      {[1, 2, 3, 4].map((i) => (
+        <Parallax key={i} speed={1 + i * 0.05}>
+          <div className="bg-zinc-900/50 p-8 rounded-xl border border-zinc-800 hover:border-white transition-colors duration-500">
+            <img 
+              src={`https://via.placeholder.com/150x80?text=Logo+${i}`} 
+              alt={`Partenaire ${i}`} 
+              className="grayscale opacity-50 hover:opacity-100 hover:grayscale-0 transition-all duration-700"
+            />
+          </div>
+        </Parallax>
+      ))}
+    </div>
+  </div>
+</section>
     </>
   );
 }
