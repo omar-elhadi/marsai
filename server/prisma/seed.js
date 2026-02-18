@@ -4,43 +4,52 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("--- Démarrage du Seed ---");
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  console.log("🎬 [SEED] Début du peuplement de la base...");
 
-  // On nettoie la base pour être sûr de ce qu'on fait
+  // 1. Nettoyage (Optionnel, à utiliser avec prudence)
   await prisma.user.deleteMany({});
-  console.log("Base nettoyée.");
 
-  const admin = await prisma.user.create({
+  // 2. Création de l'Administrateur
+  const adminPassword = await bcrypt.hash("admin123", 10);
+  await prisma.user.create({
     data: {
       email: "admin@marsai.local",
-      password: hashedPassword,
+      password: adminPassword,
       firstName: "Super",
       lastName: "Admin",
       role: "ADMIN",
     },
   });
-  console.log("Admin créé :", admin.email);
+  console.log("✅ Admin créé (admin@marsai.local / admin123)");
 
-  const jury = await prisma.user.create({
-    data: {
-      email: "sophie@marsai.local",
-      password: hashedPassword,
-      firstName: "Sophie",
-      lastName: "Lumiere",
-      role: "JURY",
+  // 3. Création des Jurys (Sans mot de passe pour Magic Link)
+  const jurys = [
+    { email: "agnes.v@festival.fr", firstName: "Agnès", lastName: "Varda" },
+    {
+      email: "francois.t@cinema.com",
+      firstName: "François",
+      lastName: "Truffaut",
     },
-  });
-  console.log("Jury créé :", jury.email);
+    { email: "alice.g@pionniere.org", firstName: "Alice", lastName: "Guy" },
+  ];
+
+  for (const jury of jurys) {
+    await prisma.user.create({
+      data: {
+        ...jury,
+        role: "JURY",
+        // password reste null par défaut
+      },
+    });
+  }
+  console.log(`✅ ${jurys.length} Jurys créés sans mot de passe.`);
 }
 
 main()
   .catch((e) => {
-    console.error("❌ ERREUR DURANT LE SEED :");
-    console.error(e);
+    console.error("❌ Erreur lors du seed :", e);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
-    console.log("--- Seed Terminé ---");
   });
