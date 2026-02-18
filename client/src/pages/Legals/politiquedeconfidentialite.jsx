@@ -5,12 +5,12 @@ function PolitiqueDeConfidentialite() {
 
   return (
     <div className="privacy-policy bg-black text-white p-8 rounded-lg shadow-md font-serif">
-      <h1 className="text-3xl font-bold mb-6 bg-black text-white p-4 rounded text-center italic">Politique de Confidentialité</h1>
+      <h1 className="text-3xl font-bold mb-6 bg-black text-purple-500 p-4 rounded text-center italic">Politique de Confidentialité</h1>
       <div className="space-y-6 leading-relaxed">
         <div>
           <button
             onClick={() => setOpenIndex(openIndex === 0 ? null : 0)}
-            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
+            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700 border-4 border-purple-500"
           >
             Données collectées
           </button>
@@ -26,7 +26,7 @@ function PolitiqueDeConfidentialite() {
         <div>
           <button
             onClick={() => setOpenIndex(openIndex === 1 ? null : 1)}
-            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
+            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700 border-4 border-purple-500"
           >
             Mesures de sécurité
           </button>
@@ -42,7 +42,7 @@ function PolitiqueDeConfidentialite() {
         <div>
           <button
             onClick={() => setOpenIndex(openIndex === 2 ? null : 2)}
-            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700"
+            className="w-full text-left text-gray-300 font-bold py-2 px-4 bg-gray-800 rounded hover:bg-gray-700 border-4 border-purple-500"
           >
             Acceptation des pratiques
           </button>
