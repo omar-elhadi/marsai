@@ -1,14 +1,14 @@
 /**
  * CONFIGURATION YOUTUBE DATA API V3 - MARSAI FESTIVAL
- * 
+ *
  * Ce fichier configure l'authentification et les clients pour YouTube Data API v3.
  * Il gère à la fois l'authentification par clé API (pour les opérations de lecture)
  * et OAuth 2.0 (pour les uploads de vidéos).
- * 
+ *
  * @see https://developers.google.com/youtube/v3/docs
  */
 
-import { google } from 'googleapis';
+import { google } from "googleapis";
 
 /**
  * Client YouTube avec authentification OAuth 2.0
@@ -18,14 +18,15 @@ export const getYouTubeAuthClient = () => {
   // Vérification des variables d'environnement requises
   if (!process.env.YOUTUBE_CLIENT_ID || !process.env.YOUTUBE_CLIENT_SECRET) {
     throw new Error(
-      'Variables YouTube OAuth manquantes. Vérifiez YOUTUBE_CLIENT_ID et YOUTUBE_CLIENT_SECRET dans .env'
+      "Variables YouTube OAuth manquantes. Vérifiez YOUTUBE_CLIENT_ID et YOUTUBE_CLIENT_SECRET dans .env",
     );
   }
 
   const oauth2Client = new google.auth.OAuth2(
     process.env.YOUTUBE_CLIENT_ID,
     process.env.YOUTUBE_CLIENT_SECRET,
-    process.env.YOUTUBE_REDIRECT_URI || 'http://localhost:5001/api/youtube/callback'
+    process.env.YOUTUBE_REDIRECT_URI ||
+      "http://localhost:5001/api/youtube/callback",
   );
 
   // Si un refresh token existe, le configurer
@@ -44,11 +45,11 @@ export const getYouTubeAuthClient = () => {
  */
 export const getYouTubeClient = () => {
   if (!process.env.YOUTUBE_API_KEY) {
-    throw new Error('YOUTUBE_API_KEY est manquant dans le fichier .env');
+    throw new Error("YOUTUBE_API_KEY est manquant dans le fichier .env");
   }
 
   return google.youtube({
-    version: 'v3',
+    version: "v3",
     auth: process.env.YOUTUBE_API_KEY,
   });
 };
@@ -58,7 +59,7 @@ export const getYouTubeClient = () => {
  */
 export const getAuthenticatedYouTubeClient = (oauth2Client) => {
   return google.youtube({
-    version: 'v3',
+    version: "v3",
     auth: oauth2Client,
   });
 };
@@ -71,15 +72,15 @@ export const getAuthUrl = () => {
   const oauth2Client = getYouTubeAuthClient();
 
   const scopes = [
-    'https://www.googleapis.com/auth/youtube.upload',
-    'https://www.googleapis.com/auth/youtube',
-    'https://www.googleapis.com/auth/youtube.force-ssl',
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube",
+    "https://www.googleapis.com/auth/youtube.force-ssl",
   ];
 
   return oauth2Client.generateAuthUrl({
-    access_type: 'offline', // Pour obtenir un refresh token
+    access_type: "offline", // Pour obtenir un refresh token
     scope: scopes,
-    prompt: 'consent', // Force à redemander le consentement pour obtenir refresh token
+    prompt: "consent", // Force à redemander le consentement pour obtenir refresh token
   });
 };
 
@@ -97,14 +98,14 @@ export const getTokensFromCode = async (code) => {
 
 /**
  * Quotas YouTube API v3 (pour référence)
- * 
+ *
  * Quota quotidien : 10,000 unités
- * 
+ *
  * Coûts par opération :
  * - videos.insert (upload) : ~1,600 unités
  * - videos.list : 1 unité
  * - search.list : 100 unités
- * 
+ *
  * Limite d'uploads par jour avec quota gratuit : ~6 vidéos
  */
 export const YOUTUBE_QUOTA = {
@@ -119,21 +120,21 @@ export const YOUTUBE_QUOTA = {
  * @see https://developers.google.com/youtube/v3/docs/videoCategories/list
  */
 export const YOUTUBE_CATEGORIES = {
-  FILM_ANIMATION: '1',
-  AUTOS_VEHICLES: '2',
-  MUSIC: '10',
-  PETS_ANIMALS: '15',
-  SPORTS: '17',
-  SHORT_MOVIES: '18',
-  TRAVEL_EVENTS: '19',
-  GAMING: '20',
-  PEOPLE_BLOGS: '22',
-  COMEDY: '23',
-  ENTERTAINMENT: '24',
-  NEWS_POLITICS: '25',
-  HOWTO_STYLE: '26',
-  EDUCATION: '27',
-  SCIENCE_TECHNOLOGY: '28',
+  FILM_ANIMATION: "1",
+  AUTOS_VEHICLES: "2",
+  MUSIC: "10",
+  PETS_ANIMALS: "15",
+  SPORTS: "17",
+  SHORT_MOVIES: "18",
+  TRAVEL_EVENTS: "19",
+  GAMING: "20",
+  PEOPLE_BLOGS: "22",
+  COMEDY: "23",
+  ENTERTAINMENT: "24",
+  NEWS_POLITICS: "25",
+  HOWTO_STYLE: "26",
+  EDUCATION: "27",
+  SCIENCE_TECHNOLOGY: "28",
 };
 
 /**
@@ -141,10 +142,10 @@ export const YOUTUBE_CATEGORIES = {
  */
 export const DEFAULT_VIDEO_CONFIG = {
   categoryId: YOUTUBE_CATEGORIES.SHORT_MOVIES, // Court-métrage
-  defaultLanguage: 'fr',
-  defaultAudioLanguage: 'fr',
-  privacyStatus: 'unlisted', // Non-listé par défaut (sécurité)
+  defaultLanguage: "fr",
+  defaultAudioLanguage: "fr",
+  privacyStatus: "unlisted", // Non-listé par défaut (sécurité)
   embeddable: true,
-  license: 'creativeCommon', // Creative Commons
+  license: "creativeCommon", // Creative Commons
   publicStatsViewable: true,
 };
