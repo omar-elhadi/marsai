@@ -1,24 +1,34 @@
 import { userService } from "../services/user.service.js";
 import { z } from "zod";
 
-// Schéma de création : password devient optionnel pour le système Magic Link
+// Schéma de création
 const userSchema = z.object({
   email: z.string().email("Format d'email invalide"),
   password: z
     .string()
-    .min(6, "Le mot de passe doit faire au moins 6 caractères")
-    .optional() // Permet de créer un jury sans pass
-    .or(z.literal("")), // Gère le cas d'une chaîne vide
+    .optional() // On le rend optionnel
+    .transform((val) => (val === "" ? undefined : val)) // S'il est vide, on le transforme en undefined
+    .refine((val) => !val || val.length >= 6, {
+      message: "Le mot de passe doit faire au moins 6 caractères",
+    }),
   firstName: z.string().min(2, "Le prénom est trop court"),
   lastName: z.string().min(2, "Le nom est trop court"),
   role: z.enum(["ADMIN", "JURY"]).optional(),
 });
 
+// Schéma de mise à jour
 const updateUserSchema = z.object({
   email: z.string().email("Format d'email invalide").optional(),
-  password: z.string().min(6).optional().nullable(),
-  firstName: z.string().min(2).optional(),
-  lastName: z.string().min(2).optional(),
+  password: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => (val === "" ? undefined : val)) // Même logique ici
+    .refine((val) => !val || val.length >= 6, {
+      message: "Le mot de passe doit faire au moins 6 caractères",
+    }),
+  firstName: z.string().min(2, "Le prénom est trop court"),
+  lastName: z.string().min(2, "Le nom est trop court"),
   role: z.enum(["ADMIN", "JURY"]).optional(),
 });
 
@@ -30,12 +40,10 @@ export const userController = {
       res.status(201).json(newUser);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({
-            error: "Validation échouée",
-            details: error.flatten().fieldErrors,
-          });
+        return res.status(400).json({
+          error: "Validation échouée",
+          details: error.flatten().fieldErrors,
+        });
       }
       res.status(500).json({ error: error.message });
     }
