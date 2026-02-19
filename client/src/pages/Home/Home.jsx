@@ -62,8 +62,8 @@ function Home() {
         </Reveal>
         <Reveal delay={0.2}>
           <p className="text-zinc-400 text-base md:text-xl mb-10 max-w-2xl">
-            Le festival se tiendra au <strong className="text-white">Palais des Congrès de Paris</strong>,
-            épicentre de la collision entre l'art classique et le calcul matriciel.
+            Le festival se tiendra a <strong className="text-white">Marseille</strong>,
+            épicentre de la collision entre tradition, nostalige, technologie et innovation.
           </p>
         </Reveal>
         
@@ -72,10 +72,10 @@ function Home() {
           <Parallax speed={1.15} className="h-full w-full">
             <iframe
               title="Plan du lieu"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.142047744348!2d2.281344415674389!3d48.87838327928942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fec70fb1d8f%3A0xd9b5676e112e643d!2sPalais%20des%20congr%C3%A8s%20de%20Paris!5e0!3m2!1sfr!2sfr!4v1680000000000!5m2!1sfr!2sfr"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.142047744348!2d2.281344415674389!3d48.87838327928942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fec70fb1d8f%3A0xd9b5676e112e643d!2sPalais%20des%20congr%C3%A8s%20de%20Paris!5e0!3m2!1sfr!2sfr!4v1680000000000!5m2!1sfr!2sfr" // Remettez votre lien exact
               width="100%"
               height="120%"
-              className="w-full h-full grayscale invert contrast-125 opacity-80" 
+              className="w-full h-full" // Purge totale des altérations visuelles
               style={{ border: 0, marginTop: "-10%" }}
               allowFullScreen
               loading="lazy"
