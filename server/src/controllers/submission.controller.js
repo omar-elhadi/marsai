@@ -67,12 +67,34 @@ export const createSubmission = async (req, res) => {
     console.log(`   Taille: ${(videoFile.size / 1024 / 1024).toFixed(2)} MB`);
     console.log(`   Type MIME: ${videoFile.mimetype}\n`);
 
-    if (subtitleFile) {
-      console.log("📝 Fichier de sous-titres reçu:");
-      console.log(`   Nom: ${subtitleFile.originalname}`);
-      console.log(`   Taille: ${(subtitleFile.size / 1024).toFixed(2)} KB`);
-      console.log(`   Type MIME: ${subtitleFile.mimetype}\n`);
+    // Validation du fichier de sous-titres (OBLIGATOIRE)
+    if (!subtitleFile) {
+      return res.status(400).json({
+        success: false,
+        error: "Aucun fichier de sous-titres fourni",
+        message:
+          "Un fichier de sous-titres (.srt, .vtt ou .sbv) est requis pour permettre la traduction internationale.",
+      });
     }
+
+    // Validation du format de sous-titres
+    const allowedSubtitleExtensions = [".srt", ".vtt", ".sbv"];
+    const subtitleExtension = subtitleFile.originalname
+      .substring(subtitleFile.originalname.lastIndexOf("."))
+      .toLowerCase();
+
+    if (!allowedSubtitleExtensions.includes(subtitleExtension)) {
+      return res.status(400).json({
+        success: false,
+        error: "Format de sous-titres invalide",
+        message: "Formats acceptés : .srt, .vtt, .sbv",
+      });
+    }
+
+    console.log("📝 Fichier de sous-titres reçu:");
+    console.log(`   Nom: ${subtitleFile.originalname}`);
+    console.log(`   Taille: ${(subtitleFile.size / 1024).toFixed(2)} KB`);
+    console.log(`   Type MIME: ${subtitleFile.mimetype}\n`);
 
     // ============================================================
     // 2. VALIDATION DES DONNÉES DU FORMULAIRE

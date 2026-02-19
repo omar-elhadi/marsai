@@ -111,17 +111,13 @@ function SubmissionForm() {
       return;
     }
 
-    const allowedTypes = ["text/vtt", "text/plain", "application/x-subrip"];
     const allowedExtensions = [".srt", ".vtt", ".sbv"];
     const fileExtension = file.name
       .substring(file.name.lastIndexOf("."))
       .toLowerCase();
 
-    if (
-      !allowedTypes.includes(file.type) &&
-      !allowedExtensions.includes(fileExtension)
-    ) {
-      alert("Format non supporté. Utilisez .srt, .vtt ou .sbv");
+    if (!allowedExtensions.includes(fileExtension)) {
+      alert("Format non supporté. Utilisez uniquement .srt, .vtt ou .sbv");
       e.target.value = null;
       return;
     }
@@ -153,6 +149,11 @@ function SubmissionForm() {
 
     if (!videoFile) {
       alert("Veuillez sélectionner une vidéo");
+      return;
+    }
+
+    if (!subtitleFile) {
+      alert("Veuillez ajouter un fichier de sous-titres");
       return;
     }
 
@@ -302,7 +303,7 @@ function SubmissionForm() {
 
       <div>
         <label htmlFor="subtitle" className={labelClass}>
-          Sous-titre (Optionnel)
+          Sous-titre
         </label>
         <input
           type="text"
@@ -428,17 +429,18 @@ function SubmissionForm() {
         </p>
       </div>
 
-      {/* --- FICHIER SOUS-TITRES (OPTIONNEL) --- */}
+      {/* --- FICHIER SOUS-TITRES (OBLIGATOIRE) --- */}
       <div>
         <label htmlFor="subtitle" className={labelClass}>
-          Fichier de Sous-titres (Optionnel)
+          Fichier de Sous-titres *
         </label>
         <input
           type="file"
           id="subtitle"
           name="subtitle"
           ref={subtitleInputRef}
-          accept=".srt,.vtt,.sbv,text/vtt,text/plain,application/x-subrip"
+          accept=".srt,.vtt,.sbv"
+          required
           onChange={handleSubtitleChange}
           className="hidden"
         />
@@ -483,8 +485,8 @@ function SubmissionForm() {
         )}
 
         <p className="text-[10px] text-white/30 mt-2 tracking-wider">
-          Les sous-titres seront automatiquement ajoutés à votre vidéo sur
-          YouTube
+          ⚠️ OBLIGATOIRE : Les sous-titres permettent la traduction
+          internationale de votre film
         </p>
       </div>
 
