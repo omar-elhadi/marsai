@@ -7,18 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
   id            Int       @id @default(autoincrement())
   email         String    @unique
-  password      String?   // Indispensable pour que l'admin garde son pass et que le jury puisse s'en passer
+  password      String?   
   firstName     String
   lastName      String
   role          Role      @default(JURY)
   
-  // Système de Token pour Magic Link (Jury & Submitter futur)
+  // Système de Token pour Magic Link
   loginToken    String?   @unique
   tokenExpires  DateTime?
+
+  // --- AJOUT : TRACKING ACTIVITÉ ---
+  // On utilise DateTime? (optionnel) pour ne pas perturber les données existantes
+  lastLogin     DateTime? 
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -34,8 +37,8 @@ enum Role {
 }
 
 model Submitter {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
   firstName String?
   lastName  String?
 
@@ -115,4 +118,3 @@ model NewsletterSubscriber {
 
   @@map("newsletter_subscribers")
 }
-

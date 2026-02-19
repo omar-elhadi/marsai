@@ -2,6 +2,10 @@ import prisma from "../config/prisma.js";
 import { loginAdmin } from "../services/auth.service.js";
 import jwt from "jsonwebtoken";
 
+/**
+ * CONNEXION CLASSIQUE (Email + Password)
+ * Principalement pour l'ADMIN.
+ */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -11,13 +15,24 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: "Identifiants incorrects" });
     }
 
+    // MISE À JOUR DU STATUT : On enregistre la date de connexion
+    // Cela fera passer le badge au VERT sur le dashboard.
+    await prisma.user.update({
+      where: { id: result.user.id },
+      data: { lastLogin: new Date() },
+    });
+
     return res.status(200).json(result);
   } catch (e) {
-    console.error("Erreur Login Controller:", e);
+    console.error("❌ Erreur Login Controller:", e);
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
+/**
+ * VÉRIFICATION DU TOKEN (Magic Link)
+ * Pour les JURYS.
+ */
 export const verifyToken = async (req, res) => {
   try {
     const { token } = req.query;
@@ -33,6 +48,18 @@ export const verifyToken = async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Lien invalide ou expiré." });
     }
+
+    // MISE À JOUR ET SÉCURISATION :
+    // 1. On enregistre la date (Badge VERT)
+    // 2. On vide le token pour qu'il ne soit plus réutilisable (Sécurité)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        lastLogin: new Date(),
+        loginToken: null,
+        tokenExpires: null,
+      },
+    });
 
     const sessionToken = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
