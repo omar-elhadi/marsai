@@ -19,6 +19,8 @@ import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
 import FAQ from '@/components/Ressources/F-A-Q.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
+import ReglesConditions from './components/Ressources/regles-conditions.jsx';
+import Events from '@/pages/Events/Events.jsx'; 
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -71,6 +73,8 @@ function App() {
           */}
           <Route path="/login/verify" element={<VerifyToken />} />
           <Route path="/jury/dashboard" element={<JuryDashboard />} />
+          <Route path="/regles-conditions" element={<ReglesConditions />} />
+          <Route path="/events" element={<Events />} />
         </Route>
 
         {/* GROUPE : ZONE ADMIN SÉCURISÉE 

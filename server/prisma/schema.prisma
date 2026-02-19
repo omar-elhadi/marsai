@@ -55,8 +55,26 @@ model Film {
   title           String
   description     String     @db.Text
   country         String
-  youtubeUrl      String
   aiToolsUsed     String     @db.Text
+
+  // YouTube Information
+  youtubeVideoId    String?         @unique            // ID de la vidéo YouTube
+  youtubeUrl        String?                            // URL complète YouTube
+  youtubeStatus     YoutubeStatus?  @default(PENDING)  // Statut de modération YouTube
+  youtubeUploadedAt DateTime?                          // Date d'upload sur YouTube
+  youtubeModerationData Json?                          // Données brutes de modération
+  
+  // S3 Storage Information
+  s3VideoKey        String?                            // Clé du fichier dans S3
+  s3VideoUrl        String?                            // URL d'accès S3
+  
+  // Video Metadata
+  videoDuration     Float?                             // Durée en secondes
+  videoFormat       String?                            // Format (mp4, mov, etc.)
+  videoSize         Int?                               // Taille en bytes
+  videoWidth        Int?                               // Largeur en pixels
+  videoHeight       Int?                               // Hauteur en pixels
+  videoCodec        String?                            // Codec vidéo
 
   status          FilmStatus @default(PENDING)
 
@@ -70,6 +88,7 @@ model Film {
   votes           Vote[]
 
   @@index([status])
+  @@index([youtubeStatus])
   @@index([country])
   @@index([averageRating])
 
@@ -82,6 +101,17 @@ enum FilmStatus {
   FINALIST
   REJECTED
   TO_MODIFY
+}
+
+enum YoutubeStatus {
+  PENDING           // En attente d'upload/modération
+  UPLOADING         // Upload en cours
+  PROCESSING        // En cours de traitement YouTube
+  APPROVED          // Approuvé par YouTube
+  REJECTED          // Rejeté (contenu inapproprié)
+  EXPLICIT_CONTENT  // Contenu explicite détecté
+  VIOLENCE          // Violence détectée
+  FAILED            // Échec de l'upload
 }
 
 model Vote {

@@ -1,10 +1,17 @@
 import { useState } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Film, Users, Trophy, LogOut, Menu, X } from 'lucide-react';
 
 function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  
+  const handleLogout = () => {
+    localStorage.removeItem('marsai_token');
+    localStorage.removeItem('marsai_user');
+    navigate('/', { replace: true });
+  };
 
   const navItems = [
     { label: "Vue d'ensemble", path: "/admin", exact: true, icon: <LayoutDashboard size={20} /> },
@@ -66,7 +73,11 @@ function AdminLayout() {
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-950/30 hover:text-red-200 rounded-lg transition-colors text-sm font-bold uppercase tracking-wide">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-950/30 hover:text-red-200 rounded-lg transition-colors text-sm font-bold uppercase tracking-wide"
+          >
             <LogOut size={18} />
             <span>Sortir</span>
           </button>

@@ -1,16 +1,35 @@
-import { useState } from 'react';
-import Button from '../../components/Button'; // Import du nouveau composant
+import { useState, useRef } from 'react';
+import Button from '../../components/Button';
+import SubmissionStatus, { SUBMISSION_STATES } from '../../components/SubmissionStatus';
+import { submitFilm } from '../../services/submissionService';
 
 function SubmissionForm() {
-  
+  // State du formulaire
   const [formData, setFormData] = useState({
-    firstName: '', lastName: '', email: '',
-    title: '', description: '', country: '',
-    aiToolsUsed: '', youtubeUrl: '', acceptTerms: false,
+    firstName: '', 
+    lastName: '', 
+    email: '',
+    title: '', 
+    description: '', 
+    country: '',
+    aiToolsUsed: '', 
+    acceptTerms: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // State de la vidéo
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const videoInputRef = useRef(null);
 
+  // State de la soumission
+  const [submissionStatus, setSubmissionStatus] = useState(SUBMISSION_STATES.IDLE);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [submissionResult, setSubmissionResult] = useState(null);
+
+  /**
+   * Gestion des changements de champs du formulaire
+   */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -19,15 +38,101 @@ function SubmissionForm() {
     }));
   };
 
+  /**
+   * Gestion de la sélection de fichier vidéo
+   */
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    
+    if (!file) return;
+
+    // Validation côté client
+    const maxSize = 100 * 1024 * 1024; // 100 MB
+    if (file.size > maxSize) {
+      alert('Fichier trop volumineux. Taille maximale : 100 MB');
+      e.target.value = null;
+      return;
+    }
+
+    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Format non supporté. Utilisez MP4, MOV, AVI ou WEBM.');
+      e.target.value = null;
+      return;
+    }
+
+    setVideoFile(file);
+
+    // Créer une preview
+    const videoURL = URL.createObjectURL(file);
+    setVideoPreview(videoURL);
+  };
+
+  /**
+   * Suppression de la vidéo sélectionnée
+   */
+  const handleRemoveVideo = () => {
+    setVideoFile(null);
+    setVideoPreview(null);
+    if (videoInputRef.current) {
+      videoInputRef.current.value = null;
+    }
+  };
+
+  /**
+   * Soumission du formulaire
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.acceptTerms) return;
-    setIsSubmitting(true);
-    console.log("📦 Données :", formData);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert("Candidature envoyée.");
-    }, 1500);
+    
+    // Validations
+    if (!formData.acceptTerms) {
+      alert('Veuillez accepter les conditions');
+      return;
+    }
+
+    if (!videoFile) {
+      alert('Veuillez sélectionner une vidéo');
+      return;
+    }
+
+    try {
+      setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
+      setErrorMessage(null);
+
+      // Appel du service de soumission
+      const result = await submitFilm(
+        formData,
+        videoFile,
+        (progress) => {
+          setUploadProgress(progress);
+          
+          // Changer le statut selon la progression
+          if (progress < 30) {
+            setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
+          } else if (progress < 60) {
+            setSubmissionStatus(SUBMISSION_STATES.VALIDATING);
+          } else if (progress < 80) {
+            setSubmissionStatus(SUBMISSION_STATES.PROCESSING_S3);
+          } else if (progress < 95) {
+            setSubmissionStatus(SUBMISSION_STATES.PROCESSING_YOUTUBE);
+          } else {
+            setSubmissionStatus(SUBMISSION_STATES.CHECKING_MODERATION);
+          }
+        }
+      );
+
+      // Succès
+      setSubmissionStatus(SUBMISSION_STATES.SUCCESS);
+      setSubmissionResult(result.data);
+
+      console.log('✅ Soumission réussie:', result);
+
+    } catch (error) {
+      console.error('❌ Erreur soumission:', error);
+      setSubmissionStatus(SUBMISSION_STATES.ERROR);
+      setErrorMessage(error.message || 'Une erreur est survenue lors de la soumission');
+    }
   };
 
   const inputClass = "w-full bg-white/5 border border-white/10 rounded-sm px-4 py-3 text-slate-300 focus:text-white focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all placeholder-white/20 font-sans text-base";
@@ -79,13 +184,80 @@ function SubmissionForm() {
       </div>
 
       <div>
-        <label htmlFor="youtubeUrl" className={labelClass}>Lien du film (YouTube / Vimeo)</label>
-        <input type="url" id="youtubeUrl" name="youtubeUrl" required placeholder="HTTPS://..." className={inputClass} value={formData.youtubeUrl} onChange={handleChange} />
+        <label htmlFor="aiToolsUsed" className={labelClass}>Outils IA utilisés (Détails)</label>
+        <textarea id="aiToolsUsed" name="aiToolsUsed" rows="3" required placeholder="Listez les outils utilisés..." className={inputClass} value={formData.aiToolsUsed} onChange={handleChange} />
+      </div>
+
+      {/* --- BLOC VIDÉO --- */}
+      <div className="flex items-center gap-4 my-10 opacity-40">
+        <div className="h-px bg-gradient-to-r from-transparent via-white to-transparent flex-grow"></div>
+        <span className="text-white text-xs tracking-widest uppercase">La Vidéo</span>
+        <div className="h-px bg-gradient-to-r from-transparent via-white to-transparent flex-grow"></div>
       </div>
 
       <div>
-        <label htmlFor="aiToolsUsed" className={labelClass}>Outils IA utilisés (Détails)</label>
-        <textarea id="aiToolsUsed" name="aiToolsUsed" rows="3" required placeholder="Listez les outils utilisés..." className={inputClass} value={formData.aiToolsUsed} onChange={handleChange} />
+        <label htmlFor="video" className={labelClass}>Fichier Vidéo (Max 60 secondes)</label>
+        <input 
+          type="file" 
+          id="video" 
+          name="video"
+          ref={videoInputRef}
+          accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
+          required
+          onChange={handleVideoChange}
+          className="hidden"
+        />
+        
+        {!videoFile ? (
+          <button
+            type="button"
+            onClick={() => videoInputRef.current?.click()}
+            className="w-full bg-white/5 border-2 border-dashed border-white/20 rounded-sm px-4 py-8 text-slate-400 hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer"
+          >
+            <div className="flex flex-col items-center gap-3">
+              <svg className="w-12 h-12 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span className="font-sans text-sm tracking-wide uppercase">
+                Cliquez pour sélectionner une vidéo
+              </span>
+              <span className="text-xs text-white/40">
+                MP4, MOV, AVI, WEBM • Max 100 MB • Max 60 secondes
+              </span>
+            </div>
+          </button>
+        ) : (
+          <div className="bg-white/5 border border-white/20 rounded-sm p-4">
+            <div className="flex items-start gap-4">
+              {videoPreview && (
+                <video 
+                  src={videoPreview} 
+                  controls 
+                  className="w-48 h-32 object-cover rounded"
+                />
+              )}
+              <div className="flex-1">
+                <p className="text-white font-bold text-sm">{videoFile.name}</p>
+                <p className="text-white/60 text-xs mt-1">
+                  {(videoFile.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveVideo}
+                className="text-red-400 hover:text-red-300 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
+        <p className="text-[10px] text-white/30 mt-2 tracking-wider">
+          ⚠️ IMPORTANT : Votre vidéo doit durer maximum 60 secondes et être en résolution HD minimum (720p)
+        </p>
       </div>
 
       {/* --- VALIDATION --- */}
@@ -99,14 +271,46 @@ function SubmissionForm() {
       </div>
 
       <div className="flex justify-center pt-8">
-        {/* Utilisation du nouveau composant Button */}
         <Button 
           type="submit" 
-          disabled={!formData.acceptTerms || isSubmitting}
+          disabled={!formData.acceptTerms || !videoFile || submissionStatus !== SUBMISSION_STATES.IDLE}
         >
-          {isSubmitting ? 'Envoi...' : 'Soumettre le film'}
+          {submissionStatus !== SUBMISSION_STATES.IDLE && submissionStatus !== SUBMISSION_STATES.ERROR ? 
+            'Soumission en cours...' : 
+            'Soumettre le film'}
         </Button>
       </div>
+
+      {/* Composant de statut de soumission */}
+      <SubmissionStatus 
+        status={submissionStatus}
+        uploadProgress={uploadProgress}
+        errorMessage={errorMessage}
+      />
+
+      {/* Affichage du résultat de soumission */}
+      {submissionResult && submissionStatus === SUBMISSION_STATES.SUCCESS && (
+        <div className="mt-6 p-6 bg-green-500/10 border border-green-500/30 rounded backdrop-blur-sm">
+          <h4 className="text-green-400 font-bold text-lg mb-3">🎉 Film soumis avec succès !</h4>
+          <div className="space-y-2 text-sm text-white/80">
+            <p><strong>Token de soumission :</strong> <code className="bg-black/40 px-2 py-1 rounded">{submissionResult.submissionToken}</code></p>
+            <p><strong>Statut YouTube :</strong> {submissionResult.youtubeStatus}</p>
+            {submissionResult.youtubeUrl && (
+              <p>
+                <strong>Lien YouTube :</strong>{' '}
+                <a 
+                  href={submissionResult.youtubeUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-indigo-400 hover:text-indigo-300 underline"
+                >
+                  Voir sur YouTube
+                </a>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
     </form>
   );
