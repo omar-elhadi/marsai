@@ -5,8 +5,7 @@ const Header = () => {
   const links = [
     { name: 'Home', href: '/', active: false },
     { name: 'Galerie', href: '/galerie', active: false },
-    { name: 'Events', href: '#', active: false },
-    { name: 'Contact', href: '/contact', active: false },
+    { name: 'Events', href: '/events', active: false },
   ];
  
   return (
