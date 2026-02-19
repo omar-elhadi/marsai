@@ -504,8 +504,19 @@ function SubmissionForm() {
             <Link
               to="/conditions-utilisations"
               className="text-indigo-400 hover:text-indigo-300 underline"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               conditions d'utilisation
+            </Link>{" "}
+            et la{" "}
+            <Link
+              to="/politiquedeconfidentialite"
+              className="text-indigo-400 hover:text-indigo-300 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              politique de confidentialité
             </Link>
             .
           </span>
@@ -518,6 +529,7 @@ function SubmissionForm() {
           disabled={
             !formData.acceptTerms ||
             !videoFile ||
+            !subtitleFile ||
             submissionStatus !== SUBMISSION_STATES.IDLE
           }
         >
