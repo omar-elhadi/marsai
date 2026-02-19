@@ -26,7 +26,7 @@ export const getYouTubeAuthClient = () => {
     process.env.YOUTUBE_CLIENT_ID,
     process.env.YOUTUBE_CLIENT_SECRET,
     process.env.YOUTUBE_REDIRECT_URI ||
-      "http://localhost:5001/api/youtube/callback",
+      `http://localhost:${process.env.PORT}/api/youtube/callback`,
   );
 
   // Si un refresh token existe, le configurer
