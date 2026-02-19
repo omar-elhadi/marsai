@@ -26,6 +26,10 @@ function SubmissionForm() {
   const [videoPreview, setVideoPreview] = useState(null);
   const videoInputRef = useRef(null);
 
+  // State du fichier de sous-titres
+  const [subtitleFile, setSubtitleFile] = useState(null);
+  const subtitleInputRef = useRef(null);
+
   // State de la soumission
   const [submissionStatus, setSubmissionStatus] = useState(
     SUBMISSION_STATES.IDLE,
@@ -92,6 +96,50 @@ function SubmissionForm() {
   };
 
   /**
+   * Gestion de la sélection de fichier de sous-titres
+   */
+  const handleSubtitleChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    // Validation côté client
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+      alert("Fichier trop volumineux. Taille maximale : 5 MB");
+      e.target.value = null;
+      return;
+    }
+
+    const allowedTypes = ["text/vtt", "text/plain", "application/x-subrip"];
+    const allowedExtensions = [".srt", ".vtt", ".sbv"];
+    const fileExtension = file.name
+      .substring(file.name.lastIndexOf("."))
+      .toLowerCase();
+
+    if (
+      !allowedTypes.includes(file.type) &&
+      !allowedExtensions.includes(fileExtension)
+    ) {
+      alert("Format non supporté. Utilisez .srt, .vtt ou .sbv");
+      e.target.value = null;
+      return;
+    }
+
+    setSubtitleFile(file);
+  };
+
+  /**
+   * Suppression du fichier de sous-titres
+   */
+  const handleRemoveSubtitle = () => {
+    setSubtitleFile(null);
+    if (subtitleInputRef.current) {
+      subtitleInputRef.current.value = null;
+    }
+  };
+
+  /**
    * Soumission du formulaire
    */
   const handleSubmit = async (e) => {
@@ -113,22 +161,27 @@ function SubmissionForm() {
       setErrorMessage(null);
 
       // Appel du service de soumission
-      const result = await submitFilm(formData, videoFile, (progress) => {
-        setUploadProgress(progress);
+      const result = await submitFilm(
+        formData,
+        videoFile,
+        subtitleFile,
+        (progress) => {
+          setUploadProgress(progress);
 
-        // Changer le statut selon la progression
-        if (progress < 30) {
-          setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
-        } else if (progress < 60) {
-          setSubmissionStatus(SUBMISSION_STATES.VALIDATING);
-        } else if (progress < 80) {
-          setSubmissionStatus(SUBMISSION_STATES.PROCESSING_S3);
-        } else if (progress < 95) {
-          setSubmissionStatus(SUBMISSION_STATES.PROCESSING_YOUTUBE);
-        } else {
-          setSubmissionStatus(SUBMISSION_STATES.CHECKING_MODERATION);
-        }
-      });
+          // Changer le statut selon la progression
+          if (progress < 30) {
+            setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
+          } else if (progress < 60) {
+            setSubmissionStatus(SUBMISSION_STATES.VALIDATING);
+          } else if (progress < 80) {
+            setSubmissionStatus(SUBMISSION_STATES.PROCESSING_S3);
+          } else if (progress < 95) {
+            setSubmissionStatus(SUBMISSION_STATES.PROCESSING_YOUTUBE);
+          } else {
+            setSubmissionStatus(SUBMISSION_STATES.CHECKING_MODERATION);
+          }
+        },
+      );
 
       // Succès
       setSubmissionStatus(SUBMISSION_STATES.SUCCESS);
@@ -372,6 +425,66 @@ function SubmissionForm() {
         <p className="text-[10px] text-white/30 mt-2 tracking-wider">
           ⚠️ IMPORTANT : Votre vidéo doit durer maximum 60 secondes et être en
           résolution HD minimum (720p)
+        </p>
+      </div>
+
+      {/* --- FICHIER SOUS-TITRES (OPTIONNEL) --- */}
+      <div>
+        <label htmlFor="subtitle" className={labelClass}>
+          Fichier de Sous-titres (Optionnel)
+        </label>
+        <input
+          type="file"
+          id="subtitle"
+          name="subtitle"
+          ref={subtitleInputRef}
+          accept=".srt,.vtt,.sbv,text/vtt,text/plain,application/x-subrip"
+          onChange={handleSubtitleChange}
+          className="hidden"
+        />
+
+        {!subtitleFile ? (
+          <button
+            type="button"
+            onClick={() => subtitleInputRef.current?.click()}
+            className="w-full bg-white/5 border-2 border-dashed border-white/20 rounded-sm px-4 py-6 text-slate-400 hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <Upload className="w-8 h-8 text-white/40" />
+              <span className="font-sans text-sm tracking-wide uppercase">
+                Ajouter un fichier de sous-titres
+              </span>
+              <span className="text-xs text-white/40">
+                .SRT, .VTT, .SBV • Max 5 MB
+              </span>
+            </div>
+          </button>
+        ) : (
+          <div className="bg-white/5 border border-white/20 rounded-sm p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-white font-bold text-sm">
+                  {subtitleFile.name}
+                </p>
+                <p className="text-white/60 text-xs mt-1">
+                  {(subtitleFile.size / 1024).toFixed(2)} KB
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveSubtitle}
+                className="text-red-400 hover:text-red-300 transition-colors"
+                aria-label="Supprimer le fichier de sous-titres"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <p className="text-[10px] text-white/30 mt-2 tracking-wider">
+          Les sous-titres seront automatiquement ajoutés à votre vidéo sur
+          YouTube
         </p>
       </div>
 

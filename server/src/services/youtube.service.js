@@ -113,6 +113,77 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
 };
 
 /**
+ * Upload un fichier de sous-titres vers YouTube
+ *
+ * @param {string} videoId - ID de la vidéo YouTube
+ * @param {Buffer} subtitleBuffer - Buffer du fichier de sous-titres
+ * @param {string} language - Code de langue (ex: 'fr', 'en')
+ * @param {string} name - Nom des sous-titres (ex: 'French')
+ * @returns {Promise<Object>} Résultat de l'upload
+ */
+export const uploadCaptionToYouTube = async (
+  videoId,
+  subtitleBuffer,
+  language = "fr",
+  name = "French",
+) => {
+  try {
+    const oauth2Client = getYouTubeAuthClient();
+    const youtube = getAuthenticatedYouTubeClient(oauth2Client);
+
+    // Convertir le Buffer en Stream lisible
+    const subtitleStream = Readable.from(subtitleBuffer);
+
+    console.log(
+      `📝 Upload des sous-titres vers YouTube pour la vidéo ${videoId}...`,
+    );
+
+    // Upload des captions
+    const response = await youtube.captions.insert({
+      part: ["snippet"],
+      requestBody: {
+        snippet: {
+          videoId: videoId,
+          language: language,
+          name: name,
+          isDraft: false,
+        },
+      },
+      media: {
+        mimeType: "application/octet-stream",
+        body: subtitleStream,
+      },
+    });
+
+    console.log(
+      `✅ Sous-titres uploadés avec succès (ID: ${response.data.id})`,
+    );
+
+    return {
+      success: true,
+      captionId: response.data.id,
+      language: response.data.snippet.language,
+      name: response.data.snippet.name,
+    };
+  } catch (error) {
+    console.error("❌ Erreur upload sous-titres YouTube:", error);
+
+    if (error.code === 403) {
+      console.warn(
+        "⚠️  Permissions YouTube insuffisantes pour les sous-titres",
+      );
+      throw new Error(
+        "Permissions insuffisantes pour uploader des sous-titres sur YouTube",
+      );
+    }
+
+    throw new Error(
+      `Erreur lors de l'upload des sous-titres : ${error.message}`,
+    );
+  }
+};
+
+/**
  * Récupère le statut de modération d'une vidéo YouTube
  *
  * @param {string} videoId - ID de la vidéo YouTube

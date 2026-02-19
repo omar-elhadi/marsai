@@ -51,7 +51,7 @@ export const createSubmission = async (req, res) => {
     // ============================================================
     // 1. VALIDATION DU FICHIER VIDÉO
     // ============================================================
-    if (!req.file) {
+    if (!req.files || !req.files.video || !req.files.video[0]) {
       return res.status(400).json({
         success: false,
         error: "Aucun fichier vidéo fourni",
@@ -59,10 +59,20 @@ export const createSubmission = async (req, res) => {
       });
     }
 
-    console.log("📦 Fichier reçu:");
-    console.log(`   Nom: ${req.file.originalname}`);
-    console.log(`   Taille: ${(req.file.size / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   Type MIME: ${req.file.mimetype}\n`);
+    const videoFile = req.files.video[0];
+    const subtitleFile = req.files.subtitle ? req.files.subtitle[0] : null;
+
+    console.log("📦 Fichier vidéo reçu:");
+    console.log(`   Nom: ${videoFile.originalname}`);
+    console.log(`   Taille: ${(videoFile.size / 1024 / 1024).toFixed(2)} MB`);
+    console.log(`   Type MIME: ${videoFile.mimetype}\n`);
+
+    if (subtitleFile) {
+      console.log("📝 Fichier de sous-titres reçu:");
+      console.log(`   Nom: ${subtitleFile.originalname}`);
+      console.log(`   Taille: ${(subtitleFile.size / 1024).toFixed(2)} KB`);
+      console.log(`   Type MIME: ${subtitleFile.mimetype}\n`);
+    }
 
     // ============================================================
     // 2. VALIDATION DES DONNÉES DU FORMULAIRE
@@ -92,7 +102,7 @@ export const createSubmission = async (req, res) => {
     // ============================================================
     // 3. EXÉCUTION DU WORKFLOW DE SOUMISSION
     // ============================================================
-    const result = await submitFilm(formData, req.file);
+    const result = await submitFilm(formData, videoFile, subtitleFile);
 
     // ============================================================
     // 4. RÉPONSE DE SUCCÈS
