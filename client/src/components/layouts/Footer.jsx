@@ -103,9 +103,6 @@ function Footer() {
             <h2 className="text-white text-5xl md:text-7xl font-black mb-2 tracking-tighter uppercase">
               MARSAI
             </h2>
-            <p className="text-xl md:text-2xl text-amber-400/80 font-light tracking-widest uppercase">
-              L'apogée du cinéma génératif
-            </p>
           </div>
           <div className="flex items-center space-x-3 mt-6 md:mt-0 text-sm tracking-widest text-purple-300/60 uppercase">
             <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></span>
