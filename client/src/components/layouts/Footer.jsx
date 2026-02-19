@@ -53,7 +53,7 @@ function Footer() {
               Participer
             </h3>
             <ul className="space-y-2 text-xs">
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="soumettre" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Soumettre un film
               </a></li>
@@ -61,7 +61,7 @@ function Footer() {
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Règlement du concours
               </a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="calendrier" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Calendrier
               </a></li>
@@ -78,7 +78,7 @@ function Footer() {
               Ressources
             </h3>
             <ul className="space-y-2 text-xs">
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="F-A-Q" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 FAQ
               </a></li>
@@ -86,7 +86,7 @@ function Footer() {
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Actualités
               </a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="contact" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Contact
               </a></li>
@@ -99,19 +99,19 @@ function Footer() {
               Légal
             </h3>
             <ul className="space-y-2 text-xs">
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="Mention" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Mentions légales
               </a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="PolitiqueDeConfidentialite" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Confidentialité
               </a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="regles-conditions" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 CGU
               </a></li>
-              <li><a href="#" className="hover:text-purple-400 transition-colors flex items-center group">
+              <li><a href="cookies" className="hover:text-purple-400 transition-colors flex items-center group">
                 <span className="w-1 h-1 bg-gray-600 rounded-full mr-2 group-hover:bg-purple-400 transition-colors"></span>
                 Cookies
               </a></li>
