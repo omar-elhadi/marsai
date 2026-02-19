@@ -30,27 +30,6 @@ const TypewriterHeader = ({ text }) => {
 const ReglesConditions = () => {
   return (
     <div className="regles-conditions flex items-center justify-center min-h-screen bg-[#0d0214] p-6 font-serif relative overflow-hidden">
-      
-      {/* EFFET GRAIN DE PELLICULE ET VIGNETTAGE 70s ROSE/VIOLET */}
-      <style>{`
-        @keyframes filmFlicker {
-          0% { opacity: 0.98; }
-          50% { opacity: 1; }
-          100% { opacity: 0.99; }
-        }
-        .retro-cinema {
-          background: radial-gradient(circle, transparent 20%, #000 150%);
-          animation: filmFlicker 0.15s infinite;
-        }
-        .breathe-neon-70s {
-          animation: breatheNeon 5s infinite ease-in-out;
-        }
-        @keyframes breatheNeon {
-          0%, 100% { border-color: #701a75; box-shadow: 0 0 15px rgba(112, 26, 117, 0.3); }
-          50% { border-color: #d946ef; box-shadow: 0 0 30px rgba(217, 70, 239, 0.5); }
-        }
-      `}</style>
-
       {/* Overlay Grain de film et texture poussière */}
       <div className="absolute inset-0 pointer-events-none opacity-10 retro-cinema bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
 
