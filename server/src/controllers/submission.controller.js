@@ -19,7 +19,7 @@ import {
 /**
  * Schéma de validation Zod pour les données de soumission
  */
-const submissionSchema = z.object({
+const submission Schema = z.object({
   // Informations du submitter
   firstName: z.string().min(2, "Prénom trop court").max(100),
   lastName: z.string().min(2, "Nom trop court").max(100),
@@ -27,6 +27,7 @@ const submissionSchema = z.object({
 
   // Informations du film
   title: z.string().min(3, "Titre trop court").max(200),
+  subtitle: z.string().max(200).optional(),
   description: z.string().min(10, "Description trop courte").max(2000),
   country: z.string().min(2, "Pays invalide").max(100),
   aiToolsUsed: z

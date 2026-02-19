@@ -44,6 +44,7 @@ model Film {
   submissionToken String     @unique @default(uuid())
 
   title           String
+  subtitle        String?
   description     String     @db.Text
   country         String
   aiToolsUsed     String     @db.Text
