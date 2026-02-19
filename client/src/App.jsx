@@ -17,6 +17,7 @@ import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
 import FAQ from '@/components/Ressources/F-A-Q.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
+import Events from '@/pages/Events/Events.jsx'; 
 
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
@@ -52,6 +53,7 @@ function App() {
           <Route path="/F-A-Q" element={<FAQ />} />
           <Route path="/calendrier" element={<Calendrier />} />
           <Route path="/regles-conditions" element={<ReglesConditions />} />
+          <Route path="/events" element={<Events />} />
         </Route>
 
     {/* --- ZONE ADMIN SÉCURISÉE --- */}
