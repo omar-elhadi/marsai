@@ -25,11 +25,18 @@ Communication
 Core
 ├─ Vite 7.2.4 - Build tool client (dev server HMR + bundler production)
 ├─ React 19.2.0
+├─ React DOM 19.2.0 - React DOM package
 └─ React Router DOM 7.13.0 (routing)
 
 Styling
 ├─ Tailwind CSS 4.1.18 (stable)
-└─ Lucid-react 0.563.0
+├─ @tailwindcss/vite 4.1.18 - Plugin Vite pour Tailwind
+└─ Lucide-react 0.563.0 - Bibliothèque d'icônes
+
+Animations
+├─ GSAP 3.14.2 - Bibliothèque d'animations JavaScript
+├─ @gsap/react 2.1.2 - Wrapper React pour GSAP
+└─ Lenis 1.3.17 - Smooth scrolling library
 
 Fonts
 ├─ Cy (logo, titres, sous-titres)
@@ -37,50 +44,51 @@ Fonts
 └─ Inter (navigation, contenu)
 
 HTTP Client
-└─ Axios
+└─ Axios 1.13.5
 
 Form & Validation
-├─ React Hook Form (optionnel)
 └─ prop-types 15.8.1 - Validation des types de props des composants
 
 State Management
 └─ React Context API (suffisant pour MVP)
+
+Dev Dependencies
+├─ @vitejs/plugin-react 5.1.1 - Plugin React pour Vite
+├─ ESLint 9.39.1 - Linter JavaScript
+├─ @eslint/js 9.39.1 - Configuration ESLint JavaScript
+├─ eslint-plugin-react-hooks 7.0.1 - Règles ESLint pour hooks React
+├─ eslint-plugin-react-refresh 0.4.24 - Plugin ESLint pour React Refresh
+├─ @types/react 19.2.5 - Types TypeScript pour React
+├─ @types/react-dom 19.2.3 - Types TypeScript pour React DOM
+└─ globals 16.5.0 - Variables globales pour ESLint
 ```
 
 ### Server
 
 ```
 Database
-└─ MysSQL 8.4.8 lts- SGBD relationnel
+└─ MySQL 8.4.8 LTS - SGBD relationnel
 
 Runtime & Base
 ├─ Node.js 24.13.0 LTS - Environnement JavaScript côté serveur
 └─ npm : 11.6.2
-
-Packages npm (à installer dans projet)
 
 Framework
 └─ Express.js 5.2.1 - Framework web minimaliste pour créer API REST
 
 ORM
 ├─ Prisma 6.19.2 - ORM moderne avec migrations auto et typage fort
-└─ @prisma/client 7.3.0 - Client Prisma généré (queries BDD)
+└─ @prisma/client 6.19.2 - Client Prisma généré (queries BDD)
 
 Authentication
-├─ jsonwebtoken 9.0.3 - Génération et vérification tokens JWT
-└─ Argon 2id 1.0.1 - Implémentation rapide et légère d'Argon2id pour le navigateur et Nodejs
-
-Email
-└─ nodemailer 8.0.0 - Envoi emails SMTP (via Gmail gratuit 500/jour)
+├─ jsonwebtoken 9.0.2 - Génération et vérification tokens JWT
+└─ bcrypt 5.1.1 - Hashage sécurisé des mots de passe
 
 Sécurité
-├─ helmet 8.0.0 - Headers HTTP sécurisés (protection XSS, clickjacking)
-├─ cors 2.8.6 - Configuration CORS (autoriser frontend appeler API)
-└─ express-rate-limit 8.2.1 - Rate limiting (limite requêtes/IP, anti-spam)
+└─ cors 2.8.6 - Configuration CORS (autoriser frontend appeler API)
 
 Utilitaires
-├─ dotenv 17.2.4 - Chargement variables environnement (.env), package.json(--dev)
-└─ axios 1.13.4 - Client HTTP (appels YouTube API)
+└─ dotenv 17.2.3 - Chargement variables environnement (.env)
 
 Validation
 └─ zod 3.24.1 - Schémas de validation avec typage TypeScript
@@ -98,6 +106,9 @@ APIs externes
 ├─ googleapis 171.4.0 - Client officiel Google APIs (YouTube Data API v3)
 └─ YouTube Data API v3 - Upload et modération vidéos YouTube
    OAuth 2.0 + Clé API gratuite (10,000 unités/jour, ~6 uploads/jour)
+
+Dev Dependencies
+└─ nodemon 3.1.11 - Redémarrage automatique du serveur en développement
 
 ```
 
