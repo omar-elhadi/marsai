@@ -1,100 +1,134 @@
-import { userService } from "../services/user.service.js";
-import { z } from "zod";
+import prisma from "../config/prisma.js"; // SANS les accolades
+import crypto from "crypto";
+import { mailService } from "../services/mail.service.js";
 
-// 1. Schéma de validation pour la CRÉATION
-const userSchema = z.object({
-  email: z.string().email("Format d'email invalide"),
-  password: z
-    .string()
-    .min(6, "Le mot de passe doit faire au moins 6 caractères"),
-  firstName: z.string().min(2, "Le prénom est trop court"),
-  lastName: z.string().min(2, "Le nom est trop court"),
-  role: z.enum(["ADMIN", "JURY"]).optional(),
-});
-
-// 2. Schéma de validation pour la MISE À JOUR (Champs optionnels)
-const updateUserSchema = z.object({
-  email: z.string().email("Format d'email invalide").optional(),
-  password: z
-    .string()
-    .min(6, "Le mot de passe doit faire au moins 6 caractères")
-    .optional()
-    .nullable(),
-  firstName: z.string().min(2, "Le prénom est trop court").optional(),
-  lastName: z.string().min(2, "Le nom est trop court").optional(),
-  role: z.enum(["ADMIN", "JURY"]).optional(),
-});
-
+/**
+ * CONTRÔLEUR : Gestion des Utilisateurs
+ * Gère le CRUD et l'envoi des invitations Magic Link.
+ */
 export const userController = {
-  // CRÉER un utilisateur
-  create: async (req, res) => {
+  /**
+   * Récupérer tous les membres (Admin & Jury)
+   */
+  getAll: async (req, res) => {
     try {
-      const validatedData = userSchema.parse(req.body);
-      const newUser = await userService.create(validatedData);
-      res.status(201).json(newUser);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: "Validation échouée",
-          details: error.flatten().fieldErrors,
-        });
-      }
-      console.error("Erreur création user:", error);
-      res.status(500).json({ error: error.message || "Erreur serveur" });
-    }
-  },
-
-  // LISTER les utilisateurs
-  list: async (req, res) => {
-    try {
-      const users = await userService.findAll();
+      const users = await prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+      });
       res.json(users);
     } catch (error) {
       res
         .status(500)
-        .json({ error: "Impossible de récupérer les utilisateurs" });
+        .json({ message: "Erreur lors de la récupération des membres" });
     }
   },
 
-  // MODIFIER un utilisateur
+  /**
+   * Création d'un nouveau membre
+   * Note : Si le password est absent, le compte reste "en attente" d'activation via Magic Link.
+   */
+  register: async (req, res) => {
+    try {
+      const { email, password, firstName, lastName, role } = req.body;
+
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          password, // Sera null si non fourni (Jury)
+          firstName,
+          lastName,
+          role: role || "JURY",
+        },
+      });
+
+      res.status(201).json(newUser);
+    } catch (error) {
+      res
+        .status(400)
+        .json({ message: "Erreur lors de la création : " + error.message });
+    }
+  },
+
+  /**
+   * ENVOI DE L'INVITATION (Magic Link)
+   * Génère un token unique, définit une expiration et envoie le mail.
+   */
+  sendInvite: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // 1. Récupération du membre
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(id) },
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: "Membre introuvable" });
+      }
+
+      // 2. Génération d'un token sécurisé de 64 caractères (hex)
+      const token = crypto.randomBytes(32).toString("hex");
+
+      // 3. Calcul de l'expiration (+24 heures)
+      const expires = new Date();
+      expires.setHours(expires.getHours() + 24);
+
+      // 4. Mise à jour en base de données
+      // On utilise les noms de colonnes exacts de ton schéma : loginToken et tokenExpires
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          loginToken: token,
+          tokenExpires: expires,
+        },
+      });
+
+      // 5. Envoi effectif de l'email via le service
+      await mailService.sendMagicLink(user.email, token, user.firstName);
+
+      res.json({
+        message: `Lien magique envoyé avec succès à ${user.firstName} (${user.email})`,
+      });
+    } catch (error) {
+      console.error("Erreur sendInvite:", error);
+      res.status(500).json({
+        message:
+          "Échec de l'envoi de l'invitation. Vérifiez la configuration SMTP.",
+      });
+    }
+  },
+
+  /**
+   * Mise à jour d'un membre
+   */
   update: async (req, res) => {
     try {
       const { id } = req.params;
+      const data = req.body;
 
-      // On valide les données avec le schéma de mise à jour
-      const validatedData = updateUserSchema.parse(req.body);
+      const updatedUser = await prisma.user.update({
+        where: { id: parseInt(id) },
+        data,
+      });
 
-      // On nettoie l'objet pour ne pas envoyer de champs "undefined" au service
-      const updateData = Object.fromEntries(
-        Object.entries(validatedData).filter(([_, v]) => v !== undefined),
-      );
-
-      const updatedUser = await userService.update(id, updateData);
       res.json(updatedUser);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: "Validation échouée",
-          details: error.flatten().fieldErrors,
-        });
-      }
-      console.error("Erreur lors de l'update :", error);
-      res
-        .status(500)
-        .json({ error: "Erreur lors de la mise à jour de l'utilisateur" });
+      res.status(400).json({ message: "Erreur lors de la mise à jour" });
     }
   },
 
-  // SUPPRIMER un utilisateur
-  remove: async (req, res) => {
+  /**
+   * Suppression d'un membre
+   */
+  delete: async (req, res) => {
     try {
       const { id } = req.params;
-      await userService.delete(id);
-      res.status(204).send();
+      await prisma.user.delete({
+        where: { id: parseInt(id) },
+      });
+      res.json({ message: "Membre supprimé" });
     } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Erreur lors de la suppression de l'utilisateur" });
+      res.status(400).json({ message: "Erreur lors de la suppression" });
     }
   },
 };
