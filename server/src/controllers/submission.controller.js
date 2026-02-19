@@ -19,7 +19,7 @@ import {
 /**
  * Schéma de validation Zod pour les données de soumission
  */
-const submission Schema = z.object({
+const submissionSchema = z.object({
   // Informations du submitter
   firstName: z.string().min(2, "Prénom trop court").max(100),
   lastName: z.string().min(2, "Nom trop court").max(100),
