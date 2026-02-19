@@ -58,9 +58,9 @@ function SubmissionForm() {
     if (!file) return;
 
     // Validation côté client
-    const maxSize = 100 * 1024 * 1024; // 100 MB
+    const maxSize = 500 * 1024 * 1024; // 500 MB
     if (file.size > maxSize) {
-      alert("Fichier trop volumineux. Taille maximale : 100 MB");
+      alert("Fichier trop volumineux. Taille maximale : 500 MB");
       e.target.value = null;
       return;
     }
@@ -391,7 +391,7 @@ function SubmissionForm() {
                 Cliquez pour sélectionner une vidéo
               </span>
               <span className="text-xs text-white/40">
-                MP4, MOV, AVI, WEBM • Max 100 MB • Max 60 secondes
+                MP4, MOV, AVI, WEBM • Max 500 MB • Max 60 secondes
               </span>
             </div>
           </button>
@@ -424,8 +424,7 @@ function SubmissionForm() {
         )}
 
         <p className="text-[10px] text-white/30 mt-2 tracking-wider">
-          ⚠️ IMPORTANT : Votre vidéo doit durer maximum 60 secondes et être en
-          résolution HD minimum (720p)
+          ⚠️ IMPORTANT : Votre vidéo doit durer maximum 60 secondes
         </p>
       </div>
 
