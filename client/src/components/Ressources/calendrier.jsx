@@ -23,25 +23,25 @@ const Calendrier = () => {
   ];
 
   return (
-    <div className="calendar-page bg-black text-white p-8 rounded-lg shadow-md font-serif italic min-h-screen flex flex-col items-center justify-center">
-      <h1 className="text-3xl font-bold mb-6 text-center">Calendrier du Festival MarsAI</h1>
-      <p className="text-center mb-8 max-w-3xl">
+    <div className="calendar-page bg-black text-purple-500 p-8 rounded-lg shadow-md font-serif italic min-h-screen flex flex-col items-center justify-center">
+      <h1 className="text-3xl font-bold mb-6 text-center text-white font-serif italic">Calendrier du Festival MarsAI</h1>
+      <p className="text-center mb-8 max-w-3xl text-purple-500">
         La page Calendrier du festival MarsAI présente l’ensemble des événements programmés tout au long du festival : conférences, ateliers, performances artistiques, projections et rencontres. Les visiteurs peuvent consulter les activités par date, heure ou lieu, avec des filtres pratiques pour personnaliser leur expérience. Chaque événement dispose d’une fiche détaillée (description, intervenants, horaires et emplacement) afin de faciliter l’organisation et permettre à chacun de planifier pleinement son parcours au cœur de MarsAI.
       </p>
       <div className="w-full max-w-4xl flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-4 text-center">Événements à venir</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center text-white font-serif italic">Événements à venir</h2>
         <div className="space-y-4 w-full">
           {events.map((event, index) => (
-            <div key={index} className="border border-gray-700 rounded">
+            <div key={index} className="border-4 border-purple-500 rounded-lg">
               <button
                 onClick={() => toggleAccordion(index)}
-                className="w-full text-center p-4 bg-gray-800 text-gray-300 font-bold hover:bg-gray-700"
+                className="w-full text-center p-4 bg-gray-800 text-white font-bold hover:bg-gray-700 rounded-t-lg"
               >
                 {event.title}
               </button>
               {openIndex === index && (
-                <div className="p-4 bg-gray-900 text-gray-300">
-                  <pre className="whitespace-pre-wrap text-center">{event.details}</pre>
+                <div className="p-4 bg-gray-900 text-white border-4 border-purple-500 rounded-b-lg">
+                  <pre className="whitespace-pre-wrap text-center font-serif italic">{event.details}</pre>
                 </div>
               )}
             </div>
