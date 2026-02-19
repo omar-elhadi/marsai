@@ -19,6 +19,7 @@ function SubmissionForm() {
     country: "",
     aiToolsUsed: "",
     acceptTerms: false,
+    acceptPrivacy: false,
   });
 
   // State de la vidéo
@@ -143,7 +144,12 @@ function SubmissionForm() {
 
     // Validations
     if (!formData.acceptTerms) {
-      alert("Veuillez accepter les conditions");
+      alert("Veuillez accepter les conditions d'utilisation");
+      return;
+    }
+
+    if (!formData.acceptPrivacy) {
+      alert("Veuillez accepter la politique de confidentialité");
       return;
     }
 
@@ -490,7 +496,7 @@ function SubmissionForm() {
       </div>
 
       {/* --- VALIDATION --- */}
-      <div className="pt-6 border-t border-white/5 mt-8">
+      <div className="pt-6 border-t border-white/5 mt-8 space-y-4">
         <label className="flex items-center gap-4 cursor-pointer group">
           <input
             type="checkbox"
@@ -508,8 +514,20 @@ function SubmissionForm() {
               rel="noopener noreferrer"
             >
               conditions d'utilisation
-            </Link>{" "}
-            et la{" "}
+            </Link>
+          </span>
+        </label>
+
+        <label className="flex items-center gap-4 cursor-pointer group">
+          <input
+            type="checkbox"
+            name="acceptPrivacy"
+            checked={formData.acceptPrivacy}
+            onChange={handleChange}
+            className="w-5 h-5 rounded-none border border-white/30 bg-transparent text-indigo-500 focus:ring-0 checked:bg-indigo-500 checked:border-transparent"
+          />
+          <span className="text-slate-400 group-hover:text-white transition-colors font-sans text-xs tracking-wide uppercase">
+            J'accepte la{" "}
             <Link
               to="/politiquedeconfidentialite"
               className="text-indigo-400 hover:text-indigo-300 underline"
@@ -518,7 +536,6 @@ function SubmissionForm() {
             >
               politique de confidentialité
             </Link>
-            .
           </span>
         </label>
       </div>
@@ -528,6 +545,7 @@ function SubmissionForm() {
           type="submit"
           disabled={
             !formData.acceptTerms ||
+            !formData.acceptPrivacy ||
             !videoFile ||
             !subtitleFile ||
             submissionStatus !== SUBMISSION_STATES.IDLE
