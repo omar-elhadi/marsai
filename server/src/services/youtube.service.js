@@ -56,8 +56,6 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
       },
     };
 
-    console.log("📤 Upload vers YouTube en cours...");
-
     // 4. Upload de la vidéo
     const response = await youtube.videos.insert({
       part: ["snippet", "status", "contentDetails"],
@@ -69,8 +67,6 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
 
     const videoId = response.data.id;
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-    console.log(`✅ Vidéo uploadée avec succès : ${videoUrl}`);
 
     // 5. Retour des informations
     return {
@@ -85,7 +81,7 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
       duration: response.data.contentDetails?.duration,
     };
   } catch (error) {
-    console.error("❌ Erreur upload YouTube:", error);
+    console.error("YouTube upload error:", error);
 
     // Gestion des erreurs spécifiques YouTube
     if (error.code === 401) {
@@ -134,10 +130,6 @@ export const uploadCaptionToYouTube = async (
     // Convertir le Buffer en Stream lisible
     const subtitleStream = Readable.from(subtitleBuffer);
 
-    console.log(
-      `📝 Upload des sous-titres vers YouTube pour la vidéo ${videoId}...`,
-    );
-
     // Upload des captions
     const response = await youtube.captions.insert({
       part: ["snippet"],
@@ -155,10 +147,6 @@ export const uploadCaptionToYouTube = async (
       },
     });
 
-    console.log(
-      `✅ Sous-titres uploadés avec succès (ID: ${response.data.id})`,
-    );
-
     return {
       success: true,
       captionId: response.data.id,
@@ -166,12 +154,9 @@ export const uploadCaptionToYouTube = async (
       name: response.data.snippet.name,
     };
   } catch (error) {
-    console.error("❌ Erreur upload sous-titres YouTube:", error);
+    console.error("YouTube caption upload error:", error);
 
     if (error.code === 403) {
-      console.warn(
-        "⚠️  Permissions YouTube insuffisantes pour les sous-titres",
-      );
       throw new Error(
         "Permissions insuffisantes pour uploader des sous-titres sur YouTube",
       );
@@ -198,10 +183,6 @@ export const uploadThumbnailToYouTube = async (videoId, thumbnailBuffer) => {
     // Convertir le Buffer en Stream lisible
     const thumbnailStream = Readable.from(thumbnailBuffer);
 
-    console.log(
-      `🖼️  Upload de la miniature vers YouTube pour la vidéo ${videoId}...`,
-    );
-
     // Upload de la miniature
     const response = await youtube.thumbnails.set({
       videoId: videoId,
@@ -211,17 +192,14 @@ export const uploadThumbnailToYouTube = async (videoId, thumbnailBuffer) => {
       },
     });
 
-    console.log(`✅ Miniature uploadée avec succès`);
-
     return {
       success: true,
       thumbnails: response.data.items[0].default,
     };
   } catch (error) {
-    console.error("❌ Erreur upload miniature YouTube:", error);
+    console.error("YouTube thumbnail upload error:", error);
 
     if (error.code === 403) {
-      console.warn("⚠️  Permissions YouTube insuffisantes pour les miniatures");
       throw new Error(
         "Permissions insuffisantes pour uploader des miniatures sur YouTube",
       );
@@ -314,7 +292,7 @@ export const checkVideoModerationStatus = async (videoId) => {
 
     return moderationStatus;
   } catch (error) {
-    console.error("❌ Erreur vérification statut YouTube:", error);
+    console.error("YouTube status check error:", error);
     throw new Error(`Impossible de vérifier le statut : ${error.message}`);
   }
 };
@@ -332,13 +310,9 @@ export const waitForVideoProcessing = async (
   maxAttempts = 20,
   intervalMs = 10000,
 ) => {
-  console.log(`⏳ Attente du traitement de la vidéo ${videoId}...`);
-
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const status = await checkVideoModerationStatus(videoId);
-
-      console.log(`[${attempt}/${maxAttempts}] Statut: ${status.uploadStatus}`);
 
       // Si traité ou rejeté, on retourne le statut
       if (
@@ -346,18 +320,16 @@ export const waitForVideoProcessing = async (
         status.uploadStatus === "rejected" ||
         status.uploadStatus === "failed"
       ) {
-        console.log(`✅ Traitement terminé: ${status.message}`);
         return status;
       }
 
       // Sinon, on attend avant de réessayer
       if (attempt < maxAttempts) {
-        console.log(`⏱️  Prochain essai dans ${intervalMs / 1000}s...`);
         await new Promise((resolve) => setTimeout(resolve, intervalMs));
       }
     } catch (error) {
       console.error(
-        `❌ Erreur lors de la tentative ${attempt}:`,
+        `Error on attempt ${attempt}:`,
         error.message,
       );
 
@@ -404,7 +376,7 @@ export const updateVideoMetadata = async (videoId, updates) => {
 
     return response.data;
   } catch (error) {
-    console.error("❌ Erreur mise à jour vidéo:", error);
+    console.error("YouTube video update error:", error);
     throw new Error(`Impossible de mettre à jour la vidéo : ${error.message}`);
   }
 };
@@ -424,10 +396,9 @@ export const deleteVideo = async (videoId) => {
       id: videoId,
     });
 
-    console.log(`🗑️  Vidéo ${videoId} supprimée de YouTube`);
     return true;
   } catch (error) {
-    console.error("❌ Erreur suppression vidéo:", error);
+    console.error("YouTube video deletion error:", error);
     throw new Error(`Impossible de supprimer la vidéo : ${error.message}`);
   }
 };
@@ -464,7 +435,7 @@ export const getVideoStatistics = async (videoId) => {
       favoriteCount: parseInt(video.statistics.favoriteCount || 0),
     };
   } catch (error) {
-    console.error("❌ Erreur récupération statistiques:", error);
+    console.error("YouTube statistics retrieval error:", error);
     throw new Error(
       `Impossible de récupérer les statistiques : ${error.message}`,
     );

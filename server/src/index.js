@@ -19,7 +19,7 @@ import submissionRoutes from "./routes/submission.routes.js";
 // --- GARDE-FOU (FAIL-SAFE) ---
 // On vérifie que les variables critiques sont présentes avant de démarrer.
 if (!process.env.JWT_SECRET) {
-  console.error("❌ ERREUR : JWT_SECRET est manquant dans le fichier .env");
+  console.error("ERROR: JWT_SECRET is missing in .env file");
   process.exit(1); // Arrête le processus en cas de danger sécuritaire
 }
 
@@ -87,8 +87,5 @@ app.use((req, res) => {
 
 // --- DÉMARRAGE DU SERVEUR ---
 app.listen(PORT, () => {
-  console.log("-------------------------------------------------");
-  console.log(`✅ Serveur prêt sur : http://localhost:${PORT}`);
-  console.log(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
-  console.log("-------------------------------------------------");
+  console.log(`Server running on http://localhost:${PORT}`);
 });

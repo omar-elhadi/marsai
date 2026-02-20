@@ -45,9 +45,6 @@ const submissionSchema = z.object({
  */
 export const createSubmission = async (req, res) => {
   try {
-    console.log("\n📥 NOUVELLE REQUÊTE DE SOUMISSION");
-    console.log("===================================\n");
-
     // ============================================================
     // 1. VALIDATION DU FICHIER VIDÉO
     // ============================================================
@@ -62,11 +59,6 @@ export const createSubmission = async (req, res) => {
     const videoFile = req.files.video[0];
     const subtitleFile = req.files.subtitle ? req.files.subtitle[0] : null;
     const posterFile = req.files.poster ? req.files.poster[0] : null;
-
-    console.log("📦 Fichier vidéo reçu:");
-    console.log(`   Nom: ${videoFile.originalname}`);
-    console.log(`   Taille: ${(videoFile.size / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   Type MIME: ${videoFile.mimetype}\n`);
 
     // Validation du fichier de sous-titres (OBLIGATOIRE)
     if (!subtitleFile) {
@@ -92,11 +84,6 @@ export const createSubmission = async (req, res) => {
       });
     }
 
-    console.log("📝 Fichier de sous-titres reçu:");
-    console.log(`   Nom: ${subtitleFile.originalname}`);
-    console.log(`   Taille: ${(subtitleFile.size / 1024).toFixed(2)} KB`);
-    console.log(`   Type MIME: ${subtitleFile.mimetype}\n`);
-
     // Validation du fichier poster (OBLIGATOIRE)
     if (!posterFile) {
       return res.status(400).json({
@@ -117,25 +104,14 @@ export const createSubmission = async (req, res) => {
       });
     }
 
-    console.log("🖼️  Fichier poster reçu:");
-    console.log(`   Nom: ${posterFile.originalname}`);
-    console.log(`   Taille: ${(posterFile.size / 1024).toFixed(2)} KB`);
-    console.log(`   Type MIME: ${posterFile.mimetype}\n`);
-
     // ============================================================
     // 2. VALIDATION DES DONNÉES DU FORMULAIRE
     // ============================================================
-    console.log("📋 Validation des données du formulaire...\n");
-    console.log("📦 Données reçues du formulaire:");
-    console.log(JSON.stringify(req.body, null, 2));
-    console.log("\n");
-
     let formData;
     try {
       formData = submissionSchema.parse(req.body);
-      console.log("✅ Données du formulaire validées\n");
     } catch (zodError) {
-      console.error("❌ Données du formulaire invalides:", zodError.errors);
+      console.error("Form validation error:", zodError.errors);
 
       return res.status(400).json({
         success: false,
@@ -173,7 +149,7 @@ export const createSubmission = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("\n❌ ERREUR CONTROLLER SOUMISSION:", error.message);
+    console.error("Submission controller error:", error.message);
     console.error(error.stack);
 
     // Gestion des erreurs spécifiques
@@ -194,7 +170,7 @@ export const createSubmission = async (req, res) => {
     }
 
     if (error.message.includes("Authentification YouTube")) {
-      console.error("🚨 PROBLÈME DE CONFIGURATION YOUTUBE - CONTACTER L'ADMIN");
+      console.error("YouTube configuration error - contact admin");
       return res.status(500).json({
         success: false,
         error: "Erreur de configuration",
@@ -256,7 +232,7 @@ export const getSubmission = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Erreur récupération soumission:", error.message);
+    console.error("Get submission error:", error.message);
 
     if (error.message === "Soumission non trouvée") {
       return res.status(404).json({
@@ -321,7 +297,7 @@ export const getSubmitterSubmissions = async (req, res) => {
     });
   } catch (error) {
     console.error(
-      "❌ Erreur récupération soumissions submitter:",
+      "Get submitter submissions error:",
       error.message,
     );
 
@@ -380,7 +356,7 @@ export const getSubmissionStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Erreur récupération statistiques:", error.message);
+    console.error("Get statistics error:", error.message);
 
     return res.status(500).json({
       success: false,
