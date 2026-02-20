@@ -224,11 +224,6 @@ model Award {
   @@map("awards")
 }
 
-enum Role {
-  ADMIN
-  JURY
-  USER
-}
 model NewsletterSubscriber {
   id                Int      @id @default(autoincrement())
   email             String   @unique
