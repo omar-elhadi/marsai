@@ -144,11 +144,4 @@ enum Role {
   ADMIN
   JURY
   USER
-}ubscriber {
-  id               Int      @id @default(autoincrement())
-  email            String   @unique
-  unsubscribeToken String   @unique @default(uuid())
-  subscribedAt     DateTime @default(now())
-
-  @@map("newsletter_subscribers")
 }
