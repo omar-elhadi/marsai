@@ -7,20 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// -----------------------------------------------------------------------------
+// --- UTILISATEURS (ADMIN & JURY) ---
+// -----------------------------------------------------------------------------
 model User {
   id            Int       @id @default(autoincrement())
   email         String    @unique
   password      String?   
   firstName     String
   lastName      String
+  
+  /// Bio du juré pour présentation officielle sur la plateforme
+  bio           String?   @db.Text
+  
   role          Role      @default(JURY)
   
-  // Système de Token pour Magic Link
   loginToken    String?   @unique
   tokenExpires  DateTime?
-
-  // --- AJOUT : TRACKING ACTIVITÉ ---
-  // On utilise DateTime? (optionnel) pour ne pas perturber les données existantes
   lastLogin     DateTime? 
 
   createdAt     DateTime  @default(now())
@@ -36,102 +39,169 @@ enum Role {
   JURY
 }
 
+// -----------------------------------------------------------------------------
+// --- ARTISTES (SUBMITTERS) ---
+// -----------------------------------------------------------------------------
 model Submitter {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  firstName String?
-  lastName  String?
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  firstName     String?
+  lastName      String?
+  
+  /// Bio de l'artiste (Text long)
+  bio           String?   @db.Text
+  website       String?
+  instagram     String?
 
-  films     Film[]
+  /// Système Passwordless pour modification de la fiche et des films
+  loginToken    String?   @unique
+  tokenExpires  DateTime?
+
+  films         Film[]
 
   @@map("submitters")
 }
 
+// -----------------------------------------------------------------------------
+// --- FILMS (L'ŒUVRE & SES VERSIONS) ---
+// -----------------------------------------------------------------------------
 model Film {
-  id              Int        @id @default(autoincrement())
-  submitterId     Int
-  submissionToken String     @unique @default(uuid())
+  id               Int           @id @default(autoincrement())
+  submitterId      Int
+  submissionToken  String        @unique @default(uuid())
 
-  title           String
-  description     String     @db.Text
-  country         String
-  aiToolsUsed     String     @db.Text
+  title            String
+  description      String        @db.Text
+  country          String
+  language         String?       
+  
+  /// Transparence IA : Liste des outils
+  aiStack          String        @db.Text
+  aiMethodologyUrl String?       @db.Text
 
+  // --- GESTION DES FICHIERS (S3 / MINIO) ---
+  s3VideoKey       String?    
+  s3VideoUrl       String?    
+  posterUrl        String?       @db.Text
+  subtitleUrl      String?       @db.Text
+  
   // YouTube Information
-  youtubeVideoId    String?         @unique            // ID de la vidéo YouTube
-  youtubeUrl        String?                            // URL complète YouTube
-  youtubeStatus     YoutubeStatus?  @default(PENDING)  // Statut de modération YouTube
-  youtubeUploadedAt DateTime?                          // Date d'upload sur YouTube
-  youtubeModerationData Json?                          // Données brutes de modération
-  
-  // S3 Storage Information
-  s3VideoKey        String?                            // Clé du fichier dans S3
-  s3VideoUrl        String?                            // URL d'accès S3
-  
+  youtubeVideoId    String?         @unique
+  youtubeUrl        String?
+  youtubeStatus     YoutubeStatus?  @default(PENDING)
+  youtubeUploadedAt DateTime?
+  youtubeModerationData Json?
+
   // Video Metadata
-  videoDuration     Float?                             // Durée en secondes
-  videoFormat       String?                            // Format (mp4, mov, etc.)
-  videoSize         Int?                               // Taille en bytes
-  videoWidth        Int?                               // Largeur en pixels
-  videoHeight       Int?                               // Hauteur en pixels
-  videoCodec        String?                            // Codec vidéo
+  videoDuration      Float?
+  videoFormat        String?
+  videoSize          Int?
+  videoWidth         Int?
+  videoHeight        Int?
+  videoCodec         String?
 
-  status          FilmStatus @default(PENDING)
+  // --- WORKFLOW & SELECTION ---
+  status           FilmStatus @default(PENDING)
+  
+  averageRating    Float?
+  totalVotes       Int        @default(0)
 
-  averageRating   Float?
-  totalVotes      Int        @default(0)
+  submittedAt      DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
-  submittedAt     DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-
-  submitter       Submitter  @relation(fields: [submitterId], references: [id])
-  votes           Vote[]
+  // Relations
+  submitter        Submitter     @relation(fields: [submitterId], references: [id])
+  votes            Vote[]
+  awards           Award[]
+  
+  /// Historique des modifications apportées par l'artiste
+  versions         FilmVersion[]
 
   @@index([status])
   @@index([youtubeStatus])
   @@index([country])
   @@index([averageRating])
-
   @@map("films")
+}
+
+model FilmVersion {
+  id          Int      @id @default(autoincrement())
+  filmId      Int
+  
+  /// Snapshot des données avant modification
+  title       String
+  description String   @db.Text
+  aiStack     String   @db.Text
+  s3VideoKey  String?
+  youtubeUrl  String?
+  
+  archivedAt  DateTime @default(now())
+
+  film        Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@index([filmId])
+  @@map("film_versions")
 }
 
 enum FilmStatus {
   PENDING
   APPROVED
+  SELECTION
   FINALIST
   REJECTED
   TO_MODIFY
 }
 
 enum YoutubeStatus {
-  PENDING           // En attente d'upload/modération
-  UPLOADING         // Upload en cours
-  PROCESSING        // En cours de traitement YouTube
-  APPROVED          // Approuvé par YouTube
-  REJECTED          // Rejeté (contenu inapproprié)
-  EXPLICIT_CONTENT  // Contenu explicite détecté
-  VIOLENCE          // Violence détectée
-  FAILED            // Échec de l'upload
+  PENDING
+  UPLOADING
+  PROCESSING
+  APPROVED
+  REJECTED
+  EXPLICIT_CONTENT
+  VIOLENCE
+  FAILED
 }
 
+// -----------------------------------------------------------------------------
+// --- VOTES & DIALOGUE CRITIQUE ---
+// -----------------------------------------------------------------------------
 model Vote {
-  id        Int          @id @default(autoincrement())
-  filmId    Int
-  userId    Int
+  id          Int             @id @default(autoincrement())
+  filmId      Int
+  userId      Int
 
-  decision  VoteDecision
-  rating    Int?
-  comment   String       @db.Text
+  decision    VoteDecision
+  rating      Int             // Note quantitative 0-10
+  
+  votedAt     DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  votedAt   DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  film        Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  film      Film         @relation(fields: [filmId], references: [id], onDelete: Cascade)
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Fil de discussion critique (multiples commentaires datés)
+  comments    ReviewComment[]
 
   @@unique([filmId, userId])
-
   @@map("votes")
+}
+
+model ReviewComment {
+  id          Int      @id @default(autoincrement())
+  voteId      Int
+  
+  content     String   @db.Text
+  
+  /// Si true : visible uniquement par Admin/Jury. Si false : transmis à l'artiste.
+  isInternal  Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+
+  vote        Vote     @relation(fields: [voteId], references: [id], onDelete: Cascade)
+
+  @@index([voteId])
+  @@map("review_comments")
 }
 
 enum VoteDecision {
@@ -140,11 +210,25 @@ enum VoteDecision {
   TO_MODIFY
 }
 
+// -----------------------------------------------------------------------------
+// --- PALMARÈS & NEWSLETTER ---
+// -----------------------------------------------------------------------------
+model Award {
+  id          Int      @id @default(autoincrement())
+  name        String   
+  description String?  @db.Text
+  
+  filmId      Int?     
+  film        Film?    @relation(fields: [filmId], references: [id])
+
+  @@map("awards")
+}
+
 model NewsletterSubscriber {
-  id               Int      @id @default(autoincrement())
-  email            String   @unique
-  unsubscribeToken String   @unique @default(uuid())
-  subscribedAt     DateTime @default(now())
+  id                Int      @id @default(autoincrement())
+  email             String   @unique
+  unsubscribeToken  String   @unique @default(uuid())
+  subscribedAt      DateTime @default(now())
 
   @@map("newsletter_subscribers")
 }
