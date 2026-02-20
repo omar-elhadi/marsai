@@ -44,7 +44,6 @@ model Film {
   submissionToken String     @unique @default(uuid())
 
   title           String
-  subtitle        String?
   description     String     @db.Text
   country         String
   aiToolsUsed     String     @db.Text
@@ -145,4 +144,11 @@ enum Role {
   ADMIN
   JURY
   USER
+}ubscriber {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  unsubscribeToken String   @unique @default(uuid())
+  subscribedAt     DateTime @default(now())
+
+  @@map("newsletter_subscribers")
 }

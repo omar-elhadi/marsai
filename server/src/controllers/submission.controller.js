@@ -27,7 +27,6 @@ const submissionSchema = z.object({
 
   // Informations du film
   title: z.string().min(3, "Titre trop court").max(200),
-  subtitle: z.string().max(200).optional(),
   description: z.string().min(10, "Description trop courte").max(2000),
   country: z.string().min(2, "Pays invalide").max(100),
   aiToolsUsed: z
