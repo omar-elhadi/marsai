@@ -129,10 +129,16 @@ export const getOrCreateSubmitter = async (submitterData) => {
  *
  * @param {Object} formData - Données du formulaire
  * @param {Object} videoFile - Fichier vidéo (from multer)
- * @param {Object|null} subtitleFile - Fichier de sous-titres (optionnel, from multer)
+ * @param {Object|null} subtitleFile - Fichier de sous-titres (obligatoire, from multer)
+ * @param {Object|null} posterFile - Fichier poster (obligatoire, from multer)
  * @returns {Promise<Object>} Film créé avec toutes les métadonnées
  */
-export const submitFilm = async (formData, videoFile, subtitleFile = null) => {
+export const submitFilm = async (
+  formData,
+  videoFile,
+  subtitleFile = null,
+  posterFile = null,
+) => {
   let s3Key = null;
   let youtubeVideoId = null;
 
@@ -212,6 +218,29 @@ export const submitFilm = async (formData, videoFile, subtitleFile = null) => {
         // Ne pas bloquer la soumission si les sous-titres échouent
         console.warn(
           "⚠️  Échec upload sous-titres (non bloquant):",
+          error.message,
+        );
+      }
+    }
+
+    // ============================================================
+    // ÉTAPE 3.6 : UPLOAD DU POSTER/MINIATURE (SI FOURNI)
+    // ============================================================
+    if (posterFile) {
+      try {
+        console.log(
+          "📋 ÉTAPE 3.6/6 : Upload du poster comme miniature YouTube...",
+        );
+
+        const { uploadThumbnailToYouTube } =
+          await import("./youtube.service.js");
+        await uploadThumbnailToYouTube(youtubeVideoId, posterFile.buffer);
+
+        console.log("✅ Miniature uploadée sur YouTube\n");
+      } catch (error) {
+        // Ne pas bloquer la soumission si la miniature échoue
+        console.warn(
+          "⚠️  Échec upload miniature (non bloquant):",
           error.message,
         );
       }

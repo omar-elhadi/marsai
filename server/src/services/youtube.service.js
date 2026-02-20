@@ -184,6 +184,56 @@ export const uploadCaptionToYouTube = async (
 };
 
 /**
+ * Upload une miniature (thumbnail) vers YouTube
+ *
+ * @param {string} videoId - ID de la vidéo YouTube
+ * @param {Buffer} thumbnailBuffer - Buffer de l'image
+ * @returns {Promise<Object>} Résultat de l'upload
+ */
+export const uploadThumbnailToYouTube = async (videoId, thumbnailBuffer) => {
+  try {
+    const oauth2Client = getYouTubeAuthClient();
+    const youtube = getAuthenticatedYouTubeClient(oauth2Client);
+
+    // Convertir le Buffer en Stream lisible
+    const thumbnailStream = Readable.from(thumbnailBuffer);
+
+    console.log(
+      `🖼️  Upload de la miniature vers YouTube pour la vidéo ${videoId}...`,
+    );
+
+    // Upload de la miniature
+    const response = await youtube.thumbnails.set({
+      videoId: videoId,
+      media: {
+        mimeType: "image/jpeg",
+        body: thumbnailStream,
+      },
+    });
+
+    console.log(`✅ Miniature uploadée avec succès`);
+
+    return {
+      success: true,
+      thumbnails: response.data.items[0].default,
+    };
+  } catch (error) {
+    console.error("❌ Erreur upload miniature YouTube:", error);
+
+    if (error.code === 403) {
+      console.warn("⚠️  Permissions YouTube insuffisantes pour les miniatures");
+      throw new Error(
+        "Permissions insuffisantes pour uploader des miniatures sur YouTube",
+      );
+    }
+
+    throw new Error(
+      `Erreur lors de l'upload de la miniature : ${error.message}`,
+    );
+  }
+};
+
+/**
  * Récupère le statut de modération d'une vidéo YouTube
  *
  * @param {string} videoId - ID de la vidéo YouTube
