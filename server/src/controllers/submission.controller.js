@@ -61,6 +61,7 @@ export const createSubmission = async (req, res) => {
 
     const videoFile = req.files.video[0];
     const subtitleFile = req.files.subtitle ? req.files.subtitle[0] : null;
+    const posterFile = req.files.poster ? req.files.poster[0] : null;
 
     console.log("📦 Fichier vidéo reçu:");
     console.log(`   Nom: ${videoFile.originalname}`);
@@ -96,6 +97,31 @@ export const createSubmission = async (req, res) => {
     console.log(`   Taille: ${(subtitleFile.size / 1024).toFixed(2)} KB`);
     console.log(`   Type MIME: ${subtitleFile.mimetype}\n`);
 
+    // Validation du fichier poster (OBLIGATOIRE)
+    if (!posterFile) {
+      return res.status(400).json({
+        success: false,
+        error: "Aucun fichier poster fourni",
+        message:
+          "Un poster (.jpg, .jpeg ou .png) est requis pour la miniature YouTube.",
+      });
+    }
+
+    // Validation du format poster
+    const allowedPosterTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedPosterTypes.includes(posterFile.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        error: "Format de poster invalide",
+        message: "Formats acceptés : .jpg, .jpeg, .png",
+      });
+    }
+
+    console.log("🖼️  Fichier poster reçu:");
+    console.log(`   Nom: ${posterFile.originalname}`);
+    console.log(`   Taille: ${(posterFile.size / 1024).toFixed(2)} KB`);
+    console.log(`   Type MIME: ${posterFile.mimetype}\n`);
+
     // ============================================================
     // 2. VALIDATION DES DONNÉES DU FORMULAIRE
     // ============================================================
@@ -124,7 +150,12 @@ export const createSubmission = async (req, res) => {
     // ============================================================
     // 3. EXÉCUTION DU WORKFLOW DE SOUMISSION
     // ============================================================
-    const result = await submitFilm(formData, videoFile, subtitleFile);
+    const result = await submitFilm(
+      formData,
+      videoFile,
+      subtitleFile,
+      posterFile,
+    );
 
     // ============================================================
     // 4. RÉPONSE DE SUCCÈS

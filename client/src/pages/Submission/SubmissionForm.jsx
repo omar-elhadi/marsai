@@ -5,7 +5,7 @@ import SubmissionStatus, {
   SUBMISSION_STATES,
 } from "../../components/SubmissionStatus";
 import { submitFilm } from "../../services/submissionService";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Image } from "lucide-react";
 
 function SubmissionForm() {
   // State du formulaire
@@ -30,6 +30,11 @@ function SubmissionForm() {
   // State du fichier de sous-titres
   const [subtitleFile, setSubtitleFile] = useState(null);
   const subtitleInputRef = useRef(null);
+
+  // State du poster
+  const [posterFile, setPosterFile] = useState(null);
+  const [posterPreview, setPosterPreview] = useState(null);
+  const posterInputRef = useRef(null);
 
   // State de la soumission
   const [submissionStatus, setSubmissionStatus] = useState(
@@ -137,6 +142,47 @@ function SubmissionForm() {
   };
 
   /**
+   * Gestion de la sélection du poster
+   */
+  const handlePosterChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    // Validation côté client
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+      alert("Fichier trop volumineux. Taille maximale : 5 MB");
+      e.target.value = null;
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Format non supporté. Utilisez uniquement .jpg, .jpeg ou .png");
+      e.target.value = null;
+      return;
+    }
+
+    setPosterFile(file);
+
+    // Créer une preview
+    const posterURL = URL.createObjectURL(file);
+    setPosterPreview(posterURL);
+  };
+
+  /**
+   * Suppression du poster
+   */
+  const handleRemovePoster = () => {
+    setPosterFile(null);
+    setPosterPreview(null);
+    if (posterInputRef.current) {
+      posterInputRef.current.value = null;
+    }
+  };
+
+  /**
    * Soumission du formulaire
    */
   const handleSubmit = async (e) => {
@@ -163,6 +209,11 @@ function SubmissionForm() {
       return;
     }
 
+    if (!posterFile) {
+      alert("Veuillez ajouter un poster pour votre film");
+      return;
+    }
+
     try {
       setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
       setErrorMessage(null);
@@ -172,6 +223,7 @@ function SubmissionForm() {
         formData,
         videoFile,
         subtitleFile,
+        posterFile,
         (progress) => {
           setUploadProgress(progress);
 
@@ -495,6 +547,73 @@ function SubmissionForm() {
         </p>
       </div>
 
+      {/* --- POSTER DU FILM (OBLIGATOIRE) --- */}
+      <div>
+        <label htmlFor="poster" className={labelClass}>
+          Poster du Film *
+        </label>
+        <input
+          type="file"
+          id="poster"
+          name="poster"
+          ref={posterInputRef}
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+          required
+          onChange={handlePosterChange}
+          className="hidden"
+        />
+
+        {!posterFile ? (
+          <button
+            type="button"
+            onClick={() => posterInputRef.current?.click()}
+            className="w-full bg-white/5 border-2 border-dashed border-white/20 rounded-sm px-4 py-6 text-slate-400 hover:border-indigo-500/50 hover:bg-white/10 transition-all cursor-pointer"
+          >
+            <div className="flex flex-col items-center gap-2">
+              <Image className="w-8 h-8 text-white/40" />
+              <span className="font-sans text-sm tracking-wide uppercase">
+                Ajouter un poster
+              </span>
+              <span className="text-xs text-white/40">
+                .JPG, .JPEG, .PNG • Max 5 MB • Recommandé: 1920x1080
+              </span>
+            </div>
+          </button>
+        ) : (
+          <div className="bg-white/5 border border-white/20 rounded-sm p-4">
+            <div className="flex items-start gap-4">
+              {posterPreview && (
+                <img
+                  src={posterPreview}
+                  alt="Poster preview"
+                  className="w-32 h-48 object-cover rounded"
+                />
+              )}
+              <div className="flex-1">
+                <p className="text-white font-bold text-sm">
+                  {posterFile.name}
+                </p>
+                <p className="text-white/60 text-xs mt-1">
+                  {(posterFile.size / 1024).toFixed(2)} KB
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemovePoster}
+                className="text-red-400 hover:text-red-300 transition-colors"
+                aria-label="Supprimer le poster"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <p className="text-[10px] text-white/30 mt-2 tracking-wider">
+          ⚠️ OBLIGATOIRE : Le poster sera utilisé comme miniature sur YouTube
+        </p>
+      </div>
+
       {/* --- VALIDATION --- */}
       <div className="pt-6 border-t border-white/5 mt-8 space-y-4">
         <label className="flex items-center gap-4 cursor-pointer group">
@@ -548,6 +667,7 @@ function SubmissionForm() {
             !formData.acceptPrivacy ||
             !videoFile ||
             !subtitleFile ||
+            !posterFile ||
             submissionStatus !== SUBMISSION_STATES.IDLE
           }
         >

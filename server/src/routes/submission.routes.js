@@ -27,18 +27,18 @@ const router = express.Router();
 /**
  * Configuration Multer pour l'upload de vidéos
  * - Stockage en mémoire (buffer) pour traitement direct
- * - Limite de taille : 500 MB pour vidéo, 5 MB pour sous-titres
+ * - Limite de taille : 500 MB pour vidéo, 5 MB pour sous-titres et poster
  * - Filtrage par type MIME selon le champ
  */
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: VIDEO_CONSTRAINTS.MAX_FILE_SIZE_BYTES, // 500 MB max
-    files: 2, // Vidéo + sous-titres
+    files: 3, // Vidéo + sous-titres + poster
   },
   fileFilter: (req, file, cb) => {
     // Validation selon le champ
-    if (file.fieldname === 'video') {
+    if (file.fieldname === "video") {
       // Vérification du type MIME pour vidéo
       if (VIDEO_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
         cb(null, true);
@@ -51,17 +51,33 @@ const upload = multer({
           false,
         );
       }
-    } else if (file.fieldname === 'subtitle') {
+    } else if (file.fieldname === "subtitle") {
       // Accepter les fichiers de sous-titres
-      const allowedSubtitleExtensions = ['.srt', '.vtt', '.sbv'];
-      const fileExtension = file.originalname.substring(file.originalname.lastIndexOf('.')).toLowerCase();
-      
+      const allowedSubtitleExtensions = [".srt", ".vtt", ".sbv"];
+      const fileExtension = file.originalname
+        .substring(file.originalname.lastIndexOf("."))
+        .toLowerCase();
+
       if (allowedSubtitleExtensions.includes(fileExtension)) {
         cb(null, true);
       } else {
         cb(
           new Error(
             `Format de sous-titres non supporté. Formats acceptés: .srt, .vtt, .sbv`,
+          ),
+          false,
+        );
+      }
+    } else if (file.fieldname === "poster") {
+      // Accepter les images pour le poster
+      const allowedImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+      if (allowedImageTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            `Format de poster non supporté. Formats acceptés: .jpg, .jpeg, .png`,
           ),
           false,
         );
@@ -88,14 +104,16 @@ const handleMulterError = (err, req, res, next) => {
       return res.status(400).json({
         success: false,
         error: "Trop de fichiers",
-        message: "Vous ne pouvez soumettre qu'une vidéo et un fichier de sous-titres",
+        message:
+          "Vous ne pouvez soumettre qu'une vidéo, un fichier de sous-titres et un poster",
       });
     }
     if (err.code === "LIMIT_UNEXPECTED_FILE") {
       return res.status(400).json({
         success: false,
         error: "Champ de fichier invalide",
-        message: 'Les champs de fichier doivent être "video" et "subtitle"',
+        message:
+          'Les champs de fichier doivent être "video", "subtitle" et "poster"',
       });
     }
   }
@@ -122,7 +140,8 @@ const handleMulterError = (err, req, res, next) => {
  *
  * Body (multipart/form-data) :
  * - video: File (vidéo)
- * - subtitle: File (sous-titres, optionnel)
+ * - subtitle: File (sous-titres, obligatoire)
+ * - poster: File (poster/miniature, obligatoire)
  * - firstName: String
  * - lastName: String
  * - email: String
@@ -140,6 +159,7 @@ router.post(
   upload.fields([
     { name: "video", maxCount: 1 },
     { name: "subtitle", maxCount: 1 },
+    { name: "poster", maxCount: 1 },
   ]),
   handleMulterError,
   createSubmission,
