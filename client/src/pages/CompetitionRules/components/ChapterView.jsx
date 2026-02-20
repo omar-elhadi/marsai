@@ -46,12 +46,6 @@ export default function ChapterView({ active, mode, activeHeadingRef, setView })
         className={cx("mt-5 space-y-4 text-sm leading-relaxed text-white/85", mode === "cine" ? "font-mono" : "")}
       >
         {active.content}
-
-        {mode === "cine" && (
-          <p className="pt-3 text-xs text-white/60">
-            <span>Choisissez un autre chapitre dans le menu.</span>
-          </p>
-        )}
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">

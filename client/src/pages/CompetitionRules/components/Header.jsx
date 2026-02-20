@@ -4,7 +4,7 @@ import { REGLEMENT_TITLE } from "./reglementData";
 /**
  * Composant Header - En-tête de la page avec titre et boutons de contrôle
  */
-export default function Header({ mode, setMode, view, setView, onCopyLink }) {
+export default function Header({ mode, setMode, view, setView }) {
   return (
     <header className="relative mx-auto max-w-6xl px-4 pt-10 pb-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -30,14 +30,6 @@ export default function Header({ mode, setMode, view, setView, onCopyLink }) {
             aria-pressed={view === "continuous"}
           >
             {view === "continuous" ? "Voir par chapitres" : "Lecture continue"}
-          </button>
-
-          <button
-            type="button"
-            onClick={onCopyLink}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-          >
-            Copier le lien
           </button>
         </div>
       </div>

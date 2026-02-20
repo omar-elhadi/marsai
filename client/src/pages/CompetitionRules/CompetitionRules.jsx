@@ -61,16 +61,6 @@ export default function ReglementDVDPage() {
     });
   };
 
-  const copyLink = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#${activeId}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      alert("Lien copié ✅");
-    } catch {
-      alert("Impossible de copier le lien.");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
       {/* Skip link (clavier) */}
@@ -90,7 +80,7 @@ export default function ReglementDVDPage() {
       {/* Live region (lecteurs d'écran) */}
       <div className="sr-only" aria-live="polite" aria-atomic="true" ref={liveRef} />
 
-      <Header mode={mode} setMode={setMode} view={view} setView={setView} onCopyLink={copyLink} />
+      <Header mode={mode} setMode={setMode} view={view} setView={setView} />
 
       <SearchBar query={query} setQuery={setQuery} filteredCount={filtered.length} />
 
