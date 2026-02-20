@@ -1,59 +1,101 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // L'outil indispensable pour une navigation sans coupure
 
-const Header = () => {
-  const links = [
-    { name: 'Home', href: '/', active: false },
-    { name: 'Galerie', href: '/galerie', active: false },
-    { name: 'Events', href: '/events', active: false },
-  ];
- 
+export default function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Verrouillage du scroll physique lors de l'ouverture du menu mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
-    <nav className="flex items-center justify-between bg-[#111827] px-6 py-3 w-full border-b border-gray-800">
-      
-      {/* Partie Gauche : Logo + Navigation */}
-      <div className="flex items-center space-x-8">
-        {/* Logo (Style Shokunin : Gradient & Forme) */}
-        <div className="flex-shrink-0 cursor-pointer">
-          <svg className="w-8 h-8 text-indigo-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" className="opacity-80"/>
-            <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-
-        {/* Liens de navigation */}
-        <div className="flex items-center space-x-4">
-          {links.map((link) => (
-            <Link
-              key={link.name}
-              to={link.href}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                link.active 
-                  ? 'bg-[#1f2937] text-white shadow-sm' 
-                  : 'text-gray-400 hover:text-white hover:bg-[#1f2937]/50'
-              }`}
+    <>
+      <header className="fixed top-0 left-0 w-full z-[100] bg-black/80 backdrop-blur-md border-b border-white/5">
+        <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+          
+          {/* LOGO */}
+          <div className="relative z-[110]">
+            <Link 
+              to="/" 
+              onClick={() => setIsOpen(false)}
+              className="text-white text-2xl font-black tracking-tighter uppercase"
             >
-              {link.name}
+              MARSAI
             </Link>
-          ))}
+          </div>
+
+          {/* NAVIGATION DESKTOP (Espace optimisé pour accueillir 5 liens) */}
+          <nav className="hidden md:flex items-center space-x-6 lg:space-x-10">
+            <a href="/#festival" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Le Festival</a>
+            {/* Utilisation de Link pour les pages dédiées */}
+            <Link to="/galerie" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Galerie</Link>
+            <Link to="/events" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Events</Link>
+            <a href="/#participer" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Participer</a>
+          </nav>
+
+          {/* BOUTON BURGER MOBILE */}
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden relative z-[110] w-10 h-10 flex flex-col items-end justify-center gap-[6px] focus:outline-none"
+            aria-label="Menu"
+          >
+            <span className={`block h-[2px] bg-white transition-all duration-300 ease-in-out origin-right ${isOpen ? 'w-6 -rotate-45 -translate-y-[2px]' : 'w-8'}`}></span>
+            <span className={`block h-[2px] bg-white transition-all duration-300 ease-in-out ${isOpen ? 'w-0 opacity-0' : 'w-6'}`}></span>
+            <span className={`block h-[2px] bg-white transition-all duration-300 ease-in-out origin-right ${isOpen ? 'w-6 rotate-45 translate-y-[2px]' : 'w-4'}`}></span>
+          </button>
         </div>
+      </header>
+
+      {/* OVERLAY DU MENU MOBILE */}
+      <div 
+        className={`fixed inset-0 bg-black z-[105] flex flex-col items-center justify-center transition-opacity duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] md:hidden ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {/* L'espacement (space-y-8) est calibré pour que les 5 liens tiennent sur un iPhone 13 mini */}
+        <nav className="flex flex-col space-y-8 text-center">
+          <a 
+            href="/#festival" 
+            onClick={() => setIsOpen(false)} 
+            className={`text-3xl font-black uppercase tracking-widest text-white transition-transform duration-500 delay-[100ms] ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+          >
+            Le Festival
+          </a>
+          
+          <Link 
+            to="/galerie" 
+            onClick={() => setIsOpen(false)} 
+            className={`text-3xl font-black uppercase tracking-widest text-white transition-transform duration-500 delay-[150ms] ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+          >
+            Galerie
+          </Link>
+          
+          <Link 
+            to="/events" 
+            onClick={() => setIsOpen(false)} 
+            className={`text-3xl font-black uppercase tracking-widest text-white transition-transform duration-500 delay-[200ms] ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+          >
+            Events
+          </Link>
+          
+          <a 
+            href="/#participer" 
+            onClick={() => setIsOpen(false)} 
+            className={`text-3xl font-black uppercase tracking-widest text-white transition-transform duration-500 delay-[250ms] ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+          >
+            Participer
+          </a>
+        
+        </nav>
       </div>
-
-      {/* Partie Droite : Outils et Profil */}
-      <div className="flex items-center space-x-5">
-          {/* Nouveau Bouton : Ajouté ici */}
-<Link 
-  to="/soumettre" 
-  className="hidden md:flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-md transition-all duration-300 shadow-lg active:scale-95"
->
-  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
-  </svg>
-  Soumettre un film
-            </Link>  
-        </div>
-    </nav>
+    </>
   );
-};
-
-export default Header;
+}
