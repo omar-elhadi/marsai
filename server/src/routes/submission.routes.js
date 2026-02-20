@@ -27,27 +27,47 @@ const router = express.Router();
 /**
  * Configuration Multer pour l'upload de vidéos
  * - Stockage en mémoire (buffer) pour traitement direct
- * - Limite de taille : 100 MB
- * - Filtrage par type MIME
+ * - Limite de taille : 500 MB pour vidéo, 5 MB pour sous-titres
+ * - Filtrage par type MIME selon le champ
  */
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: VIDEO_CONSTRAINTS.MAX_FILE_SIZE_BYTES, // 100 MB
-    files: 1, // Une seule vidéo par requête
+    fileSize: VIDEO_CONSTRAINTS.MAX_FILE_SIZE_BYTES, // 500 MB max
+    files: 2, // Vidéo + sous-titres
   },
   fileFilter: (req, file, cb) => {
-    // Vérification du type MIME
-    if (VIDEO_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      cb(null, true);
+    // Validation selon le champ
+    if (file.fieldname === 'video') {
+      // Vérification du type MIME pour vidéo
+      if (VIDEO_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            `Format vidéo non supporté: ${file.mimetype}. ` +
+              `Formats acceptés: ${VIDEO_CONSTRAINTS.ALLOWED_MIME_TYPES.join(", ")}`,
+          ),
+          false,
+        );
+      }
+    } else if (file.fieldname === 'subtitle') {
+      // Accepter les fichiers de sous-titres
+      const allowedSubtitleExtensions = ['.srt', '.vtt', '.sbv'];
+      const fileExtension = file.originalname.substring(file.originalname.lastIndexOf('.')).toLowerCase();
+      
+      if (allowedSubtitleExtensions.includes(fileExtension)) {
+        cb(null, true);
+      } else {
+        cb(
+          new Error(
+            `Format de sous-titres non supporté. Formats acceptés: .srt, .vtt, .sbv`,
+          ),
+          false,
+        );
+      }
     } else {
-      cb(
-        new Error(
-          `Format vidéo non supporté: ${file.mimetype}. ` +
-            `Formats acceptés: ${VIDEO_CONSTRAINTS.ALLOWED_MIME_TYPES.join(", ")}`,
-        ),
-        false,
-      );
+      cb(new Error(`Champ de fichier inconnu: ${file.fieldname}`), false);
     }
   },
 });
@@ -68,14 +88,14 @@ const handleMulterError = (err, req, res, next) => {
       return res.status(400).json({
         success: false,
         error: "Trop de fichiers",
-        message: "Vous ne pouvez soumettre qu'une seule vidéo à la fois",
+        message: "Vous ne pouvez soumettre qu'une vidéo et un fichier de sous-titres",
       });
     }
     if (err.code === "LIMIT_UNEXPECTED_FILE") {
       return res.status(400).json({
         success: false,
         error: "Champ de fichier invalide",
-        message: 'Le champ de fichier doit être nommé "video"',
+        message: 'Les champs de fichier doivent être "video" et "subtitle"',
       });
     }
   }
