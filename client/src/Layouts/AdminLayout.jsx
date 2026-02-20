@@ -1,91 +1,189 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Film, Users, Trophy, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Film, Users, LogOut, Menu, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isFilmSubmenuOpen, setIsFilmSubmenuOpen] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
-  
+
+  // --- FIX : Réinitialise le menu mobile si on agrandit la fenêtre ---
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('marsai_token');
     localStorage.removeItem('marsai_user');
     navigate('/', { replace: true });
   };
 
-  const navItems = [
-    { label: "Vue d'ensemble", path: "/admin", exact: true, icon: <LayoutDashboard size={20} /> },
-    { label: "Films", path: "/admin/films", icon: <Film size={20} /> },
-    { label: "Jury", path: "/admin/users", icon: <Users size={20} /> },
-    { label: "Palmarès", path: "/admin/awards", icon: <Trophy size={20} /> },
-  ];
+  // Helper pour l'affichage conditionnel (Texte visible si Mobile OU Sidebar ouverte)
+  const showFullMenu = isMobileMenuOpen || !isCollapsed;
 
   return (
-    <div className="flex h-screen bg-black text-white font-sans overflow-hidden">
+    <div className="flex h-screen bg-black text-white font-sans overflow-hidden selection:bg-indigo-500">
       
-      {/* Menu Mobile Button */}
+      {/* --- BURGER MOBILE (Violet & Imposant) --- */}
       <button 
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="md:hidden fixed top-4 right-4 z-50 p-2 bg-[#262626] rounded-md text-white border border-white/10"
+        className="md:hidden fixed top-6 right-6 z-50 p-2 bg-transparent border-none outline-none focus:ring-0 transition-transform active:scale-90"
       >
-        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        {isMobileMenuOpen ? (
+          <X size={40} className="text-white" />
+        ) : (
+          <Menu size={40} className="text-indigo-500" strokeWidth={2.5} />
+        )}
       </button>
 
-      {/* Sidebar */}
+      {/* --- SIDEBAR --- */}
       <aside className={`
-        fixed md:static inset-y-0 left-0 z-40 w-64 bg-[#262626] border-r border-white/5 flex flex-col transition-transform duration-300 ease-in-out
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        fixed md:static inset-y-0 left-0 z-40 bg-[#0D0D0D] border-r border-white/5 flex flex-col transition-all duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0 w-full' : '-translate-x-full md:translate-x-0'}
+        ${isCollapsed && !isMobileMenuOpen ? 'md:w-20' : 'md:w-64'} 
       `}>
         
-        <div className="h-20 flex items-center px-8 border-b border-white/5">
-          <h1 className="text-lg font-bold tracking-[0.2em] uppercase">
-            Admin <span className="text-indigo-500">Panel</span>
+        {/* LOGO SECTION : ADMIN MARSAI (Gris) */}
+        <div className={`pt-10 md:pt-22 pb-16 px-10 shrink-0 transition-opacity duration-300 
+          ${isCollapsed && !isMobileMenuOpen ? 'md:opacity-0' : 'opacity-100'}`}>
+          <h1 className="text-xl font-black tracking-tighter uppercase italic leading-none text-gray-500">
+            ADMIN <span className="text-gray-400">MARSAI</span>
           </h1>
         </div>
 
-        <nav className="flex-1 px-4 py-8 space-y-2">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.exact}
-              onClick={closeMobileMenu}
-              className={({ isActive }) => `
-                flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-300 group
-                ${isActive 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20 translate-x-1' 
-                  : 'text-white/40 hover:bg-white/5 hover:text-white hover:translate-x-1'}
-              `}
+        {/* TOGGLE BUTTON (Bureau uniquement) */}
+        {!isMobileMenuOpen && (
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden md:flex absolute -right-3 top-20 bg-indigo-600 rounded-full p-1 border border-black hover:bg-indigo-500 transition-colors z-50"
+          >
+            {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+          </button>
+        )}
+
+        {/* NAVIGATION */}
+        <nav className={`flex-1 space-y-3 overflow-y-auto custom-scrollbar transition-all
+          ${isCollapsed && !isMobileMenuOpen ? 'px-2' : 'px-4'}`}>
+          
+          {/* DASHBOARD */}
+          <NavLink to="/admin" end className={({ isActive }) => 
+            `flex items-center transition-all rounded-sm border-2 group
+            ${isCollapsed && !isMobileMenuOpen ? 'justify-center p-3' : 'gap-5 px-6 py-4 md:py-3.5'} 
+            ${isMobileMenuOpen ? 'py-8 px-10' : ''} 
+            ${isActive ? 'border-indigo-600 text-white' : 'border-transparent text-white/40 hover:bg-white/5 hover:text-white'}`
+          }>
+            {({ isActive }) => (
+              <>
+                <LayoutDashboard 
+                  size={isCollapsed && !isMobileMenuOpen ? 28 : (isMobileMenuOpen ? 32 : 20)} 
+                  className={isActive ? "text-indigo-500" : "text-gray-600 group-hover:text-white transition-colors"} 
+                />
+                {showFullMenu && (
+                  <span className={`font-black uppercase tracking-[0.25em] transition-all
+                    ${isMobileMenuOpen ? 'text-xl' : 'text-[11px]'}`}>
+                    Dashboard
+                  </span>
+                )}
+              </>
+            )}
+          </NavLink>
+
+          {/* JURY */}
+          <NavLink to="/admin/users" className={({ isActive }) => 
+            `flex items-center transition-all rounded-sm border-2 group
+            ${isCollapsed && !isMobileMenuOpen ? 'justify-center p-3' : 'gap-5 px-6 py-4 md:py-3.5'} 
+            ${isMobileMenuOpen ? 'py-8 px-10' : ''}
+            ${isActive ? 'border-indigo-600 text-white' : 'border-transparent text-white/40 hover:bg-white/5 hover:text-white'}`
+          }>
+            {({ isActive }) => (
+              <>
+                <Users 
+                  size={isCollapsed && !isMobileMenuOpen ? 28 : (isMobileMenuOpen ? 32 : 20)} 
+                  className={isActive ? "text-indigo-500" : "text-gray-600 group-hover:text-white transition-colors"} 
+                />
+                {showFullMenu && (
+                  <span className={`font-black uppercase tracking-[0.25em] transition-all
+                    ${isMobileMenuOpen ? 'text-xl' : 'text-[11px]'}`}>
+                    Jury
+                  </span>
+                )}
+              </>
+            )}
+          </NavLink>
+
+          {/* FILMS (Déroulable) */}
+          <div className="space-y-2">
+            <button 
+              onClick={() => setIsFilmSubmenuOpen(!isFilmSubmenuOpen)}
+              className={`w-full flex items-center hover:bg-white/5 hover:text-white transition-all outline-none text-white/40 group
+              ${isCollapsed && !isMobileMenuOpen ? 'justify-center p-3' : 'justify-between gap-5 px-6 py-4 md:py-3.5'}
+              ${isMobileMenuOpen ? 'py-8 px-10' : ''}`}
             >
-              {/* 👇 C'est ici que j'ai corrigé : on utilise une fonction pour les enfants */}
-              {({ isActive }) => (
-                <>
-                  <span className={isActive ? "text-white" : "text-white/40 group-hover:text-white transition-colors"}>
-                    {item.icon}
+              <div className="flex items-center gap-5">
+                <Film 
+                  size={isCollapsed && !isMobileMenuOpen ? 28 : (isMobileMenuOpen ? 32 : 20)} 
+                  className="text-gray-600 group-hover:text-white transition-colors" 
+                />
+                {showFullMenu && (
+                  <span className={`font-black uppercase tracking-[0.25em] transition-all
+                    ${isMobileMenuOpen ? 'text-xl' : 'text-[11px]'}`}>
+                    Films
                   </span>
-                  <span className="text-sm font-medium tracking-wide uppercase">
-                    {item.label}
-                  </span>
-                </>
+                )}
+              </div>
+              {showFullMenu && (
+                <ChevronDown size={isMobileMenuOpen ? 28 : 18} 
+                  className={`transition-transform duration-300 ${isFilmSubmenuOpen ? 'rotate-180' : ''}`} 
+                />
               )}
-            </NavLink>
-          ))}
+            </button>
+
+            {isFilmSubmenuOpen && showFullMenu && (
+              <div className={`ml-8 border-l border-white/10 space-y-1 mt-1 py-1 ${isMobileMenuOpen ? 'ml-16 space-y-6' : ''}`}>
+                {["Reçus", "Workflow", "Sélection", "Finalistes"].map((label, i) => (
+                  <NavLink 
+                    key={i} 
+                    to={`/admin/films/${label.toLowerCase().replace(/\s/g, '')}`} 
+                    className={({ isActive }) => 
+                      `block px-8 transition-all font-bold uppercase tracking-widest
+                      ${isMobileMenuOpen ? 'py-4 text-lg' : 'py-2 text-[10px]'} 
+                      ${isActive ? 'text-indigo-500 italic' : 'text-white/30 hover:text-white'}`
+                    }
+                  >
+                    {label}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        {/* DECONNEXION : Aligné à gauche, petite taille */}
+        <div className={`p-10 border-t border-white/5 shrink-0 flex ${isCollapsed && !isMobileMenuOpen ? 'justify-center' : 'justify-start'}`}>
           <button
-            type="button"
             onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-950/30 hover:text-red-200 rounded-lg transition-colors text-sm font-bold uppercase tracking-wide"
+            className={`flex items-center gap-4 text-indigo-500 hover:text-indigo-400 transition-all font-black uppercase tracking-[0.2em] outline-none group 
+            ${isMobileMenuOpen ? 'text-xl py-6 px-6' : 'text-[10px]'}`}
           >
-            <LogOut size={18} />
-            <span>Sortir</span>
+            <LogOut 
+              size={isCollapsed && !isMobileMenuOpen ? 24 : (isMobileMenuOpen ? 32 : 16)} 
+              className="group-hover:-translate-x-1 transition-transform shrink-0" 
+            />
+            {showFullMenu && <span>Déconnexion</span>}
           </button>
         </div>
       </aside>
 
+      {/* --- MAIN CONTENT --- */}
       <main className="flex-1 overflow-y-auto bg-black relative w-full">
-        <div className="p-6 md:p-12 max-w-7xl mx-auto min-h-screen pt-16 md:pt-12">
+        <div className="p-4 sm:p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
           <Outlet /> 
         </div>
       </main>

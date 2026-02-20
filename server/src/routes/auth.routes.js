@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Route publique pour se connecter
 router.post("/login", authController.login);
+router.get("/verify-token", authController.verifyToken);
 
 // Les futures routes protégées viendront ici...
 

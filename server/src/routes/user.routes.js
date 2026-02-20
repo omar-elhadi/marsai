@@ -5,27 +5,23 @@ import { verifyToken, isAdmin } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 /**
- * @route   POST /api/users
- * @desc    Créer un nouveau jury (Admin uniquement)
+ * ROUTES : Gestion des Utilisateurs
+ * Toutes ces routes sont protégées : il faut être connecté ET être Admin.
  */
-router.post("/", verifyToken, isAdmin, userController.create);
 
-/**
- * @route   GET /api/users
- * @desc    Lister tous les utilisateurs (Admin uniquement)
- */
-router.get("/", verifyToken, isAdmin, userController.list);
+// Récupérer la liste des membres
+router.get("/", verifyToken, isAdmin, userController.getAll);
 
-/**
- * @route   PUT /api/users/:id
- * @desc    Modifier un utilisateur (Admin uniquement)
- */
-router.put("/:id", verifyToken, isAdmin, userController.update); // <--- AJOUTE CETTE LIGNE
+// Créer un nouveau membre (Jury ou Admin)
+router.post("/", verifyToken, isAdmin, userController.register);
 
-/**
- * @route   DELETE /api/users/:id
- * @desc    Supprimer un utilisateur (Admin uniquement)
- */
-router.delete("/:id", verifyToken, isAdmin, userController.remove);
+// --- NOUVELLE ROUTE : Déclencher l'envoi du Magic Link ---
+router.post("/:id/invite", verifyToken, isAdmin, userController.sendInvite);
+
+// Modifier un membre
+router.put("/:id", verifyToken, isAdmin, userController.update);
+
+// Supprimer un membre
+router.delete("/:id", verifyToken, isAdmin, userController.delete);
 
 export default router;
