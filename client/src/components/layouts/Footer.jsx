@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -121,7 +122,14 @@ function Footer() {
             <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs opacity-50">Participer</h3>
             <ul className="space-y-4 text-sm font-medium">
               <li><a href="soumettre" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Soumettre un film</a></li>
-              <li><a href="#" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Règlement du concours</a></li>
+              <li>
+                <Link
+                  to="/reglement"
+                  className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300"
+                >
+                  Règlement du concours
+                </Link>
+              </li>
               <li><a href="calendrier" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Calendrier</a></li>
               <li><a href="/login" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Se connecter</a></li>
             </ul>
