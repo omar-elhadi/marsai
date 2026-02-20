@@ -19,10 +19,6 @@ export default function SearchBar({ query, setQuery, filteredCount }) {
             className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20"
           />
         </div>
-
-        <div className="text-xs text-white/60">
-          {filteredCount} article{filteredCount > 1 ? "s" : ""} affiché{filteredCount > 1 ? "s" : ""}
-        </div>
       </div>
     </div>
   );
