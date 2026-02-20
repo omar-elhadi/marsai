@@ -63,7 +63,7 @@ function Home() {
         <Reveal delay={0.2}>
           <p className="text-zinc-400 text-base md:text-xl mb-10 max-w-2xl">
             Le festival se tiendra a <strong className="text-white">Marseille</strong>,
-            épicentre de la collision entre tradition, nostalige, technologie et innovation.
+            épicentre de la collision entre tradition, nostalgie, technologie et innovation.
           </p>
         </Reveal>
         
@@ -153,7 +153,7 @@ function Home() {
           </h2>
         </Reveal>
         <Reveal delay={0.2}>
-          <a href="#inscription" className="inline-block group">
+          <a href="soumettre" className="inline-block group">
             <button className="bg-black text-white px-10 md:px-16 py-4 md:py-6 rounded-full text-sm md:text-lg font-bold tracking-widest uppercase overflow-hidden relative">
               <span className="relative z-10">Soumettre une œuvre</span>
               <div className="absolute inset-0 bg-amber-500 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out z-0"></div>

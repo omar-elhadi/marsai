@@ -38,7 +38,7 @@ export default function Header() {
             {/* Utilisation de Link pour les pages dédiées */}
             <Link to="/galerie" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Galerie</Link>
             <Link to="/events" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Events</Link>
-            <a href="/#participer" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Participer</a>
+            <a href="/soumettre" className="text-xs lg:text-sm font-bold tracking-widest text-zinc-400 hover:text-white uppercase transition-colors">Participer</a>
           </nav>
 
           {/* BOUTON BURGER MOBILE */}
