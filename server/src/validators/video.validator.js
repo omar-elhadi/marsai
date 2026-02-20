@@ -4,8 +4,7 @@
  * Ce module valide les fichiers vidéo soumis selon les critères du festival :
  * - Durée maximale : 60 secondes
  * - Formats acceptés : MP4, MOV, AVI, WEBM, MKV
- * - Taille maximale : 100 MB (configurable)
- * - Résolution minimale : 720p (HD)
+ * - Taille maximale : 500 MB (configurable)
  *
  * Utilise FFmpeg pour analyser les métadonnées vidéo.
  */
@@ -29,9 +28,7 @@ ffmpeg.setFfmpegPath(ffmpegInstaller.path);
  */
 export const VIDEO_CONSTRAINTS = {
   MAX_DURATION_SECONDS: 60,
-  MAX_FILE_SIZE_BYTES: 100 * 1024 * 1024, // 100 MB
-  MIN_WIDTH: 1280, // 720p minimum
-  MIN_HEIGHT: 720,
+  MAX_FILE_SIZE_BYTES: 500 * 1024 * 1024, // 500 MB
   ALLOWED_FORMATS: ["mp4", "mov", "avi", "webm", "mkv", "flv"],
   ALLOWED_MIME_TYPES: [
     "video/mp4",
@@ -55,12 +52,8 @@ export const videoMetadataSchema = z.object({
   size: z.number().max(VIDEO_CONSTRAINTS.MAX_FILE_SIZE_BYTES, {
     message: `La taille du fichier ne doit pas dépasser ${VIDEO_CONSTRAINTS.MAX_FILE_SIZE_BYTES / 1024 / 1024} MB`,
   }),
-  // width: z.number().min(VIDEO_CONSTRAINTS.MIN_WIDTH, {
-  //   message: `La largeur minimale doit être de ${VIDEO_CONSTRAINTS.MIN_WIDTH}px`,
-  // }),
-  height: z.number().min(VIDEO_CONSTRAINTS.MIN_HEIGHT, {
-    message: `La hauteur minimale doit être de ${VIDEO_CONSTRAINTS.MIN_HEIGHT}px`,
-  }),
+  width: z.number().optional(),
+  height: z.number().optional(),
   codec: z.string().optional(),
   bitrate: z.number().optional(),
   fps: z.number().optional(),

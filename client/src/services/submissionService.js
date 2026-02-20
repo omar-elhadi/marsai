@@ -14,16 +14,34 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
  *
  * @param {Object} formData - Données du formulaire
  * @param {File} videoFile - Fichier vidéo
+ * @param {File|null} subtitleFile - Fichier de sous-titres (obligatoire)
+ * @param {File|null} posterFile - Fichier poster (obligatoire)
  * @param {Function} onProgress - Callback pour la progression (optionnel)
  * @returns {Promise<Object>} Résultat de la soumission
  */
-export const submitFilm = async (formData, videoFile, onProgress) => {
+export const submitFilm = async (
+  formData,
+  videoFile,
+  subtitleFile,
+  posterFile,
+  onProgress,
+) => {
   try {
     // Créer un FormData pour envoyer fichier + données
     const formDataToSend = new FormData();
 
     // Ajouter le fichier vidéo
     formDataToSend.append("video", videoFile);
+
+    // Ajouter le fichier de sous-titres si présent
+    if (subtitleFile) {
+      formDataToSend.append("subtitle", subtitleFile);
+    }
+
+    // Ajouter le fichier poster si présent
+    if (posterFile) {
+      formDataToSend.append("poster", posterFile);
+    }
 
     // Ajouter les données du formulaire
     Object.keys(formData).forEach((key) => {
