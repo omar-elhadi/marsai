@@ -1,11 +1,7 @@
 /**
  * Home.jsx — MARSAI Festival · Page d'accueil
- * ════════════════════════════════════════════════════════════════════
- * KODAWARI / SHOKUNIN — l'intemporel naît de la précision absolue.
- * Innovation depuis la matière, jamais ex nihilo.
- * ════════════════════════════════════════════════════════════════════
  *
- * ARCHITECTURE NARRATIVE — FUSION OPTIONS A + E
+ * ARCHITECTURE NARRATIVE
  * ─────────────────────────────────────────────
  *  §0  HeroImpact         100dvh  L'Ouverture         (composant existant, intact)
  *  §1  Manifesto          200vh   La Déclaration       (ligne par ligne · Meijisakaba)
