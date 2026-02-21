@@ -846,7 +846,7 @@ export default function Header() {
                   fontSize:      'clamp(0.38rem, 0.70vw, 0.46rem)',
                   letterSpacing: '0.38em',
                   textTransform: 'uppercase',
-                  color:         'rgba(255,255,255,0.52)',
+                  color:         'rgb(155, 137, 255)',
                   lineHeight:    1,
                   userSelect:    'none',
                   paddingLeft:   '0.38em',

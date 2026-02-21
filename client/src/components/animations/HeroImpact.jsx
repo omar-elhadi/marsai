@@ -1103,7 +1103,7 @@ export default function HeroImpact() {
         className="relative z-40 mt-6 md:mt-12 opacity-0 pointer-events-none px-4"
       >
         <p className="text-[0.6rem] sm:text-sm md:text-xl text-zinc-400 font-light tracking-[0.25em] sm:tracking-[0.4em] md:tracking-[0.5em] uppercase text-center">
-          Le nouveau commencement
+          Un futur à la fois <br />UNE MINUTE À LA FOIS
         </p>
       </div>
     </div>
