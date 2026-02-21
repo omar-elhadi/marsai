@@ -1,27 +1,46 @@
 /**
  * HeroImpact.jsx — MARSAI Festival
  *
- * Séquence :
- *   1. APPARITION    — titre flou émerge du néant
- *   2. TENSION       — 4 paliers de glow + aftershocks organiques décroissants
- *   3. SUPERNOVA     — Solar Bloom 7 couches + aberration chromatique v3
- *   4. RÉVÉLATION    — blur 22px → 0px progressif
- *   5. POST-NOVA     — anneaux de choc + nébuleuse CSS + cendres stellaires
+ * ═══════════════════════════════════════════════════════════════
+ * SÉQUENCE CINÉMATOGRAPHIQUE — 5 PHASES
+ * ═══════════════════════════════════════════════════════════════
  *
- * Aberration chromatique v3 :
- *   Phase 1 — BLAST       : divergence violente ±80px en 0.05s expo.out
- *   Phase 2 — TREMBLEMENT : keyframes asymétriques par canal (R ≠ B),
- *                           amplitude décroissante sur 1.2s, organique
- *   Phase 3 — CONVERGENCE : retour x:0 + fade opacity sur 1.0s power3.inOut
+ * Phase 1 — APPARITION (rapide, 0.9s)
+ *   Titre flou émerge du néant. Immédiatement, de la fumée
+ *   thermique s'élève depuis les lettres — dense, chaude,
+ *   signe d'une énergie colossale emmagasinée.
  *
- * Responsive :
- *   ResizeObserver remet le canvas aux bonnes dimensions à chaque resize.
- *   Pools Canvas réduits sur mobile (< 768px) pour éviter le lag.
- *   Typographie, tracking et marges adaptés 375px → desktop.
- *   Nebula clouds réduits en opacité sur petits écrans.
+ * Phase 2 — TENSION (4 paliers)
+ *   La fumée s'épaissit. Au palier 3, elle bascule en mode
+ *   PERSPECTIVE : force radiale centrifuge depuis le centre du
+ *   titre, accélération exponentielle par particule, croissance
+ *   rapide. Nuage épais qui explose vers l'extérieur en un
+ *   tunnel de vapeur pressée. Inévitable.
+ *
+ * Phase 3 — SUPERNOVA
+ *   - GLOW.supernova instantané — le titre rayonne
+ *   - Flammes jaillissent des lettres (turbulence sinusoïdale)
+ *   - Fumée se dissout organiquement (force centrifuge continue)
+ *   - 4 ondes de choc volumétriques : 7 bandes spectrales chacune
+ *     bleu → blanc → ambre, halo pression 50px, vrais arcs Canvas
+ *   - Aberration chromatique v4 : blast ±100px + skewX ±4deg
+ *     + flicker d'opacité encodé dans les keyframes
+ *   - Solar Bloom 7 couches
+ *
+ * Phase 4 — RÉVÉLATION
+ *   Le blur se dissout, le titre cristallise.
+ *
+ * Phase 5 — POST-NOVA
+ *   - Nébuleuse CSS (6 nuages, dérive lente)
+ *   - Débris météorites (Canvas, diagonaux, traînes lumineuses)
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * EXPORT SÉPARÉ : voir MeteorCurtain.jsx
+ *   Canvas fixed couvrant toute la page — à placer dans Home.jsx
+ * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef, useMemo, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -29,24 +48,32 @@ import { useGSAP } from '@gsap/react';
 // CONSTANTES
 // ─────────────────────────────────────────────
 
-const IMPACT_COUNT    = 100;
-const ASH_COUNT_DESK  = 120;
-const ASH_COUNT_MOBI  = 60;  // < 768px
+const DEBRIS_COUNT_DESK = 70;
+const DEBRIS_COUNT_MOBI = 30;
+const SMOKE_COUNT_DESK  = 45;
+const SMOKE_COUNT_MOBI  = 22;
+const FLAME_COUNT_DESK  = 80;
+const FLAME_COUNT_MOBI  = 40;
 
+// 5 couches identiques dans chaque état — interpolation GSAP propre
 const GLOW = {
-  dormant:   '0 0 0px transparent',
-  charge1:   '0 0 8px #fff5, 0 0 20px #fbbf2433',
-  charge2:   '0 0 15px #fffa, 0 0 40px #fbbf2466, 0 0 80px #b4530933',
-  charge3:   '0 0 25px #fff, 0 0 70px #fbbf24cc, 0 0 140px #b45309aa',
-  preimpact: '0 0 40px #fff, 0 0 100px #fbbf24, 0 0 200px #b45309, 0 0 300px #7c2d1266',
-  nuclear:   '0 0 20px #fff, 0 0 50px #fff, 0 0 100px #fbbf24, 0 0 180px #b45309, 0 0 280px #7c2d12',
-  breathing: '0 0 10px #fff, 0 0 30px #fff, 0 0 70px #fbbf24, 0 0 130px #b45309',
+  dormant:
+    '0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0)',
+  charge1:
+    '0 0 8px rgba(255,255,255,0.30), 0 0 20px rgba(251,191,36,0.20), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0)',
+  charge2:
+    '0 0 15px rgba(255,255,255,0.70), 0 0 40px rgba(251,191,36,0.40), 0 0 80px rgba(180,83,9,0.20), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0)',
+  charge3:
+    '0 0 25px rgba(255,255,255,1), 0 0 70px rgba(251,191,36,0.80), 0 0 140px rgba(180,83,9,0.65), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0)',
+  preimpact:
+    '0 0 40px rgba(255,255,255,1), 0 0 100px rgba(251,191,36,1), 0 0 200px rgba(180,83,9,1), 0 0 300px rgba(124,45,18,0.40), 0 0 0px rgba(0,0,0,0)',
+  supernova:
+    '0 0 60px rgba(255,255,255,1), 0 0 130px rgba(255,255,255,1), 0 0 240px rgba(251,191,36,1), 0 0 400px rgba(251,191,36,0.90), 0 0 580px rgba(180,83,9,0.70)',
+  nuclear:
+    '0 0 20px rgba(255,255,255,1), 0 0 50px rgba(255,255,255,1), 0 0 100px rgba(251,191,36,1), 0 0 180px rgba(180,83,9,1), 0 0 280px rgba(124,45,18,1)',
+  breathing:
+    '0 0 10px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,1), 0 0 70px rgba(251,191,36,1), 0 0 130px rgba(180,83,9,1), 0 0 200px rgba(124,45,18,0.60)',
 };
-
-const ASH_PALETTE = [
-  [255, 220, 120], [255, 200, 80],  [255, 180, 40],
-  [255, 240, 180], [255, 255, 220], [255, 160, 30],
-];
 
 // ─────────────────────────────────────────────
 // COMPOSANT — Solar Bloom 7 couches
@@ -68,7 +95,6 @@ const SolarBloom = () => (
 
 // ─────────────────────────────────────────────
 // COMPOSANT — Nébuleuse résiduelle (CSS)
-// Opacité max réduite sur mobile via data-attr + CSS
 // ─────────────────────────────────────────────
 const NEBULA_CLOUDS = [
   { id: 'n1', w: '55vw', h: '40vh', bg: 'rgba(120,40,180,0.18)',  blur: '80px',  tx: '-20vw', ty:  '-8vh', rot:  15 },
@@ -103,21 +129,186 @@ const Nebula = () => (
 );
 
 // ─────────────────────────────────────────────
-// CLASSE — Anneau de choc
+// CLASSE — Particule de fumée thermique
+//
+// Naît à la base des lettres, monte doucement.
+// Phase 'perspective' : force radiale centrifuge
+// depuis le centre du titre + accélération exponentielle.
+// Crée l'illusion d'un nuage épais qui explose.
+// Phase 'fading' : l'opacité se dissout rapidement.
+// ─────────────────────────────────────────────
+class SmokeParticle {
+  constructor(cx, cy, titleW, titleH) {
+    this.cx     = cx;
+    this.cy     = cy;
+    this.titleW = titleW;
+    this.titleH = titleH;
+    this.reset(true);
+  }
+
+  reset(initial = false) {
+    this.x        = this.cx + (Math.random() * 2 - 1) * this.titleW * 0.46;
+    this.y        = this.cy + this.titleH * 0.28 + (Math.random() - 0.5) * 12;
+    this.vx       = (Math.random() - 0.5) * 0.5;
+    this.vy       = -(0.20 + Math.random() * 0.35);
+    this.size     = 8 + Math.random() * 14;
+    this.growRate = 0.07 + Math.random() * 0.10;
+    this.maxLife  = 120 + Math.random() * 90;
+    this.life     = initial ? Math.floor(Math.random() * 80) : 0;
+    this.maxOp    = 0.10 + Math.random() * 0.12;
+    this.opacity  = initial ? this.maxOp * Math.random() : 0;
+    // Unique acceleration factor for perspective mode
+    this.perspA   = 1.045 + Math.random() * 0.055;
+  }
+
+  update(phase) {
+    this.life++;
+
+    if (phase === 'fading') {
+      this.opacity  = Math.max(0, this.opacity - 0.010);
+      this.vy      *= 1.025;
+      this.vx      *= 1.015;
+      this.size    += this.growRate * 1.5;
+      this.x       += this.vx;
+      this.y       += this.vy;
+      return;
+    }
+
+    if (phase === 'perspective') {
+      // Radial centrifuge from title center
+      const dx   = this.x - this.cx;
+      const dy   = this.y - (this.cy + this.titleH * 0.05);
+      const dist = Math.hypot(dx, dy) + 1;
+      const frc  = 0.10 * this.perspA;
+      this.vx   += (dx / dist) * frc;
+      this.vy   += (dy / dist) * frc - 0.04; // bias upward
+      // Rapid size bloom
+      this.size += this.growRate * 6;
+      // Opacity stays at peak
+      this.opacity = Math.min(this.maxOp * 1.8, this.opacity + 0.003);
+    } else {
+      this.size += this.growRate;
+      // Normal opacity arc
+      const lt = this.life / this.maxLife;
+      if      (lt < 0.12) this.opacity = this.maxOp * (lt / 0.12);
+      else if (lt < 0.65) this.opacity = this.maxOp;
+      else                this.opacity = this.maxOp * (1 - (lt - 0.65) / 0.35);
+    }
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (phase === 'rising' && this.life >= this.maxLife) this.reset(false);
+  }
+
+  draw(ctx) {
+    if (this.opacity < 0.005) return;
+    const r   = this.size * 2.8;
+    const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r);
+    grd.addColorStop(0,   `rgba(195,175,155,${this.opacity})`);
+    grd.addColorStop(0.4, `rgba(155,140,130,${this.opacity * 0.55})`);
+    grd.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  isDead() { return this.opacity < 0.005 && this.life > 30; }
+}
+
+// ─────────────────────────────────────────────
+// CLASSE — Particule de flamme
+//
+// Jaillit des lettres à l'impact.
+// Turbulence sinusoïdale horizontale.
+// Palette : blanc-chaud → jaune → orange → rouge.
+// Décroît en taille en montant (flamme effilée).
+// ─────────────────────────────────────────────
+class FlameParticle {
+  constructor(cx, cy, titleW, titleH) {
+    this.cx     = cx;
+    this.cy     = cy;
+    this.titleW = titleW;
+    this.titleH = titleH;
+    this.alive  = false;
+    this.reset();
+  }
+
+  reset() {
+    this.x       = this.cx + (Math.random() * 2 - 1) * this.titleW * 0.44;
+    this.y       = this.cy + this.titleH * 0.28;
+    this.vx      = (Math.random() - 0.5) * 2.2;
+    this.vy      = -(2.8 + Math.random() * 4.5);
+    this.turbF   = 0.14 + Math.random() * 0.22;
+    this.turbA   = 0.5  + Math.random() * 0.8;
+    this.size    = 3.5  + Math.random() * 9.0;
+    this.maxLife = 22   + Math.random() * 32;
+    this.life    = Math.random() * 8;
+    this.alive   = true;
+  }
+
+  update() {
+    if (!this.alive) return;
+    this.life++;
+    if (this.life >= this.maxLife) { this.alive = false; return; }
+    this.vx   += Math.sin(this.life * this.turbF) * this.turbA * 0.09;
+    this.vy   *= 0.984;
+    this.x    += this.vx;
+    this.y    += this.vy;
+    this.size *= 0.973;
+  }
+
+  draw(ctx) {
+    if (!this.alive || this.size < 0.5) return;
+    const lt      = this.life / this.maxLife;
+    const opacity = Math.max(0, 1 - lt) * 0.92;
+    let   cr, cg, cb;
+    if      (lt < 0.20) { cr = 255; cg = 250; cb = Math.floor(220 * (1 - lt / 0.2)); }
+    else if (lt < 0.50) { cr = 255; cg = Math.floor(250 - 160 * ((lt - 0.2) / 0.3)); cb = 0; }
+    else if (lt < 0.80) { cr = 255; cg = Math.floor(90  - 70  * ((lt - 0.5) / 0.3)); cb = 0; }
+    else                { cr = Math.floor(255 * (1 - (lt - 0.8) / 0.2)); cg = 0; cb = 0; }
+
+    const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2.2);
+    grd.addColorStop(0,   `rgba(${cr},${cg},${cb},${opacity})`);
+    grd.addColorStop(0.4, `rgba(${cr},${cg},${cb},${opacity * 0.35})`);
+    grd.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 2.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle   = `rgb(${cr},${cg},${cb})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 0.48, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ─────────────────────────────────────────────
+// CLASSE — Anneau de choc volumétrique
+//
+// 7 bandes spectrales concentriques autour de r :
+//   bleu électrique (interne) → blanc pur (core) → ambre (externe)
+// + halo de pression ultra-large (50px), très transparent.
+// + flash de naissance : disque blanc qui s'estompe rapidement.
+// Zéro shadowBlur — rendu pur avec arcs Canvas.
 // ─────────────────────────────────────────────
 class ShockRing {
-  constructor(W, H, cx, cy, delayFrames, cr, cg, cb) {
-    this.maxR  = Math.sqrt(W * W + H * H) * 0.58;
-    this.cx    = cx;
-    this.cy    = cy;
-    this.r     = 0;
-    this.speed = 3 + Math.random() * 2;
-    this.alive = false;
-    this.wait  = delayFrames;
-    this.age   = 0;
-    this.cr    = cr;
-    this.cg    = cg;
-    this.cb    = cb;
+  constructor(W, H, cx, cy, delayFrames, ringIndex) {
+    this.maxR        = Math.sqrt(W * W + H * H) * 0.60;
+    this.cx          = cx;
+    this.cy          = cy;
+    this.r           = 0;
+    this.speed       = 2.5 + ringIndex * 0.4 + Math.random() * 1.5;
+    this.alive       = false;
+    this.wait        = delayFrames;
+    this.age         = 0;
+    this.ringIndex   = ringIndex;
+    // Intensity decreases with ring index
+    this.intensity   = 1 - ringIndex * 0.18;
   }
 
   update() {
@@ -125,36 +316,67 @@ class ShockRing {
       if (++this.age >= this.wait) this.alive = true;
       return;
     }
-    this.speed *= 1.003;
+    this.speed *= 1.0025;
     this.r     += this.speed;
   }
 
   draw(ctx) {
     if (!this.alive || this.r > this.maxR) return;
     const p     = this.r / this.maxR;
-    const alpha = Math.max(0, 1 - p);
-    const thin  = Math.max(0.4, 2.5 * (1 - p));
+    const alpha = Math.max(0, Math.pow(1 - p, 1.3)) * this.intensity;
+    if (alpha < 0.005) return;
 
+    // ── Halo de pression — large, très transparent
     ctx.beginPath();
     ctx.arc(this.cx, this.cy, this.r, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${this.cr},${this.cg},${this.cb},${alpha * 0.22})`;
-    ctx.lineWidth   = thin * 5;
+    ctx.strokeStyle = `rgba(255,200,140,${alpha * 0.06})`;
+    ctx.lineWidth   = Math.max(5, 55 * (1 - p));
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.arc(this.cx, this.cy, this.r, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(${this.cr},${this.cg},${this.cb},${alpha * 0.85})`;
-    ctx.lineWidth   = thin;
-    ctx.stroke();
+    // ── 7 bandes spectrales
+    const bands = [
+      { dr: -6, ar: 0.10, cr: 30,  cg: 90,  cb: 255 }, // bleu profond
+      { dr: -4, ar: 0.28, cr: 100, cg: 170, cb: 255 }, // bleu ciel
+      { dr: -2, ar: 0.55, cr: 200, cg: 230, cb: 255 }, // bleu-blanc
+      { dr:  0, ar: 1.00, cr: 255, cg: 255, cb: 255 }, // blanc pur (core)
+      { dr:  2, ar: 0.65, cr: 255, cg: 225, cb: 170 }, // blanc-ambre
+      { dr:  4, ar: 0.32, cr: 255, cg: 165, cb: 55  }, // ambre
+      { dr:  6, ar: 0.14, cr: 255, cg: 100, cb: 15  }, // orange profond
+    ];
+
+    bands.forEach(({ dr, ar, cr, cg, cb }) => {
+      const rv = this.r + dr;
+      if (rv < 0) return;
+      const baseW = this.ringIndex === 0 ? 3.0 : 2.2;
+      const lw    = Math.max(0.3, (baseW - Math.abs(dr) * 0.35) * (1 - p * 0.5));
+      ctx.beginPath();
+      ctx.arc(this.cx, this.cy, rv, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${alpha * ar})`;
+      ctx.lineWidth   = lw;
+      ctx.stroke();
+    });
+
+    // ── Flash de naissance
+    if (this.r < 40) {
+      const bf = Math.max(0, 1 - this.r / 40);
+      ctx.beginPath();
+      ctx.arc(this.cx, this.cy, this.r * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${bf * 0.35})`;
+      ctx.fill();
+    }
   }
 
   isDead() { return this.r > this.maxR; }
 }
 
 // ─────────────────────────────────────────────
-// CLASSE — Cendre stellaire
+// CLASSE — Débris de météorite
+//
+// Trajectoire diagonale (top-right → bottom-left).
+// Traîne lumineuse proportionnelle à la vitesse.
+// Tête brillante avec halo pour les plus grands.
 // ─────────────────────────────────────────────
-class StellarAsh {
+class MeteorDebris {
   constructor(W, H) {
     this.W = W;
     this.H = H;
@@ -162,38 +384,80 @@ class StellarAsh {
   }
 
   respawn(initial = false) {
-    this.x       = Math.random() * this.W;
-    this.y       = initial ? -Math.random() * this.H * 1.2 : -10 - Math.random() * 50;
-    this.vy      = 0.4 + Math.random() * 1.2;
-    this.vx      = (Math.random() - 0.5) * 0.25;
-    this.ay      = 0.002 + Math.random() * 0.003;
-    this.size    = 0.8 + Math.random() * 2.2;
-    this.hasTail = this.size > 2.2;
-    this.swayF   = 0.008 + Math.random() * 0.012;
-    this.swayA   = 0.3   + Math.random() * 0.7;
-    this.swayO   = Math.random() * Math.PI * 2;
-    const c      = ASH_PALETTE[Math.floor(Math.random() * ASH_PALETTE.length)];
+    this.x       = initial ? Math.random() * this.W : this.W * 0.55 + Math.random() * this.W * 0.6;
+    this.y       = initial ? Math.random() * this.H * 0.6 : -20 - Math.random() * 60;
+    const spd    = 1.0 + Math.random() * 1.8;
+    const angle  = (Math.PI * 0.56) + (Math.random() - 0.5) * 0.25;
+    this.vx      = Math.cos(angle) * spd;
+    this.vy      = Math.sin(angle) * spd;
+    this.size    = 0.5 + Math.random() * 1.8;
+    this.isBig   = this.size > 1.3;
+    this.tailLen = spd * (10 + Math.random() * 16);
+    const pal    = [[255,220,140],[255,200,100],[220,200,255],[200,220,255],[255,240,180]];
+    const c      = pal[Math.floor(Math.random() * pal.length)];
     this.r       = c[0];
     this.g       = c[1];
     this.b       = c[2];
-    this.maxOp   = 0.45 + Math.random() * 0.5;
+    this.maxOp   = 0.25 + Math.random() * 0.40;
     this.opacity = 0;
     this.frame   = 0;
   }
 
-  update(t) {
+  update() {
     this.frame++;
-    this.vy += this.ay;
-    this.y  += this.vy;
-    this.x  += this.vx + Math.sin(t * this.swayF + this.swayO) * this.swayA * 0.015;
-    if (this.y > this.H + 15) { this.respawn(); return; }
-    this.opacity = Math.min(1, this.frame / 40) * this.maxOp;
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < -60 || this.y > this.H + 60) { this.respawn(); return; }
+    this.opacity = Math.min(1, this.frame / 25) * this.maxOp;
+  }
+
+  draw(ctx) {
+    if (this.opacity < 0.01) return;
+    const speed  = Math.hypot(this.vx, this.vy);
+    const nx     = this.vx / speed;
+    const ny     = this.vy / speed;
+    const tx     = this.x - nx * this.tailLen;
+    const ty     = this.y - ny * this.tailLen;
+    const grd    = ctx.createLinearGradient(tx, ty, this.x, this.y);
+    grd.addColorStop(0,   'rgba(0,0,0,0)');
+    grd.addColorStop(1,   `rgba(${this.r},${this.g},${this.b},${this.opacity})`);
+    ctx.strokeStyle = grd;
+    ctx.lineWidth   = this.size * 0.65;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(this.x, this.y);
+    ctx.stroke();
+
+    if (this.isBig) {
+      const g2 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3.5);
+      g2.addColorStop(0, `rgba(${this.r},${this.g},${this.b},${this.opacity})`);
+      g2.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g2;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size * 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle   = `rgb(${this.r},${this.g},${this.b})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 0.55, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 }
 
 // ─────────────────────────────────────────────
-// Canvas + Impact
+// Composants Canvas simples
 // ─────────────────────────────────────────────
+const SmokeCanvas = ({ canvasRef }) => (
+  <canvas
+    ref={canvasRef}
+    className="absolute inset-0 pointer-events-none z-[32]"
+    style={{ mixBlendMode: 'normal' }}
+  />
+);
+
 const PostNovaCanvas = ({ canvasRef }) => (
   <canvas
     ref={canvasRef}
@@ -201,31 +465,6 @@ const PostNovaCanvas = ({ canvasRef }) => (
     style={{ mixBlendMode: 'screen' }}
   />
 );
-
-const ImpactParticles = () => {
-  const pts = useMemo(() =>
-    Array.from({ length: IMPACT_COUNT }, (_, i) => ({
-      id:      i,
-      width:   Math.random() * 6 + 2,
-      height:  Math.random() * 6 + 2,
-      isAmber: i % 3 !== 0,
-    }))
-  , []);
-
-  return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-      {pts.map(({ id, width, height, isAmber }) => (
-        <div
-          key={id}
-          className={`impact-particle absolute rounded-full mix-blend-screen opacity-0 ${
-            isAmber ? 'bg-amber-300' : 'bg-white'
-          }`}
-          style={{ width: `${width}px`, height: `${height}px` }}
-        />
-      ))}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────────
 // COMPOSANT PRINCIPAL
@@ -237,163 +476,224 @@ export default function HeroImpact() {
   const marsaiInternalLightRef = useRef(null);
   const plasmaRef              = useRef(null);
   const subtitleRef            = useRef(null);
-  const canvasRef              = useRef(null);
+  const smokeCanvasRef         = useRef(null);
+  const novaCanvasRef          = useRef(null);
   const caRedRef               = useRef(null);
   const caBlueRef              = useRef(null);
 
-  const rafRef       = useRef(null);
-  const engineActive = useRef(false);
-  const ringsActive  = useRef(false);
-  const ashActive    = useRef(false);
+  // Cycles de vie des moteurs Canvas
+  const smokeRafRef      = useRef(null);
+  const novaRafRef       = useRef(null);
+  const smokePhaseRef    = useRef('idle');   // 'idle'|'rising'|'perspective'|'fading'
+  const flamesActiveRef  = useRef(false);
+  const ringsActiveRef   = useRef(false);
+  const debrisActiveRef  = useRef(false);
+  const smokeEngineOn    = useRef(false);
+  const novaEngineOn     = useRef(false);
 
-  // Police responsive — se lit dans le DOM, stable via closure
   const isMobile = useCallback(
     () => typeof window !== 'undefined' && window.innerWidth < 768,
     []
   );
 
-  // ── MOTEUR CANVAS ─────────────────────────────────────────
-  const startCanvas = useCallback((W, H) => {
-    if (engineActive.current) return;
-    engineActive.current = true;
+  // ── MOTEUR FUMÉE + FLAMMES ────────────────────────────────
+  const startSmokeEngine = useCallback((W, H, cx, cy, titleW, titleH) => {
+    if (smokeEngineOn.current) return;
+    smokeEngineOn.current = true;
 
-    const canvas = canvasRef.current;
+    const canvas = smokeCanvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const cx  = W * 0.5;
-    const cy  = H * 0.5;
+    const ctx     = canvas.getContext('2d');
+    const mobile  = isMobile();
+    const smCnt   = mobile ? SMOKE_COUNT_MOBI  : SMOKE_COUNT_DESK;
+    const flCnt   = mobile ? FLAME_COUNT_MOBI  : FLAME_COUNT_DESK;
 
-    const rings = [
-      new ShockRing(W, H, cx, cy,  0, 255, 255, 255),
-      new ShockRing(W, H, cx, cy, 22, 255, 225, 160),
-      new ShockRing(W, H, cx, cy, 44, 255, 175,  55),
-      new ShockRing(W, H, cx, cy, 66, 255, 115,  15),
-    ];
-
-    const ashCount = isMobile() ? ASH_COUNT_MOBI : ASH_COUNT_DESK;
-    const ashes    = Array.from({ length: ashCount }, () => new StellarAsh(W, H));
-
-    let t = 0;
+    const smokes = Array.from({ length: smCnt }, () =>
+      new SmokeParticle(cx, cy, titleW, titleH)
+    );
+    const flames = Array.from({ length: flCnt }, () =>
+      new FlameParticle(cx, cy, titleW, titleH)
+    );
+    // Toutes les flammes dorment au départ
+    flames.forEach((f) => { f.alive = false; });
 
     const render = () => {
-      rafRef.current = requestAnimationFrame(render);
-      t++;
+      smokeRafRef.current = requestAnimationFrame(render);
+      ctx.clearRect(0, 0, W, H);
 
-      ctx.fillStyle = 'rgba(0,0,0,0.14)';
-      ctx.fillRect(0, 0, W, H);
+      const phase = smokePhaseRef.current;
+      if (phase === 'idle') return;
 
-      if (ringsActive.current) {
-        ctx.save();
-        ctx.lineCap = 'round';
-        rings.forEach((ring) => { ring.update(); ring.draw(ctx); });
-        ctx.restore();
-      }
+      // ── Fumée (blend normal)
+      ctx.globalCompositeOperation = 'source-over';
+      smokes.forEach((s) => {
+        s.update(phase);
+        if (!s.isDead()) {
+          s.draw(ctx);
+        } else if (phase === 'rising' || phase === 'perspective') {
+          s.reset(false);
+        }
+      });
 
-      if (ashActive.current) {
-        // Passe halos
-        ashes.forEach((ash) => {
-          ash.update(t);
-          if (ash.opacity < 0.01 || ash.size <= 1.5) return;
-          const hR  = ash.size * 3;
-          const grd = ctx.createRadialGradient(ash.x, ash.y, 0, ash.x, ash.y, hR);
-          grd.addColorStop(0, `rgba(${ash.r},${ash.g},${ash.b},${ash.opacity * 0.45})`);
-          grd.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = grd;
-          ctx.beginPath();
-          ctx.arc(ash.x, ash.y, hR, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        // Passe traînées + noyaux
-        ashes.forEach((ash) => {
-          if (ash.opacity < 0.01) return;
-          if (ash.hasTail) {
-            const tLen = ash.vy * 3.5;
-            const grd  = ctx.createLinearGradient(ash.x, ash.y - tLen, ash.x, ash.y);
-            grd.addColorStop(0, `rgba(${ash.r},${ash.g},${ash.b},0)`);
-            grd.addColorStop(1, `rgba(${ash.r},${ash.g},${ash.b},${ash.opacity * 0.5})`);
-            ctx.strokeStyle = grd;
-            ctx.lineWidth   = ash.size * 0.35;
-            ctx.beginPath();
-            ctx.moveTo(ash.x, ash.y - tLen);
-            ctx.lineTo(ash.x, ash.y);
-            ctx.stroke();
+      // ── Flammes (blend screen dans le canvas)
+      if (flamesActiveRef.current) {
+        ctx.globalCompositeOperation = 'screen';
+        flames.forEach((f) => {
+          if (!f.alive) {
+            if (Math.random() < 0.22) f.reset();
+            return;
           }
-          ctx.globalAlpha = ash.opacity;
-          ctx.fillStyle   = `rgb(${ash.r},${ash.g},${ash.b})`;
-          ctx.beginPath();
-          ctx.arc(ash.x, ash.y, ash.size * 0.55, 0, Math.PI * 2);
-          ctx.fill();
+          f.update();
+          f.draw(ctx);
         });
-
-        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
       }
     };
 
     render();
   }, [isMobile]);
 
-  // ── RESIZE — recalcule le canvas sans relancer le moteur ──
-  useEffect(() => {
-    const onResize = () => {
-      const canvas = canvasRef.current;
-      const cont   = containerRef.current;
-      if (!canvas || !cont) return;
-      // Le moteur continue — on redimensionne seulement si pas encore démarré
-      if (!engineActive.current) {
-        canvas.width  = cont.offsetWidth;
-        canvas.height = cont.offsetHeight;
+  // ── MOTEUR POST-NOVA (anneaux + débris) ──────────────────
+  const startNovaEngine = useCallback((W, H) => {
+    if (novaEngineOn.current) return;
+    novaEngineOn.current = true;
+
+    const canvas = novaCanvasRef.current;
+    if (!canvas) return;
+    const ctx  = canvas.getContext('2d');
+    const cx   = W * 0.5;
+    const cy   = H * 0.5;
+
+    const rings = [
+      new ShockRing(W, H, cx, cy,  0, 0),
+      new ShockRing(W, H, cx, cy, 22, 1),
+      new ShockRing(W, H, cx, cy, 45, 2),
+      new ShockRing(W, H, cx, cy, 68, 3),
+    ];
+
+    const dCnt   = isMobile() ? DEBRIS_COUNT_MOBI : DEBRIS_COUNT_DESK;
+    const debris = Array.from({ length: dCnt }, () => new MeteorDebris(W, H));
+
+    let t = 0;
+
+    const render = () => {
+      novaRafRef.current = requestAnimationFrame(render);
+      t++;
+      ctx.fillStyle = 'rgba(0,0,0,0.13)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Anneaux
+      if (ringsActiveRef.current) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        rings.forEach((ring) => { ring.update(); ring.draw(ctx); });
+        ctx.restore();
+      }
+
+      // Débris météorites — passe halos
+      if (debrisActiveRef.current) {
+        debris.forEach((d) => {
+          d.update();
+          if (d.opacity < 0.01 || !d.isBig) return;
+          const hR  = d.size * 3.5;
+          const g2  = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, hR);
+          g2.addColorStop(0, `rgba(${d.r},${d.g},${d.b},${d.opacity * 0.4})`);
+          g2.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g2;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, hR, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Passe traînes + noyaux
+        debris.forEach((d) => {
+          if (d.opacity < 0.01) return;
+          d.draw(ctx);
+        });
       }
     };
 
+    render();
+  }, [isMobile]);
+
+  // ── RESIZE ───────────────────────────────────────────────
+  useEffect(() => {
+    const onResize = () => {
+      const cont = containerRef.current;
+      if (!cont) return;
+      [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
+        if (ref.current && !smokeEngineOn.current) {
+          ref.current.width  = cont.offsetWidth;
+          ref.current.height = cont.offsetHeight;
+        }
+      });
+    };
     const ro = new ResizeObserver(onResize);
     if (containerRef.current) ro.observe(containerRef.current);
-
     return () => {
       ro.disconnect();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      engineActive.current = false;
+      if (smokeRafRef.current) cancelAnimationFrame(smokeRafRef.current);
+      if (novaRafRef.current)  cancelAnimationFrame(novaRafRef.current);
+      smokeEngineOn.current = false;
+      novaEngineOn.current  = false;
     };
   }, []);
 
-  // ── GSAP ──────────────────────────────────────────────────
+  // ── GSAP ─────────────────────────────────────────────────
   useGSAP(() => {
     gsap.set(containerRef.current, { visibility: 'visible' });
     const W = containerRef.current.offsetWidth;
     const H = containerRef.current.offsetHeight;
 
-    if (canvasRef.current) {
-      canvasRef.current.width  = W;
-      canvasRef.current.height = H;
-    }
+    // Zone approximative du titre (proportions)
+    const titleW = W * 0.82;
+    const titleH = H * 0.20;
+    const cx     = W * 0.5;
+    const cy     = H * 0.5;
+
+    // Initialiser les canvas
+    [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
+      if (ref.current) {
+        ref.current.width  = W;
+        ref.current.height = H;
+      }
+    });
 
     // Setup initial
     gsap.set(marsaiWrapperRef.current, { scale: 1.12, opacity: 0, filter: 'blur(28px)', x: 0, y: 0 });
     gsap.set(marsaiGlowRef.current,    { textShadow: GLOW.dormant });
     gsap.set(plasmaRef.current,        { opacity: 0, scale: 1.05, filter: 'blur(20px)' });
-    gsap.set(canvasRef.current,        { opacity: 0 });
+    gsap.set(smokeCanvasRef.current,   { opacity: 0 });
+    gsap.set(novaCanvasRef.current,    { opacity: 0 });
     gsap.set('.solar-bloom',           { opacity: 0 });
     gsap.set('[class*="s-bloom-"]',    { opacity: 0 });
     NEBULA_CLOUDS.forEach(({ id }) => gsap.set(`.nebula-${id}`, { opacity: 0 }));
-    gsap.set([caRedRef.current, caBlueRef.current], { opacity: 0, x: 0, y: 0 });
+    gsap.set([caRedRef.current, caBlueRef.current], { opacity: 0, x: 0, y: 0, skewX: 0 });
 
     const tl = gsap.timeline({ delay: 0.6 });
 
-    // ─ Phase 1 : Apparition ──────────────────────────────────
+    // ─ Phase 1 : Apparition — plus rapide ────────────────────
     tl.addLabel('apparition');
     tl.to(marsaiWrapperRef.current, {
-      opacity: 1, scale: 1.06, duration: 1.6, ease: 'power2.out',
+      opacity: 1, scale: 1.06, duration: 0.9, ease: 'power2.out',
     }, 'apparition');
 
+    // Fumée apparaît avec le titre
+    tl.to(smokeCanvasRef.current, {
+      opacity: 1, duration: 0.6, ease: 'power2.out',
+    }, 'apparition+=0.2');
+
     // ─ Phase 2 : Tension ─────────────────────────────────────
-    tl.addLabel('tension', 'apparition+=1.6');
+    tl.addLabel('tension', 'apparition+=0.9');
 
     tl.to(marsaiWrapperRef.current, {
       filter: 'blur(22px)', scale: 1.04, duration: 2.2, ease: 'power1.inOut',
     }, 'tension');
 
     // Palier 1
-    tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge1, duration: 0.4, ease: 'power1.out' }, 'tension+=0.2');
+    tl.to(marsaiGlowRef.current, {
+      textShadow: GLOW.charge1, duration: 0.4, ease: 'power1.out',
+    }, 'tension+=0.2');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
         { x:  4,  y: -2,  duration: 0.08 },
@@ -405,7 +705,9 @@ export default function HeroImpact() {
     }, 'tension+=0.3');
 
     // Palier 2
-    tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge2, duration: 0.35, ease: 'power2.out' }, 'tension+=0.8');
+    tl.to(marsaiGlowRef.current, {
+      textShadow: GLOW.charge2, duration: 0.35, ease: 'power2.out',
+    }, 'tension+=0.8');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
         { x: -7,  y:  3,   duration: 0.06 },
@@ -417,8 +719,10 @@ export default function HeroImpact() {
       ],
     }, 'tension+=0.9');
 
-    // Palier 3
-    tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge3, duration: 0.3, ease: 'power3.out' }, 'tension+=1.35');
+    // Palier 3 — fumée bascule en mode perspective ici
+    tl.to(marsaiGlowRef.current, {
+      textShadow: GLOW.charge3, duration: 0.30, ease: 'power3.out',
+    }, 'tension+=1.35');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
         { x:  12,  y: -5,   duration: 0.04  },
@@ -433,7 +737,9 @@ export default function HeroImpact() {
     }, 'tension+=1.4');
 
     // Palier 4
-    tl.to(marsaiGlowRef.current, { textShadow: GLOW.preimpact, duration: 0.2, ease: 'power4.in' }, 'tension+=1.82');
+    tl.to(marsaiGlowRef.current, {
+      textShadow: GLOW.preimpact, duration: 0.2, ease: 'power4.in',
+    }, 'tension+=1.82');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
         { x: -18,  y:  8,   duration: 0.030 },
@@ -444,13 +750,14 @@ export default function HeroImpact() {
         { x:   4,  y: -2,   duration: 0.050 },
         { x:  -2,  y:  1,   duration: 0.060 },
         { x:   1,  y: -0.5, duration: 0.070 },
-        { x:   0,  y:  0,   duration: 0.180, ease: 'power2.out' },
+        { x:   0,  y:  0,   duration: 0.18, ease: 'power2.out' },
       ],
     }, 'tension+=1.78');
 
     // ─ Phase 3 : Supernova ───────────────────────────────────
     tl.addLabel('impact', 'tension+=2.1');
 
+    // Tremblement container
     tl.to(containerRef.current, {
       keyframes: [
         { x: -25, duration: 0.055 },
@@ -460,11 +767,25 @@ export default function HeroImpact() {
         { x:  -7, duration: 0.070 },
         { x:   4, duration: 0.080 },
         { x:  -2, duration: 0.090 },
-        { x:   0, duration: 0.180, ease: 'power2.out' },
+        { x:   0, duration: 0.18, ease: 'power2.out' },
       ],
     }, 'impact');
 
-    // Solar Bloom
+    // Titre brille — SUPERNOVA instantané
+    tl.to(marsaiGlowRef.current, {
+      textShadow: GLOW.supernova, duration: 0.06, ease: 'expo.out',
+    }, 'impact');
+    // Puis se stabilise
+    tl.to(marsaiGlowRef.current, {
+      textShadow: GLOW.nuclear, duration: 1.0, ease: 'power2.out',
+    }, 'impact+=0.35');
+
+    // Canvas post-nova s'allume
+    tl.to(novaCanvasRef.current, {
+      opacity: 1, duration: 0.35, ease: 'power2.out',
+    }, 'impact+=0.04');
+
+    // Solar Bloom — cascade entrée
     tl.to('.solar-bloom', { opacity: 1, duration: 0.03 }, 'impact');
     tl.to('.s-bloom-1',   { opacity: 1, duration: 0.15, ease: 'expo.out'   }, 'impact');
     tl.to('.s-bloom-2',   { opacity: 1, duration: 0.22, ease: 'power3.out' }, 'impact+=0.03');
@@ -473,6 +794,7 @@ export default function HeroImpact() {
     tl.to('.s-bloom-5',   { opacity: 1, duration: 0.50, ease: 'power1.out' }, 'impact+=0.14');
     tl.to('.s-bloom-6',   { opacity: 1, duration: 0.65, ease: 'power1.out' }, 'impact+=0.18');
     tl.to('.s-bloom-7',   { opacity: 1, duration: 0.80, ease: 'sine.out'   }, 'impact+=0.22');
+    // Solar Bloom — sortie
     tl.to('.s-bloom-1',   { opacity: 0, duration: 0.8,  ease: 'power2.in' }, 'impact+=0.35');
     tl.to('.s-bloom-2',   { opacity: 0, duration: 1.0,  ease: 'power2.in' }, 'impact+=0.45');
     tl.to('.s-bloom-3',   { opacity: 0, duration: 1.4,  ease: 'power1.in' }, 'impact+=0.55');
@@ -482,121 +804,76 @@ export default function HeroImpact() {
     tl.to('.s-bloom-7',   { opacity: 0, duration: 3.5,  ease: 'sine.in'   }, 'impact+=1.10');
     tl.to('.solar-bloom', { opacity: 0, duration: 0.1                      }, 'impact+=4.5');
 
-    // ─────────────────────────────────────────────────────────
-    // ABERRATION CHROMATIQUE v3
+    // ── ABERRATION CHROMATIQUE v4 ─────────────────────────────
     //
-    // Phase 1 — BLAST (0.00s → 0.05s)
-    //   Les deux canaux explosent depuis le centre.
-    //   Rouge : gauche + légèrement vers le haut (-80px, -12px)
-    //   Bleu  : droite + légèrement vers le bas  (+80px, +12px)
-    //   Opacité : 0 → 0.95 instantané.
+    // Blast (±100px + skewX ±4deg) → opacité 1.0
+    // Tremblement : keyframes ASYMÉTRIQUES par canal
+    //   Opacité fluctue dans les keyframes → flicker naturel
+    //   sans double tween sur la même propriété
+    // Convergence : x:0, skewX:0, opacity:0 en power3.inOut
     //
-    // Phase 2 — TREMBLEMENT ASYMÉTRIQUE (0.05s → 1.25s)
-    //   Chaque canal tremble DIFFÉREMMENT — pas en miroir.
-    //   Le rouge est plus nerveux avec un drift vertical irrégulier.
-    //   Le bleu est plus lent, avec un rebond latéral plus ample.
-    //   Amplitude décroissante : chaque keyframe est plus petite.
-    //   Les durées sont légèrement différentes pour briser la symétrie.
-    //
-    // Phase 3 — CONVERGENCE (1.25s → 2.25s)
-    //   Les deux canaux reviennent à x:0, y:0 avec power3.inOut.
-    //   L'opacité fond de 0.85 → 0 simultanément.
-    //   Le titre "se recompose" visuellement pendant la révélation.
-    // ─────────────────────────────────────────────────────────
+    tl.set([caRedRef.current, caBlueRef.current], { x: 0, y: 0, skewX: 0, opacity: 0 }, 'impact');
 
-    // Setup : visible, au centre
-    tl.set([caRedRef.current, caBlueRef.current], { x: 0, y: 0, opacity: 0 }, 'impact');
-
-    // PHASE 1 — BLAST : divergence violente
+    // BLAST
     tl.to(caRedRef.current, {
-      x: -80, y: -12, opacity: 0.95,
-      duration: 0.05, ease: 'expo.out',
+      x: -100, y: -16, skewX: -4, opacity: 1.0,
+      duration: 0.055, ease: 'expo.out',
     }, 'impact');
     tl.to(caBlueRef.current, {
-      x:  80, y:  12, opacity: 0.95,
-      duration: 0.05, ease: 'expo.out',
+      x:  100, y:  16, skewX:  4, opacity: 1.0,
+      duration: 0.055, ease: 'expo.out',
     }, 'impact');
 
-    // PHASE 2 — TREMBLEMENT ROUGE
-    // Canal rouge : nerveux, irrégulier, drift vers la gauche
+    // TREMBLEMENT ROUGE — nerveux, opacité flicker
     tl.to(caRedRef.current, {
       keyframes: [
-        { x: -80, y: -12, duration: 0.000 }, // point de départ blast
-        { x: -62, y:   6, duration: 0.065 }, // rebond partiel
-        { x: -74, y:  -9, duration: 0.055 },
-        { x: -52, y:   4, duration: 0.070 },
-        { x: -64, y:  -7, duration: 0.060 },
-        { x: -44, y:   5, duration: 0.075 },
-        { x: -54, y:  -5, duration: 0.065 },
-        { x: -36, y:   3, duration: 0.080 },
-        { x: -44, y:  -4, duration: 0.070 },
-        { x: -28, y:   2, duration: 0.085 },
-        { x: -34, y:  -3, duration: 0.075 },
-        { x: -20, y:   1, duration: 0.090 },
-        { x: -24, y:  -2, duration: 0.080 },
-        { x: -12, y:   1, duration: 0.095 },
+        { x: -100, y: -16, skewX: -4, opacity: 1.0,  duration: 0.000 },
+        { x:  -76, y:   7, skewX: -3, opacity: 0.50, duration: 0.065 },
+        { x:  -88, y: -10, skewX: -3, opacity: 0.95, duration: 0.055 },
+        { x:  -62, y:   5, skewX: -2, opacity: 0.55, duration: 0.070 },
+        { x:  -74, y:  -8, skewX: -2, opacity: 0.90, duration: 0.060 },
+        { x:  -52, y:   4, skewX: -1, opacity: 0.60, duration: 0.075 },
+        { x:  -62, y:  -6, skewX: -1, opacity: 0.85, duration: 0.065 },
+        { x:  -42, y:   3, skewX:  0, opacity: 0.65, duration: 0.080 },
+        { x:  -50, y:  -5, skewX:  0, opacity: 0.80, duration: 0.070 },
+        { x:  -30, y:   2, skewX:  0, opacity: 0.70, duration: 0.090 },
+        { x:  -36, y:  -4, skewX:  0, opacity: 0.75, duration: 0.080 },
+        { x:  -18, y:   1, skewX:  0, opacity: 0.55, duration: 0.095 },
       ],
-    }, 'impact+=0.05');
+    }, 'impact+=0.055');
 
-    // PHASE 2 — TREMBLEMENT BLEU
-    // Canal bleu : plus lent, ample, légèrement visqueux
+    // TREMBLEMENT BLEU — plus lent, plus ample
     tl.to(caBlueRef.current, {
       keyframes: [
-        { x:  80, y:  12, duration: 0.000 }, // point de départ blast
-        { x:  68, y:  -5, duration: 0.080 }, // rebond différent
-        { x:  76, y:   8, duration: 0.065 },
-        { x:  58, y:  -4, duration: 0.085 },
-        { x:  68, y:   6, duration: 0.070 },
-        { x:  50, y:  -4, duration: 0.090 },
-        { x:  60, y:   5, duration: 0.075 },
-        { x:  42, y:  -3, duration: 0.095 },
-        { x:  50, y:   4, duration: 0.080 },
-        { x:  32, y:  -3, duration: 0.100 },
-        { x:  40, y:   3, duration: 0.085 },
-        { x:  22, y:  -2, duration: 0.105 },
-        { x:  28, y:   2, duration: 0.090 },
-        { x:  14, y:  -1, duration: 0.110 },
+        { x:  100, y:  16, skewX: 4, opacity: 1.0,  duration: 0.000 },
+        { x:   80, y:  -6, skewX: 3, opacity: 0.55, duration: 0.080 },
+        { x:   92, y:   9, skewX: 3, opacity: 0.92, duration: 0.065 },
+        { x:   70, y:  -5, skewX: 2, opacity: 0.60, duration: 0.085 },
+        { x:   82, y:   7, skewX: 2, opacity: 0.88, duration: 0.070 },
+        { x:   60, y:  -5, skewX: 1, opacity: 0.65, duration: 0.090 },
+        { x:   70, y:   6, skewX: 1, opacity: 0.84, duration: 0.075 },
+        { x:   50, y:  -4, skewX: 0, opacity: 0.70, duration: 0.095 },
+        { x:   58, y:   5, skewX: 0, opacity: 0.80, duration: 0.080 },
+        { x:   38, y:  -3, skewX: 0, opacity: 0.72, duration: 0.100 },
+        { x:   44, y:   3, skewX: 0, opacity: 0.76, duration: 0.085 },
+        { x:   24, y:  -2, skewX: 0, opacity: 0.58, duration: 0.110 },
       ],
-    }, 'impact+=0.05');
+    }, 'impact+=0.055');
 
-    // PHASE 3 — CONVERGENCE
-    // Les deux canaux rentrent vers le centre — le titre se recompose.
-    // Opacité : 0.85 → 0 pendant la convergence.
+    // CONVERGENCE
     tl.to(caRedRef.current, {
-      x: 0, y: 0, opacity: 0,
-      duration: 1.0, ease: 'power3.inOut',
-    }, 'impact+=1.25');
-
+      x: 0, y: 0, skewX: 0, opacity: 0,
+      duration: 1.05, ease: 'power3.inOut',
+    }, 'impact+=1.30');
     tl.to(caBlueRef.current, {
-      x: 0, y: 0, opacity: 0,
-      duration: 1.0, ease: 'power3.inOut',
-    }, 'impact+=1.25');
-
-    // Canvas
-    tl.to(canvasRef.current, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 'impact+=0.05');
-
-    // Particules d'impact
-    gsap.utils.toArray('.impact-particle').forEach((p) => {
-      const angle  = Math.random() * Math.PI * 2;
-      const radius = W * (Math.random() * 0.6 + 0.25);
-      tl.set(p, { x: 0, y: 0, opacity: 1, scale: 2.5 }, 'impact');
-      tl.to(p, {
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
-        opacity: 0, scale: 0,
-        duration: 0.8 + Math.random() * 1.2,
-        ease: 'power3.out',
-      }, 'impact');
-    });
+      x: 0, y: 0, skewX: 0, opacity: 0,
+      duration: 1.05, ease: 'power3.inOut',
+    }, 'impact+=1.30');
 
     // ─ Phase 4 : Révélation ──────────────────────────────────
     tl.to(marsaiWrapperRef.current, {
       opacity: 1, scale: 1, x: 0, y: 0, filter: 'blur(22px)',
       duration: 0.25, ease: 'power2.out',
-    }, 'impact+=0.18');
-
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.nuclear, duration: 0.25, ease: 'expo.out',
     }, 'impact+=0.18');
 
     tl.to(marsaiWrapperRef.current, {
@@ -615,49 +892,63 @@ export default function HeroImpact() {
       'impact+=1.6'
     );
 
-    // ─ Phase 5 : Post-nova ───────────────────────────────────
+    // ─ Phase 5 : Post-nova — systèmes décalés ────────────────
     const ORGANIC  = tl.totalDuration() + 0.1;
-    const impactAt = tl.labels['impact'];
+    const delay    = tl.delay();
+    const impactAt = tl.labels['impact'] + delay;
+    const tensionAt = tl.labels['tension'] + delay;
 
-    // Anneaux
+    // Fumée commence à la fin de l'apparition
+    gsap.delayedCall(delay + 0.3, () => {
+      startSmokeEngine(W, H, cx, cy, titleW, titleH);
+      smokePhaseRef.current = 'rising';
+    });
+
+    // Fumée → perspective au palier 3
+    gsap.delayedCall(tensionAt + 1.4, () => {
+      smokePhaseRef.current = 'perspective';
+    });
+
+    // Impact : anneaux + flammes + fumée fade
     gsap.delayedCall(impactAt + 0.04, () => {
-      startCanvas(W, H);
-      ringsActive.current = true;
+      startNovaEngine(W, H);
+      ringsActiveRef.current  = true;
+      flamesActiveRef.current = true;
+      smokePhaseRef.current   = 'fading';
+    });
+
+    // Flammes s'éteignent après 1.2s
+    gsap.delayedCall(impactAt + 1.2, () => {
+      flamesActiveRef.current = false;
+    });
+
+    // Débris météorites
+    gsap.delayedCall(impactAt + 2.4, () => {
+      debrisActiveRef.current = true;
     });
 
     // Nébuleuse
     gsap.delayedCall(impactAt + 1.9, () => {
-      // Sur mobile : opacité max réduite pour économiser le GPU
-      const nebulaMaxOp = isMobile() ? 0.5 : 1;
+      const maxOp = isMobile() ? 0.5 : 1;
       [
-        { id: 'n1', dx: '3vw',  dy: '-5vh', dr:  8, delay: 0   },
-        { id: 'n2', dx: '-4vw', dy:  '3vh', dr:-10, delay: 0.4 },
-        { id: 'n3', dx: '5vw',  dy:  '4vh', dr:  6, delay: 0.8 },
-        { id: 'n4', dx: '-3vw', dy: '-4vh', dr:-14, delay: 1.2 },
-        { id: 'n5', dx: '2vw',  dy:  '6vh', dr:  4, delay: 0.6 },
-        { id: 'n6', dx: '-6vw', dy: '-2vh', dr: -8, delay: 1.5 },
-      ].forEach(({ id, dx, dy, dr, delay }) => {
-        gsap.to(`.nebula-${id}`, {
-          opacity: nebulaMaxOp, delay, duration: 2.5, ease: 'power1.out',
-        });
+        { id: 'n1', dx: '3vw',  dy: '-5vh', dr:  8, d: 0   },
+        { id: 'n2', dx: '-4vw', dy:  '3vh', dr:-10, d: 0.4 },
+        { id: 'n3', dx: '5vw',  dy:  '4vh', dr:  6, d: 0.8 },
+        { id: 'n4', dx: '-3vw', dy: '-4vh', dr:-14, d: 1.2 },
+        { id: 'n5', dx: '2vw',  dy:  '6vh', dr:  4, d: 0.6 },
+        { id: 'n6', dx: '-6vw', dy: '-2vh', dr: -8, d: 1.5 },
+      ].forEach(({ id, dx, dy, dr, d }) => {
+        gsap.to(`.nebula-${id}`, { opacity: maxOp, delay: d, duration: 2.5, ease: 'power1.out' });
         gsap.to(`.nebula-${id}`, {
           x: dx, y: dy, rotation: `+=${dr}`,
-          delay,
-          duration: 30 + Math.random() * 20,
-          repeat:  -1,
-          yoyo:     true,
-          ease:    'sine.inOut',
+          delay: d, duration: 30 + Math.random() * 20,
+          repeat: -1, yoyo: true, ease: 'sine.inOut',
         });
       });
     });
 
-    // Cendres
-    gsap.delayedCall(impactAt + 2.4, () => {
-      ashActive.current = true;
-    });
-
     // Respiration titre
-    gsap.delayedCall(ORGANIC, () => {
+    gsap.delayedCall(ORGANIC + delay, () => {
       gsap.to(marsaiGlowRef.current, {
         textShadow: GLOW.breathing,
         duration: 2.8, repeat: -1, yoyo: true, ease: 'sine.inOut',
@@ -665,7 +956,7 @@ export default function HeroImpact() {
     });
 
     // Plasma instabilité
-    gsap.delayedCall(ORGANIC + 0.15, () => {
+    gsap.delayedCall(ORGANIC + delay + 0.15, () => {
       gsap.to(plasmaRef.current, {
         scale: 1.18, opacity: 0.65, filter: 'blur(55px)',
         duration: 3.2, repeat: -1, yoyo: true, ease: 'sine.inOut',
@@ -673,7 +964,7 @@ export default function HeroImpact() {
     });
 
     // Gradient interne
-    gsap.delayedCall(ORGANIC, () => {
+    gsap.delayedCall(ORGANIC + delay, () => {
       gsap.to(marsaiInternalLightRef.current, {
         backgroundPosition: '200% center',
         duration: 5, repeat: -1, ease: 'none',
@@ -689,22 +980,14 @@ export default function HeroImpact() {
     >
       <SolarBloom />
       <Nebula />
-      <PostNovaCanvas canvasRef={canvasRef} />
+      <PostNovaCanvas canvasRef={novaCanvasRef} />
 
-      {/*
-       * TITRE — 5 couches
-       *
-       * Layout responsive :
-       *   — text-[clamp(2.8rem,12vw,10rem)] : taille proportionnelle à la largeur
-       *     mais bornée entre 2.8rem (iPhone mini) et 10rem (desktop large)
-       *   — select-none, whitespace-nowrap : protège contre la rupture de ligne
-       *   — Le wrapper overflow:hidden empêche les canaux CA de déborder
-       */}
+      {/* TITRE — 5 couches superposées */}
       <div
         ref={marsaiWrapperRef}
         className="relative z-30 flex items-center justify-center overflow-visible"
       >
-        {/* Plasma */}
+        {/* Plasma ambre */}
         <h1
           ref={plasmaRef}
           className="absolute font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-amber-400 mix-blend-screen"
@@ -723,7 +1006,7 @@ export default function HeroImpact() {
           MARSAI
         </h1>
 
-        {/* Gradient interne */}
+        {/* Gradient interne animé */}
         <h1
           ref={marsaiInternalLightRef}
           className="absolute inset-0 z-20 font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-transparent bg-clip-text mix-blend-screen"
@@ -738,12 +1021,7 @@ export default function HeroImpact() {
           MARSAI
         </h1>
 
-        {/*
-         * Aberration chromatique — canal rouge
-         * text-red-500 + mix-blend-screen :
-         *   sur fond noir = invisible
-         *   sur le blanc du titre = s'additionne, crée la décomposition rouge
-         */}
+        {/* Aberration — canal rouge */}
         <h1
           ref={caRedRef}
           className="absolute inset-0 z-[25] font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-red-500 mix-blend-screen opacity-0"
@@ -753,7 +1031,7 @@ export default function HeroImpact() {
           MARSAI
         </h1>
 
-        {/* Aberration chromatique — canal bleu */}
+        {/* Aberration — canal bleu */}
         <h1
           ref={caBlueRef}
           className="absolute inset-0 z-[25] font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-blue-500 mix-blend-screen opacity-0"
@@ -764,11 +1042,10 @@ export default function HeroImpact() {
         </h1>
       </div>
 
-      {/*
-       * Sous-titre
-       * tracking réduit sur mobile pour éviter le débordement sur 375px.
-       * mt-6 sur mobile, mt-12 sur desktop.
-       */}
+      {/* Canvas fumée + flammes — z-32, au-dessus du titre */}
+      <SmokeCanvas canvasRef={smokeCanvasRef} />
+
+      {/* Sous-titre */}
       <div
         ref={subtitleRef}
         className="relative z-40 mt-6 md:mt-12 opacity-0 pointer-events-none px-4"
@@ -777,8 +1054,6 @@ export default function HeroImpact() {
           L&rsquo;apogée du cinéma génératif
         </p>
       </div>
-
-      <ImpactParticles />
     </div>
   );
 }
