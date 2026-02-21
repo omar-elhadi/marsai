@@ -240,6 +240,80 @@ class SmokeSpeedLine {
 }
 
 // ─────────────────────────────────────────────
+// CLASSE — Particule de flamme (BRASIER)
+//
+// Version puissante : taille 6–24px, vitesse 5–13px/frame.
+// Turbulence sinusoïdale avec vx étalé.
+// Spawn rate contrôlé par flameSpawnRateRef (GSAP 0.75 → 0).
+// Palette blanc-chaud → jaune → orange → rouge.
+// ─────────────────────────────────────────────
+class FlameParticle {
+  constructor(cx, cy, titleW, titleH) {
+    this.cx     = cx;
+    this.cy     = cy;
+    this.titleW = titleW;
+    this.titleH = titleH;
+    this.alive  = false;
+    this.reset();
+  }
+
+  reset() {
+    // Spawn sur toute la largeur du titre, pas juste le bas
+    this.x       = this.cx + (Math.random() * 2 - 1) * this.titleW * 0.46;
+    this.y       = this.cy + this.titleH * 0.25 + (Math.random() - 0.5) * this.titleH * 0.5;
+    this.vx      = (Math.random() - 0.5) * 5.0;
+    this.vy      = -(5.0 + Math.random() * 8.0);
+    this.turbF   = 0.10 + Math.random() * 0.20;
+    this.turbA   = 0.8  + Math.random() * 1.5;
+    this.size    = 6.0  + Math.random() * 18.0;
+    this.maxLife = 35   + Math.random() * 55;
+    this.life    = Math.random() * 10;
+    this.alive   = true;
+  }
+
+  update() {
+    if (!this.alive) return;
+    this.life++;
+    if (this.life >= this.maxLife) { this.alive = false; return; }
+    this.vx   += Math.sin(this.life * this.turbF) * this.turbA * 0.08;
+    this.vy   *= 0.986;
+    this.x    += this.vx;
+    this.y    += this.vy;
+    this.size *= 0.976;
+  }
+
+  draw(ctx) {
+    if (!this.alive || this.size < 0.5) return;
+    const lt      = this.life / this.maxLife;
+    // Opacité : plein peak jusqu'à 40% de la vie, puis décroît
+    const opacity = lt < 0.4 ? 0.95 : Math.max(0, 0.95 * (1 - (lt - 0.4) / 0.6));
+    let   cr, cg, cb;
+    if      (lt < 0.18) { cr = 255; cg = 255; cb = Math.floor(220 * (1 - lt / 0.18)); }
+    else if (lt < 0.45) { cr = 255; cg = Math.floor(255 - 165 * ((lt - 0.18) / 0.27)); cb = 0; }
+    else if (lt < 0.75) { cr = 255; cg = Math.floor(90  - 75  * ((lt - 0.45) / 0.30)); cb = 0; }
+    else                { cr = Math.floor(255 * (1 - (lt - 0.75) / 0.25)); cg = 0; cb = 0; }
+
+    // Halo large
+    const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2.8);
+    grd.addColorStop(0,   `rgba(${cr},${cg},${cb},${opacity})`);
+    grd.addColorStop(0.35,`rgba(${cr},${cg},${cb},${opacity * 0.30})`);
+    grd.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 2.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Noyau brillant
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle   = `rgb(${cr},${cg},${cb})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ─────────────────────────────────────────────
 // CLASSE — Anneau de choc volumétrique (7 bandes)
 // ─────────────────────────────────────────────
 class ShockRing {
