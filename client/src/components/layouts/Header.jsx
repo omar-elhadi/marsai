@@ -5,41 +5,25 @@
  * L'intemporel naît de la précision absolue, jamais de l'excès.
  * ═══════════════════════════════════════════════════════════════
  *
- * SYSTÈME 1 — VERRE FRACTAL (40 côtes de cristal)
- *   Inspiration : Image 1 — verre cannelé physique.
- *   40 côtes alternant face brillante (pair) / creux ombré (impair).
- *   Face : gradient blanc→teinté→transparent, arête 0.5px brillante.
- *   Creux : gradient noir→teinté→noir, ombre interne.
- *   La teinte de chaque côte suit la palette Image 2 depuis le centre
- *   ambre vers les bords bleu nuit — chromatisme positionnel.
- *   Résultat : verre cannelé photophysique, récursivité de la coupe.
- *   GSAP : container scaleX 0.02→1, ease power4.out — soufflet qui claque.
+ * LiquidGlassPill — composant universel réutilisable.
+ *   Tout composant enveloppé reçoit automatiquement :
+ *   ① Lumière organique instable (GSAP random walk)
+ *      → au repos : lent, organique (sine.inOut)
+ *      → au hover : frénétique (power2.inOut), "essaie de s'échapper"
+ *   ② Irisation oil-slick au hover
+ *      gradient 400% translateX, animationPlayState contrôlé
+ *   ③ Arc spéculaire haut (courbure physique du verre)
+ *   ④ Rim prismatique bas 1px (dispersion chromatique)
+ *   ⑤ Pré-fissure : vibration + aberration chromatique
+ *      Escalade sur 2.2s : 0.25° → 5.75°, 85ms → 28ms
+ *   ⑥ Clic : brisure scale elastic + 18 particules colorées
  *
- * SYSTÈME 2 — LIQUID GLASS BUTTONS (Images 2 & 3)
- *   Chaque bouton = capsule de verre liquide à épaisseur physique :
- *     • Arête supérieure : arc spéculaire blanc (inset-shadow haut)
- *     • Arête inférieure : rim prismatique arc-en-ciel (1px gradient)
- *     • Intérieur : backdrop-filter blur+saturate, gradient 180° clair→clair
- *     • Ombre portée : 2 couches (lift + contact) = flottement physique
- *     • Rim extérieur : border 0.5px rgba(255,255,255,0.22)
- *   Hover — 4 actes :
- *     ① Lift : scale 1→1.07, y 0→-2px, ombre approfondie
- *     ② Arc spéculaire : brightening du shine haut
- *     ③ Aberration chromatique : textShadow R/B + skewX sur le label
- *     ④ Sweep holographique intense + crack lines + underline + flare
+ * NavLink — wrapping transparent autour de LiquidGlassPill.
  *
- * SYSTÈME 3 — STÈLES DÉCOMPOSÉES (3 couches par panneau)
- *   STELE_LAYERS[3] : fond flou large, milieu, avant nette.
- *   Chaque couche : insetPx décroissant, opMul croissant, ombre propre.
- *
- * SYSTÈME 4 — FILM HOLOGRAPHIQUE (CSS @keyframes, zéro JS continu)
- *   3 couches : palette drift 8s, conic-spin 22s, scan-line 12s.
- *   Opacités 0.22–0.35 (visibles, pas subtiles).
- *
- * SYSTÈME 5 — LOGO VOLUMÉTRIQUE
- *   Breathing glow ambre (cohérence HeroImpact.jsx).
- *
- * SYSTÈME 6 — MOBILE OVERLAY GSAP PUR
+ * Header — navbar floating liquid glass pill.
+ *   Lumière ambre interne depuis le logo (cohérence HeroImpact)
+ *   Aberration chromatique sur les rims (inset shadows gauche/droite)
+ *   Séparateurs ambre flanquant le logo
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -49,214 +33,216 @@ import gsap                                          from 'gsap';
 import { useGSAP }                                   from '@gsap/react';
 
 // ─────────────────────────────────────────────────────────────
-// LOGO GLOW — cohérence HeroImpact.jsx
+// LOGO GLOW — cohérence absolue avec HeroImpact.jsx
 // ─────────────────────────────────────────────────────────────
-const LOGO_GLOW_IDLE =
+const LOGO_GLOW_IDLE  =
   '0 0 8px rgba(255,200,70,0.55), 0 0 22px rgba(251,191,36,0.25), 0 0 45px rgba(180,83,9,0.12)';
-const LOGO_GLOW_PEAK =
+const LOGO_GLOW_PEAK  =
   '0 0 14px rgba(255,215,80,0.90), 0 0 38px rgba(251,191,36,0.55), 0 0 75px rgba(180,83,9,0.28)';
 const LOGO_GLOW_HOVER =
   '0 0 20px rgba(255,215,80,1.00), 0 0 52px rgba(251,191,36,0.80), 0 0 95px rgba(180,83,9,0.42)';
 
 // ─────────────────────────────────────────────────────────────
-// LIQUID GLASS — box-shadow stacks
+// LIQUID GLASS — shadow stacks
 //
-// LG_SHADOW_IDLE  : bouton au repos — flottement léger
-// LG_SHADOW_HOVER : bouton survolé — élévation prononcée
-//
-// Décomposition :
-//   ① inset haut       : arc spéculaire blanc (filet de lumière)
-//   ② inset bas        : arête inférieure intérieure
-//   ③ inset body       : halo intérieur diffus
-//   ④ drop lift        : ombre de levitation (diffuse)
-//   ⑤ drop contact     : ombre de contact (précise)
-//   ⑥ rim              : bord lumineux extérieur
+// Décomposition physique :
+//   ① inset haut       : arc spéculaire (lumière sur l'arête haute)
+//   ② inset bas        : filet intérieur bas
+//   ③ inset body       : halo diffus intérieur
+//   ④ drop lift        : élévation diffuse
+//   ⑤ drop contact     : ombre de contact précise
+//   ⑥ rim              : bord extérieur semi-transparent
 // ─────────────────────────────────────────────────────────────
 const LG_SHADOW_IDLE = [
-  'inset 0 1.5px 0 rgba(255,255,255,0.62)',
-  'inset 0 -0.5px 0 rgba(255,255,255,0.14)',
-  'inset 0 0 18px rgba(255,255,255,0.05)',
-  '0 5px 18px rgba(0,0,0,0.36)',
-  '0 1px 4px rgba(0,0,0,0.24)',
-  '0 0 0 0.5px rgba(255,255,255,0.18)',
+  'inset 0  1.5px 0   rgba(255,255,255,0.60)',
+  'inset 0 -0.5px 0   rgba(255,255,255,0.14)',
+  'inset 0  0    20px rgba(255,255,255,0.05)',
+  '0  5px 18px rgba(0,0,0,0.36)',
+  '0  1px  4px rgba(0,0,0,0.24)',
+  '0  0    0   0.5px rgba(255,255,255,0.18)',
 ].join(', ');
 
 const LG_SHADOW_HOVER = [
-  'inset 0 2px 0 rgba(255,255,255,0.82)',
-  'inset 0 -0.5px 0 rgba(255,255,255,0.25)',
-  'inset 0 0 28px rgba(255,255,255,0.11)',
+  'inset 0  2px   0   rgba(255,255,255,0.82)',
+  'inset 0 -0.5px 0   rgba(255,255,255,0.25)',
+  'inset 0  0    32px rgba(255,255,255,0.10)',
   '0 10px 30px rgba(0,0,0,0.46)',
-  '0 2px 8px rgba(0,0,0,0.32)',
-  '0 0 0 0.5px rgba(255,255,255,0.32)',
+  '0  2px  8px rgba(0,0,0,0.32)',
+  '0  0    0   0.5px rgba(255,255,255,0.30)',
+].join(', ');
+
+// Navbar pill — même logique, légèrement amplifiée
+// rims colorés : inset gauche bleu / droite ambre = aberration chromatique
+const NAV_PILL_SHADOW = [
+  'inset 0  2px   0    rgba(255,255,255,0.52)',
+  'inset 0 -1px   0    rgba(255,255,255,0.12)',
+  'inset  3px 0  14px  rgba(80,100,255,0.11)',    // rim gauche : bleu froid
+  'inset -3px 0  14px  rgba(255,170,40,0.11)',    // rim droite : ambre chaud
+  '0  8px 36px rgba(0,0,0,0.50)',
+  '0  2px  8px rgba(0,0,0,0.28)',
+  '0  0    0   0.5px rgba(255,255,255,0.20)',
 ].join(', ');
 
 // ─────────────────────────────────────────────────────────────
-// STELE_LAYERS — 3 couches de profondeur sous chaque panneau
+// PARTICULES — palette chromatique complète
 // ─────────────────────────────────────────────────────────────
-const STELE_LAYERS = [
-  { dy: 13, h: 2,   insetPx: 16, opMul: 0.28, blur: '2px',   shadow: '0 5px 12px rgba(0,0,0,0.65), 0 2px 5px rgba(0,0,0,0.42)' },
-  { dy: 7,  h: 2.5, insetPx: 8,  opMul: 0.52, blur: '1px',   shadow: '0 3px 7px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.38)'  },
-  { dy: 1,  h: 3.5, insetPx: 0,  opMul: 0.88, blur: '0.4px', shadow: '0 1px 4px rgba(0,0,0,0.45)'                               },
+const PARTICLE_COLORS = [
+  '#ff0080', '#00c8ff', '#ffd600', '#c800ff',
+  '#ffffff', '#00ff96', '#ff6400', '#0064ff',
+  '#ffb0d8', '#80ffee', '#ffee80', '#a080ff',
 ];
 
 // ─────────────────────────────────────────────────────────────
-// VERRE FRACTAL — 40 côtes de cristal
-//
-// Chaque côte = une tranche de verre côtelé (Image 1).
-// Pair  = face brillante (lumière captée)
-// Impair = creux ombré (lumière absorbée)
-//
-// La teinte chromatique de chaque côte suit la position :
-//   Centre [0–0.20] : ambre  #fbbf24
-//   Zone   [0.20–0.38]: orange
-//   Zone   [0.38–0.56]: rose pâle #FFCCF2
-//   Zone   [0.56–0.74]: violet #977DFF
-//   Zone   [0.74–0.88]: bleu électrique #0033FF
-//   Bords  [0.88–1.00]: bleu nuit #0600AB
+// NAVIGATION — données
 // ─────────────────────────────────────────────────────────────
-const PLEAT_COUNT = 40;
-
-const PLEAT_DEFS = Array.from({ length: PLEAT_COUNT }, (_, i) => {
-  const pos   = i / (PLEAT_COUNT - 1);
-  const cDist = Math.abs(pos - 0.5) * 2; // 0 = centre, 1 = bord
-  const isEven = i % 2 === 0;
-
-  // Teinte positionnelle
-  let tR, tG, tB;
-  if      (cDist < 0.20) { tR = 251; tG = 191; tB =  36; }
-  else if (cDist < 0.38) { tR = 249; tG = 115; tB =  22; }
-  else if (cDist < 0.56) { tR = 255; tG = 204; tB = 242; }
-  else if (cDist < 0.74) { tR = 151; tG = 125; tB = 255; }
-  else if (cDist < 0.88) { tR =   0; tG =  51; tB = 255; }
-  else                    { tR =   6; tG =   0; tB = 171; }
-
-  const col = `rgba(${tR},${tG},${tB},`;
-
-  // Face brillante — gradient : blanc → teinte → transparent
-  const bgEven = [
-    'linear-gradient(to right,',
-    `  rgba(255,255,255,0.26) 0%,`,
-    `  ${col}0.10) 16%,`,
-    `  rgba(255,255,255,0.06) 38%,`,
-    `  rgba(255,255,255,0.01) 62%,`,
-    `  rgba(255,255,255,0.04) 100%)`,
-  ].join('');
-
-  // Creux ombré — gradient : transparent → sombre → teinte sombre
-  const bgOdd = [
-    'linear-gradient(to right,',
-    `  rgba(0,0,0,0.00) 0%,`,
-    `  rgba(0,0,0,0.08) 22%,`,
-    `  ${col}0.05) 48%,`,
-    `  rgba(0,0,0,0.16) 74%,`,
-    `  rgba(0,0,0,0.11) 100%)`,
-  ].join('');
-
-  return {
-    i, isEven,
-    bg:      isEven ? bgEven : bgOdd,
-    // Arête de coupure : filet brillant sur le bord gauche des faces paires
-    edgeClr: isEven
-      ? `rgba(255,255,255,${0.36 + (1 - cDist) * 0.14})`  // plus vif au centre
-      : 'transparent',
-    tR, tG, tB,
-  };
-});
-
-// ─────────────────────────────────────────────────────────────
-// PANEL_DEFS — 9 éléments : 7 panneaux + 2 séparateurs
-// ─────────────────────────────────────────────────────────────
-const PANEL_DEFS = [
-  {
-    id: 'accueil',   type: 'link',  label: 'Accueil',
-    href: '/#accueil', isAnchor: true,
-    bg:         'linear-gradient(170deg, rgba(242,230,238,0.09) 0%, rgba(151,125,255,0.06) 100%)',
-    steleClr:   'rgba(242,230,238,1)',
-    fissureClr: 'rgba(242,230,238,0.28)',
-  },
-  {
-    id: 'galerie',   type: 'link',  label: 'Galerie',
-    href: '/galerie', isAnchor: false,
-    bg:         'linear-gradient(170deg, rgba(255,204,242,0.10) 0%, rgba(0,51,255,0.06) 100%)',
-    steleClr:   'rgba(255,204,242,1)',
-    fissureClr: 'rgba(255,204,242,0.28)',
-  },
-  {
-    id: 'sep-left', type: 'sep',
-    color: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.85) 50%, transparent 100%)',
-  },
-  {
-    id: 'logo',      type: 'logo',  href: '/',
-    bg:         'linear-gradient(170deg, rgba(251,191,36,0.08) 0%, rgba(249,115,22,0.05) 100%)',
-    steleClr:   'rgba(251,191,36,1)',
-  },
-  {
-    id: 'sep-right', type: 'sep',
-    color: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.85) 50%, transparent 100%)',
-  },
-  {
-    id: 'events',    type: 'link',  label: 'Events',
-    href: '/events', isAnchor: false,
-    bg:         'linear-gradient(170deg, rgba(151,125,255,0.10) 0%, rgba(6,0,171,0.06) 100%)',
-    steleClr:   'rgba(151,125,255,1)',
-    fissureClr: 'rgba(151,125,255,0.28)',
-  },
-  {
-    id: 'soumettre', type: 'link',  label: 'Soumettre',
-    href: '/soumettre', isAnchor: false,
-    bg:         'linear-gradient(170deg, rgba(0,51,255,0.09) 0%, rgba(0,0,61,0.06) 100%)',
-    steleClr:   'rgba(0,100,255,1)',
-    fissureClr: 'rgba(0,51,255,0.26)',
-  },
-  {
-    id: 'contacter', type: 'link',  label: 'Contacter',
-    href: '/contact', isAnchor: false,
-    bg:         'linear-gradient(170deg, rgba(6,0,171,0.08) 0%, rgba(0,0,61,0.05) 100%)',
-    steleClr:   'rgba(6,0,171,1)',
-    fissureClr: null,
-  },
+const NAV_LEFT   = [
+  { id: 'accueil',   label: 'Accueil',   href: '/#accueil',  isAnchor: true  },
+  { id: 'galerie',   label: 'Galerie',   href: '/galerie',   isAnchor: false },
+];
+const NAV_RIGHT  = [
+  { id: 'events',    label: 'Events',    href: '/events',    isAnchor: false },
+  { id: 'soumettre', label: 'Soumettre', href: '/soumettre', isAnchor: false },
+  { id: 'contacter', label: 'Contacter', href: '/contact',   isAnchor: false },
+];
+const NAV_MOBILE = [
+  ...NAV_LEFT,
+  { id: 'logo', label: 'MARSAI', href: '/', isAnchor: false, isLogo: true },
+  ...NAV_RIGHT,
 ];
 
-const NAV_ALL = PANEL_DEFS.filter((d) => d.type === 'link' || d.type === 'logo');
-
 // ─────────────────────────────────────────────────────────────
-// COMPOSANT — NavLink : CAPSULE LIQUID GLASS
+// COMPOSANT — LiquidGlassPill
 //
-// Structure physique (Images 2 & 3) :
-//   ┌─────────────────────────────┐  ← arc spéculaire (shine)
-//   │     ░░░░ LABEL ░░░░        │  ← backdrop-filter glass
-//   └─────────────────────────────┘  ← rim prismatique (1px)
-//           ▿▿▿ shadow ▿▿▿          ← ombre portée 2 couches
+// Props :
+//   children      — contenu (label, icône, etc.)
+//   onClick       — callback clic externe (optionnel)
+//   className     — classes additionnelles
+//   style         — styles inline additionnels
 //
-// Hover — 4 actes GSAP :
-//   ① Lift : scale 1→1.07, y 0→-2, shadow approfondie
-//   ② Shine : arc spéculaire brightening
-//   ③ Aberration + cracks : glitch de verre
-//   ④ Sweep holo + underline spectral + lens flare
+// ─── STRUCTURE PHYSIQUE ─────────────────────────────────────
+//
+//   pill (overflow:visible)
+//   ├── glassInner (overflow:hidden, borderRadius:999px)
+//   │   ├── organic light blob        (random walk GSAP)
+//   │   ├── iris drift stripe         (400% gradient translate)
+//   │   ├── arc spéculaire haut       (static)
+//   │   └── rim prismatique bas 1px   (static)
+//   ├── sparkles container            (overflow:visible)
+//   └── contentRef                   (vibration target z-10)
+//
+// ─── BOUCLES GSAP ────────────────────────────────────────────
+//
+//   loopLight()   — random walk infini, vitesse via lightFastRef
+//   vibrateStep() — récursion escalante via onComplete
+//
+//   Toutes deux lisent uniquement des refs → useCallback([]) stable
 // ─────────────────────────────────────────────────────────────
-const NavLink = ({ item }) => {
-  const pillRef  = useRef(null);  // capsule glass
-  const shineRef = useRef(null);  // arc spéculaire haut
-  const prismRef = useRef(null);  // sweep holographique
-  const shardRef = useRef(null);  // underline arc-en-ciel
-  const crackRef = useRef(null);  // éclats de verre
-  const flareRef = useRef(null);  // lens flare
-  const labelRef = useRef(null);  // texte du lien
+const LiquidGlassPill = ({ children, onClick, className = '', style: ext = {} }) => {
 
-  const onEnter = useCallback(() => {
-    const pill  = pillRef.current;
-    const shine = shineRef.current;
-    const prism = prismRef.current;
-    const shard = shardRef.current;
-    const crack = crackRef.current;
-    const flare = flareRef.current;
-    const label = labelRef.current;
-    if (!pill) return;
+  // ── Refs DOM ───────────────────────────────────────────
+  const pillRef    = useRef(null);  // capsule principale
+  const glassInner = useRef(null);  // couche clippée
+  const lightRef   = useRef(null);  // blob organique
+  const irisRef    = useRef(null);  // irisation drift
+  const shineRef   = useRef(null);  // arc spéculaire
+  const contentRef = useRef(null);  // cible de vibration
+  const sparkleRef = useRef(null);  // container particules
 
-    gsap.killTweensOf([pill, shine, prism, shard, crack, flare, label]);
+  // ── Refs état ──────────────────────────────────────────
+  const mountedRef    = useRef(true);
+  const isHoveringRef = useRef(false);
+  const lightFastRef  = useRef(false);  // true = frénétique au hover
+  const lightLoopRef  = useRef(null);   // tween en cours
+  const vibrateRef    = useRef(null);   // tween vibration en cours
+  const hoverStartRef = useRef(0);      // timestamp mouseenter
 
-    // ── ACTE I : LIFT DE LA CAPSULE ───────────────────────
-    gsap.to(pill, {
+  // ── BOUCLE LUMIÈRE ORGANIQUE ───────────────────────────
+  //
+  // Lit lightFastRef à chaque appel → jamais de closure stale.
+  // Au repos   : r=82, dur 0.8–1.7s, sine.inOut   → respiration lente
+  // Au hover   : r=115, dur 0.2–0.5s, power2.inOut → frénésie
+  //
+  const loopLight = useCallback(() => {
+    const el = lightRef.current;
+    if (!mountedRef.current || !el) return;
+    const fast = lightFastRef.current;
+    const r    = fast ? 115 : 82;
+    const x    = (Math.random() - 0.5) * r;
+    const y    = (Math.random() - 0.5) * (r * 0.68);
+    const dur  = fast ? 0.20 + Math.random() * 0.30 : 0.80 + Math.random() * 0.92;
+    lightLoopRef.current = gsap.to(el, {
+      x: `${x}%`,
+      y: `${y}%`,
+      duration:   dur,
+      ease:       fast ? 'power2.inOut' : 'sine.inOut',
+      onComplete: loopLight,
+    });
+  }, []);
+
+  // ── ESCALADE VIBRATION ─────────────────────────────────
+  //
+  // Lit hoverStartRef à chaque step → progression temporelle réelle.
+  //
+  // t       : 0 → 1 sur 2.2 secondes de hover
+  // amp     : 0.25° → 5.75°   (presque imperceptible → fracture visible)
+  // dur     : 85ms → 28ms     (vibration de plus en plus rapide)
+  // ca      : 0 → 4px         (aberration chromatique R/B, s'active à t>0.35)
+  //
+  const vibrateStep = useCallback(() => {
+    const el = contentRef.current;
+    if (!mountedRef.current || !isHoveringRef.current || !el) return;
+    const t    = Math.min((Date.now() - hoverStartRef.current) / 2200, 1);
+    const amp  = 0.25 + t * 5.5;
+    const dur  = Math.max(0.028, 0.085 - t * 0.057);
+    const sign = Math.random() > 0.5 ? 1 : -1;
+    const ca   = t > 0.35 ? t * 4.0 : 0;
+    const cOp  = t > 0.35 ? (t - 0.35) * 1.1 : 0;
+    vibrateRef.current = gsap.to(el, {
+      skewX: sign * amp,
+      textShadow: ca > 0
+        ? [
+            `${-sign * ca}px 0 rgba(255,20,70,${cOp.toFixed(2)})`,
+            `${sign  * ca}px 0 rgba(20,70,255,${cOp.toFixed(2)})`,
+          ].join(', ')
+        : '',
+      duration: dur,
+      ease:     'none',
+      onComplete() {
+        // Return to zero — demi-période
+        gsap.to(el, {
+          skewX: 0,
+          duration: dur * 0.5,
+          ease: 'none',
+          onComplete: vibrateStep,
+        });
+      },
+    });
+  }, []);
+
+  // ── MONTAGE / DÉMONTAGE ────────────────────────────────
+  useEffect(() => {
+    mountedRef.current = true;
+    loopLight();
+    return () => {
+      mountedRef.current = false;
+      lightLoopRef.current?.kill();
+      vibrateRef.current?.kill();
+    };
+  }, [loopLight]);
+
+  // ── MOUSEENTER ────────────────────────────────────────
+  const handleEnter = useCallback(() => {
+    isHoveringRef.current = true;
+    lightFastRef.current  = true;
+    hoverStartRef.current = Date.now();
+
+    // Redémarre la boucle en mode rapide
+    lightLoopRef.current?.kill();
+    loopLight();
+
+    // Lift de la capsule
+    gsap.killTweensOf(pillRef.current);
+    gsap.to(pillRef.current, {
       scale:     1.07,
       y:         -2,
       boxShadow: LG_SHADOW_HOVER,
@@ -264,271 +250,353 @@ const NavLink = ({ item }) => {
       ease:      'power2.out',
     });
 
-    // ── ACTE II : ARC SPÉCULAIRE ──────────────────────────
-    gsap.to(shine, { opacity: 1, duration: 0.18, ease: 'power2.out' });
+    // Arc spéculaire s'embrase
+    gsap.to(shineRef.current, { opacity: 1.0, duration: 0.16 });
 
-    // ── ACTE III : ABERRATION CHROMATIQUE + CRACKS ────────
-    // Le verre se brise instantanément puis se ressoude
-    gsap.timeline()
-      .set(label,  { color: '#ffffff' })
-      .to(label, {
-        textShadow: '-5px 0 rgba(255,20,70,0.90), 5px 0 rgba(20,70,255,0.90)',
-        skewX: -9,
-        duration: 0.06,
-        ease: 'power3.out',
-      })
-      .to(label, {
-        textShadow: '-2px 0 rgba(255,60,100,0.55), 2px 0 rgba(60,100,255,0.55)',
-        skewX: 4,
-        duration: 0.07,
-        ease: 'power2.inOut',
-      })
-      .to(label, {
-        textShadow: '',
-        skewX: 0,
-        duration: 0.16,
-        ease: 'power2.out',
-      });
+    // Irisation : démarre l'animation et la révèle
+    if (irisRef.current) {
+      irisRef.current.style.animationPlayState = 'running';
+      gsap.to(irisRef.current, { opacity: 0.90, duration: 0.22 });
+    }
 
-    // Éclats de verre (3 lignes de crack)
-    gsap.set(crack, { opacity: 1 });
-    gsap.to(crack,  { opacity: 0, duration: 0.40, delay: 0.04, ease: 'power2.in' });
+    // Lance l'escalade de vibration
+    vibrateStep();
+  }, [loopLight, vibrateStep]);
 
-    // ── ACTE IV : SWEEP HOLOGRAPHIQUE + UNDERLINE + FLARE ─
-    gsap.fromTo(prism,
-      { backgroundPosition: '-320% center', opacity: 0   },
-      { backgroundPosition: '320% center',  opacity: 0.95,
-        duration: 0.55, ease: 'power2.inOut' }
-    );
-    gsap.to(prism, { opacity: 0, duration: 0.20, delay: 0.55 });
+  // ── MOUSELEAVE ────────────────────────────────────────
+  const handleLeave = useCallback(() => {
+    isHoveringRef.current = false;
+    lightFastRef.current  = false;
 
-    gsap.fromTo(shard,
-      { scaleX: 0, opacity: 1 },
-      { scaleX: 1, opacity: 1, duration: 0.24, ease: 'power2.out' }
-    );
+    // Redémarre la boucle en mode lent
+    lightLoopRef.current?.kill();
+    loopLight();
 
-    gsap.fromTo(flare,
-      { scale: 0, opacity: 0 },
-      { scale: 1.6, opacity: 1, duration: 0.22, delay: 0.12, ease: 'back.out(3)' }
-    );
-    gsap.to(flare, { scale: 0, opacity: 0, duration: 0.20, delay: 0.44 });
-
-  }, []);
-
-  const onLeave = useCallback(() => {
-    const pill  = pillRef.current;
-    const shine = shineRef.current;
-    const shard = shardRef.current;
-    const label = labelRef.current;
-    if (!pill) return;
-
-    gsap.killTweensOf([pill, shine, shard, label]);
-
-    gsap.to(pill, {
+    // Descend la capsule
+    gsap.killTweensOf(pillRef.current);
+    gsap.to(pillRef.current, {
       scale:     1,
       y:         0,
       boxShadow: LG_SHADOW_IDLE,
       duration:  0.30,
       ease:      'power2.out',
     });
-    gsap.to(shine, { opacity: 0.55, duration: 0.25 });
-    gsap.to(label, { color: '', textShadow: '', skewX: 0, duration: 0.20 });
-    gsap.to(shard, { scaleX: 0, opacity: 0, duration: 0.14, ease: 'power2.in' });
 
-  }, []);
+    // Arc spéculaire se calme
+    gsap.to(shineRef.current, { opacity: 0.55, duration: 0.25 });
 
-  const inner = (
-    /*
-     * Capsule liquid glass
-     *   py-1.5 px-3.5 → padding interne équilibré
-     *   Le verre a une "épaisseur" simulée par :
-     *     - arc spéculaire (shineRef) en haut
-     *     - rim prismatique en bas (1px gradient)
-     *     - box-shadow stack LG_SHADOW_IDLE
-     */
+    // Irisation : fondu puis pause (économie GPU)
+    gsap.to(irisRef.current, {
+      opacity: 0,
+      duration: 0.25,
+      onComplete: () => {
+        if (irisRef.current) irisRef.current.style.animationPlayState = 'paused';
+      },
+    });
+
+    // Stoppe la vibration et remet à zéro le contenu
+    vibrateRef.current?.kill();
+    if (contentRef.current) {
+      gsap.to(contentRef.current, {
+        skewX:      0,
+        textShadow: '',
+        duration:   0.20,
+        ease:       'power2.out',
+      });
+    }
+  }, [loopLight]);
+
+  // ── CLIC : BRISURE + PARTICULES ───────────────────────
+  const handleClick = useCallback((e) => {
+    const pill = pillRef.current;
+    if (!pill) return;
+
+    // Snap instantané du contenu (fin de vibration)
+    vibrateRef.current?.kill();
+    if (contentRef.current) {
+      gsap.to(contentRef.current, { skewX: 0, textShadow: '', duration: 0.04 });
+    }
+
+    // Séquence de brisure :
+    //   1.14 → 0.94 → 1.00 elastic.out = le verre se brise puis se "ressaisit"
+    gsap.timeline()
+      .to(pill, { scale: 1.14, duration: 0.05, ease: 'power3.out' })
+      .to(pill, { scale: 0.94, duration: 0.08, ease: 'power3.in'  })
+      .to(pill, { scale: 1.00, duration: 0.30, ease: 'elastic.out(1, 0.35)' });
+
+    // 18 particules de lumière s'échappent
+    const cont = sparkleRef.current;
+    if (cont) {
+      for (let i = 0; i < 18; i++) {
+        const p     = document.createElement('span');
+        const sz    = 2.0 + Math.random() * 4.5;
+        const clr   = PARTICLE_COLORS[i % PARTICLE_COLORS.length];
+        const elong = Math.random() > 0.50; // certaines sont allongées (éclats)
+        p.style.cssText = [
+          'position:absolute;pointer-events:none;border-radius:999px;',
+          `width:${elong ? sz * 0.55 : sz}px;`,
+          `height:${elong ? sz * 2.80 : sz}px;`,
+          `background:${clr};`,
+          'top:50%;left:50%;',
+          'transform-origin:center center;',
+          'transform:translate(-50%,-50%);',
+        ].join('');
+        cont.appendChild(p);
+
+        const angle = (i / 18) * Math.PI * 2 + (Math.random() - 0.5) * 0.90;
+        const dist  = 30 + Math.random() * 72;
+        const rot   = (Math.random() - 0.5) * 620;
+        gsap.to(p, {
+          x:        Math.cos(angle) * dist,
+          y:        Math.sin(angle) * dist,
+          rotation: rot,
+          opacity:  0,
+          scale:    0.20 + Math.random() * 1.70,
+          duration: 0.32 + Math.random() * 0.34,
+          ease:     'power2.out',
+          onComplete() { p.parentNode?.removeChild(p); },
+        });
+      }
+    }
+
+    onClick?.(e);
+  }, [onClick]);
+
+  // ─────────────────────────────────────────────────────
+  // RENDER LIQUID GLASS PILL
+  // ─────────────────────────────────────────────────────
+  return (
     <div
       ref={pillRef}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-      className="relative flex items-center justify-center cursor-pointer select-none"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onClick={handleClick}
+      className={`relative flex items-center justify-center cursor-pointer select-none ${className}`}
       style={{
         padding:              '6px 14px',
         borderRadius:         '999px',
-        background:           [
+        // Fond de verre : légèrement plus blanc en haut, effilement vers le bas
+        background: [
           'linear-gradient(180deg,',
           '  rgba(255,255,255,0.16) 0%,',
           '  rgba(255,255,255,0.06) 35%,',
           '  rgba(255,255,255,0.03) 65%,',
-          '  rgba(255,255,255,0.11) 100%)',
+          '  rgba(255,255,255,0.10) 100%)',
         ].join(''),
-        backdropFilter:       'blur(14px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(14px) saturate(160%)',
+        backdropFilter:       'blur(14px) saturate(165%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(165%)',
         border:               '0.5px solid rgba(255,255,255,0.22)',
         boxShadow:            LG_SHADOW_IDLE,
         willChange:           'transform, box-shadow',
+        overflow:             'visible',     // pour que les particules s'échappent
+        ...ext,
       }}
     >
       {/*
-       * Arc spéculaire haut
-       * Simule la courbure de la face supérieure du verre.
-       * Fade du centre vers les bords = effet lentille.
+       * Couche intérieure clippée
+       * overflow:hidden + borderRadius:999px → tous les effets visuels
+       * (light, iris, shine, rim) restent dans la silhouette de la capsule.
        */}
       <div
-        ref={shineRef}
-        aria-hidden="true"
-        className="absolute inset-x-3 top-0 pointer-events-none"
-        style={{
-          height:       '55%',
-          background:   'linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 60%, transparent 100%)',
-          borderRadius: '999px 999px 50% 50%',
-          opacity:      0.55,
-        }}
-      />
-
-      {/*
-       * Rim prismatique bas — 1px arc-en-ciel
-       * L'arête inférieure du verre disperse la lumière.
-       * Palette complète : rose → cyan → violet.
-       */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 pointer-events-none"
-        style={{
-          height:       '1px',
-          borderRadius: '0 0 999px 999px',
-          background:   [
-            'linear-gradient(90deg,',
-            '  transparent              0%,',
-            '  rgba(255,80,180,0.60)    18%,',
-            '  rgba(80,200,255,0.65)    38%,',
-            '  rgba(255,230,80,0.60)    52%,',
-            '  rgba(80,100,255,0.65)    68%,',
-            '  rgba(200,80,255,0.60)    82%,',
-            '  transparent              100%)',
-          ].join(''),
-          opacity: 0.80,
-        }}
-      />
-
-      {/*
-       * Sweep holographique (Acte IV)
-       * 7 couleurs saturées, backgroundSize 640% pour une passe complète.
-       */}
-      <div
-        ref={prismRef}
+        ref={glassInner}
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
+        style={{ borderRadius: '999px', overflow: 'hidden' }}
+      >
+        {/*
+         * Lumière organique instable
+         * Blob ambre/blanc, filter:blur(9px) = doux et volumétrique.
+         * GSAP random walk → illusion d'une source lumineuse vivante.
+         * Au hover la fréquence × 4 : la lumière "panique".
+         */}
+        <div
+          ref={lightRef}
+          style={{
+            position:     'absolute',
+            width:        '52%',
+            height:       '78%',
+            top:          '11%',
+            left:         '24%',
+            background:   [
+              'radial-gradient(ellipse at center,',
+              '  rgba(255,235,150,0.65) 0%,',
+              '  rgba(255,200,100,0.34) 36%,',
+              '  rgba(255,140,60,0.15)  65%,',
+              '  transparent            85%)',
+            ].join(''),
+            filter:       'blur(9px)',
+            mixBlendMode: 'screen',
+            willChange:   'transform',
+          }}
+        />
+
+        {/*
+         * Irisation oil-slick
+         * Gradient 400% de large, translateX loop CSS (animationPlayState contrôlé).
+         * Visible uniquement au hover (opacity 0 → 0.90 via GSAP).
+         * mix-blend-mode screen : lumière additive sur fond sombre.
+         */}
+        <div
+          ref={irisRef}
+          style={{
+            position:           'absolute',
+            top:                0,
+            left:               0,
+            width:              '400%',
+            height:             '100%',
+            background:         [
+              'linear-gradient(90deg,',
+              '  transparent              0%,',
+              '  rgba(255,0,120,0.30)     6%,',
+              '  rgba(0,200,255,0.30)     14%,',
+              '  rgba(200,0,255,0.26)     22%,',
+              '  rgba(255,220,0,0.30)     30%,',
+              '  rgba(0,255,150,0.26)     38%,',
+              '  rgba(255,0,120,0.30)     46%,',
+              '  rgba(0,200,255,0.30)     54%,',
+              '  rgba(200,0,255,0.26)     62%,',
+              '  rgba(255,220,0,0.30)     70%,',
+              '  rgba(0,255,150,0.26)     78%,',
+              '  transparent              84%,',
+              '  transparent              100%)',
+            ].join(''),
+            mixBlendMode:       'screen',
+            opacity:            0,
+            animation:          'iris-drift 2.5s linear infinite',
+            animationPlayState: 'paused',
+            willChange:         'transform, opacity',
+          }}
+        />
+
+        {/*
+         * Arc spéculaire haut
+         * La lumière frappe l'arête supérieure du verre épais.
+         * Gradient blanc → transparent sur 50% de la hauteur.
+         * Bords en borderRadius 999px/50% pour suivre la courbure de la capsule.
+         */}
+        <div
+          ref={shineRef}
+          style={{
+            position:     'absolute',
+            top:          0,
+            left:         '8%',
+            right:        '8%',
+            height:       '50%',
+            background:   [
+              'linear-gradient(180deg,',
+              '  rgba(255,255,255,0.42) 0%,',
+              '  rgba(255,255,255,0.09) 55%,',
+              '  transparent           100%)',
+            ].join(''),
+            borderRadius: '999px 999px 50% 50%',
+            opacity:      0.55,
+          }}
+        />
+
+        {/*
+         * Rim prismatique bas — 1px
+         * L'arête inférieure épaisse du verre disperse la lumière.
+         * 6 stops spectraux : rose → cyan → jaune → bleu → violet.
+         */}
+        <div
+          style={{
+            position:     'absolute',
+            left:         0,
+            right:        0,
+            bottom:       0,
+            height:       '1px',
+            borderRadius: '0 0 999px 999px',
+            background:   [
+              'linear-gradient(90deg,',
+              '  transparent           0%,',
+              '  rgba(255,80,180,0.68) 15%,',
+              '  rgba(80,200,255,0.70) 32%,',
+              '  rgba(255,235,80,0.64) 50%,',
+              '  rgba(80,100,255,0.70) 68%,',
+              '  rgba(200,80,255,0.65) 85%,',
+              '  transparent           100%)',
+            ].join(''),
+            opacity: 0.85,
+          }}
+        />
+      </div>
+
+      {/*
+       * Container particules — overflow:visible intentionnel.
+       * Les 18 particules s'échappent dans toutes les directions
+       * au-delà des bornes de la capsule.
+       */}
+      <div
+        ref={sparkleRef}
+        aria-hidden="true"
         style={{
-          borderRadius:       '999px',
-          backgroundImage:    [
-            'linear-gradient(105deg,',
-            '  transparent           0%,',
-            '  rgba(255,0,120,0.72)  7%,',
-            '  rgba(0,200,255,0.72)  21%,',
-            '  rgba(200,0,255,0.72)  35%,',
-            '  rgba(255,220,0,0.76)  50%,',
-            '  rgba(0,255,150,0.72)  64%,',
-            '  rgba(255,80,0,0.68)   78%,',
-            '  rgba(0,100,255,0.72)  91%,',
-            '  transparent           100%)',
-          ].join(''),
-          backgroundSize:     '640% 100%',
-          backgroundPosition: '-320% center',
-          opacity:            0,
-          mixBlendMode:       'screen',
+          position:      'absolute',
+          inset:         0,
+          pointerEvents: 'none',
+          overflow:      'visible',
+          borderRadius:  '999px',
+          zIndex:        20,
         }}
       />
 
       {/*
-       * Éclats de verre (Acte III)
-       * 3 lignes diagonales surgissant à l'impact.
+       * Contenu — z-10, cible de la vibration.
+       * willChange:transform → browser crée un layer dédié.
        */}
       <div
-        ref={crackRef}
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none overflow-hidden"
-        style={{ borderRadius: '999px', opacity: 0 }}
+        ref={contentRef}
+        className="relative z-10"
+        style={{ willChange: 'transform' }}
       >
-        <span className="absolute" style={{
-          top: '30%', left: '8%', width: '40%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0.55) 75%, transparent)',
-          transform: 'rotate(-20deg)', transformOrigin: '0% 50%',
-        }}/>
-        <span className="absolute" style={{
-          top: '60%', left: '40%', width: '32%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.82) 40%, rgba(255,255,255,0.40) 80%, transparent)',
-          transform: 'rotate(28deg)', transformOrigin: '0% 50%',
-        }}/>
-        <span className="absolute" style={{
-          top: '18%', left: '58%', width: '22%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.68) 50%, transparent)',
-          transform: 'rotate(-6deg)', transformOrigin: '0% 50%',
-        }}/>
+        {children}
       </div>
-
-      {/* Label */}
-      <span
-        ref={labelRef}
-        className="relative z-10 text-[0.63rem] font-bold uppercase tracking-[0.22em] text-white/90 select-none"
-        style={{ willChange: 'transform, color, text-shadow' }}
-      >
-        {item.label}
-      </span>
-
-      {/* Underline spectral arc-en-ciel */}
-      <span
-        ref={shardRef}
-        aria-hidden="true"
-        className="absolute left-2 right-2 bottom-[-5px] h-[1px] origin-left pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, #0033ff 0%, #977dff 18%, #ff00cc 34%, #fff5dc 50%, #fbbf24 64%, #977dff 82%, #0033ff 100%)',
-          boxShadow:  '0 0 8px rgba(151,125,255,0.70), 0 0 18px rgba(251,191,36,0.52)',
-          transform:  'scaleX(0)',
-          opacity:    0,
-        }}
-      />
-
-      {/* Lens flare */}
-      <span
-        ref={flareRef}
-        aria-hidden="true"
-        className="absolute -bottom-1.5 right-1 w-[9px] h-[9px] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, rgba(255,245,180,1) 0%, rgba(255,80,200,0.62) 40%, rgba(151,125,255,0.30) 70%, transparent 100%)',
-          transform:  'scale(0)',
-          opacity:    0,
-        }}
-      />
     </div>
   );
-
-  if (item.isAnchor) return <a href={item.href}>{inner}</a>;
-  return <Link to={item.href}>{inner}</Link>;
 };
 
 // ─────────────────────────────────────────────────────────────
-// COMPOSANT PRINCIPAL
+// COMPOSANT — NavLink
+// Wrapping transparent autour de LiquidGlassPill.
+// ─────────────────────────────────────────────────────────────
+const NavLink = ({ item }) => {
+  const label = (
+    <span
+      className="text-[0.63rem] font-bold uppercase text-white/90 select-none"
+      style={{ letterSpacing: '0.22em' }}
+    >
+      {item.label}
+    </span>
+  );
+
+  const pill = <LiquidGlassPill>{label}</LiquidGlassPill>;
+
+  if (item.isAnchor) return <a href={item.href}>{pill}</a>;
+  return <Link to={item.href}>{pill}</Link>;
+};
+
+// ─────────────────────────────────────────────────────────────
+// COMPOSANT PRINCIPAL — Header
 // ─────────────────────────────────────────────────────────────
 export default function Header() {
   const headerRef    = useRef(null);
-  const logoRef      = useRef(null);
-  const overlayRef   = useRef(null);
-  const mobileNavRef = useRef(null);
-  const burgerRef    = useRef(null);
-  const pleatWrapRef = useRef(null);
-  const panelRefs    = useRef([]);
+  const navPillRef   = useRef(null);  // capsule navbar
+  const navLightRef  = useRef(null);  // lumière ambre interne navbar
+  const logoRef      = useRef(null);  // texte logo
+  const overlayRef   = useRef(null);  // overlay mobile
+  const mobileNavRef = useRef(null);  // nav mobile items
+  const burgerRef    = useRef(null);  // burger button
 
   const [isOpen,   setIsOpen]   = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // ── Scroll ────────────────────────────────────────────────
+  // ── Scroll ────────────────────────────────────────────
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // ── Mobile overlay GSAP ───────────────────────────────────
+  // ── Mobile overlay GSAP ───────────────────────────────
   useEffect(() => {
     const overlay = overlayRef.current;
     const nav     = mobileNavRef.current;
@@ -552,7 +620,7 @@ export default function Header() {
     }
   }, [isOpen]);
 
-  // ── Logo hover ────────────────────────────────────────────
+  // ── Logo hover ────────────────────────────────────────
   const onLogoEnter = useCallback(() => {
     gsap.to(logoRef.current, { textShadow: LOGO_GLOW_HOVER, duration: 0.22, ease: 'power2.out' });
   }, []);
@@ -560,49 +628,29 @@ export default function Header() {
     gsap.to(logoRef.current, { textShadow: LOGO_GLOW_IDLE, duration: 0.38, ease: 'power2.out' });
   }, []);
 
-  // ── GSAP montage ──────────────────────────────────────────
+  // ── GSAP montage ──────────────────────────────────────
   useGSAP(() => {
 
-    // ── SOUFFLET : scaleX 0.02 → 1 ────────────────────────
-    // Le verre fractal claque en s'ouvrant depuis le centre.
-    // power4.out = démarrage ultra-rapide (le claquement),
-    // décélération longue et élégante (le déploiement).
-    if (pleatWrapRef.current) {
-      gsap.from(pleatWrapRef.current, {
-        scaleX:          0.02,
-        y:               -6,
-        opacity:         0.20,
-        transformOrigin: 'center center',
-        duration:        1.15,
-        ease:            'power4.out',
-        delay:           0.16,
-      });
-    }
-
-    // ── PANNEAUX : chute staggerée depuis le centre ────────
-    const panels = panelRefs.current.filter(Boolean);
-    if (panels.length) {
-      gsap.from(panels, {
-        y:       -32,
-        opacity: 0,
-        duration: 0.70,
-        stagger:  { each: 0.06, from: 'center' },
+    // Navbar pill — entrée depuis le haut
+    if (navPillRef.current) {
+      gsap.from(navPillRef.current, {
+        y:        -50,
+        opacity:  0,
+        scale:    0.92,
+        duration: 0.95,
         ease:     'power3.out',
-        delay:    0.36,
+        delay:    0.18,
       });
     }
 
-    // ── HEADER + BURGER ────────────────────────────────────
-    gsap.from(headerRef.current, {
-      opacity: 0, duration: 0.50, ease: 'power2.out', delay: 0.10,
-    });
+    // Burger mobile
     if (burgerRef.current) {
       gsap.from(burgerRef.current, {
-        opacity: 0, x: 12, duration: 0.55, ease: 'power2.out', delay: 0.58,
+        opacity: 0, x: 14, duration: 0.55, ease: 'power2.out', delay: 0.60,
       });
     }
 
-    // ── LOGO breathing glow ────────────────────────────────
+    // Logo breathing glow — cohérence HeroImpact
     gsap.fromTo(
       logoRef.current,
       { textShadow: LOGO_GLOW_IDLE },
@@ -616,301 +664,191 @@ export default function Header() {
       }
     );
 
+    // Lumière interne navbar — breathing ambre (capte le glow du logo)
+    if (navLightRef.current) {
+      gsap.fromTo(navLightRef.current,
+        { opacity: 0.28, scale: 0.82 },
+        {
+          opacity:  0.60,
+          scale:    1.18,
+          duration: 2.9,
+          repeat:   -1,
+          yoyo:     true,
+          ease:     'sine.inOut',
+        }
+      );
+    }
+
   }, { dependencies: [], revertOnUpdate: false });
 
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────
   // RENDER
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────
   return (
     <>
-      {/* ════════════════════════════════════════════════════
+      {/* ════════════════════════════════════════════════
           CSS KEYFRAMES
-            holo-drift      : palette en défilement (8s)
-            holo-spin       : conic-gradient rotatif (22s)
-            scan-line       : scan spéculaire (12s)
-            sep-pulse       : séparateurs ambre (4s)
-            stele-pulse     : stèles en respiration
-            bellows-shimmer : côtes de verre (variation d'éclat)
-          ════════════════════════════════════════════════════ */}
+          iris-drift  : irisation oil-slick (translateX, 2.5s)
+          holo-drift  : overlay mobile gradient défilant
+          holo-spin   : overlay mobile conic rotatif
+          ════════════════════════════════════════════════ */}
       <style>{`
+        @keyframes iris-drift {
+          from { transform: translateX(0%);   }
+          to   { transform: translateX(-75%); }
+        }
         @keyframes holo-drift {
-          0%   { background-position: 0%   50%; opacity: 0.26; }
-          35%  { opacity: 0.35; }
-          65%  { opacity: 0.30; }
-          100% { background-position: 300% 50%; opacity: 0.26; }
+          from { background-position: 0%   50%; }
+          to   { background-position: 300% 50%; }
         }
         @keyframes holo-spin {
-          0%   { transform: rotate(0deg)   scale(3.2); opacity: 0.20; }
-          25%  { opacity: 0.30; }
-          50%  { opacity: 0.24; }
-          75%  { opacity: 0.28; }
-          100% { transform: rotate(360deg) scale(3.2); opacity: 0.20; }
-        }
-        @keyframes scan-line {
-          0%   { top: 110%; opacity: 0;    }
-          5%   { opacity: 0.28; }
-          50%  { top: 35%;  opacity: 0.14; }
-          95%  { opacity: 0.07; }
-          100% { top: -10%; opacity: 0;    }
-        }
-        @keyframes sep-pulse {
-          0%, 100% { opacity: 0.55; }
-          50%      { opacity: 1.00; }
-        }
-        @keyframes stele-pulse {
-          0%, 100% { opacity: 0.70; filter: blur(0.4px); }
-          50%      { opacity: 1.00; filter: blur(1.2px);  }
-        }
-        @keyframes bellows-shimmer {
-          0%   { opacity: 0.75; }
-          40%  { opacity: 1.00; }
-          70%  { opacity: 0.85; }
-          100% { opacity: 0.75; }
+          from { transform: rotate(0deg)   scale(3.2); }
+          to   { transform: rotate(360deg) scale(3.2); }
         }
       `}</style>
 
-      {/* ════════════════════════════════════════════════════
+      {/* ════════════════════════════════════════════════
           HEADER PRINCIPAL
-          overflow:visible → stèles dépassent en bas
-          ════════════════════════════════════════════════════ */}
+          Transparent — la navbar pill gère sa propre visibilité.
+          ════════════════════════════════════════════════ */}
       <header
         ref={headerRef}
-        className={`
-          fixed top-0 left-0 w-full z-[100]
-          transition-[border-color,box-shadow,background] duration-500
-          ${scrolled
-            ? 'border-b border-white/14 shadow-[0_2px_36px_rgba(0,0,0,0.68)]'
-            : 'border-b border-white/[0.05]'}
-        `}
-        style={{
-          height:               '64px',
-          backdropFilter:       'blur(22px)',
-          WebkitBackdropFilter: 'blur(22px)',
-          background:           'rgba(0,0,0,0.52)',
-          overflow:             'visible',
-        }}
+        className="fixed top-0 left-0 w-full z-[100] flex items-center justify-center"
+        style={{ height: '72px', background: 'transparent', pointerEvents: 'none' }}
       >
 
-        {/* ════════════════════════════════════════════════════
-            SYSTÈME 1 — VERRE FRACTAL (40 côtes)
-            z-1 : couche de fond, GSAP scaleX depuis centre.
-            overflow-hidden : les bords skewés restent dans le cadre.
-            ════════════════════════════════════════════════════ */}
+        {/* ════════════════════════════════════════════════
+            NAVBAR — LIQUID GLASS PILL (desktop)
+            Capsule unique flottante contenant toute la navigation.
+
+            MATIÈRE :
+              Même glass treatment que LiquidGlassPill mais
+              à échelle navbar. Dégradé vertical légèrement plus
+              accentué pour donner de la profondeur au pill épais.
+
+            LUMIÈRE INTERNE (navLightRef) :
+              Blob ambre centré sur la position du logo.
+              GSAP breathing (opacity + scale) synchro avec le
+              logo glow — comme si le logo rayonnait vers l'intérieur
+              de la capsule.
+
+            ABERRATION CHROMATIQUE :
+              inset gauche  : bleu froid (lumière entrante)
+              inset droite  : ambre chaud (lumière réfractée vers logo)
+              → impression de thick glass dispersant la lumière.
+
+            RIM PRISMATIQUE BAS :
+              Gradient spectral 8 stops centré sur l'ambre du logo.
+            ════════════════════════════════════════════════ */}
         <div
-          ref={pleatWrapRef}
-          aria-hidden="true"
-          className="absolute inset-0 flex items-stretch overflow-hidden pointer-events-none"
-          style={{ zIndex: 1 }}
+          ref={navPillRef}
+          className="hidden md:flex items-center relative"
+          style={{
+            borderRadius:         '999px',
+            background: [
+              'linear-gradient(180deg,',
+              '  rgba(255,255,255,0.14) 0%,',
+              '  rgba(255,255,255,0.05) 35%,',
+              '  rgba(255,255,255,0.02) 65%,',
+              '  rgba(255,255,255,0.09) 100%)',
+            ].join(''),
+            backdropFilter:       'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            border:               '0.5px solid rgba(255,255,255,0.20)',
+            boxShadow:            NAV_PILL_SHADOW,
+            padding:              '10px 20px',
+            gap:                  '2px',
+            overflow:             'visible',
+            willChange:           'transform',
+            pointerEvents:        'auto',
+          }}
         >
-          {PLEAT_DEFS.map(({ i, isEven, bg, edgeClr, tR, tG, tB }) => (
-            <div
-              key={i}
-              className="relative flex-1 overflow-hidden"
-              style={{
-                background: bg,
-                // Arête de coupure : filet brillant sur chaque face paire
-                borderLeft: isEven && edgeClr !== 'transparent'
-                  ? `0.5px solid ${edgeClr}`
-                  : 'none',
-                // Ombre latérale dans les creux
-                boxShadow: isEven
-                  ? 'none'
-                  : [
-                      'inset 2px  0 5px rgba(0,0,0,0.24)',
-                      'inset -2px 0 5px rgba(0,0,0,0.20)',
-                    ].join(', '),
-                // Légère coloration de fond au voisinage du pli
-                ...(isEven && {
-                  animation:      `bellows-shimmer ${3.6 + (i % 6) * 0.35}s ease-in-out infinite`,
-                  animationDelay: `${(i * 0.15) % 2.8}s`,
-                }),
-              }}
-            />
-          ))}
-        </div>
-
-        {/* ════════════════════════════════════════════════════
-            SYSTÈME 2 — PANNEAUX VITRÉS + STÈLES
-            z-2 : teinte de section + fissures + stèles décomposées
-            ════════════════════════════════════════════════════ */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 flex items-stretch pointer-events-none overflow-visible"
-          style={{ zIndex: 2 }}
-        >
-          {PANEL_DEFS.map((def, i) => {
-
-            // ── Séparateur ambre ──────────────────────────
-            if (def.type === 'sep') {
-              return (
-                <div
-                  key={def.id}
-                  ref={(el) => { panelRefs.current[i] = el; }}
-                  className="flex-none self-stretch"
-                  style={{
-                    width:          '1px',
-                    background:     def.color,
-                    animation:      'sep-pulse 4.5s ease-in-out infinite',
-                    animationDelay: `${i * 0.32}s`,
-                  }}
-                />
-              );
-            }
-
-            // ── Panneau (link / logo) ─────────────────────
-            return (
-              <div
-                key={def.id}
-                ref={(el) => { panelRefs.current[i] = el; }}
-                className="relative flex-1 overflow-visible"
-                style={{ willChange: 'transform, opacity' }}
-              >
-                {/* Fond de verre teinté */}
-                <div
-                  className="absolute inset-0 overflow-hidden pointer-events-none"
-                  style={{
-                    background:           def.bg,
-                    backdropFilter:       'blur(3px)',
-                    WebkitBackdropFilter: 'blur(3px)',
-                    boxShadow: [
-                      'inset 0 1px 0 rgba(255,255,255,0.07)',
-                      def.fissureClr
-                        ? `inset -1px 0 0 ${def.fissureClr}`
-                        : '',
-                    ].filter(Boolean).join(', '),
-                  }}
-                />
-
-                {/*
-                 * Stèles décomposées (3 couches)
-                 * Chaque couche positionnée en bottom négatif = dépasse.
-                 * Les couches arrière sont plus étroites (insetPx) =
-                 * illusion de perspective / profondeur physique.
-                 */}
-                {STELE_LAYERS.map((layer, li) => (
-                  <div
-                    key={li}
-                    aria-hidden="true"
-                    className="absolute pointer-events-none"
-                    style={{
-                      bottom:     `-${layer.dy + layer.h}px`,
-                      height:     `${layer.h}px`,
-                      left:       `${layer.insetPx}px`,
-                      right:      `${layer.insetPx}px`,
-                      background: def.steleClr,
-                      opacity:    layer.opMul,
-                      filter:     `blur(${layer.blur})`,
-                      boxShadow:  layer.shadow,
-                      animation:  `stele-pulse ${4.0 + li * 0.55 + i * 0.18}s ease-in-out infinite`,
-                      animationDelay: `${(i * 0.16 + li * 0.22) % 3.2}s`,
-                    }}
-                  />
-                ))}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* ════════════════════════════════════════════════════
-            SYSTÈME 4 — FILM HOLOGRAPHIQUE INTENSE
-            z-3 : 3 couches CSS @keyframes, zéro JS continu.
-            ════════════════════════════════════════════════════ */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none overflow-hidden"
-          style={{ zIndex: 3 }}
-        >
-          {/* Couche 1 — palette linéaire en défilement */}
+          {/* Lumière ambre interne — depuis le logo (centre) */}
           <div
-            className="absolute inset-0"
+            ref={navLightRef}
+            aria-hidden="true"
             style={{
-              background: [
-                'linear-gradient(105deg,',
-                '  rgba(242,230,238,0.16)  0%,',
-                '  rgba(255,0,150,0.20)    9%,',
-                '  rgba(151,125,255,0.26)  23%,',
-                '  rgba(0,51,255,0.22)     37%,',
-                '  rgba(0,0,61,0.10)       50%,',
-                '  rgba(251,191,36,0.18)   57%,',
-                '  rgba(255,80,0,0.16)     65%,',
-                '  rgba(151,125,255,0.20)  77%,',
-                '  rgba(255,204,242,0.18)  89%,',
-                '  rgba(242,230,238,0.14)  100%)',
+              position:      'absolute',
+              top:           '50%',
+              left:          '50%',
+              transform:     'translate(-50%, -50%)',
+              width:         '32%',
+              height:        '180%',
+              background:    [
+                'radial-gradient(ellipse at center,',
+                '  rgba(255,210,80,0.34)  0%,',
+                '  rgba(251,191,36,0.20)  26%,',
+                '  rgba(249,115,22,0.09)  56%,',
+                '  transparent            78%)',
               ].join(''),
-              backgroundSize: '300% 100%',
-              mixBlendMode:   'screen',
-              animation:      'holo-drift 8s linear infinite',
+              filter:        'blur(14px)',
+              mixBlendMode:  'screen',
+              pointerEvents: 'none',
+              zIndex:        1,
+              willChange:    'transform, opacity',
             }}
           />
 
-          {/* Couche 2 — conic-gradient arc-en-ciel rotatif */}
+          {/* Rim prismatique bas de la navbar */}
           <div
             aria-hidden="true"
-            className="absolute pointer-events-none"
             style={{
-              inset:      '-60%',
-              background: [
-                'conic-gradient(from 0deg at 50% 50%,',
-                '  rgba(255,0,120,0.24)    0deg,',
-                '  rgba(255,200,0,0.24)    60deg,',
-                '  rgba(0,255,140,0.18)    120deg,',
-                '  rgba(0,120,255,0.24)    180deg,',
-                '  rgba(200,0,255,0.24)    240deg,',
-                '  rgba(255,100,0,0.18)    300deg,',
-                '  rgba(255,0,120,0.24)    360deg)',
+              position:      'absolute',
+              left:          0,
+              right:         0,
+              bottom:        0,
+              height:        '1.5px',
+              borderRadius:  '0 0 999px 999px',
+              background:    [
+                'linear-gradient(90deg,',
+                '  transparent               0%,',
+                '  rgba(0,51,255,0.32)       7%,',
+                '  rgba(151,125,255,0.42)    18%,',
+                '  rgba(255,80,180,0.40)     30%,',
+                '  rgba(255,210,80,0.55)     50%,',  // ambre centre = logo
+                '  rgba(255,80,180,0.40)     70%,',
+                '  rgba(151,125,255,0.42)    82%,',
+                '  rgba(0,51,255,0.32)       93%,',
+                '  transparent               100%)',
               ].join(''),
-              mixBlendMode: 'screen',
-              animation:    'holo-spin 22s linear infinite',
+              zIndex:        2,
+              pointerEvents: 'none',
             }}
           />
 
-          {/* Couche 3 — scan-line spéculaire */}
-          <div
-            className="absolute left-0 right-0 pointer-events-none"
-            style={{
-              height:         '2px',
-              top:            '110%',
-              background:     'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 15%, rgba(255,255,255,0.20) 50%, rgba(255,255,255,0.07) 85%, transparent 100%)',
-              animation:      'scan-line 12s ease-in-out infinite',
-              animationDelay: '2.5s',
-            }}
-          />
-        </div>
+          {/* Contenu navigable — z-10 par rapport au pill */}
+          <div className="relative z-10 flex items-center gap-1">
 
-        {/* ════════════════════════════════════════════════════
-            CONTENU NAVIGABLE — z-10
-            Grid 3 colonnes : nav-gauche / logo / nav-droite
-            ════════════════════════════════════════════════════ */}
-        <div
-          className="relative z-10 grid grid-cols-[1fr_auto_1fr] items-center h-full"
-          aria-label="Navigation principale"
-        >
+            {/* Nav gauche */}
+            {NAV_LEFT.map((item) => (
+              <NavLink key={item.id} item={item} />
+            ))}
 
-          {/* ── Nav gauche ── */}
-          <nav className="hidden md:flex items-center justify-start h-full gap-2 pl-3"
-            aria-label="Navigation gauche">
-            <div className="flex items-center justify-center h-full px-2">
-              <NavLink item={PANEL_DEFS[0]} />
-            </div>
-            <div className="flex items-center justify-center h-full px-2">
-              <NavLink item={PANEL_DEFS[1]} />
-            </div>
-          </nav>
+            {/* Séparateur gauche — filet ambre */}
+            <div
+              aria-hidden="true"
+              style={{
+                width:      '1px',
+                height:     '22px',
+                margin:     '0 10px',
+                background: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.70) 50%, transparent 100%)',
+              }}
+            />
 
-          {/* ── Logo centré ── */}
-          <div className="flex items-center justify-center gap-2 px-6 md:px-8 h-full">
-            <span aria-hidden="true"
-              className="hidden md:block text-amber-400/58 text-[0.50rem] select-none leading-none">✦</span>
-
-            <Link to="/" aria-label="MARSAI — retour à l'accueil"
-              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 rounded-sm">
+            {/* Logo MARSAI */}
+            <Link
+              to="/"
+              aria-label="MARSAI — accueil"
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 rounded-sm"
+              style={{ padding: '0 16px' }}
+            >
               <span
                 ref={logoRef}
                 onMouseEnter={onLogoEnter}
                 onMouseLeave={onLogoLeave}
                 className="block font-black uppercase select-none cursor-pointer text-white leading-none"
                 style={{
-                  fontSize:      'clamp(1.05rem, 2.0vw, 1.45rem)',
+                  fontSize:      'clamp(1.02rem, 1.9vw, 1.40rem)',
                   letterSpacing: '-0.04em',
                   textShadow:    LOGO_GLOW_IDLE,
                   willChange:    'text-shadow',
@@ -920,49 +858,51 @@ export default function Header() {
               </span>
             </Link>
 
-            <span aria-hidden="true"
-              className="hidden md:block text-amber-400/58 text-[0.50rem] select-none leading-none">✦</span>
-          </div>
+            {/* Séparateur droit — filet ambre */}
+            <div
+              aria-hidden="true"
+              style={{
+                width:      '1px',
+                height:     '22px',
+                margin:     '0 10px',
+                background: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.70) 50%, transparent 100%)',
+              }}
+            />
 
-          {/* ── Nav droite ── */}
-          <nav className="hidden md:flex items-center justify-end h-full gap-2 pr-3"
-            aria-label="Navigation droite">
-            <div className="flex items-center justify-center h-full px-2">
-              <NavLink item={PANEL_DEFS[5]} />
-            </div>
-            <div className="flex items-center justify-center h-full px-2">
-              <NavLink item={PANEL_DEFS[6]} />
-            </div>
-            <div className="flex items-center justify-center h-full px-2">
-              <NavLink item={PANEL_DEFS[7]} />
-            </div>
-          </nav>
-
-          {/* ── Burger mobile ── */}
-          <div className="md:hidden col-start-3 flex justify-end pr-5 h-full items-center">
-            <button
-              ref={burgerRef}
-              onClick={() => setIsOpen((v) => !v)}
-              className="z-[110] w-10 h-10 flex flex-col items-end justify-center gap-[5px] focus:outline-none"
-              aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-              aria-expanded={isOpen}
-            >
-              <span className="block bg-white transition-all duration-300 origin-right"
-                style={{ height:'1.5px', width: isOpen?'1.4rem':'1.9rem',
-                  transform: isOpen?'rotate(-45deg) translateY(-1px)':'none' }}/>
-              <span className="block bg-white transition-all duration-300"
-                style={{ height:'1.5px', width: isOpen?0:'1.4rem', opacity: isOpen?0:1 }}/>
-              <span className="block bg-white transition-all duration-300 origin-right"
-                style={{ height:'1.5px', width: isOpen?'1.4rem':'0.9rem',
-                  transform: isOpen?'rotate(45deg) translateY(1px)':'none' }}/>
-            </button>
+            {/* Nav droite */}
+            {NAV_RIGHT.map((item) => (
+              <NavLink key={item.id} item={item} />
+            ))}
           </div>
+        </div>
+
+        {/* Burger mobile */}
+        <div
+          className="md:hidden absolute right-5 top-1/2 -translate-y-1/2"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <button
+            ref={burgerRef}
+            onClick={() => setIsOpen((v) => !v)}
+            className="z-[110] w-10 h-10 flex flex-col items-end justify-center gap-[5px] focus:outline-none"
+            aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={isOpen}
+          >
+            <span className="block bg-white transition-all duration-300 origin-right"
+              style={{ height: '1.5px', width: isOpen ? '1.4rem' : '1.9rem',
+                transform: isOpen ? 'rotate(-45deg) translateY(-1px)' : 'none' }} />
+            <span className="block bg-white transition-all duration-300"
+              style={{ height: '1.5px', width: isOpen ? 0 : '1.4rem', opacity: isOpen ? 0 : 1 }} />
+            <span className="block bg-white transition-all duration-300 origin-right"
+              style={{ height: '1.5px', width: isOpen ? '1.4rem' : '0.9rem',
+                transform: isOpen ? 'rotate(45deg) translateY(1px)' : 'none' }} />
+          </button>
         </div>
       </header>
 
-      {/* ════════════════════════════════════════════════════
+      {/* ════════════════════════════════════════════════
           OVERLAY MOBILE — GSAP PUR
-          ════════════════════════════════════════════════════ */}
+          ════════════════════════════════════════════════ */}
       <div
         ref={overlayRef}
         className="fixed inset-0 z-[105] flex-col items-center justify-center md:hidden"
@@ -974,35 +914,55 @@ export default function Header() {
           WebkitBackdropFilter: 'blur(18px)',
         }}
       >
-        <div aria-hidden="true" className="absolute top-[64px] left-0 right-0 h-px"
+        {/* Ligne déco palette */}
+        <div
+          aria-hidden="true"
+          className="absolute top-[72px] left-0 right-0 h-px"
           style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,51,255,0.42) 14%, rgba(151,125,255,0.62) 34%, rgba(251,191,36,0.82) 50%, rgba(151,125,255,0.62) 66%, rgba(0,51,255,0.42) 86%, transparent 100%)' }}
         />
 
-        <div aria-hidden="true" className="absolute pointer-events-none"
+        {/* Film holographique ambiant */}
+        <div
+          aria-hidden="true"
           style={{
-            inset: '-40%',
-            background: 'conic-gradient(from 0deg at 50% 50%, rgba(255,0,120,0.05), rgba(255,200,0,0.05), rgba(0,150,255,0.05), rgba(200,0,255,0.05), rgba(255,0,120,0.05))',
-            animation: 'holo-spin 32s linear infinite',
-            mixBlendMode: 'screen',
+            position:      'absolute',
+            inset:         '-40%',
+            background:    'conic-gradient(from 0deg at 50% 50%, rgba(255,0,120,0.05), rgba(255,200,0,0.05), rgba(0,150,255,0.05), rgba(200,0,255,0.05), rgba(255,0,120,0.05))',
+            animation:     'holo-spin 32s linear infinite',
+            mixBlendMode:  'screen',
+            pointerEvents: 'none',
           }}
         />
 
-        <nav ref={mobileNavRef} className="flex flex-col items-center gap-8" aria-label="Navigation mobile">
-          {NAV_ALL.map((item) => (
+        <nav
+          ref={mobileNavRef}
+          className="flex flex-col items-center gap-7"
+          aria-label="Navigation mobile"
+        >
+          {NAV_MOBILE.map((item) => (
             <span key={item.id} className="m-link" style={{ opacity: 0 }}>
-              {item.type === 'logo' ? (
-                <Link to={item.href} onClick={() => setIsOpen(false)}
-                  className="text-[1.75rem] font-black uppercase tracking-[-0.03em] text-white hover:text-amber-300 transition-colors duration-200">
+              {item.isLogo ? (
+                <Link
+                  to={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className="text-[1.75rem] font-black uppercase tracking-[-0.03em] text-white hover:text-amber-300 transition-colors duration-200"
+                >
                   MARSAI
                 </Link>
               ) : item.isAnchor ? (
-                <a href={item.href} onClick={() => setIsOpen(false)}
-                  className="text-[1.6rem] font-black uppercase tracking-[0.12em] text-white hover:text-amber-300 transition-colors duration-200">
+                <a
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className="text-[1.5rem] font-bold uppercase tracking-[0.12em] text-white hover:text-amber-300 transition-colors duration-200"
+                >
                   {item.label}
                 </a>
               ) : (
-                <Link to={item.href} onClick={() => setIsOpen(false)}
-                  className="text-[1.6rem] font-black uppercase tracking-[0.12em] text-white hover:text-amber-300 transition-colors duration-200">
+                <Link
+                  to={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className="text-[1.5rem] font-bold uppercase tracking-[0.12em] text-white hover:text-amber-300 transition-colors duration-200"
+                >
                   {item.label}
                 </Link>
               )}
@@ -1010,14 +970,19 @@ export default function Header() {
           ))}
         </nav>
 
-        <div aria-hidden="true" className="absolute bottom-8 select-none font-black uppercase leading-none"
+        {/* Signature fantôme */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-8 select-none font-black uppercase leading-none"
           style={{
-            fontSize: '0.82rem', letterSpacing: '-0.04em',
-            color: 'transparent',
-            background: 'linear-gradient(90deg, rgba(0,51,255,0.42), rgba(151,125,255,0.58), rgba(251,191,36,0.72), rgba(151,125,255,0.58), rgba(0,51,255,0.42))',
-            backgroundClip: 'text', WebkitBackgroundClip: 'text',
-            backgroundSize: '300% 100%',
-            animation: 'holo-drift 10s linear infinite',
+            fontSize:             '0.80rem',
+            letterSpacing:        '-0.04em',
+            color:                'transparent',
+            background:           'linear-gradient(90deg, rgba(0,51,255,0.42), rgba(151,125,255,0.58), rgba(251,191,36,0.72), rgba(151,125,255,0.58), rgba(0,51,255,0.42))',
+            backgroundClip:       'text',
+            WebkitBackgroundClip: 'text',
+            backgroundSize:       '300% 100%',
+            animation:            'holo-drift 10s linear infinite',
           }}
         >
           MARSAI
