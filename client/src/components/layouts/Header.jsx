@@ -190,7 +190,7 @@ function spawnShards(container, {
 // NAVIGATION
 // ─────────────────────────────────────────────────────────────
 const NAV_LEFT = [
-  { id: 'accueil',   label: 'Accueil',   href: '/',  isAnchor: true  },
+  { id: 'accueil',   label: 'Accueil',   href: '/#accueil',  isAnchor: true  },
   { id: 'galerie',   label: 'Galerie',   href: '/galerie',   isAnchor: false },
   { id: 'calendrier',   label: 'Calendrier',   href: '/calendrier',   isAnchor: false },
 ];
