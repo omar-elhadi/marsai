@@ -5,7 +5,7 @@ import HeroImpact from '../../components/animations/HeroImpact';
 function Home() {
   return (
     <div className="bg-black text-white selection:bg-amber-500 selection:text-black">
-      
+
       {/* 1. HERO : L'Impact (Déjà rendu intrinsèquement responsive via les vw/vh) */}
       <HeroImpact />
 
