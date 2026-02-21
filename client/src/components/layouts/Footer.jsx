@@ -105,7 +105,7 @@ function Footer() {
             </h2>
           </div>
           <div className="flex items-center space-x-3 mt-6 md:mt-0 text-sm tracking-widest text-purple-300/60 uppercase">
-            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></span>
+            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(155, 137, 255)]"></span>
             <span>Festival 2026</span>
           </div>
         </div>
