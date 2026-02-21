@@ -2,29 +2,39 @@
  * Header.jsx — MARSAI Festival
  * ═══════════════════════════════════════════════════════════════
  * KODAWARI / SHOKUNIN — chaque pixel est intentionnel.
+ * L'intemporel naît de la précision absolue, jamais de l'excès.
  * ═══════════════════════════════════════════════════════════════
  *
- * SYSTÈME 1 — SOUFFLET D'ACCORDÉON (28 plis de verre)
- *   28 plis générés au module-level (zéro recalcul).
- *   Even = face extérieure (brightness), Odd = creux intérieur (ombre).
- *   Chaque pli : skewX ±14° sur le fond uniquement — texte reste droit.
- *   GSAP montage : container scaleX 0.05→1 depuis centre = soufflet qui s'ouvre.
+ * SYSTÈME 1 — VERRE FRACTAL (40 côtes de cristal)
+ *   Inspiration : Image 1 — verre cannelé physique.
+ *   40 côtes alternant face brillante (pair) / creux ombré (impair).
+ *   Face : gradient blanc→teinté→transparent, arête 0.5px brillante.
+ *   Creux : gradient noir→teinté→noir, ombre interne.
+ *   La teinte de chaque côte suit la palette Image 2 depuis le centre
+ *   ambre vers les bords bleu nuit — chromatisme positionnel.
+ *   Résultat : verre cannelé photophysique, récursivité de la coupe.
+ *   GSAP : container scaleX 0.02→1, ease power4.out — soufflet qui claque.
  *
- * SYSTÈME 2 — STÈLES DÉCOMPOSÉES (3 couches par panneau)
- *   STELE_LAYERS[3] : fond large/flou, milieu, avant-plan net.
- *   Chaque couche : hauteur, inset, opacité et ombre portée propres.
- *   Résultat : verre feuilleté physiquement lisible.
+ * SYSTÈME 2 — LIQUID GLASS BUTTONS (Images 2 & 3)
+ *   Chaque bouton = capsule de verre liquide à épaisseur physique :
+ *     • Arête supérieure : arc spéculaire blanc (inset-shadow haut)
+ *     • Arête inférieure : rim prismatique arc-en-ciel (1px gradient)
+ *     • Intérieur : backdrop-filter blur+saturate, gradient 180° clair→clair
+ *     • Ombre portée : 2 couches (lift + contact) = flottement physique
+ *     • Rim extérieur : border 0.5px rgba(255,255,255,0.22)
+ *   Hover — 4 actes :
+ *     ① Lift : scale 1→1.07, y 0→-2px, ombre approfondie
+ *     ② Arc spéculaire : brightening du shine haut
+ *     ③ Aberration chromatique : textShadow R/B + skewX sur le label
+ *     ④ Sweep holographique intense + crack lines + underline + flare
  *
- * SYSTÈME 3 — FILM HOLOGRAPHIQUE INTENSE (CSS @keyframes)
- *   Opacités relevées : drift 0.28–0.38, conic 0.22–0.32.
- *   3 couches : palette drift, conic-spin, scan-line.
- *   Zéro JS en continu.
+ * SYSTÈME 3 — STÈLES DÉCOMPOSÉES (3 couches par panneau)
+ *   STELE_LAYERS[3] : fond flou large, milieu, avant nette.
+ *   Chaque couche : insetPx décroissant, opMul croissant, ombre propre.
  *
- * SYSTÈME 4 — HOVER DRAMATIQUE — 4 ACTES (GSAP)
- *   ① Aberration chromatique : textShadow canaux R/B + skewX glitch
- *   ② Lignes de crack : 3 spans 1px qui surgissent 80ms
- *   ③ Sweep arc-en-ciel intense : opacity 0.90
- *   ④ Underline spectral + lens flare
+ * SYSTÈME 4 — FILM HOLOGRAPHIQUE (CSS @keyframes, zéro JS continu)
+ *   3 couches : palette drift 8s, conic-spin 22s, scan-line 12s.
+ *   Opacités 0.22–0.35 (visibles, pas subtiles).
  *
  * SYSTÈME 5 — LOGO VOLUMÉTRIQUE
  *   Breathing glow ambre (cohérence HeroImpact.jsx).
@@ -39,7 +49,7 @@ import gsap                                          from 'gsap';
 import { useGSAP }                                   from '@gsap/react';
 
 // ─────────────────────────────────────────────────────────────
-// LOGO GLOW — cohérence absolue avec HeroImpact.jsx
+// LOGO GLOW — cohérence HeroImpact.jsx
 // ─────────────────────────────────────────────────────────────
 const LOGO_GLOW_IDLE =
   '0 0 8px rgba(255,200,70,0.55), 0 0 22px rgba(251,191,36,0.25), 0 0 45px rgba(180,83,9,0.12)';
@@ -49,144 +59,160 @@ const LOGO_GLOW_HOVER =
   '0 0 20px rgba(255,215,80,1.00), 0 0 52px rgba(251,191,36,0.80), 0 0 95px rgba(180,83,9,0.42)';
 
 // ─────────────────────────────────────────────────────────────
-// STELE_LAYERS — 3 couches physiques sous chaque panneau
+// LIQUID GLASS — box-shadow stacks
 //
-// Empilées de la plus reculée (index 0) à la plus proche (index 2).
-// dy       : décalage vertical sous la base du panneau
-// h        : hauteur de la couche
-// insetPx  : rétrécissement horizontal (les couches arrière sont plus étroites)
-// opMul    : multiplicateur d'opacité appliqué à steleClr du panneau
-// shadow   : ombre portée sous cette couche
-// blur     : blur propre de la couche
+// LG_SHADOW_IDLE  : bouton au repos — flottement léger
+// LG_SHADOW_HOVER : bouton survolé — élévation prononcée
+//
+// Décomposition :
+//   ① inset haut       : arc spéculaire blanc (filet de lumière)
+//   ② inset bas        : arête inférieure intérieure
+//   ③ inset body       : halo intérieur diffus
+//   ④ drop lift        : ombre de levitation (diffuse)
+//   ⑤ drop contact     : ombre de contact (précise)
+//   ⑥ rim              : bord lumineux extérieur
+// ─────────────────────────────────────────────────────────────
+const LG_SHADOW_IDLE = [
+  'inset 0 1.5px 0 rgba(255,255,255,0.62)',
+  'inset 0 -0.5px 0 rgba(255,255,255,0.14)',
+  'inset 0 0 18px rgba(255,255,255,0.05)',
+  '0 5px 18px rgba(0,0,0,0.36)',
+  '0 1px 4px rgba(0,0,0,0.24)',
+  '0 0 0 0.5px rgba(255,255,255,0.18)',
+].join(', ');
+
+const LG_SHADOW_HOVER = [
+  'inset 0 2px 0 rgba(255,255,255,0.82)',
+  'inset 0 -0.5px 0 rgba(255,255,255,0.25)',
+  'inset 0 0 28px rgba(255,255,255,0.11)',
+  '0 10px 30px rgba(0,0,0,0.46)',
+  '0 2px 8px rgba(0,0,0,0.32)',
+  '0 0 0 0.5px rgba(255,255,255,0.32)',
+].join(', ');
+
+// ─────────────────────────────────────────────────────────────
+// STELE_LAYERS — 3 couches de profondeur sous chaque panneau
 // ─────────────────────────────────────────────────────────────
 const STELE_LAYERS = [
-  // Couche 0 — la plus reculée (fond, large, floue)
-  {
-    dy:      12,
-    h:       2,
-    insetPx: 14,
-    opMul:   0.30,
-    blur:    '2px',
-    shadow:  '0 4px 10px rgba(0,0,0,0.65), 0 2px 5px rgba(0,0,0,0.40)',
-  },
-  // Couche 1 — intermédiaire
-  {
-    dy:      6,
-    h:       2.5,
-    insetPx: 7,
-    opMul:   0.55,
-    blur:    '1px',
-    shadow:  '0 2px 6px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.35)',
-  },
-  // Couche 2 — avant-plan (nette, la plus vivide, ombre légère)
-  {
-    dy:      1,
-    h:       3.5,
-    insetPx: 0,
-    opMul:   0.90,
-    blur:    '0.4px',
-    shadow:  '0 1px 4px rgba(0,0,0,0.45)',
-  },
+  { dy: 13, h: 2,   insetPx: 16, opMul: 0.28, blur: '2px',   shadow: '0 5px 12px rgba(0,0,0,0.65), 0 2px 5px rgba(0,0,0,0.42)' },
+  { dy: 7,  h: 2.5, insetPx: 8,  opMul: 0.52, blur: '1px',   shadow: '0 3px 7px rgba(0,0,0,0.55), 0 1px 3px rgba(0,0,0,0.38)'  },
+  { dy: 1,  h: 3.5, insetPx: 0,  opMul: 0.88, blur: '0.4px', shadow: '0 1px 4px rgba(0,0,0,0.45)'                               },
 ];
 
 // ─────────────────────────────────────────────────────────────
-// SOUFFLET — 28 plis calculés une seule fois au module-level
+// VERRE FRACTAL — 40 côtes de cristal
 //
-// Even (pair)  = face extérieure du pli : plus lumineuse
-// Odd (impair) = creux intérieur        : plus sombre (ombre)
+// Chaque côte = une tranche de verre côtelé (Image 1).
+// Pair  = face brillante (lumière captée)
+// Impair = creux ombré (lumière absorbée)
 //
-// tint : teinte colorée issue de la position (palette Image 2)
-//   Centre → ambre, demi-rayon → violet/rose, bords → bleu nuit
+// La teinte chromatique de chaque côte suit la position :
+//   Centre [0–0.20] : ambre  #fbbf24
+//   Zone   [0.20–0.38]: orange
+//   Zone   [0.38–0.56]: rose pâle #FFCCF2
+//   Zone   [0.56–0.74]: violet #977DFF
+//   Zone   [0.74–0.88]: bleu électrique #0033FF
+//   Bords  [0.88–1.00]: bleu nuit #0600AB
 // ─────────────────────────────────────────────────────────────
-const PLEAT_COUNT = 28;
+const PLEAT_COUNT = 40;
 
 const PLEAT_DEFS = Array.from({ length: PLEAT_COUNT }, (_, i) => {
-  const pos    = i / (PLEAT_COUNT - 1); // 0..1 gauche→droite
-  const cDist  = Math.abs(pos - 0.5) * 2; // 0=centre, 1=bord
+  const pos   = i / (PLEAT_COUNT - 1);
+  const cDist = Math.abs(pos - 0.5) * 2; // 0 = centre, 1 = bord
   const isEven = i % 2 === 0;
 
-  // Gradient de teinte holographique par position
-  let tintR, tintG, tintB;
-  if (cDist < 0.18) { tintR = 251; tintG = 191; tintB =  36; }       // ambre centre
-  else if (cDist < 0.36) { tintR = 249; tintG = 115; tintB =  22; }  // orange
-  else if (cDist < 0.55) { tintR = 255; tintG = 204; tintB = 242; }  // rose pâle
-  else if (cDist < 0.72) { tintR = 151; tintG = 125; tintB = 255; }  // violet
-  else if (cDist < 0.88) { tintR =   0; tintG =  51; tintB = 255; }  // bleu
-  else                    { tintR =   6; tintG =   0; tintB = 171; }  // bleu nuit
+  // Teinte positionnelle
+  let tR, tG, tB;
+  if      (cDist < 0.20) { tR = 251; tG = 191; tB =  36; }
+  else if (cDist < 0.38) { tR = 249; tG = 115; tB =  22; }
+  else if (cDist < 0.56) { tR = 255; tG = 204; tB = 242; }
+  else if (cDist < 0.74) { tR = 151; tG = 125; tB = 255; }
+  else if (cDist < 0.88) { tR =   0; tG =  51; tB = 255; }
+  else                    { tR =   6; tG =   0; tB = 171; }
 
-  // Face extérieure (pair) : légère surbrillance + teinte
-  // Creux intérieur (impair) : assombri, ombre
-  const bgFace  = `linear-gradient(180deg,
-    rgba(255,255,255,0.09) 0%,
-    rgba(${tintR},${tintG},${tintB},0.07) 50%,
-    rgba(255,255,255,0.04) 100%)`;
-  const bgCreux = `linear-gradient(180deg,
-    rgba(0,0,0,0.18) 0%,
-    rgba(0,0,0,0.08) 60%,
-    rgba(${tintR},${tintG},${tintB},0.04) 100%)`;
+  const col = `rgba(${tR},${tG},${tB},`;
+
+  // Face brillante — gradient : blanc → teinte → transparent
+  const bgEven = [
+    'linear-gradient(to right,',
+    `  rgba(255,255,255,0.26) 0%,`,
+    `  ${col}0.10) 16%,`,
+    `  rgba(255,255,255,0.06) 38%,`,
+    `  rgba(255,255,255,0.01) 62%,`,
+    `  rgba(255,255,255,0.04) 100%)`,
+  ].join('');
+
+  // Creux ombré — gradient : transparent → sombre → teinte sombre
+  const bgOdd = [
+    'linear-gradient(to right,',
+    `  rgba(0,0,0,0.00) 0%,`,
+    `  rgba(0,0,0,0.08) 22%,`,
+    `  ${col}0.05) 48%,`,
+    `  rgba(0,0,0,0.16) 74%,`,
+    `  rgba(0,0,0,0.11) 100%)`,
+  ].join('');
 
   return {
-    i,
-    isEven,
-    skew:    isEven ? -14 : 14,   // angle de pli
-    bg:      isEven ? bgFace : bgCreux,
-    // Arête visible (bord gauche du pli extérieur)
-    edgeOp:  isEven ? 0.22 : 0.08,
-    tintR, tintG, tintB,
+    i, isEven,
+    bg:      isEven ? bgEven : bgOdd,
+    // Arête de coupure : filet brillant sur le bord gauche des faces paires
+    edgeClr: isEven
+      ? `rgba(255,255,255,${0.36 + (1 - cDist) * 0.14})`  // plus vif au centre
+      : 'transparent',
+    tR, tG, tB,
   };
 });
 
 // ─────────────────────────────────────────────────────────────
 // PANEL_DEFS — 9 éléments : 7 panneaux + 2 séparateurs
-// Palette Image 2 complète.
 // ─────────────────────────────────────────────────────────────
 const PANEL_DEFS = [
   {
-    id: 'accueil', type: 'link', label: 'Accueil',
+    id: 'accueil',   type: 'link',  label: 'Accueil',
     href: '/#accueil', isAnchor: true,
-    bg:        'linear-gradient(170deg, rgba(242,230,238,0.10) 0%, rgba(151,125,255,0.07) 100%)',
-    steleClr:  'rgba(242,230,238,1)',
-    fissureClr:'rgba(242,230,238,0.30)',
+    bg:         'linear-gradient(170deg, rgba(242,230,238,0.09) 0%, rgba(151,125,255,0.06) 100%)',
+    steleClr:   'rgba(242,230,238,1)',
+    fissureClr: 'rgba(242,230,238,0.28)',
   },
   {
-    id: 'galerie', type: 'link', label: 'Galerie',
+    id: 'galerie',   type: 'link',  label: 'Galerie',
     href: '/galerie', isAnchor: false,
-    bg:        'linear-gradient(170deg, rgba(255,204,242,0.11) 0%, rgba(0,51,255,0.07) 100%)',
-    steleClr:  'rgba(255,204,242,1)',
-    fissureClr:'rgba(255,204,242,0.30)',
+    bg:         'linear-gradient(170deg, rgba(255,204,242,0.10) 0%, rgba(0,51,255,0.06) 100%)',
+    steleClr:   'rgba(255,204,242,1)',
+    fissureClr: 'rgba(255,204,242,0.28)',
   },
   {
     id: 'sep-left', type: 'sep',
-    color: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.80) 50%, transparent 100%)',
+    color: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.85) 50%, transparent 100%)',
   },
   {
-    id: 'logo', type: 'logo', href: '/',
-    bg:        'linear-gradient(170deg, rgba(251,191,36,0.08) 0%, rgba(249,115,22,0.05) 100%)',
-    steleClr:  'rgba(251,191,36,1)',
+    id: 'logo',      type: 'logo',  href: '/',
+    bg:         'linear-gradient(170deg, rgba(251,191,36,0.08) 0%, rgba(249,115,22,0.05) 100%)',
+    steleClr:   'rgba(251,191,36,1)',
   },
   {
     id: 'sep-right', type: 'sep',
-    color: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.80) 50%, transparent 100%)',
+    color: 'linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.85) 50%, transparent 100%)',
   },
   {
-    id: 'events', type: 'link', label: 'Events',
+    id: 'events',    type: 'link',  label: 'Events',
     href: '/events', isAnchor: false,
-    bg:        'linear-gradient(170deg, rgba(151,125,255,0.11) 0%, rgba(6,0,171,0.07) 100%)',
-    steleClr:  'rgba(151,125,255,1)',
-    fissureClr:'rgba(151,125,255,0.30)',
+    bg:         'linear-gradient(170deg, rgba(151,125,255,0.10) 0%, rgba(6,0,171,0.06) 100%)',
+    steleClr:   'rgba(151,125,255,1)',
+    fissureClr: 'rgba(151,125,255,0.28)',
   },
   {
-    id: 'soumettre', type: 'link', label: 'Soumettre',
+    id: 'soumettre', type: 'link',  label: 'Soumettre',
     href: '/soumettre', isAnchor: false,
-    bg:        'linear-gradient(170deg, rgba(0,51,255,0.10) 0%, rgba(0,0,61,0.07) 100%)',
-    steleClr:  'rgba(0,100,255,1)',
-    fissureClr:'rgba(0,51,255,0.28)',
+    bg:         'linear-gradient(170deg, rgba(0,51,255,0.09) 0%, rgba(0,0,61,0.06) 100%)',
+    steleClr:   'rgba(0,100,255,1)',
+    fissureClr: 'rgba(0,51,255,0.26)',
   },
   {
-    id: 'contacter', type: 'link', label: 'Contacter',
+    id: 'contacter', type: 'link',  label: 'Contacter',
     href: '/contact', isAnchor: false,
-    bg:        'linear-gradient(170deg, rgba(6,0,171,0.09) 0%, rgba(0,0,61,0.06) 100%)',
-    steleClr:  'rgba(6,0,171,1)',
+    bg:         'linear-gradient(170deg, rgba(6,0,171,0.08) 0%, rgba(0,0,61,0.05) 100%)',
+    steleClr:   'rgba(6,0,171,1)',
     fissureClr: null,
   },
 ];
@@ -194,133 +220,217 @@ const PANEL_DEFS = [
 const NAV_ALL = PANEL_DEFS.filter((d) => d.type === 'link' || d.type === 'logo');
 
 // ─────────────────────────────────────────────────────────────
-// COMPOSANT — NavLink
+// COMPOSANT — NavLink : CAPSULE LIQUID GLASS
 //
-// 4 ACTES AU HOVER :
-//   ① Aberration chromatique (textShadow R/B + skewX glitch, 180ms)
-//   ② Lignes de crack (surgissent, disparaissent en 80ms)
-//   ③ Sweep holographique intense (rainbow opacity 0.90, 550ms)
-//   ④ Underline spectral + lens flare
+// Structure physique (Images 2 & 3) :
+//   ┌─────────────────────────────┐  ← arc spéculaire (shine)
+//   │     ░░░░ LABEL ░░░░        │  ← backdrop-filter glass
+//   └─────────────────────────────┘  ← rim prismatique (1px)
+//           ▿▿▿ shadow ▿▿▿          ← ombre portée 2 couches
+//
+// Hover — 4 actes GSAP :
+//   ① Lift : scale 1→1.07, y 0→-2, shadow approfondie
+//   ② Shine : arc spéculaire brightening
+//   ③ Aberration + cracks : glitch de verre
+//   ④ Sweep holo + underline spectral + lens flare
 // ─────────────────────────────────────────────────────────────
 const NavLink = ({ item }) => {
-  const wrapRef  = useRef(null);
-  const prismRef = useRef(null);
-  const shardRef = useRef(null);
-  const crackRef = useRef(null);
-  const flareRef = useRef(null);
+  const pillRef  = useRef(null);  // capsule glass
+  const shineRef = useRef(null);  // arc spéculaire haut
+  const prismRef = useRef(null);  // sweep holographique
+  const shardRef = useRef(null);  // underline arc-en-ciel
+  const crackRef = useRef(null);  // éclats de verre
+  const flareRef = useRef(null);  // lens flare
+  const labelRef = useRef(null);  // texte du lien
 
   const onEnter = useCallback(() => {
-    const wrap  = wrapRef.current;
+    const pill  = pillRef.current;
+    const shine = shineRef.current;
     const prism = prismRef.current;
     const shard = shardRef.current;
     const crack = crackRef.current;
     const flare = flareRef.current;
-    if (!wrap) return;
+    const label = labelRef.current;
+    if (!pill) return;
 
-    gsap.killTweensOf([wrap, prism, shard, crack, flare]);
+    gsap.killTweensOf([pill, shine, prism, shard, crack, flare, label]);
 
-    // ── ACTE I : ABERRATION CHROMATIQUE + GLITCH ──────────
-    // Le texte se déchire en canaux chromatiques R et B,
-    // skewX exagéré → effet de brisure de verre instantanée
-    const abTl = gsap.timeline();
-    abTl
-      .set(wrap, { color: '#ffffff' })
-      .to(wrap, {
-        textShadow: [
-          '-6px 0 rgba(255,20,70,0.95)',
-          ' 6px 0 rgba(20,70,255,0.95)',
-          '0 0 18px rgba(255,255,255,0.50)',
-        ].join(', '),
-        skewX:    -10,
+    // ── ACTE I : LIFT DE LA CAPSULE ───────────────────────
+    gsap.to(pill, {
+      scale:     1.07,
+      y:         -2,
+      boxShadow: LG_SHADOW_HOVER,
+      duration:  0.22,
+      ease:      'power2.out',
+    });
+
+    // ── ACTE II : ARC SPÉCULAIRE ──────────────────────────
+    gsap.to(shine, { opacity: 1, duration: 0.18, ease: 'power2.out' });
+
+    // ── ACTE III : ABERRATION CHROMATIQUE + CRACKS ────────
+    // Le verre se brise instantanément puis se ressoude
+    gsap.timeline()
+      .set(label,  { color: '#ffffff' })
+      .to(label, {
+        textShadow: '-5px 0 rgba(255,20,70,0.90), 5px 0 rgba(20,70,255,0.90)',
+        skewX: -9,
         duration: 0.06,
-        ease:     'power3.out',
+        ease: 'power3.out',
       })
-      .to(wrap, {
-        textShadow: [
-          '-3px 0 rgba(255,60,100,0.65)',
-          ' 3px 0 rgba(60,100,255,0.65)',
-        ].join(', '),
-        skewX:    5,
+      .to(label, {
+        textShadow: '-2px 0 rgba(255,60,100,0.55), 2px 0 rgba(60,100,255,0.55)',
+        skewX: 4,
         duration: 0.07,
-        ease:     'power2.inOut',
+        ease: 'power2.inOut',
       })
-      .to(wrap, {
-        textShadow: '0px 0px rgba(0,0,0,0)',
-        skewX:      0,
-        duration:   0.14,
-        ease:       'power2.out',
+      .to(label, {
+        textShadow: '',
+        skewX: 0,
+        duration: 0.16,
+        ease: 'power2.out',
       });
 
-    // ── ACTE II : LIGNES DE CRACK ─────────────────────────
-    // 3 éclats surgissent simultanément à l'impact chromatique
-    gsap.set(crack,  { opacity: 1 });
-    gsap.to(crack,   { opacity: 0, duration: 0.45, delay: 0.05, ease: 'power2.in' });
+    // Éclats de verre (3 lignes de crack)
+    gsap.set(crack, { opacity: 1 });
+    gsap.to(crack,  { opacity: 0, duration: 0.40, delay: 0.04, ease: 'power2.in' });
 
-    // ── ACTE III : SWEEP HOLOGRAPHIQUE INTENSE ────────────
-    // La surface entière du lien s'embrase en arc-en-ciel
+    // ── ACTE IV : SWEEP HOLOGRAPHIQUE + UNDERLINE + FLARE ─
     gsap.fromTo(prism,
       { backgroundPosition: '-320% center', opacity: 0   },
-      { backgroundPosition: '320% center',  opacity: 0.92,
+      { backgroundPosition: '320% center',  opacity: 0.95,
         duration: 0.55, ease: 'power2.inOut' }
     );
-    gsap.to(prism, { opacity: 0, duration: 0.22, delay: 0.55 });
+    gsap.to(prism, { opacity: 0, duration: 0.20, delay: 0.55 });
 
-    // ── ACTE IV : UNDERLINE + FLARE ───────────────────────
     gsap.fromTo(shard,
       { scaleX: 0, opacity: 1 },
       { scaleX: 1, opacity: 1, duration: 0.24, ease: 'power2.out' }
     );
+
     gsap.fromTo(flare,
       { scale: 0, opacity: 0 },
-      { scale: 1.5, opacity: 1, duration: 0.22, delay: 0.12, ease: 'back.out(3)' }
+      { scale: 1.6, opacity: 1, duration: 0.22, delay: 0.12, ease: 'back.out(3)' }
     );
-    gsap.to(flare,  { scale: 0, opacity: 0, duration: 0.20, delay: 0.42 });
+    gsap.to(flare, { scale: 0, opacity: 0, duration: 0.20, delay: 0.44 });
 
   }, []);
 
   const onLeave = useCallback(() => {
-    const wrap  = wrapRef.current;
+    const pill  = pillRef.current;
+    const shine = shineRef.current;
     const shard = shardRef.current;
-    if (!wrap) return;
-    gsap.killTweensOf([wrap, shard]);
-    gsap.to(wrap,  { color: '', textShadow: '', skewX: 0, duration: 0.20, ease: 'power2.out' });
+    const label = labelRef.current;
+    if (!pill) return;
+
+    gsap.killTweensOf([pill, shine, shard, label]);
+
+    gsap.to(pill, {
+      scale:     1,
+      y:         0,
+      boxShadow: LG_SHADOW_IDLE,
+      duration:  0.30,
+      ease:      'power2.out',
+    });
+    gsap.to(shine, { opacity: 0.55, duration: 0.25 });
+    gsap.to(label, { color: '', textShadow: '', skewX: 0, duration: 0.20 });
     gsap.to(shard, { scaleX: 0, opacity: 0, duration: 0.14, ease: 'power2.in' });
+
   }, []);
 
   const inner = (
-    <span
-      ref={wrapRef}
+    /*
+     * Capsule liquid glass
+     *   py-1.5 px-3.5 → padding interne équilibré
+     *   Le verre a une "épaisseur" simulée par :
+     *     - arc spéculaire (shineRef) en haut
+     *     - rim prismatique en bas (1px gradient)
+     *     - box-shadow stack LG_SHADOW_IDLE
+     */
+    <div
+      ref={pillRef}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
-      className="relative inline-block text-[0.63rem] font-bold uppercase tracking-[0.22em] text-zinc-300 cursor-pointer select-none"
-      style={{ willChange: 'transform, color, text-shadow' }}
+      className="relative flex items-center justify-center cursor-pointer select-none"
+      style={{
+        padding:              '6px 14px',
+        borderRadius:         '999px',
+        background:           [
+          'linear-gradient(180deg,',
+          '  rgba(255,255,255,0.16) 0%,',
+          '  rgba(255,255,255,0.06) 35%,',
+          '  rgba(255,255,255,0.03) 65%,',
+          '  rgba(255,255,255,0.11) 100%)',
+        ].join(''),
+        backdropFilter:       'blur(14px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(14px) saturate(160%)',
+        border:               '0.5px solid rgba(255,255,255,0.22)',
+        boxShadow:            LG_SHADOW_IDLE,
+        willChange:           'transform, box-shadow',
+      }}
     >
-      {item.label}
+      {/*
+       * Arc spéculaire haut
+       * Simule la courbure de la face supérieure du verre.
+       * Fade du centre vers les bords = effet lentille.
+       */}
+      <div
+        ref={shineRef}
+        aria-hidden="true"
+        className="absolute inset-x-3 top-0 pointer-events-none"
+        style={{
+          height:       '55%',
+          background:   'linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 60%, transparent 100%)',
+          borderRadius: '999px 999px 50% 50%',
+          opacity:      0.55,
+        }}
+      />
 
       {/*
-       * ──────────────────────────────────────────────────────
-       * SWEEP HOLOGRAPHIQUE (Acte III)
-       * Gradient très saturé, backgroundSize 640% pour un sweep
-       * qui traverse toute la surface en une seule passe.
-       * mix-blend-mode screen = lumière additive sur fond sombre.
-       * ──────────────────────────────────────────────────────
+       * Rim prismatique bas — 1px arc-en-ciel
+       * L'arête inférieure du verre disperse la lumière.
+       * Palette complète : rose → cyan → violet.
        */}
-      <span
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 pointer-events-none"
+        style={{
+          height:       '1px',
+          borderRadius: '0 0 999px 999px',
+          background:   [
+            'linear-gradient(90deg,',
+            '  transparent              0%,',
+            '  rgba(255,80,180,0.60)    18%,',
+            '  rgba(80,200,255,0.65)    38%,',
+            '  rgba(255,230,80,0.60)    52%,',
+            '  rgba(80,100,255,0.65)    68%,',
+            '  rgba(200,80,255,0.60)    82%,',
+            '  transparent              100%)',
+          ].join(''),
+          opacity: 0.80,
+        }}
+      />
+
+      {/*
+       * Sweep holographique (Acte IV)
+       * 7 couleurs saturées, backgroundSize 640% pour une passe complète.
+       */}
+      <div
         ref={prismRef}
         aria-hidden="true"
-        className="absolute inset-[-2px] pointer-events-none rounded-sm"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: [
+          borderRadius:       '999px',
+          backgroundImage:    [
             'linear-gradient(105deg,',
-            '  transparent             0%,',
-            '  rgba(255,0,120,0.70)    8%,',
-            '  rgba(0,200,255,0.70)    22%,',
-            '  rgba(200,0,255,0.70)    36%,',
-            '  rgba(255,220,0,0.75)    50%,',
-            '  rgba(0,255,150,0.70)    64%,',
-            '  rgba(255,80,0,0.65)     78%,',
-            '  rgba(0,100,255,0.70)    90%,',
-            '  transparent             100%)',
+            '  transparent           0%,',
+            '  rgba(255,0,120,0.72)  7%,',
+            '  rgba(0,200,255,0.72)  21%,',
+            '  rgba(200,0,255,0.72)  35%,',
+            '  rgba(255,220,0,0.76)  50%,',
+            '  rgba(0,255,150,0.72)  64%,',
+            '  rgba(255,80,0,0.68)   78%,',
+            '  rgba(0,100,255,0.72)  91%,',
+            '  transparent           100%)',
           ].join(''),
           backgroundSize:     '640% 100%',
           backgroundPosition: '-320% center',
@@ -330,49 +440,49 @@ const NavLink = ({ item }) => {
       />
 
       {/*
-       * ──────────────────────────────────────────────────────
-       * LIGNES DE CRACK (Acte II)
-       * 3 éclats de verre — surgissent à l'impact, disparaissent.
-       * Radiaux depuis un point fictif légèrement décalé du centre.
-       * ──────────────────────────────────────────────────────
+       * Éclats de verre (Acte III)
+       * 3 lignes diagonales surgissant à l'impact.
        */}
-      <span
+      <div
         ref={crackRef}
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{ opacity: 0 }}
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        style={{ borderRadius: '999px', opacity: 0 }}
       >
-        {/* Crack 1 — diagonal gauche-haut */}
         <span className="absolute" style={{
-          top: '35%', left: '10%', width: '38%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.92) 40%, rgba(255,255,255,0.50) 70%, transparent)',
-          transform:  'rotate(-18deg)',
-          transformOrigin: '0% 50%',
+          top: '30%', left: '8%', width: '40%', height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0.55) 75%, transparent)',
+          transform: 'rotate(-20deg)', transformOrigin: '0% 50%',
         }}/>
-        {/* Crack 2 — diagonal droit-bas */}
         <span className="absolute" style={{
-          top: '55%', left: '42%', width: '30%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.80) 40%, rgba(255,255,255,0.35) 80%, transparent)',
-          transform:  'rotate(25deg)',
-          transformOrigin: '0% 50%',
+          top: '60%', left: '40%', width: '32%', height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.82) 40%, rgba(255,255,255,0.40) 80%, transparent)',
+          transform: 'rotate(28deg)', transformOrigin: '0% 50%',
         }}/>
-        {/* Crack 3 — vertical léger */}
         <span className="absolute" style={{
-          top: '15%', left: '60%', width: '20%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.65) 50%, transparent)',
-          transform:  'rotate(-5deg)',
-          transformOrigin: '0% 50%',
+          top: '18%', left: '58%', width: '22%', height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.68) 50%, transparent)',
+          transform: 'rotate(-6deg)', transformOrigin: '0% 50%',
         }}/>
+      </div>
+
+      {/* Label */}
+      <span
+        ref={labelRef}
+        className="relative z-10 text-[0.63rem] font-bold uppercase tracking-[0.22em] text-white/90 select-none"
+        style={{ willChange: 'transform, color, text-shadow' }}
+      >
+        {item.label}
       </span>
 
-      {/* Underline arc-en-ciel spectral */}
+      {/* Underline spectral arc-en-ciel */}
       <span
         ref={shardRef}
         aria-hidden="true"
-        className="absolute left-0 right-0 bottom-[-4px] h-[1px] origin-left"
+        className="absolute left-2 right-2 bottom-[-5px] h-[1px] origin-left pointer-events-none"
         style={{
-          background: 'linear-gradient(90deg, #0033ff 0%, #977dff 20%, #ff00aa 36%, #fff5dc 50%, #fbbf24 64%, #977dff 80%, #0033ff 100%)',
-          boxShadow:  '0 0 7px rgba(151,125,255,0.70), 0 0 16px rgba(251,191,36,0.50)',
+          background: 'linear-gradient(90deg, #0033ff 0%, #977dff 18%, #ff00cc 34%, #fff5dc 50%, #fbbf24 64%, #977dff 82%, #0033ff 100%)',
+          boxShadow:  '0 0 8px rgba(151,125,255,0.70), 0 0 18px rgba(251,191,36,0.52)',
           transform:  'scaleX(0)',
           opacity:    0,
         }}
@@ -382,14 +492,14 @@ const NavLink = ({ item }) => {
       <span
         ref={flareRef}
         aria-hidden="true"
-        className="absolute -bottom-1 right-0 w-[8px] h-[8px] rounded-full pointer-events-none"
+        className="absolute -bottom-1.5 right-1 w-[9px] h-[9px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(255,245,180,1) 0%, rgba(255,100,200,0.60) 40%, rgba(151,125,255,0.30) 70%, transparent 100%)',
+          background: 'radial-gradient(circle, rgba(255,245,180,1) 0%, rgba(255,80,200,0.62) 40%, rgba(151,125,255,0.30) 70%, transparent 100%)',
           transform:  'scale(0)',
           opacity:    0,
         }}
       />
-    </span>
+    </div>
   );
 
   if (item.isAnchor) return <a href={item.href}>{inner}</a>;
@@ -453,49 +563,42 @@ export default function Header() {
   // ── GSAP montage ──────────────────────────────────────────
   useGSAP(() => {
 
-    // ── SYSTÈME 1 : SOUFFLET QUI S'OUVRE ──────────────────
-    //
-    // Le container des plis part de scaleX 0.04 (soufflet fermé,
-    // "compressé" comme un accordéon pincé) et s'expand à 1.
-    // transformOrigin center → l'ouverture part du milieu vers
-    // les deux bords, exactement comme un vrai soufflet d'accordéon.
-    //
-    // La légère surélévation (y:-8→0) donne l'impression que le
-    // soufflet se détend également verticalement.
+    // ── SOUFFLET : scaleX 0.02 → 1 ────────────────────────
+    // Le verre fractal claque en s'ouvrant depuis le centre.
+    // power4.out = démarrage ultra-rapide (le claquement),
+    // décélération longue et élégante (le déploiement).
     if (pleatWrapRef.current) {
       gsap.from(pleatWrapRef.current, {
-        scaleX:          0.04,
-        y:               -8,
-        opacity:         0.30,
+        scaleX:          0.02,
+        y:               -6,
+        opacity:         0.20,
         transformOrigin: 'center center',
-        duration:        1.10,
-        ease:            'power3.out',
-        delay:           0.18,
+        duration:        1.15,
+        ease:            'power4.out',
+        delay:           0.16,
       });
     }
 
-    // ── PANNEAUX DE CONTENU : chute depuis le haut ─────────
+    // ── PANNEAUX : chute staggerée depuis le centre ────────
     const panels = panelRefs.current.filter(Boolean);
     if (panels.length) {
       gsap.from(panels, {
-        y:        -28,
-        opacity:  0,
-        duration: 0.75,
+        y:       -32,
+        opacity: 0,
+        duration: 0.70,
         stagger:  { each: 0.06, from: 'center' },
         ease:     'power3.out',
-        delay:    0.38,
+        delay:    0.36,
       });
     }
 
-    // ── HEADER fade-in ─────────────────────────────────────
+    // ── HEADER + BURGER ────────────────────────────────────
     gsap.from(headerRef.current, {
-      opacity: 0, duration: 0.50, ease: 'power2.out', delay: 0.12,
+      opacity: 0, duration: 0.50, ease: 'power2.out', delay: 0.10,
     });
-
-    // ── BURGER mobile ──────────────────────────────────────
     if (burgerRef.current) {
       gsap.from(burgerRef.current, {
-        opacity: 0, x: 12, duration: 0.55, ease: 'power2.out', delay: 0.60,
+        opacity: 0, x: 12, duration: 0.55, ease: 'power2.out', delay: 0.58,
       });
     }
 
@@ -521,45 +624,48 @@ export default function Header() {
   return (
     <>
       {/* ════════════════════════════════════════════════════
-          CSS KEYFRAMES — FILM HOLOGRAPHIQUE INTENSE
-          Opacités relevées vs version précédente :
-            drift : 0.28–0.38  (vs 0.045–0.065)
-            spin  : 0.22–0.32  (vs 0.055–0.090)
-          sep-pulse / stele-glow / bellows-shimmer conservés.
+          CSS KEYFRAMES
+            holo-drift      : palette en défilement (8s)
+            holo-spin       : conic-gradient rotatif (22s)
+            scan-line       : scan spéculaire (12s)
+            sep-pulse       : séparateurs ambre (4s)
+            stele-pulse     : stèles en respiration
+            bellows-shimmer : côtes de verre (variation d'éclat)
           ════════════════════════════════════════════════════ */}
       <style>{`
         @keyframes holo-drift {
-          0%   { background-position: 0%   50%; opacity: 0.28; }
-          30%  { opacity: 0.38; }
-          60%  { opacity: 0.32; }
-          100% { background-position: 300% 50%; opacity: 0.28; }
+          0%   { background-position: 0%   50%; opacity: 0.26; }
+          35%  { opacity: 0.35; }
+          65%  { opacity: 0.30; }
+          100% { background-position: 300% 50%; opacity: 0.26; }
         }
         @keyframes holo-spin {
-          0%   { transform: rotate(0deg)   scale(3.2); opacity: 0.22; }
-          25%  { opacity: 0.32; }
-          50%  { opacity: 0.26; }
-          75%  { opacity: 0.30; }
-          100% { transform: rotate(360deg) scale(3.2); opacity: 0.22; }
+          0%   { transform: rotate(0deg)   scale(3.2); opacity: 0.20; }
+          25%  { opacity: 0.30; }
+          50%  { opacity: 0.24; }
+          75%  { opacity: 0.28; }
+          100% { transform: rotate(360deg) scale(3.2); opacity: 0.20; }
         }
         @keyframes scan-line {
           0%   { top: 110%; opacity: 0;    }
-          6%   { opacity: 0.30; }
-          50%  { top:  35%; opacity: 0.16; }
-          94%  { opacity: 0.08; }
+          5%   { opacity: 0.28; }
+          50%  { top: 35%;  opacity: 0.14; }
+          95%  { opacity: 0.07; }
           100% { top: -10%; opacity: 0;    }
         }
         @keyframes sep-pulse {
-          0%, 100% { opacity: 0.50; }
-          50%      { opacity: 0.95; }
+          0%, 100% { opacity: 0.55; }
+          50%      { opacity: 1.00; }
         }
         @keyframes stele-pulse {
           0%, 100% { opacity: 0.70; filter: blur(0.4px); }
           50%      { opacity: 1.00; filter: blur(1.2px);  }
         }
         @keyframes bellows-shimmer {
-          0%   { opacity: 0.55; }
-          50%  { opacity: 0.80; }
-          100% { opacity: 0.55; }
+          0%   { opacity: 0.75; }
+          40%  { opacity: 1.00; }
+          70%  { opacity: 0.85; }
+          100% { opacity: 0.75; }
         }
       `}</style>
 
@@ -573,23 +679,22 @@ export default function Header() {
           fixed top-0 left-0 w-full z-[100]
           transition-[border-color,box-shadow,background] duration-500
           ${scrolled
-            ? 'border-b border-white/15 shadow-[0_2px_32px_rgba(0,0,0,0.65)]'
+            ? 'border-b border-white/14 shadow-[0_2px_36px_rgba(0,0,0,0.68)]'
             : 'border-b border-white/[0.05]'}
         `}
         style={{
           height:               '64px',
-          backdropFilter:       'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          background:           'rgba(0,0,0,0.55)',
+          backdropFilter:       'blur(22px)',
+          WebkitBackdropFilter: 'blur(22px)',
+          background:           'rgba(0,0,0,0.52)',
           overflow:             'visible',
         }}
       >
 
         {/* ════════════════════════════════════════════════════
-            SYSTÈME 1 — SOUFFLET (28 plis de verre)
-            z-1 : couche de fond, derrière tout le contenu.
-            overflow-hidden : les bords skewés ne débordent pas.
-            GSAP anime le container entier (scaleX 0.04→1).
+            SYSTÈME 1 — VERRE FRACTAL (40 côtes)
+            z-1 : couche de fond, GSAP scaleX depuis centre.
+            overflow-hidden : les bords skewés restent dans le cadre.
             ════════════════════════════════════════════════════ */}
         <div
           ref={pleatWrapRef}
@@ -597,36 +702,36 @@ export default function Header() {
           className="absolute inset-0 flex items-stretch overflow-hidden pointer-events-none"
           style={{ zIndex: 1 }}
         >
-          {PLEAT_DEFS.map(({ i, isEven, skew, bg, edgeOp, tintR, tintG, tintB }) => (
+          {PLEAT_DEFS.map(({ i, isEven, bg, edgeClr, tR, tG, tB }) => (
             <div
               key={i}
               className="relative flex-1 overflow-hidden"
               style={{
-                // Le fond est skewé — le contenu (inexistant ici) resterait droit
-                background:    bg,
-                // Arête de pli : filet sur le bord gauche des faces extérieures
-                borderLeft:    isEven
-                  ? `0.5px solid rgba(${tintR},${tintG},${tintB},${edgeOp})`
+                background: bg,
+                // Arête de coupure : filet brillant sur chaque face paire
+                borderLeft: isEven && edgeClr !== 'transparent'
+                  ? `0.5px solid ${edgeClr}`
                   : 'none',
-                // Légère ombre portée verticale sur les creux
-                boxShadow:     isEven
+                // Ombre latérale dans les creux
+                boxShadow: isEven
                   ? 'none'
-                  : 'inset 2px 0 4px rgba(0,0,0,0.22), inset -2px 0 4px rgba(0,0,0,0.22)',
-                // La face extérieure est légèrement inclinée
-                transform:     `skewX(${skew}deg)`,
-                transformOrigin: 'center center',
-                animation:     isEven
-                  ? `bellows-shimmer ${3.8 + (i % 5) * 0.4}s ease-in-out infinite`
-                  : 'none',
-                animationDelay: `${(i * 0.18) % 2.5}s`,
+                  : [
+                      'inset 2px  0 5px rgba(0,0,0,0.24)',
+                      'inset -2px 0 5px rgba(0,0,0,0.20)',
+                    ].join(', '),
+                // Légère coloration de fond au voisinage du pli
+                ...(isEven && {
+                  animation:      `bellows-shimmer ${3.6 + (i % 6) * 0.35}s ease-in-out infinite`,
+                  animationDelay: `${(i * 0.15) % 2.8}s`,
+                }),
               }}
             />
           ))}
         </div>
 
         {/* ════════════════════════════════════════════════════
-            SYSTÈME 2 — PANNEAUX VITRÉS (PANEL_DEFS)
-            z-2 : teinte de chaque section + fissures + stèles
+            SYSTÈME 2 — PANNEAUX VITRÉS + STÈLES
+            z-2 : teinte de section + fissures + stèles décomposées
             ════════════════════════════════════════════════════ */}
         <div
           aria-hidden="true"
@@ -646,13 +751,13 @@ export default function Header() {
                     width:          '1px',
                     background:     def.color,
                     animation:      'sep-pulse 4.5s ease-in-out infinite',
-                    animationDelay: `${i * 0.35}s`,
+                    animationDelay: `${i * 0.32}s`,
                   }}
                 />
               );
             }
 
-            // ── Panneau de contenu / logo ─────────────────
+            // ── Panneau (link / logo) ─────────────────────
             return (
               <div
                 key={def.id}
@@ -667,7 +772,7 @@ export default function Header() {
                     background:           def.bg,
                     backdropFilter:       'blur(3px)',
                     WebkitBackdropFilter: 'blur(3px)',
-                    boxShadow:            [
+                    boxShadow: [
                       'inset 0 1px 0 rgba(255,255,255,0.07)',
                       def.fissureClr
                         ? `inset -1px 0 0 ${def.fissureClr}`
@@ -677,19 +782,10 @@ export default function Header() {
                 />
 
                 {/*
-                 * ─────────────────────────────────────────
-                 * SYSTÈME 2 — STÈLES DÉCOMPOSÉES (3 couches)
-                 *
-                 * Chaque couche est un div absolu positionné
-                 * SOUS la base du panneau (bottom négatif).
-                 * insetPx réduit la largeur pour simuler la
-                 * perspective (les couches arrière sont plus
-                 * étroites = elles semblent reculées).
-                 *
-                 * Du fond vers l'avant :
-                 *   Layer 0 (i=0) : la plus large et floue
-                 *   Layer 2 (i=2) : la plus nette et vivide
-                 * ─────────────────────────────────────────
+                 * Stèles décomposées (3 couches)
+                 * Chaque couche positionnée en bottom négatif = dépasse.
+                 * Les couches arrière sont plus étroites (insetPx) =
+                 * illusion de perspective / profondeur physique.
                  */}
                 {STELE_LAYERS.map((layer, li) => (
                   <div
@@ -705,8 +801,8 @@ export default function Header() {
                       opacity:    layer.opMul,
                       filter:     `blur(${layer.blur})`,
                       boxShadow:  layer.shadow,
-                      animation:  `stele-pulse ${4.0 + li * 0.6 + (i * 0.2)}s ease-in-out infinite`,
-                      animationDelay: `${(i * 0.18 + li * 0.25) % 3.5}s`,
+                      animation:  `stele-pulse ${4.0 + li * 0.55 + i * 0.18}s ease-in-out infinite`,
+                      animationDelay: `${(i * 0.16 + li * 0.22) % 3.2}s`,
                     }}
                   />
                 ))}
@@ -716,34 +812,30 @@ export default function Header() {
         </div>
 
         {/* ════════════════════════════════════════════════════
-            SYSTÈME 3 — FILM HOLOGRAPHIQUE INTENSE
-            z-3 : 3 couches, opacités ×4–5 vs version précédente.
-
-            Couche 1 : palette linéaire en défilement (8s)
-            Couche 2 : conic-gradient rotatif (22s)
-            Couche 3 : scan-line spéculaire (12s)
+            SYSTÈME 4 — FILM HOLOGRAPHIQUE INTENSE
+            z-3 : 3 couches CSS @keyframes, zéro JS continu.
             ════════════════════════════════════════════════════ */}
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none overflow-hidden"
           style={{ zIndex: 3 }}
         >
-          {/* Couche 1 — défilement palette vivide */}
+          {/* Couche 1 — palette linéaire en défilement */}
           <div
             className="absolute inset-0"
             style={{
               background: [
                 'linear-gradient(105deg,',
-                '  rgba(242,230,238,0.18)  0%,',
-                '  rgba(255,0,150,0.22)    10%,',
-                '  rgba(151,125,255,0.28)  24%,',
-                '  rgba(0,51,255,0.24)     38%,',
-                '  rgba(0,0,61,0.12)       50%,',
-                '  rgba(251,191,36,0.20)   58%,',
-                '  rgba(255,80,0,0.18)     66%,',
-                '  rgba(151,125,255,0.22)  78%,',
-                '  rgba(255,204,242,0.20)  90%,',
-                '  rgba(242,230,238,0.16)  100%)',
+                '  rgba(242,230,238,0.16)  0%,',
+                '  rgba(255,0,150,0.20)    9%,',
+                '  rgba(151,125,255,0.26)  23%,',
+                '  rgba(0,51,255,0.22)     37%,',
+                '  rgba(0,0,61,0.10)       50%,',
+                '  rgba(251,191,36,0.18)   57%,',
+                '  rgba(255,80,0,0.16)     65%,',
+                '  rgba(151,125,255,0.20)  77%,',
+                '  rgba(255,204,242,0.18)  89%,',
+                '  rgba(242,230,238,0.14)  100%)',
               ].join(''),
               backgroundSize: '300% 100%',
               mixBlendMode:   'screen',
@@ -751,7 +843,7 @@ export default function Header() {
             }}
           />
 
-          {/* Couche 2 — foil arc-en-ciel rotatif */}
+          {/* Couche 2 — conic-gradient arc-en-ciel rotatif */}
           <div
             aria-hidden="true"
             className="absolute pointer-events-none"
@@ -759,13 +851,13 @@ export default function Header() {
               inset:      '-60%',
               background: [
                 'conic-gradient(from 0deg at 50% 50%,',
-                '  rgba(255,0,120,0.26)    0deg,',
-                '  rgba(255,200,0,0.26)    60deg,',
-                '  rgba(0,255,140,0.20)    120deg,',
-                '  rgba(0,120,255,0.26)    180deg,',
-                '  rgba(200,0,255,0.26)    240deg,',
-                '  rgba(255,100,0,0.20)    300deg,',
-                '  rgba(255,0,120,0.26)    360deg)',
+                '  rgba(255,0,120,0.24)    0deg,',
+                '  rgba(255,200,0,0.24)    60deg,',
+                '  rgba(0,255,140,0.18)    120deg,',
+                '  rgba(0,120,255,0.24)    180deg,',
+                '  rgba(200,0,255,0.24)    240deg,',
+                '  rgba(255,100,0,0.18)    300deg,',
+                '  rgba(255,0,120,0.24)    360deg)',
               ].join(''),
               mixBlendMode: 'screen',
               animation:    'holo-spin 22s linear infinite',
@@ -778,7 +870,7 @@ export default function Header() {
             style={{
               height:         '2px',
               top:            '110%',
-              background:     'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 15%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.08) 85%, transparent 100%)',
+              background:     'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 15%, rgba(255,255,255,0.20) 50%, rgba(255,255,255,0.07) 85%, transparent 100%)',
               animation:      'scan-line 12s ease-in-out infinite',
               animationDelay: '2.5s',
             }}
@@ -795,19 +887,20 @@ export default function Header() {
         >
 
           {/* ── Nav gauche ── */}
-          <nav className="hidden md:flex items-center justify-start h-full" aria-label="Navigation gauche">
-            <div className="flex-1 flex items-center justify-center h-full px-4">
+          <nav className="hidden md:flex items-center justify-start h-full gap-2 pl-3"
+            aria-label="Navigation gauche">
+            <div className="flex items-center justify-center h-full px-2">
               <NavLink item={PANEL_DEFS[0]} />
             </div>
-            <div className="flex-1 flex items-center justify-center h-full px-4">
+            <div className="flex items-center justify-center h-full px-2">
               <NavLink item={PANEL_DEFS[1]} />
             </div>
           </nav>
 
           {/* ── Logo centré ── */}
-          <div className="flex items-center justify-center gap-2 px-6 md:px-10 h-full">
+          <div className="flex items-center justify-center gap-2 px-6 md:px-8 h-full">
             <span aria-hidden="true"
-              className="hidden md:block text-amber-400/55 text-[0.52rem] select-none leading-none">✦</span>
+              className="hidden md:block text-amber-400/58 text-[0.50rem] select-none leading-none">✦</span>
 
             <Link to="/" aria-label="MARSAI — retour à l'accueil"
               className="focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 rounded-sm">
@@ -828,18 +921,19 @@ export default function Header() {
             </Link>
 
             <span aria-hidden="true"
-              className="hidden md:block text-amber-400/55 text-[0.52rem] select-none leading-none">✦</span>
+              className="hidden md:block text-amber-400/58 text-[0.50rem] select-none leading-none">✦</span>
           </div>
 
           {/* ── Nav droite ── */}
-          <nav className="hidden md:flex items-center justify-end h-full" aria-label="Navigation droite">
-            <div className="flex-1 flex items-center justify-center h-full px-4">
+          <nav className="hidden md:flex items-center justify-end h-full gap-2 pr-3"
+            aria-label="Navigation droite">
+            <div className="flex items-center justify-center h-full px-2">
               <NavLink item={PANEL_DEFS[5]} />
             </div>
-            <div className="flex-1 flex items-center justify-center h-full px-4">
+            <div className="flex items-center justify-center h-full px-2">
               <NavLink item={PANEL_DEFS[6]} />
             </div>
-            <div className="flex-1 flex items-center justify-center h-full px-4">
+            <div className="flex items-center justify-center h-full px-2">
               <NavLink item={PANEL_DEFS[7]} />
             </div>
           </nav>
@@ -876,19 +970,18 @@ export default function Header() {
           display:              'none',
           opacity:              0,
           background:           'rgba(0,0,0,0.97)',
-          backdropFilter:       'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backdropFilter:       'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
         }}
       >
         <div aria-hidden="true" className="absolute top-[64px] left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,51,255,0.40) 14%, rgba(151,125,255,0.60) 34%, rgba(251,191,36,0.80) 50%, rgba(151,125,255,0.60) 66%, rgba(0,51,255,0.40) 86%, transparent 100%)' }}
+          style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,51,255,0.42) 14%, rgba(151,125,255,0.62) 34%, rgba(251,191,36,0.82) 50%, rgba(151,125,255,0.62) 66%, rgba(0,51,255,0.42) 86%, transparent 100%)' }}
         />
 
-        {/* Film holo dans l'overlay */}
-        <div aria-hidden="true" className="absolute inset-0 pointer-events-none"
+        <div aria-hidden="true" className="absolute pointer-events-none"
           style={{
             inset: '-40%',
-            background: 'conic-gradient(from 0deg at 50% 50%, rgba(255,0,120,0.06), rgba(255,200,0,0.06), rgba(0,150,255,0.06), rgba(200,0,255,0.06), rgba(255,0,120,0.06))',
+            background: 'conic-gradient(from 0deg at 50% 50%, rgba(255,0,120,0.05), rgba(255,200,0,0.05), rgba(0,150,255,0.05), rgba(200,0,255,0.05), rgba(255,0,120,0.05))',
             animation: 'holo-spin 32s linear infinite',
             mixBlendMode: 'screen',
           }}
@@ -921,7 +1014,7 @@ export default function Header() {
           style={{
             fontSize: '0.82rem', letterSpacing: '-0.04em',
             color: 'transparent',
-            background: 'linear-gradient(90deg, rgba(0,51,255,0.40), rgba(151,125,255,0.55), rgba(251,191,36,0.70), rgba(151,125,255,0.55), rgba(0,51,255,0.40))',
+            background: 'linear-gradient(90deg, rgba(0,51,255,0.42), rgba(151,125,255,0.58), rgba(251,191,36,0.72), rgba(151,125,255,0.58), rgba(0,51,255,0.42))',
             backgroundClip: 'text', WebkitBackgroundClip: 'text',
             backgroundSize: '300% 100%',
             animation: 'holo-drift 10s linear infinite',
