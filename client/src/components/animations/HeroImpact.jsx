@@ -5,39 +5,28 @@
  * SÉQUENCE CINÉMATOGRAPHIQUE — 5 PHASES
  * ═══════════════════════════════════════════════════════════════
  *
- * Phase 1 — APPARITION (rapide, 0.9s)
- *   Titre flou émerge du néant. Immédiatement, de la fumée
- *   thermique s'élève depuis les lettres — dense, chaude,
- *   signe d'une énergie colossale emmagasinée.
+ * Phase 1 — APPARITION (0.9s)
+ *   Titre flou émerge. Fumée thermique dense s'élève des lettres.
  *
  * Phase 2 — TENSION (4 paliers)
- *   La fumée s'épaissit. Au palier 3, elle bascule en mode
- *   PERSPECTIVE : force radiale centrifuge depuis le centre du
- *   titre, accélération exponentielle par particule, croissance
- *   rapide. Nuage épais qui explose vers l'extérieur en un
- *   tunnel de vapeur pressée. Inévitable.
+ *   Palier 3 : fumée bascule en TUNNEL DE VITESSE — force radiale
+ *   centrifuge + stries de vitesse atmosphériques (SmokeSpeedLine).
+ *   Nuage épais qui explose vers l'extérieur. Inévitable.
  *
  * Phase 3 — SUPERNOVA
- *   - GLOW.supernova instantané — le titre rayonne
- *   - Flammes jaillissent des lettres (turbulence sinusoïdale)
- *   - Fumée se dissout organiquement (force centrifuge continue)
- *   - 4 ondes de choc volumétriques : 7 bandes spectrales chacune
- *     bleu → blanc → ambre, halo pression 50px, vrais arcs Canvas
- *   - Aberration chromatique v4 : blast ±100px + skewX ±4deg
- *     + flicker d'opacité encodé dans les keyframes
- *   - Solar Bloom 7 couches
+ *   GLOW supernova instantané → nuclear → breathing.
+ *   SPEED BURST : 90 lignes radiales anime style, triple passe de blur.
+ *   BRASIER : 200 FlameParticles, taille 6–24px, spawn rate GSAP animé
+ *             de 0.75 → 0 sur 2.5s (le brasier se dissipe naturellement).
+ *   4 ondes de choc volumétriques (7 bandes spectrales).
+ *   Aberration chromatique v4 (±100px + skewX + flicker).
+ *   Solar Bloom 7 couches.
  *
  * Phase 4 — RÉVÉLATION
- *   Le blur se dissout, le titre cristallise.
+ *   Blur dissout, titre cristallise.
  *
  * Phase 5 — POST-NOVA
- *   - Nébuleuse CSS (6 nuages, dérive lente)
- *   - Débris météorites (Canvas, diagonaux, traînes lumineuses)
- *
- * ═══════════════════════════════════════════════════════════════
- * EXPORT SÉPARÉ : voir MeteorCurtain.jsx
- *   Canvas fixed couvrant toute la page — à placer dans Home.jsx
- * ═══════════════════════════════════════════════════════════════
+ *   Nébuleuse CSS + Débris radioactifs verticaux (incitent au scroll).
  */
 
 import { useRef, useEffect, useCallback } from 'react';
@@ -48,14 +37,14 @@ import { useGSAP } from '@gsap/react';
 // CONSTANTES
 // ─────────────────────────────────────────────
 
-const DEBRIS_COUNT_DESK = 70;
-const DEBRIS_COUNT_MOBI = 30;
+const DEBRIS_COUNT_DESK = 55;
+const DEBRIS_COUNT_MOBI = 24;
 const SMOKE_COUNT_DESK  = 45;
 const SMOKE_COUNT_MOBI  = 22;
-const FLAME_COUNT_DESK  = 80;
-const FLAME_COUNT_MOBI  = 40;
+const FLAME_COUNT_DESK  = 200;
+const FLAME_COUNT_MOBI  = 100;
+const SPEED_LINES_COUNT = 90;
 
-// 5 couches identiques dans chaque état — interpolation GSAP propre
 const GLOW = {
   dormant:
     '0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0), 0 0 0px rgba(0,0,0,0)',
@@ -130,12 +119,6 @@ const Nebula = () => (
 
 // ─────────────────────────────────────────────
 // CLASSE — Particule de fumée thermique
-//
-// Naît à la base des lettres, monte doucement.
-// Phase 'perspective' : force radiale centrifuge
-// depuis le centre du titre + accélération exponentielle.
-// Crée l'illusion d'un nuage épais qui explose.
-// Phase 'fading' : l'opacité se dissout rapidement.
 // ─────────────────────────────────────────────
 class SmokeParticle {
   constructor(cx, cy, titleW, titleH) {
@@ -157,7 +140,6 @@ class SmokeParticle {
     this.life     = initial ? Math.floor(Math.random() * 80) : 0;
     this.maxOp    = 0.10 + Math.random() * 0.12;
     this.opacity  = initial ? this.maxOp * Math.random() : 0;
-    // Unique acceleration factor for perspective mode
     this.perspA   = 1.045 + Math.random() * 0.055;
   }
 
@@ -165,31 +147,27 @@ class SmokeParticle {
     this.life++;
 
     if (phase === 'fading') {
-      this.opacity  = Math.max(0, this.opacity - 0.010);
-      this.vy      *= 1.025;
-      this.vx      *= 1.015;
-      this.size    += this.growRate * 1.5;
-      this.x       += this.vx;
-      this.y       += this.vy;
+      this.opacity = Math.max(0, this.opacity - 0.010);
+      this.vy     *= 1.025;
+      this.vx     *= 1.015;
+      this.size   += this.growRate * 1.5;
+      this.x      += this.vx;
+      this.y      += this.vy;
       return;
     }
 
     if (phase === 'perspective') {
-      // Radial centrifuge from title center
       const dx   = this.x - this.cx;
       const dy   = this.y - (this.cy + this.titleH * 0.05);
       const dist = Math.hypot(dx, dy) + 1;
       const frc  = 0.10 * this.perspA;
       this.vx   += (dx / dist) * frc;
-      this.vy   += (dy / dist) * frc - 0.04; // bias upward
-      // Rapid size bloom
+      this.vy   += (dy / dist) * frc - 0.04;
       this.size += this.growRate * 6;
-      // Opacity stays at peak
       this.opacity = Math.min(this.maxOp * 1.8, this.opacity + 0.003);
     } else {
       this.size += this.growRate;
-      // Normal opacity arc
-      const lt = this.life / this.maxLife;
+      const lt   = this.life / this.maxLife;
       if      (lt < 0.12) this.opacity = this.maxOp * (lt / 0.12);
       else if (lt < 0.65) this.opacity = this.maxOp;
       else                this.opacity = this.maxOp * (1 - (lt - 0.65) / 0.35);
@@ -197,7 +175,6 @@ class SmokeParticle {
 
     this.x += this.vx;
     this.y += this.vy;
-
     if (phase === 'rising' && this.life >= this.maxLife) this.reset(false);
   }
 
@@ -218,97 +195,65 @@ class SmokeParticle {
 }
 
 // ─────────────────────────────────────────────
-// CLASSE — Particule de flamme
+// CLASSE — Strie de vitesse dans la fumée
 //
-// Jaillit des lettres à l'impact.
-// Turbulence sinusoïdale horizontale.
-// Palette : blanc-chaud → jaune → orange → rouge.
-// Décroît en taille en montant (flamme effilée).
+// Lignes centrifuges courtes, blanches-grises.
+// Spanwées quand phase === 'perspective'.
+// Simule le tunnel de vapeur compressée.
 // ─────────────────────────────────────────────
-class FlameParticle {
-  constructor(cx, cy, titleW, titleH) {
-    this.cx     = cx;
-    this.cy     = cy;
-    this.titleW = titleW;
-    this.titleH = titleH;
-    this.alive  = false;
-    this.reset();
+class SmokeSpeedLine {
+  constructor(cx, cy) {
+    this.cx    = cx;
+    this.cy    = cy;
+    this.angle = Math.random() * Math.PI * 2;
+    this.r     = 8 + Math.random() * 30;          // départ proche du centre
+    this.len   = 20 + Math.random() * 55;         // longueur de la strie
+    this.spd   = 8  + Math.random() * 14;         // vitesse d'expansion
+    this.life  = 0;
+    this.maxL  = 14 + Math.random() * 10;
+    this.w     = 0.4 + Math.random() * 0.8;
+    this.op    = 0.20 + Math.random() * 0.25;
   }
 
-  reset() {
-    this.x       = this.cx + (Math.random() * 2 - 1) * this.titleW * 0.44;
-    this.y       = this.cy + this.titleH * 0.28;
-    this.vx      = (Math.random() - 0.5) * 2.2;
-    this.vy      = -(2.8 + Math.random() * 4.5);
-    this.turbF   = 0.14 + Math.random() * 0.22;
-    this.turbA   = 0.5  + Math.random() * 0.8;
-    this.size    = 3.5  + Math.random() * 9.0;
-    this.maxLife = 22   + Math.random() * 32;
-    this.life    = Math.random() * 8;
-    this.alive   = true;
-  }
-
-  update() {
-    if (!this.alive) return;
-    this.life++;
-    if (this.life >= this.maxLife) { this.alive = false; return; }
-    this.vx   += Math.sin(this.life * this.turbF) * this.turbA * 0.09;
-    this.vy   *= 0.984;
-    this.x    += this.vx;
-    this.y    += this.vy;
-    this.size *= 0.973;
-  }
+  update() { this.r += this.spd; this.life++; }
 
   draw(ctx) {
-    if (!this.alive || this.size < 0.5) return;
-    const lt      = this.life / this.maxLife;
-    const opacity = Math.max(0, 1 - lt) * 0.92;
-    let   cr, cg, cb;
-    if      (lt < 0.20) { cr = 255; cg = 250; cb = Math.floor(220 * (1 - lt / 0.2)); }
-    else if (lt < 0.50) { cr = 255; cg = Math.floor(250 - 160 * ((lt - 0.2) / 0.3)); cb = 0; }
-    else if (lt < 0.80) { cr = 255; cg = Math.floor(90  - 70  * ((lt - 0.5) / 0.3)); cb = 0; }
-    else                { cr = Math.floor(255 * (1 - (lt - 0.8) / 0.2)); cg = 0; cb = 0; }
-
-    const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2.2);
-    grd.addColorStop(0,   `rgba(${cr},${cg},${cb},${opacity})`);
-    grd.addColorStop(0.4, `rgba(${cr},${cg},${cb},${opacity * 0.35})`);
-    grd.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = grd;
+    if (this.life >= this.maxL) return;
+    const fade = 1 - this.life / this.maxL;
+    const x0   = this.cx + Math.cos(this.angle) * this.r;
+    const y0   = this.cy + Math.sin(this.angle) * this.r;
+    const x1   = this.cx + Math.cos(this.angle) * (this.r + this.len);
+    const y1   = this.cy + Math.sin(this.angle) * (this.r + this.len);
+    const grd  = ctx.createLinearGradient(x0, y0, x1, y1);
+    grd.addColorStop(0,   `rgba(210,200,190,0)`);
+    grd.addColorStop(0.3, `rgba(210,200,190,${this.op * fade})`);
+    grd.addColorStop(1,   'rgba(210,200,190,0)');
+    ctx.strokeStyle = grd;
+    ctx.lineWidth   = this.w;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size * 2.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle   = `rgb(${cr},${cg},${cb})`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size * 0.48, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
   }
+
+  isDead() { return this.life >= this.maxL; }
 }
 
 // ─────────────────────────────────────────────
-// CLASSE — Anneau de choc volumétrique
-//
-// 7 bandes spectrales concentriques autour de r :
-//   bleu électrique (interne) → blanc pur (core) → ambre (externe)
-// + halo de pression ultra-large (50px), très transparent.
-// + flash de naissance : disque blanc qui s'estompe rapidement.
-// Zéro shadowBlur — rendu pur avec arcs Canvas.
+// CLASSE — Anneau de choc volumétrique (7 bandes)
 // ─────────────────────────────────────────────
 class ShockRing {
   constructor(W, H, cx, cy, delayFrames, ringIndex) {
-    this.maxR        = Math.sqrt(W * W + H * H) * 0.60;
-    this.cx          = cx;
-    this.cy          = cy;
-    this.r           = 0;
-    this.speed       = 2.5 + ringIndex * 0.4 + Math.random() * 1.5;
-    this.alive       = false;
-    this.wait        = delayFrames;
-    this.age         = 0;
-    this.ringIndex   = ringIndex;
-    // Intensity decreases with ring index
-    this.intensity   = 1 - ringIndex * 0.18;
+    this.maxR      = Math.sqrt(W * W + H * H) * 0.60;
+    this.cx        = cx;
+    this.cy        = cy;
+    this.r         = 0;
+    this.speed     = 2.5 + ringIndex * 0.4 + Math.random() * 1.5;
+    this.alive     = false;
+    this.wait      = delayFrames;
+    this.age       = 0;
+    this.ringIndex = ringIndex;
+    this.intensity = 1 - ringIndex * 0.18;
   }
 
   update() {
@@ -326,22 +271,20 @@ class ShockRing {
     const alpha = Math.max(0, Math.pow(1 - p, 1.3)) * this.intensity;
     if (alpha < 0.005) return;
 
-    // ── Halo de pression — large, très transparent
     ctx.beginPath();
     ctx.arc(this.cx, this.cy, this.r, 0, Math.PI * 2);
     ctx.strokeStyle = `rgba(255,200,140,${alpha * 0.06})`;
     ctx.lineWidth   = Math.max(5, 55 * (1 - p));
     ctx.stroke();
 
-    // ── 7 bandes spectrales
     const bands = [
-      { dr: -6, ar: 0.10, cr: 30,  cg: 90,  cb: 255 }, // bleu profond
-      { dr: -4, ar: 0.28, cr: 100, cg: 170, cb: 255 }, // bleu ciel
-      { dr: -2, ar: 0.55, cr: 200, cg: 230, cb: 255 }, // bleu-blanc
-      { dr:  0, ar: 1.00, cr: 255, cg: 255, cb: 255 }, // blanc pur (core)
-      { dr:  2, ar: 0.65, cr: 255, cg: 225, cb: 170 }, // blanc-ambre
-      { dr:  4, ar: 0.32, cr: 255, cg: 165, cb: 55  }, // ambre
-      { dr:  6, ar: 0.14, cr: 255, cg: 100, cb: 15  }, // orange profond
+      { dr: -6, ar: 0.10, cr:  30, cg:  90, cb: 255 },
+      { dr: -4, ar: 0.28, cr: 100, cg: 170, cb: 255 },
+      { dr: -2, ar: 0.55, cr: 200, cg: 230, cb: 255 },
+      { dr:  0, ar: 1.00, cr: 255, cg: 255, cb: 255 },
+      { dr:  2, ar: 0.65, cr: 255, cg: 225, cb: 170 },
+      { dr:  4, ar: 0.32, cr: 255, cg: 165, cb:  55 },
+      { dr:  6, ar: 0.14, cr: 255, cg: 100, cb:  15 },
     ];
 
     bands.forEach(({ dr, ar, cr, cg, cb }) => {
@@ -356,7 +299,6 @@ class ShockRing {
       ctx.stroke();
     });
 
-    // ── Flash de naissance
     if (this.r < 40) {
       const bf = Math.max(0, 1 - this.r / 40);
       ctx.beginPath();
@@ -370,13 +312,88 @@ class ShockRing {
 }
 
 // ─────────────────────────────────────────────
-// CLASSE — Débris de météorite
+// CLASSE — Speed Burst (lignes de vitesse anime)
 //
-// Trajectoire diagonale (top-right → bottom-left).
-// Traîne lumineuse proportionnelle à la vitesse.
-// Tête brillante avec halo pour les plus grands.
+// 90 lignes radiales depuis le centre de l'explosion.
+// Dessinées en 3 passes superposées :
+//   ① large + transparent (halo de motion blur)
+//   ② moyen + semi-opaque
+//   ③ fin + brillant (core)
+// Disparaissent en 15–25 frames — one-shot percutant.
 // ─────────────────────────────────────────────
-class MeteorDebris {
+class SpeedLine {
+  constructor(cx, cy, W, H) {
+    this.cx    = cx;
+    this.cy    = cy;
+    this.angle = Math.random() * Math.PI * 2;
+    // Chaque ligne a une vitesse propre → profondeur perçue
+    this.speed = 35 + Math.random() * 55;
+    this.r     = 5  + Math.random() * 20;          // rayon de départ
+    this.maxR  = Math.sqrt(W * W + H * H) * 0.55;
+    // Longueur de traîne : proportionnelle à la vitesse → blur optique
+    this.trail = this.speed * (2.0 + Math.random() * 2.5);
+    this.w     = 0.5 + Math.random() * 2.2;
+    this.op    = 0.55 + Math.random() * 0.45;
+    this.life  = 0;
+    this.maxL  = Math.floor(12 + Math.random() * 14);
+    this.alive = true;
+  }
+
+  update() {
+    this.r    += this.speed;
+    this.speed *= 1.04;   // accélération — l'onde gagne en vitesse
+    this.life++;
+    if (this.r > this.maxR || this.life >= this.maxL) this.alive = false;
+  }
+
+  draw(ctx) {
+    if (!this.alive) return;
+    const fade = Math.max(0, 1 - this.life / this.maxL);
+    const r0   = Math.max(0, this.r - this.trail);
+    const x0   = this.cx + Math.cos(this.angle) * r0;
+    const y0   = this.cy + Math.sin(this.angle) * r0;
+    const x1   = this.cx + Math.cos(this.angle) * this.r;
+    const y1   = this.cy + Math.sin(this.angle) * this.r;
+
+    // ① Motion blur halo — large, transparent
+    ctx.strokeStyle = `rgba(255,230,180,${fade * this.op * 0.18})`;
+    ctx.lineWidth   = this.w * 6;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+
+    // ② Corps semi-opaque — couleur blanc-ambre
+    const grd = ctx.createLinearGradient(x0, y0, x1, y1);
+    grd.addColorStop(0,   `rgba(255,220,160,0)`);
+    grd.addColorStop(0.25,`rgba(255,240,200,${fade * this.op * 0.55})`);
+    grd.addColorStop(1,   `rgba(255,255,255,${fade * this.op * 0.85})`);
+    ctx.strokeStyle = grd;
+    ctx.lineWidth   = this.w * 2.2;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+
+    // ③ Core — fin et brillant
+    ctx.strokeStyle = `rgba(255,255,255,${fade * this.op})`;
+    ctx.lineWidth   = this.w * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+}
+
+// ─────────────────────────────────────────────
+// CLASSE — Débris radioactif (chute VERTICALE)
+//
+// Trajectoire ~verticale avec léger drift horizontal.
+// Spawn en haut sur toute la largeur.
+// Traîne pointant vers le HAUT (opposé à la chute).
+// Invite naturellement au scroll.
+// ─────────────────────────────────────────────
+class RadioactiveDebris {
   constructor(W, H) {
     this.W = W;
     this.H = H;
@@ -384,21 +401,24 @@ class MeteorDebris {
   }
 
   respawn(initial = false) {
-    this.x       = initial ? Math.random() * this.W : this.W * 0.55 + Math.random() * this.W * 0.6;
-    this.y       = initial ? Math.random() * this.H * 0.6 : -20 - Math.random() * 60;
-    const spd    = 1.0 + Math.random() * 1.8;
-    const angle  = (Math.PI * 0.56) + (Math.random() - 0.5) * 0.25;
-    this.vx      = Math.cos(angle) * spd;
-    this.vy      = Math.sin(angle) * spd;
-    this.size    = 0.5 + Math.random() * 1.8;
-    this.isBig   = this.size > 1.3;
-    this.tailLen = spd * (10 + Math.random() * 16);
-    const pal    = [[255,220,140],[255,200,100],[220,200,255],[200,220,255],[255,240,180]];
+    this.x       = Math.random() * this.W;
+    this.y       = initial ? -Math.random() * this.H * 0.8 : -15 - Math.random() * 60;
+    // Presque vertical — léger drift aléatoire
+    this.vx      = (Math.random() - 0.5) * 0.5;
+    this.vy      = 1.6 + Math.random() * 2.8;
+    this.size    = 0.6 + Math.random() * 2.0;
+    this.isBig   = this.size > 1.4;
+    // Traîne proportionnelle à la vitesse verticale
+    this.tailLen = this.vy * (8 + Math.random() * 14);
+    const pal    = [
+      [255, 230, 140], [255, 210, 100], [220, 255, 180],
+      [180, 255, 200], [255, 255, 200], [200, 255, 220],
+    ];
     const c      = pal[Math.floor(Math.random() * pal.length)];
     this.r       = c[0];
     this.g       = c[1];
     this.b       = c[2];
-    this.maxOp   = 0.25 + Math.random() * 0.40;
+    this.maxOp   = 0.22 + Math.random() * 0.38;
     this.opacity = 0;
     this.frame   = 0;
   }
@@ -407,31 +427,34 @@ class MeteorDebris {
     this.frame++;
     this.x += this.vx;
     this.y += this.vy;
-    if (this.x < -60 || this.y > this.H + 60) { this.respawn(); return; }
-    this.opacity = Math.min(1, this.frame / 25) * this.maxOp;
+    if (this.y > this.H + 20) { this.respawn(); return; }
+    this.opacity = Math.min(1, this.frame / 30) * this.maxOp;
   }
 
   draw(ctx) {
     if (this.opacity < 0.01) return;
-    const speed  = Math.hypot(this.vx, this.vy);
-    const nx     = this.vx / speed;
-    const ny     = this.vy / speed;
-    const tx     = this.x - nx * this.tailLen;
-    const ty     = this.y - ny * this.tailLen;
-    const grd    = ctx.createLinearGradient(tx, ty, this.x, this.y);
+
+    // Traîne vers le HAUT (tail = position précédente, donc y - tailLen)
+    const tx  = this.x - this.vx * (this.tailLen / this.vy); // en proportion
+    const ty  = this.y - this.tailLen;
+
+    const grd = ctx.createLinearGradient(tx, ty, this.x, this.y);
     grd.addColorStop(0,   'rgba(0,0,0,0)');
+    grd.addColorStop(0.4, `rgba(${this.r},${this.g},${this.b},${this.opacity * 0.35})`);
     grd.addColorStop(1,   `rgba(${this.r},${this.g},${this.b},${this.opacity})`);
     ctx.strokeStyle = grd;
-    ctx.lineWidth   = this.size * 0.65;
+    ctx.lineWidth   = this.size * 0.55;
     ctx.beginPath();
     ctx.moveTo(tx, ty);
     ctx.lineTo(this.x, this.y);
     ctx.stroke();
 
+    // Halo tête pour les grands débris
     if (this.isBig) {
       const g2 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3.5);
-      g2.addColorStop(0, `rgba(${this.r},${this.g},${this.b},${this.opacity})`);
-      g2.addColorStop(1, 'rgba(0,0,0,0)');
+      g2.addColorStop(0,   `rgba(${this.r},${this.g},${this.b},${this.opacity * 0.9})`);
+      g2.addColorStop(0.5, `rgba(${this.r},${this.g},${this.b},${this.opacity * 0.25})`);
+      g2.addColorStop(1,   'rgba(0,0,0,0)');
       ctx.fillStyle = g2;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 3.5, 0, Math.PI * 2);
@@ -448,7 +471,7 @@ class MeteorDebris {
 }
 
 // ─────────────────────────────────────────────
-// Composants Canvas simples
+// Composants Canvas
 // ─────────────────────────────────────────────
 const SmokeCanvas = ({ canvasRef }) => (
   <canvas
@@ -481,41 +504,45 @@ export default function HeroImpact() {
   const caRedRef               = useRef(null);
   const caBlueRef              = useRef(null);
 
-  // Cycles de vie des moteurs Canvas
-  const smokeRafRef      = useRef(null);
-  const novaRafRef       = useRef(null);
-  const smokePhaseRef    = useRef('idle');   // 'idle'|'rising'|'perspective'|'fading'
-  const flamesActiveRef  = useRef(false);
-  const ringsActiveRef   = useRef(false);
-  const debrisActiveRef  = useRef(false);
-  const smokeEngineOn    = useRef(false);
-  const novaEngineOn     = useRef(false);
+  const smokeRafRef       = useRef(null);
+  const novaRafRef        = useRef(null);
+  const smokePhaseRef     = useRef('idle');
+  const flamesActiveRef   = useRef(false);
+  const flameSpawnRateRef = useRef(0);   // animé par GSAP 0.75 → 0
+  const ringsActiveRef    = useRef(false);
+  const speedBurstActive  = useRef(false);
+  const debrisActiveRef   = useRef(false);
+  const smokeEngineOn     = useRef(false);
+  const novaEngineOn      = useRef(false);
 
   const isMobile = useCallback(
     () => typeof window !== 'undefined' && window.innerWidth < 768,
     []
   );
 
-  // ── MOTEUR FUMÉE + FLAMMES ────────────────────────────────
+  // ── MOTEUR FUMÉE + FLAMMES + STRIES ──────────────────────
   const startSmokeEngine = useCallback((W, H, cx, cy, titleW, titleH) => {
     if (smokeEngineOn.current) return;
     smokeEngineOn.current = true;
 
     const canvas = smokeCanvasRef.current;
     if (!canvas) return;
-    const ctx     = canvas.getContext('2d');
-    const mobile  = isMobile();
-    const smCnt   = mobile ? SMOKE_COUNT_MOBI  : SMOKE_COUNT_DESK;
-    const flCnt   = mobile ? FLAME_COUNT_MOBI  : FLAME_COUNT_DESK;
+    const ctx    = canvas.getContext('2d');
+    const mobile = isMobile();
 
-    const smokes = Array.from({ length: smCnt }, () =>
-      new SmokeParticle(cx, cy, titleW, titleH)
+    const smokes = Array.from(
+      { length: mobile ? SMOKE_COUNT_MOBI : SMOKE_COUNT_DESK },
+      () => new SmokeParticle(cx, cy, titleW, titleH)
     );
-    const flames = Array.from({ length: flCnt }, () =>
-      new FlameParticle(cx, cy, titleW, titleH)
+    const flames = Array.from(
+      { length: mobile ? FLAME_COUNT_MOBI : FLAME_COUNT_DESK },
+      () => new FlameParticle(cx, cy, titleW, titleH)
     );
-    // Toutes les flammes dorment au départ
     flames.forEach((f) => { f.alive = false; });
+
+    // Pool de stries de fumée (recyclé)
+    const smokeLines = [];
+    let   lineTimer  = 0;
 
     const render = () => {
       smokeRafRef.current = requestAnimationFrame(render);
@@ -524,23 +551,36 @@ export default function HeroImpact() {
       const phase = smokePhaseRef.current;
       if (phase === 'idle') return;
 
-      // ── Fumée (blend normal)
+      // ── Fumée
       ctx.globalCompositeOperation = 'source-over';
       smokes.forEach((s) => {
         s.update(phase);
-        if (!s.isDead()) {
-          s.draw(ctx);
-        } else if (phase === 'rising' || phase === 'perspective') {
-          s.reset(false);
-        }
+        if (!s.isDead()) s.draw(ctx);
+        else if (phase === 'rising' || phase === 'perspective') s.reset(false);
       });
 
-      // ── Flammes (blend screen dans le canvas)
+      // ── Stries de vitesse en mode perspective
+      if (phase === 'perspective') {
+        lineTimer++;
+        if (lineTimer % 5 === 0) {
+          // Spawn un batch de 6 nouvelles stries
+          for (let i = 0; i < 6; i++) smokeLines.push(new SmokeSpeedLine(cx, cy));
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        for (let i = smokeLines.length - 1; i >= 0; i--) {
+          smokeLines[i].update();
+          smokeLines[i].draw(ctx);
+          if (smokeLines[i].isDead()) smokeLines.splice(i, 1);
+        }
+      }
+
+      // ── Flammes
       if (flamesActiveRef.current) {
         ctx.globalCompositeOperation = 'screen';
+        const rate = flameSpawnRateRef.current;
         flames.forEach((f) => {
           if (!f.alive) {
-            if (Math.random() < 0.22) f.reset();
+            if (rate > 0.01 && Math.random() < rate) f.reset();
             return;
           }
           f.update();
@@ -553,16 +593,16 @@ export default function HeroImpact() {
     render();
   }, [isMobile]);
 
-  // ── MOTEUR POST-NOVA (anneaux + débris) ──────────────────
+  // ── MOTEUR POST-NOVA (speed burst + anneaux + débris) ────
   const startNovaEngine = useCallback((W, H) => {
     if (novaEngineOn.current) return;
     novaEngineOn.current = true;
 
     const canvas = novaCanvasRef.current;
     if (!canvas) return;
-    const ctx  = canvas.getContext('2d');
-    const cx   = W * 0.5;
-    const cy   = H * 0.5;
+    const ctx = canvas.getContext('2d');
+    const cx  = W * 0.5;
+    const cy  = H * 0.5;
 
     const rings = [
       new ShockRing(W, H, cx, cy,  0, 0),
@@ -571,8 +611,14 @@ export default function HeroImpact() {
       new ShockRing(W, H, cx, cy, 68, 3),
     ];
 
+    // Speed lines — créées une seule fois (one-shot burst)
+    const speedLines = Array.from(
+      { length: SPEED_LINES_COUNT },
+      () => new SpeedLine(cx, cy, W, H)
+    );
+
     const dCnt   = isMobile() ? DEBRIS_COUNT_MOBI : DEBRIS_COUNT_DESK;
-    const debris = Array.from({ length: dCnt }, () => new MeteorDebris(W, H));
+    const debris = Array.from({ length: dCnt }, () => new RadioactiveDebris(W, H));
 
     let t = 0;
 
@@ -582,7 +628,20 @@ export default function HeroImpact() {
       ctx.fillStyle = 'rgba(0,0,0,0.13)';
       ctx.fillRect(0, 0, W, H);
 
-      // Anneaux
+      // ── Speed Burst anime (one-shot, ~25 frames)
+      if (speedBurstActive.current) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        speedLines.forEach((sl) => {
+          sl.update();
+          sl.draw(ctx);
+        });
+        ctx.restore();
+        // Désactiver une fois que toutes les lignes sont mortes
+        if (speedLines.every((sl) => !sl.alive)) speedBurstActive.current = false;
+      }
+
+      // ── Anneaux
       if (ringsActiveRef.current) {
         ctx.save();
         ctx.lineCap = 'round';
@@ -590,21 +649,20 @@ export default function HeroImpact() {
         ctx.restore();
       }
 
-      // Débris météorites — passe halos
+      // ── Débris verticaux — passe halos
       if (debrisActiveRef.current) {
         debris.forEach((d) => {
           d.update();
           if (d.opacity < 0.01 || !d.isBig) return;
           const hR  = d.size * 3.5;
           const g2  = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, hR);
-          g2.addColorStop(0, `rgba(${d.r},${d.g},${d.b},${d.opacity * 0.4})`);
-          g2.addColorStop(1, 'rgba(0,0,0,0)');
+          g2.addColorStop(0,   `rgba(${d.r},${d.g},${d.b},${d.opacity * 0.4})`);
+          g2.addColorStop(1,   'rgba(0,0,0,0)');
           ctx.fillStyle = g2;
           ctx.beginPath();
           ctx.arc(d.x, d.y, hR, 0, Math.PI * 2);
           ctx.fill();
         });
-
         // Passe traînes + noyaux
         debris.forEach((d) => {
           if (d.opacity < 0.01) return;
@@ -620,9 +678,9 @@ export default function HeroImpact() {
   useEffect(() => {
     const onResize = () => {
       const cont = containerRef.current;
-      if (!cont) return;
+      if (!cont || smokeEngineOn.current) return;
       [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
-        if (ref.current && !smokeEngineOn.current) {
+        if (ref.current) {
           ref.current.width  = cont.offsetWidth;
           ref.current.height = cont.offsetHeight;
         }
@@ -642,24 +700,17 @@ export default function HeroImpact() {
   // ── GSAP ─────────────────────────────────────────────────
   useGSAP(() => {
     gsap.set(containerRef.current, { visibility: 'visible' });
-    const W = containerRef.current.offsetWidth;
-    const H = containerRef.current.offsetHeight;
-
-    // Zone approximative du titre (proportions)
+    const W      = containerRef.current.offsetWidth;
+    const H      = containerRef.current.offsetHeight;
     const titleW = W * 0.82;
     const titleH = H * 0.20;
     const cx     = W * 0.5;
     const cy     = H * 0.5;
 
-    // Initialiser les canvas
     [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
-      if (ref.current) {
-        ref.current.width  = W;
-        ref.current.height = H;
-      }
+      if (ref.current) { ref.current.width = W; ref.current.height = H; }
     });
 
-    // Setup initial
     gsap.set(marsaiWrapperRef.current, { scale: 1.12, opacity: 0, filter: 'blur(28px)', x: 0, y: 0 });
     gsap.set(marsaiGlowRef.current,    { textShadow: GLOW.dormant });
     gsap.set(plasmaRef.current,        { opacity: 0, scale: 1.05, filter: 'blur(20px)' });
@@ -672,120 +723,82 @@ export default function HeroImpact() {
 
     const tl = gsap.timeline({ delay: 0.6 });
 
-    // ─ Phase 1 : Apparition — plus rapide ────────────────────
+    // ─ Phase 1 : Apparition ──────────────────────────────────
     tl.addLabel('apparition');
     tl.to(marsaiWrapperRef.current, {
       opacity: 1, scale: 1.06, duration: 0.9, ease: 'power2.out',
     }, 'apparition');
-
-    // Fumée apparaît avec le titre
     tl.to(smokeCanvasRef.current, {
       opacity: 1, duration: 0.6, ease: 'power2.out',
     }, 'apparition+=0.2');
 
     // ─ Phase 2 : Tension ─────────────────────────────────────
     tl.addLabel('tension', 'apparition+=0.9');
-
     tl.to(marsaiWrapperRef.current, {
       filter: 'blur(22px)', scale: 1.04, duration: 2.2, ease: 'power1.inOut',
     }, 'tension');
 
     // Palier 1
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.charge1, duration: 0.4, ease: 'power1.out',
-    }, 'tension+=0.2');
+    tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge1, duration: 0.4, ease: 'power1.out' }, 'tension+=0.2');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
-        { x:  4,  y: -2,  duration: 0.08 },
-        { x: -3,  y:  1.5,duration: 0.09 },
-        { x:  2,  y: -1,  duration: 0.10 },
-        { x: -1,  y:  0.5,duration: 0.11 },
-        { x:  0,  y:  0,  duration: 0.14, ease: 'power2.out' },
+        { x:  4, y: -2,  duration: 0.08 }, { x: -3, y:  1.5, duration: 0.09 },
+        { x:  2, y: -1,  duration: 0.10 }, { x: -1, y:  0.5, duration: 0.11 },
+        { x:  0, y:  0,  duration: 0.14, ease: 'power2.out' },
       ],
     }, 'tension+=0.3');
 
     // Palier 2
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.charge2, duration: 0.35, ease: 'power2.out',
-    }, 'tension+=0.8');
+    tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge2, duration: 0.35, ease: 'power2.out' }, 'tension+=0.8');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
-        { x: -7,  y:  3,   duration: 0.06 },
-        { x:  5,  y: -2.5, duration: 0.07 },
-        { x: -3,  y:  1.5, duration: 0.08 },
-        { x:  2,  y: -1,   duration: 0.09 },
-        { x: -1,  y:  0.5, duration: 0.10 },
-        { x:  0,  y:  0,   duration: 0.15, ease: 'power2.out' },
+        { x: -7, y:  3,   duration: 0.06 }, { x:  5, y: -2.5, duration: 0.07 },
+        { x: -3, y:  1.5, duration: 0.08 }, { x:  2, y: -1,   duration: 0.09 },
+        { x: -1, y:  0.5, duration: 0.10 }, { x:  0, y:  0,   duration: 0.15, ease: 'power2.out' },
       ],
     }, 'tension+=0.9');
 
-    // Palier 3 — fumée bascule en mode perspective ici
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.charge3, duration: 0.30, ease: 'power3.out',
-    }, 'tension+=1.35');
+    // Palier 3
+    tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge3, duration: 0.30, ease: 'power3.out' }, 'tension+=1.35');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
-        { x:  12,  y: -5,   duration: 0.04  },
-        { x:  -9,  y:  4,   duration: 0.045 },
-        { x:   7,  y: -3,   duration: 0.05  },
-        { x:  -5,  y:  2,   duration: 0.055 },
-        { x:   3,  y: -1.5, duration: 0.06  },
-        { x:  -2,  y:  1,   duration: 0.07  },
-        { x:   1,  y: -0.5, duration: 0.08  },
-        { x:   0,  y:  0,   duration: 0.16, ease: 'power2.out' },
+        { x:  12, y: -5,   duration: 0.040 }, { x:  -9, y:  4,   duration: 0.045 },
+        { x:   7, y: -3,   duration: 0.050 }, { x:  -5, y:  2,   duration: 0.055 },
+        { x:   3, y: -1.5, duration: 0.060 }, { x:  -2, y:  1,   duration: 0.070 },
+        { x:   1, y: -0.5, duration: 0.080 }, { x:   0, y:  0,   duration: 0.16, ease: 'power2.out' },
       ],
     }, 'tension+=1.4');
 
     // Palier 4
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.preimpact, duration: 0.2, ease: 'power4.in',
-    }, 'tension+=1.82');
+    tl.to(marsaiGlowRef.current, { textShadow: GLOW.preimpact, duration: 0.2, ease: 'power4.in' }, 'tension+=1.82');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
-        { x: -18,  y:  8,   duration: 0.030 },
-        { x:  14,  y: -6,   duration: 0.032 },
-        { x: -11,  y:  5,   duration: 0.035 },
-        { x:   8,  y: -4,   duration: 0.040 },
-        { x:  -6,  y:  3,   duration: 0.045 },
-        { x:   4,  y: -2,   duration: 0.050 },
-        { x:  -2,  y:  1,   duration: 0.060 },
-        { x:   1,  y: -0.5, duration: 0.070 },
-        { x:   0,  y:  0,   duration: 0.18, ease: 'power2.out' },
+        { x: -18, y:  8,   duration: 0.030 }, { x:  14, y: -6,   duration: 0.032 },
+        { x: -11, y:  5,   duration: 0.035 }, { x:   8, y: -4,   duration: 0.040 },
+        { x:  -6, y:  3,   duration: 0.045 }, { x:   4, y: -2,   duration: 0.050 },
+        { x:  -2, y:  1,   duration: 0.060 }, { x:   1, y: -0.5, duration: 0.070 },
+        { x:   0, y:  0,   duration: 0.18, ease: 'power2.out' },
       ],
     }, 'tension+=1.78');
 
     // ─ Phase 3 : Supernova ───────────────────────────────────
     tl.addLabel('impact', 'tension+=2.1');
 
-    // Tremblement container
     tl.to(containerRef.current, {
       keyframes: [
-        { x: -25, duration: 0.055 },
-        { x:  20, duration: 0.055 },
-        { x: -15, duration: 0.060 },
-        { x:  11, duration: 0.065 },
-        { x:  -7, duration: 0.070 },
-        { x:   4, duration: 0.080 },
-        { x:  -2, duration: 0.090 },
-        { x:   0, duration: 0.18, ease: 'power2.out' },
+        { x: -25, duration: 0.055 }, { x:  20, duration: 0.055 },
+        { x: -15, duration: 0.060 }, { x:  11, duration: 0.065 },
+        { x:  -7, duration: 0.070 }, { x:   4, duration: 0.080 },
+        { x:  -2, duration: 0.090 }, { x:   0, duration: 0.18, ease: 'power2.out' },
       ],
     }, 'impact');
 
-    // Titre brille — SUPERNOVA instantané
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.supernova, duration: 0.06, ease: 'expo.out',
-    }, 'impact');
-    // Puis se stabilise
-    tl.to(marsaiGlowRef.current, {
-      textShadow: GLOW.nuclear, duration: 1.0, ease: 'power2.out',
-    }, 'impact+=0.35');
+    tl.to(marsaiGlowRef.current, { textShadow: GLOW.supernova, duration: 0.06, ease: 'expo.out' }, 'impact');
+    tl.to(marsaiGlowRef.current, { textShadow: GLOW.nuclear,   duration: 1.0,  ease: 'power2.out' }, 'impact+=0.35');
 
-    // Canvas post-nova s'allume
-    tl.to(novaCanvasRef.current, {
-      opacity: 1, duration: 0.35, ease: 'power2.out',
-    }, 'impact+=0.04');
+    tl.to(novaCanvasRef.current, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 'impact+=0.04');
 
-    // Solar Bloom — cascade entrée
+    // Solar Bloom
     tl.to('.solar-bloom', { opacity: 1, duration: 0.03 }, 'impact');
     tl.to('.s-bloom-1',   { opacity: 1, duration: 0.15, ease: 'expo.out'   }, 'impact');
     tl.to('.s-bloom-2',   { opacity: 1, duration: 0.22, ease: 'power3.out' }, 'impact+=0.03');
@@ -794,7 +807,6 @@ export default function HeroImpact() {
     tl.to('.s-bloom-5',   { opacity: 1, duration: 0.50, ease: 'power1.out' }, 'impact+=0.14');
     tl.to('.s-bloom-6',   { opacity: 1, duration: 0.65, ease: 'power1.out' }, 'impact+=0.18');
     tl.to('.s-bloom-7',   { opacity: 1, duration: 0.80, ease: 'sine.out'   }, 'impact+=0.22');
-    // Solar Bloom — sortie
     tl.to('.s-bloom-1',   { opacity: 0, duration: 0.8,  ease: 'power2.in' }, 'impact+=0.35');
     tl.to('.s-bloom-2',   { opacity: 0, duration: 1.0,  ease: 'power2.in' }, 'impact+=0.45');
     tl.to('.s-bloom-3',   { opacity: 0, duration: 1.4,  ease: 'power1.in' }, 'impact+=0.55');
@@ -804,27 +816,12 @@ export default function HeroImpact() {
     tl.to('.s-bloom-7',   { opacity: 0, duration: 3.5,  ease: 'sine.in'   }, 'impact+=1.10');
     tl.to('.solar-bloom', { opacity: 0, duration: 0.1                      }, 'impact+=4.5');
 
-    // ── ABERRATION CHROMATIQUE v4 ─────────────────────────────
-    //
-    // Blast (±100px + skewX ±4deg) → opacité 1.0
-    // Tremblement : keyframes ASYMÉTRIQUES par canal
-    //   Opacité fluctue dans les keyframes → flicker naturel
-    //   sans double tween sur la même propriété
-    // Convergence : x:0, skewX:0, opacity:0 en power3.inOut
-    //
+    // ── Aberration chromatique v4 ─────────────────────────────
     tl.set([caRedRef.current, caBlueRef.current], { x: 0, y: 0, skewX: 0, opacity: 0 }, 'impact');
 
-    // BLAST
-    tl.to(caRedRef.current, {
-      x: -100, y: -16, skewX: -4, opacity: 1.0,
-      duration: 0.055, ease: 'expo.out',
-    }, 'impact');
-    tl.to(caBlueRef.current, {
-      x:  100, y:  16, skewX:  4, opacity: 1.0,
-      duration: 0.055, ease: 'expo.out',
-    }, 'impact');
+    tl.to(caRedRef.current,  { x: -100, y: -16, skewX: -4, opacity: 1.0, duration: 0.055, ease: 'expo.out' }, 'impact');
+    tl.to(caBlueRef.current, { x:  100, y:  16, skewX:  4, opacity: 1.0, duration: 0.055, ease: 'expo.out' }, 'impact');
 
-    // TREMBLEMENT ROUGE — nerveux, opacité flicker
     tl.to(caRedRef.current, {
       keyframes: [
         { x: -100, y: -16, skewX: -4, opacity: 1.0,  duration: 0.000 },
@@ -842,7 +839,6 @@ export default function HeroImpact() {
       ],
     }, 'impact+=0.055');
 
-    // TREMBLEMENT BLEU — plus lent, plus ample
     tl.to(caBlueRef.current, {
       keyframes: [
         { x:  100, y:  16, skewX: 4, opacity: 1.0,  duration: 0.000 },
@@ -860,69 +856,68 @@ export default function HeroImpact() {
       ],
     }, 'impact+=0.055');
 
-    // CONVERGENCE
-    tl.to(caRedRef.current, {
-      x: 0, y: 0, skewX: 0, opacity: 0,
-      duration: 1.05, ease: 'power3.inOut',
-    }, 'impact+=1.30');
-    tl.to(caBlueRef.current, {
-      x: 0, y: 0, skewX: 0, opacity: 0,
-      duration: 1.05, ease: 'power3.inOut',
-    }, 'impact+=1.30');
+    tl.to(caRedRef.current,  { x: 0, y: 0, skewX: 0, opacity: 0, duration: 1.05, ease: 'power3.inOut' }, 'impact+=1.30');
+    tl.to(caBlueRef.current, { x: 0, y: 0, skewX: 0, opacity: 0, duration: 1.05, ease: 'power3.inOut' }, 'impact+=1.30');
 
     // ─ Phase 4 : Révélation ──────────────────────────────────
     tl.to(marsaiWrapperRef.current, {
       opacity: 1, scale: 1, x: 0, y: 0, filter: 'blur(22px)',
       duration: 0.25, ease: 'power2.out',
     }, 'impact+=0.18');
-
     tl.to(marsaiWrapperRef.current, {
       filter: 'blur(0px)', duration: 1.8, ease: 'power2.out',
     }, 'impact+=0.42');
-
     tl.fromTo(plasmaRef.current,
       { opacity: 0, scale: 1,    filter: 'blur(15px)' },
       { opacity: 1, scale: 1.06, filter: 'blur(45px)', duration: 0.6, ease: 'expo.out' },
       'impact+=0.22'
     );
-
     tl.fromTo(subtitleRef.current,
       { opacity: 0, y: 28 },
       { opacity: 1, y: 0,  duration: 1.4, ease: 'power2.out' },
       'impact+=1.6'
     );
 
-    // ─ Phase 5 : Post-nova — systèmes décalés ────────────────
-    const ORGANIC  = tl.totalDuration() + 0.1;
-    const delay    = tl.delay();
-    const impactAt = tl.labels['impact'] + delay;
+    // ─ Phase 5 : Post-nova ───────────────────────────────────
+    const ORGANIC   = tl.totalDuration() + 0.1;
+    const delay     = tl.delay();
+    const impactAt  = tl.labels['impact'] + delay;
     const tensionAt = tl.labels['tension'] + delay;
 
-    // Fumée commence à la fin de l'apparition
+    // Fumée — départ avec le titre
     gsap.delayedCall(delay + 0.3, () => {
       startSmokeEngine(W, H, cx, cy, titleW, titleH);
       smokePhaseRef.current = 'rising';
     });
 
-    // Fumée → perspective au palier 3
+    // Perspective au palier 3
     gsap.delayedCall(tensionAt + 1.4, () => {
       smokePhaseRef.current = 'perspective';
     });
 
-    // Impact : anneaux + flammes + fumée fade
+    // Impact : moteurs, speed burst, brasier, fumée fade
     gsap.delayedCall(impactAt + 0.04, () => {
       startNovaEngine(W, H);
-      ringsActiveRef.current  = true;
-      flamesActiveRef.current = true;
-      smokePhaseRef.current   = 'fading';
+      ringsActiveRef.current = true;
+      speedBurstActive.current = true;
+      flamesActiveRef.current  = true;
+      flameSpawnRateRef.current = 0.75;
+      smokePhaseRef.current    = 'fading';
     });
 
-    // Flammes s'éteignent après 1.2s
-    gsap.delayedCall(impactAt + 1.2, () => {
-      flamesActiveRef.current = false;
+    // Brasier qui se dissipe — spawn rate animé GSAP 0.75 → 0 sur 2.5s
+    gsap.delayedCall(impactAt + 0.5, () => {
+      const proxy = { rate: 0.75 };
+      gsap.to(proxy, {
+        rate: 0,
+        duration: 2.5,
+        ease: 'power2.in',
+        onUpdate() { flameSpawnRateRef.current = proxy.rate; },
+        onComplete() { flamesActiveRef.current = false; },
+      });
     });
 
-    // Débris météorites
+    // Débris verticaux
     gsap.delayedCall(impactAt + 2.4, () => {
       debrisActiveRef.current = true;
     });
@@ -950,8 +945,7 @@ export default function HeroImpact() {
     // Respiration titre
     gsap.delayedCall(ORGANIC + delay, () => {
       gsap.to(marsaiGlowRef.current, {
-        textShadow: GLOW.breathing,
-        duration: 2.8, repeat: -1, yoyo: true, ease: 'sine.inOut',
+        textShadow: GLOW.breathing, duration: 2.8, repeat: -1, yoyo: true, ease: 'sine.inOut',
       });
     });
 
@@ -966,8 +960,7 @@ export default function HeroImpact() {
     // Gradient interne
     gsap.delayedCall(ORGANIC + delay, () => {
       gsap.to(marsaiInternalLightRef.current, {
-        backgroundPosition: '200% center',
-        duration: 5, repeat: -1, ease: 'none',
+        backgroundPosition: '200% center', duration: 5, repeat: -1, ease: 'none',
       });
     });
 
@@ -982,31 +975,24 @@ export default function HeroImpact() {
       <Nebula />
       <PostNovaCanvas canvasRef={novaCanvasRef} />
 
-      {/* TITRE — 5 couches superposées */}
+      {/* TITRE — 5 couches */}
       <div
         ref={marsaiWrapperRef}
         className="relative z-30 flex items-center justify-center overflow-visible"
       >
-        {/* Plasma ambre */}
         <h1
           ref={plasmaRef}
           className="absolute font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-amber-400 mix-blend-screen"
           style={{ fontSize: 'clamp(2.8rem, 12vw, 10rem)' }}
           aria-hidden="true"
-        >
-          MARSAI
-        </h1>
+        >MARSAI</h1>
 
-        {/* Glow — source de lumière */}
         <h1
           ref={marsaiGlowRef}
           className="relative z-10 font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-white"
           style={{ fontSize: 'clamp(2.8rem, 12vw, 10rem)', willChange: 'text-shadow' }}
-        >
-          MARSAI
-        </h1>
+        >MARSAI</h1>
 
-        {/* Gradient interne animé */}
         <h1
           ref={marsaiInternalLightRef}
           className="absolute inset-0 z-20 font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-transparent bg-clip-text mix-blend-screen"
@@ -1017,32 +1003,24 @@ export default function HeroImpact() {
             backgroundPosition: '0% center',
           }}
           aria-hidden="true"
-        >
-          MARSAI
-        </h1>
+        >MARSAI</h1>
 
-        {/* Aberration — canal rouge */}
         <h1
           ref={caRedRef}
           className="absolute inset-0 z-[25] font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-red-500 mix-blend-screen opacity-0"
           style={{ fontSize: 'clamp(2.8rem, 12vw, 10rem)' }}
           aria-hidden="true"
-        >
-          MARSAI
-        </h1>
+        >MARSAI</h1>
 
-        {/* Aberration — canal bleu */}
         <h1
           ref={caBlueRef}
           className="absolute inset-0 z-[25] font-black uppercase tracking-tighter leading-none whitespace-nowrap select-none text-blue-500 mix-blend-screen opacity-0"
           style={{ fontSize: 'clamp(2.8rem, 12vw, 10rem)' }}
           aria-hidden="true"
-        >
-          MARSAI
-        </h1>
+        >MARSAI</h1>
       </div>
 
-      {/* Canvas fumée + flammes — z-32, au-dessus du titre */}
+      {/* Canvas fumée + flammes */}
       <SmokeCanvas canvasRef={smokeCanvasRef} />
 
       {/* Sous-titre */}
