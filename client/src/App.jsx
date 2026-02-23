@@ -17,7 +17,7 @@ import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
-import FAQ from '@/components/Ressources/F-A-Q.jsx';
+import FAQ from '@/components/Ressources/FAQ.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
 import Events from '@/pages/Events/Events.jsx'; 
@@ -69,7 +69,7 @@ function App() {
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
           <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
           <Route path="/film/:id" element={<MovieDetails />} />
-          <Route path="/F-A-Q" element={<FAQ />} />
+          <Route path="/FAQ" element={<FAQ />} />
           <Route path="/calendrier" element={<Calendrier />} />
           {/* FLUX D'INVITATION JURY :
               1. Le lien mail pointe vers /login/verify?token=...
