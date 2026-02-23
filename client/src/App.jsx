@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// 1. Imports Pages Publiques
+/**
+ * 1. IMPORTS DES PAGES PUBLIQUES
+ * Regroupés par thématique pour faciliter la localisation
+ */
 import Home from '@/pages/Home/Home.jsx';
 import SubmissionPage from '@/pages/Submission/SubmissionPage.jsx';
 import LoginAdmin from '@/pages/LoginAdmin.jsx'; 
@@ -14,23 +17,33 @@ import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
-import FAQ from '@/components/Ressources/F-A-Q.jsx';
+import FAQ from '@/components/Ressources/FAQ.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
+import Events from '@/pages/Events/Events.jsx'; 
+import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
 
 
+
+/**
+ * 2. IMPORTS AUTHENTIFICATION & JURY
+ */
+import VerifyToken from "./pages/VerifyToken";
+import JuryDashboard from './pages/Jury/JuryDashboard.jsx';
+
+/**
+ * 3. IMPORTS LAYOUTS (Conteneurs de structure)
+ */
 import FestivalNews from './pages/News/News.jsx';
-
-
-// 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
 import PublicLayout from './Layouts/PublicLayout.jsx';
 
-// 3. Imports Pages Admin
+/**
+ * 4. IMPORTS ZONE ADMIN (Accès restreint)
+ */
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import FilmsList from './pages/Admin/FilmsList.jsx';
 import DashboardHome from './pages/Admin/DashboardHome.jsx';
-// Import du nouveau composant de gestion des utilisateurs
 import { AdminDashboard } from './pages/Admin/AdminDashboard.jsx';
 
 function App() {
@@ -38,7 +51,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         
-        {/* --- ZONE PUBLIQUE --- */}
+        {/* GROUPE : ROUTES PUBLIQUES 
+            Utilisent le PublicLayout (Header/Footer classiques)
+        */}
+        <Route path="/reglement" element={<PublicLayout />}>
+          <Route index element={<CompetitionRules />} />
+        </Route>
+
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/Newsletters" element={<Newsletters />} />
@@ -53,32 +72,48 @@ function App() {
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
           <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
           <Route path="/film/:id" element={<MovieDetails />} />
-          <Route path="/F-A-Q" element={<FAQ />} />
+          <Route path="/FAQ" element={<FAQ />} />
           <Route path="/calendrier" element={<Calendrier />} />
+          {/* FLUX D'INVITATION JURY :
+              1. Le lien mail pointe vers /login/verify?token=...
+              2. VerifyToken valide et redirige vers /jury/dashboard
+          */}
+          <Route path="/login/verify" element={<VerifyToken />} />
+          <Route path="/jury/dashboard" element={<JuryDashboard />} />
           <Route path="/regles-conditions" element={<ReglesConditions />} />
 
           <Route path="/news" element={<FestivalNews />} />
 
 
 
+          <Route path="/events" element={<Events />} />
         </Route>
 
-    {/* --- ZONE ADMIN SÉCURISÉE --- */}
-        <Route element={<ProtectedRoute />}> {/* <-- Le verrou est ICI */}
+        {/* GROUPE : ZONE ADMIN SÉCURISÉE 
+            Le composant <ProtectedRoute /> vérifie le token JWT et le rôle 'ADMIN'
+        */}
+        <Route element={<ProtectedRoute />}> 
           <Route path="/admin" element={<AdminLayout />}>
             
-            {/* http://localhost:5173/admin */}
+            {/* Accueil Admin : /admin */}
             <Route index element={<DashboardHome />} />
             
-            {/* http://localhost:5173/admin/films */}
+            {/* Gestion des Films : /admin/films */}
             <Route path="films" element={<FilmsList />} />
             
-            {/* http://localhost:5173/admin/users */}
+            {/* Gestion Utilisateurs & Invitations : /admin/users */}
             <Route path="users" element={<AdminDashboard />} />
             
+            {/* Palmarès : /admin/awards (À implémenter) */}
             <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
           </Route>
         </Route>
+
+        {/* MAINTENANCE : 
+            Pour ajouter une nouvelle route jury (ex: /jury/votes), 
+            il est conseillé de créer un JuryLayout similaire à l'AdminLayout 
+            pour partager une barre de navigation spécifique.
+        */}
 
       </Routes>
     </BrowserRouter>

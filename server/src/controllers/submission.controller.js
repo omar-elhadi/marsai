@@ -44,13 +44,10 @@ const submissionSchema = z.object({
  */
 export const createSubmission = async (req, res) => {
   try {
-    console.log("\n📥 NOUVELLE REQUÊTE DE SOUMISSION");
-    console.log("===================================\n");
-
     // ============================================================
     // 1. VALIDATION DU FICHIER VIDÉO
     // ============================================================
-    if (!req.file) {
+    if (!req.files || !req.files.video || !req.files.video[0]) {
       return res.status(400).json({
         success: false,
         error: "Aucun fichier vidéo fourni",
@@ -58,25 +55,62 @@ export const createSubmission = async (req, res) => {
       });
     }
 
-    console.log("📦 Fichier reçu:");
-    console.log(`   Nom: ${req.file.originalname}`);
-    console.log(`   Taille: ${(req.file.size / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   Type MIME: ${req.file.mimetype}\n`);
+    const videoFile = req.files.video[0];
+    const subtitleFile = req.files.subtitle ? req.files.subtitle[0] : null;
+    const posterFile = req.files.poster ? req.files.poster[0] : null;
+
+    // Validation du fichier de sous-titres (OBLIGATOIRE)
+    if (!subtitleFile) {
+      return res.status(400).json({
+        success: false,
+        error: "Aucun fichier de sous-titres fourni",
+        message:
+          "Un fichier de sous-titres (.srt, .vtt ou .sbv) est requis pour permettre la traduction internationale.",
+      });
+    }
+
+    // Validation du format de sous-titres
+    const allowedSubtitleExtensions = [".srt", ".vtt", ".sbv"];
+    const subtitleExtension = subtitleFile.originalname
+      .substring(subtitleFile.originalname.lastIndexOf("."))
+      .toLowerCase();
+
+    if (!allowedSubtitleExtensions.includes(subtitleExtension)) {
+      return res.status(400).json({
+        success: false,
+        error: "Format de sous-titres invalide",
+        message: "Formats acceptés : .srt, .vtt, .sbv",
+      });
+    }
+
+    // Validation du fichier poster (OBLIGATOIRE)
+    if (!posterFile) {
+      return res.status(400).json({
+        success: false,
+        error: "Aucun fichier poster fourni",
+        message:
+          "Un poster (.jpg, .jpeg ou .png) est requis pour la miniature YouTube.",
+      });
+    }
+
+    // Validation du format poster
+    const allowedPosterTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedPosterTypes.includes(posterFile.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        error: "Format de poster invalide",
+        message: "Formats acceptés : .jpg, .jpeg, .png",
+      });
+    }
 
     // ============================================================
     // 2. VALIDATION DES DONNÉES DU FORMULAIRE
     // ============================================================
-    console.log("📋 Validation des données du formulaire...\n");
-    console.log("📦 Données reçues du formulaire:");
-    console.log(JSON.stringify(req.body, null, 2));
-    console.log("\n");
-
     let formData;
     try {
       formData = submissionSchema.parse(req.body);
-      console.log("✅ Données du formulaire validées\n");
     } catch (zodError) {
-      console.error("❌ Données du formulaire invalides:", zodError.errors);
+      console.error("Form validation error:", zodError.errors);
 
       return res.status(400).json({
         success: false,
@@ -91,7 +125,12 @@ export const createSubmission = async (req, res) => {
     // ============================================================
     // 3. EXÉCUTION DU WORKFLOW DE SOUMISSION
     // ============================================================
-    const result = await submitFilm(formData, req.file);
+    const result = await submitFilm(
+      formData,
+      videoFile,
+      subtitleFile,
+      posterFile,
+    );
 
     // ============================================================
     // 4. RÉPONSE DE SUCCÈS
@@ -109,7 +148,7 @@ export const createSubmission = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("\n❌ ERREUR CONTROLLER SOUMISSION:", error.message);
+    console.error("Submission controller error:", error.message);
     console.error(error.stack);
 
     // Gestion des erreurs spécifiques
@@ -130,7 +169,7 @@ export const createSubmission = async (req, res) => {
     }
 
     if (error.message.includes("Authentification YouTube")) {
-      console.error("🚨 PROBLÈME DE CONFIGURATION YOUTUBE - CONTACTER L'ADMIN");
+      console.error("YouTube configuration error - contact admin");
       return res.status(500).json({
         success: false,
         error: "Erreur de configuration",
@@ -192,7 +231,7 @@ export const getSubmission = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Erreur récupération soumission:", error.message);
+    console.error("Get submission error:", error.message);
 
     if (error.message === "Soumission non trouvée") {
       return res.status(404).json({
@@ -257,7 +296,7 @@ export const getSubmitterSubmissions = async (req, res) => {
     });
   } catch (error) {
     console.error(
-      "❌ Erreur récupération soumissions submitter:",
+      "Get submitter submissions error:",
       error.message,
     );
 
@@ -316,7 +355,7 @@ export const getSubmissionStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Erreur récupération statistiques:", error.message);
+    console.error("Get statistics error:", error.message);
 
     return res.status(500).json({
       success: false,

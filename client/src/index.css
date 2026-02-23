@@ -20,3 +20,73 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@keyframes filmFlicker {
+          0% { opacity: 0.98; }
+          50% { opacity: 1; }
+          100% { opacity: 0.99; }
+        }
+        .retro-cinema {
+          background: radial-gradient(circle, transparent 20%, #000 150%);
+          animation: filmFlicker 0.15s infinite;
+        }
+        .breathe-neon-70s {
+          animation: breatheNeon 5s infinite ease-in-out;
+        }
+        @keyframes breatheNeon {
+          0%, 100% { border-color: #701a75; box-shadow: 0 0 15px rgba(112, 26, 117, 0.3); }
+          50% { border-color: #d946ef; box-shadow: 0 0 30px rgba(217, 70, 239, 0.5); }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+/* L'effet Néon Bleu (NEON) */
+.neon-blue-glow {
+  font-family: 'Archivo Black', sans-serif;
+  color: rgba(0, 162, 255, 0.4); /* Remplissage bleu transparent */
+  -webkit-text-stroke: 2px #fff; /* Le contour blanc du tube */
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 20px #00d2ff,
+    0 0 40px #00d2ff,
+    0 0 60px #00d2ff,
+    /* L'ombre 3D noire derrière */
+    5px 5px 0px #000;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+/* Style de base pour le texte néon */
+.neon-base {
+  font-family: 'Archivo Black', sans-serif;
+  text-transform: uppercase;
+  font-style: italic;
+  -webkit-text-stroke: 1.5px #fff; /* Le tube blanc central */
+  paint-order: stroke fill;
+  line-height: 1.1;
+}
+
+/* Effet Néon Bleu (RÈGLES) */
+.neon-blue {
+  color: #0080ff; /* Couleur de remplissage interne */
+  text-shadow: 
+    0 0 10px #00d2ff, 
+    0 0 20px #00d2ff, 
+    5px 5px 0px #1a0033; /* Ombre 3D */
+}
+
+/* Effet Néon Rose (CONDITIONS) */
+.neon-pink {
+  color: #ff0066; /* Couleur de remplissage interne */
+  text-shadow: 
+    0 0 10px #ff00de, 
+    0 0 20px #ff00de, 
+    5px 5px 0px #1a0033; /* Ombre 3D */
+}
+
+/* Texture brique pour le fond */
+.brick-wall {
+  background-image: linear-gradient(315deg, #0d0214 0%, #1a042e 74%),
+    url("https://www.transparenttextures.com/patterns/dark-matter.png");
+}
