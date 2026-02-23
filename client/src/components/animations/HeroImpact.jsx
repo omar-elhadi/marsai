@@ -19,7 +19,7 @@
  *   BRASIER : 200 FlameParticles, taille 6–24px, spawn rate GSAP animé
  *             de 0.75 → 0 sur 2.5s (le brasier se dissipe naturellement).
  *   4 ondes de choc volumétriques (7 bandes spectrales).
- *   Aberration chromatique v4 (±100px + skewX + flicker).
+ *   Aberration chromatique v4 (±100px + skewX + flicker).*
  *   Solar Bloom 7 couches.
  *
  * Phase 4 — RÉVÉLATION
@@ -27,11 +27,32 @@
  *
  * Phase 5 — POST-NOVA
  *   Nébuleuse CSS + Débris radioactifs verticaux (incitent au scroll).
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * CORRECTION BUG — CHANGEMENT D'ORIENTATION (Phase 0.1)
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * PROBLÈME IDENTIFIÉ :
+ *   1. ResizeObserver bloqué par la condition `smokeEngineOn.current`
+ *      après démarrage du moteur → canvas jamais redimensionné
+ *   2. W, H, cx, cy figés au montage → positions de référence caduques
+ *   3. ScrollTrigger conserve ses points de déclenchement initiaux
+ *
+ * CORRECTION :
+ *   1. `dimensionsRef` stocke les dimensions courantes, mise à jour
+ *      à chaque resize via `updateDimensions()`
+ *   2. ResizeObserver redimensionne les canvas sans condition bloquante
+ *   3. `orientationchange` déclenche ScrollTrigger.refresh() après 150ms
+ *   4. Les moteurs canvas utilisent `dimensionsRef.current` pour les
+ *      positions (cx, cy) — toujours synchronisés avec l'écran réel
  */
 
 import { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ─────────────────────────────────────────────
 // CONSTANTES
@@ -196,19 +217,15 @@ class SmokeParticle {
 
 // ─────────────────────────────────────────────
 // CLASSE — Strie de vitesse dans la fumée
-//
-// Lignes centrifuges courtes, blanches-grises.
-// Spanwées quand phase === 'perspective'.
-// Simule le tunnel de vapeur compressée.
 // ─────────────────────────────────────────────
 class SmokeSpeedLine {
   constructor(cx, cy) {
     this.cx    = cx;
     this.cy    = cy;
     this.angle = Math.random() * Math.PI * 2;
-    this.r     = 8 + Math.random() * 30;          // départ proche du centre
-    this.len   = 20 + Math.random() * 55;         // longueur de la strie
-    this.spd   = 8  + Math.random() * 14;         // vitesse d'expansion
+    this.r     = 8 + Math.random() * 30;
+    this.len   = 20 + Math.random() * 55;
+    this.spd   = 8  + Math.random() * 14;
     this.life  = 0;
     this.maxL  = 14 + Math.random() * 10;
     this.w     = 0.4 + Math.random() * 0.8;
@@ -241,11 +258,6 @@ class SmokeSpeedLine {
 
 // ─────────────────────────────────────────────
 // CLASSE — Particule de flamme (BRASIER)
-//
-// Version puissante : taille 6–24px, vitesse 5–13px/frame.
-// Turbulence sinusoïdale avec vx étalé.
-// Spawn rate contrôlé par flameSpawnRateRef (GSAP 0.75 → 0).
-// Palette blanc-chaud → jaune → orange → rouge.
 // ─────────────────────────────────────────────
 class FlameParticle {
   constructor(cx, cy, titleW, titleH) {
@@ -258,7 +270,6 @@ class FlameParticle {
   }
 
   reset() {
-    // Spawn sur toute la largeur du titre, pas juste le bas
     this.x       = this.cx + (Math.random() * 2 - 1) * this.titleW * 0.46;
     this.y       = this.cy + this.titleH * 0.25 + (Math.random() - 0.5) * this.titleH * 0.5;
     this.vx      = (Math.random() - 0.5) * 5.0;
@@ -285,7 +296,6 @@ class FlameParticle {
   draw(ctx) {
     if (!this.alive || this.size < 0.5) return;
     const lt      = this.life / this.maxLife;
-    // Opacité : plein peak jusqu'à 40% de la vie, puis décroît
     const opacity = lt < 0.4 ? 0.95 : Math.max(0, 0.95 * (1 - (lt - 0.4) / 0.6));
     let   cr, cg, cb;
     if      (lt < 0.18) { cr = 255; cg = 255; cb = Math.floor(220 * (1 - lt / 0.18)); }
@@ -293,17 +303,15 @@ class FlameParticle {
     else if (lt < 0.75) { cr = 255; cg = Math.floor(90  - 75  * ((lt - 0.45) / 0.30)); cb = 0; }
     else                { cr = Math.floor(255 * (1 - (lt - 0.75) / 0.25)); cg = 0; cb = 0; }
 
-    // Halo large
     const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2.8);
-    grd.addColorStop(0,   `rgba(${cr},${cg},${cb},${opacity})`);
-    grd.addColorStop(0.35,`rgba(${cr},${cg},${cb},${opacity * 0.30})`);
-    grd.addColorStop(1,   'rgba(0,0,0,0)');
+    grd.addColorStop(0,    `rgba(${cr},${cg},${cb},${opacity})`);
+    grd.addColorStop(0.35, `rgba(${cr},${cg},${cb},${opacity * 0.30})`);
+    grd.addColorStop(1,    'rgba(0,0,0,0)');
     ctx.fillStyle = grd;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size * 2.8, 0, Math.PI * 2);
     ctx.fill();
 
-    // Noyau brillant
     ctx.globalAlpha = opacity;
     ctx.fillStyle   = `rgb(${cr},${cg},${cb})`;
     ctx.beginPath();
@@ -387,24 +395,15 @@ class ShockRing {
 
 // ─────────────────────────────────────────────
 // CLASSE — Speed Burst (lignes de vitesse anime)
-//
-// 90 lignes radiales depuis le centre de l'explosion.
-// Dessinées en 3 passes superposées :
-//   ① large + transparent (halo de motion blur)
-//   ② moyen + semi-opaque
-//   ③ fin + brillant (core)
-// Disparaissent en 15–25 frames — one-shot percutant.
 // ─────────────────────────────────────────────
 class SpeedLine {
   constructor(cx, cy, W, H) {
     this.cx    = cx;
     this.cy    = cy;
     this.angle = Math.random() * Math.PI * 2;
-    // Chaque ligne a une vitesse propre → profondeur perçue
     this.speed = 35 + Math.random() * 55;
-    this.r     = 5  + Math.random() * 20;          // rayon de départ
+    this.r     = 5  + Math.random() * 20;
     this.maxR  = Math.sqrt(W * W + H * H) * 0.55;
-    // Longueur de traîne : proportionnelle à la vitesse → blur optique
     this.trail = this.speed * (2.0 + Math.random() * 2.5);
     this.w     = 0.5 + Math.random() * 2.2;
     this.op    = 0.55 + Math.random() * 0.45;
@@ -415,7 +414,7 @@ class SpeedLine {
 
   update() {
     this.r    += this.speed;
-    this.speed *= 1.04;   // accélération — l'onde gagne en vitesse
+    this.speed *= 1.04;
     this.life++;
     if (this.r > this.maxR || this.life >= this.maxL) this.alive = false;
   }
@@ -429,7 +428,6 @@ class SpeedLine {
     const x1   = this.cx + Math.cos(this.angle) * this.r;
     const y1   = this.cy + Math.sin(this.angle) * this.r;
 
-    // ① Motion blur halo — large, transparent
     ctx.strokeStyle = `rgba(255,230,180,${fade * this.op * 0.18})`;
     ctx.lineWidth   = this.w * 6;
     ctx.beginPath();
@@ -437,11 +435,10 @@ class SpeedLine {
     ctx.lineTo(x1, y1);
     ctx.stroke();
 
-    // ② Corps semi-opaque — couleur blanc-ambre
     const grd = ctx.createLinearGradient(x0, y0, x1, y1);
-    grd.addColorStop(0,   `rgba(255,220,160,0)`);
-    grd.addColorStop(0.25,`rgba(255,240,200,${fade * this.op * 0.55})`);
-    grd.addColorStop(1,   `rgba(255,255,255,${fade * this.op * 0.85})`);
+    grd.addColorStop(0,    `rgba(255,220,160,0)`);
+    grd.addColorStop(0.25, `rgba(255,240,200,${fade * this.op * 0.55})`);
+    grd.addColorStop(1,    `rgba(255,255,255,${fade * this.op * 0.85})`);
     ctx.strokeStyle = grd;
     ctx.lineWidth   = this.w * 2.2;
     ctx.beginPath();
@@ -449,7 +446,6 @@ class SpeedLine {
     ctx.lineTo(x1, y1);
     ctx.stroke();
 
-    // ③ Core — fin et brillant
     ctx.strokeStyle = `rgba(255,255,255,${fade * this.op})`;
     ctx.lineWidth   = this.w * 0.5;
     ctx.beginPath();
@@ -461,11 +457,6 @@ class SpeedLine {
 
 // ─────────────────────────────────────────────
 // CLASSE — Débris radioactif (chute VERTICALE)
-//
-// Trajectoire ~verticale avec léger drift horizontal.
-// Spawn en haut sur toute la largeur.
-// Traîne pointant vers le HAUT (opposé à la chute).
-// Invite naturellement au scroll.
 // ─────────────────────────────────────────────
 class RadioactiveDebris {
   constructor(W, H) {
@@ -477,12 +468,10 @@ class RadioactiveDebris {
   respawn(initial = false) {
     this.x       = Math.random() * this.W;
     this.y       = initial ? -Math.random() * this.H * 0.8 : -15 - Math.random() * 60;
-    // Presque vertical — léger drift aléatoire
     this.vx      = (Math.random() - 0.5) * 0.5;
     this.vy      = 1.6 + Math.random() * 2.8;
     this.size    = 0.6 + Math.random() * 2.0;
     this.isBig   = this.size > 1.4;
-    // Traîne proportionnelle à la vitesse verticale
     this.tailLen = this.vy * (8 + Math.random() * 14);
     const pal    = [
       [255, 230, 140], [255, 210, 100], [220, 255, 180],
@@ -508,8 +497,7 @@ class RadioactiveDebris {
   draw(ctx) {
     if (this.opacity < 0.01) return;
 
-    // Traîne vers le HAUT (tail = position précédente, donc y - tailLen)
-    const tx  = this.x - this.vx * (this.tailLen / this.vy); // en proportion
+    const tx  = this.x - this.vx * (this.tailLen / this.vy);
     const ty  = this.y - this.tailLen;
 
     const grd = ctx.createLinearGradient(tx, ty, this.x, this.y);
@@ -523,7 +511,6 @@ class RadioactiveDebris {
     ctx.lineTo(this.x, this.y);
     ctx.stroke();
 
-    // Halo tête pour les grands débris
     if (this.isBig) {
       const g2 = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3.5);
       g2.addColorStop(0,   `rgba(${this.r},${this.g},${this.b},${this.opacity * 0.9})`);
@@ -582,25 +569,153 @@ export default function HeroImpact() {
   const novaRafRef        = useRef(null);
   const smokePhaseRef     = useRef('idle');
   const flamesActiveRef   = useRef(false);
-  const flameSpawnRateRef = useRef(0);   // animé par GSAP 0.75 → 0
+  const flameSpawnRateRef = useRef(0);
   const ringsActiveRef    = useRef(false);
   const speedBurstActive  = useRef(false);
   const debrisActiveRef   = useRef(false);
   const smokeEngineOn     = useRef(false);
   const novaEngineOn      = useRef(false);
 
+  // ─────────────────────────────────────────────
+  // FIX 0.1b — Refs vers les tableaux de particules
+  // Permettent à updateDimensions() de mettre à jour
+  // les propriétés W/H/cx/cy de chaque instance existante
+  // au changement d'orientation — sans recréer les moteurs.
+  // ─────────────────────────────────────────────
+  const smokeParticlesRef  = useRef([]);
+  const flameParticlesRef  = useRef([]);
+  const debrisParticlesRef = useRef([]);
+  // FIX 0.1c — ShockRings et SpeedLines ont cx/cy/maxR gravés au moment
+  // de leur création dans startNovaEngine(). Sans ces refs, updateDimensions()
+  // ne peut pas propager les nouvelles dimensions → explosion décalée après rotation.
+  const ringsRef           = useRef([]);
+  const speedLinesRef      = useRef([]);
+
+  // ─────────────────────────────────────────────
+  // FIX 0.1 — dimensionsRef
+  // Stocke les dimensions courantes de manière centralisée.
+  // Toutes les parties du code qui ont besoin de W, H, cx, cy
+  // lisent depuis cette ref — jamais depuis des variables locales figées.
+  // ─────────────────────────────────────────────
+  const dimensionsRef = useRef({ W: 0, H: 0, cx: 0, cy: 0, titleW: 0, titleH: 0 });
+
   const isMobile = useCallback(
     () => typeof window !== 'undefined' && window.innerWidth < 768,
     []
   );
 
+  // ─────────────────────────────────────────────
+  // FIX 0.1 — updateDimensions()
+  // Recalcule toutes les dimensions depuis le conteneur réel.
+  // Redimensionne les deux canvas.
+  // Appelée au montage ET à chaque resize/orientation change.
+  // ─────────────────────────────────────────────
+  const updateDimensions = useCallback(() => {
+    const cont = containerRef.current;
+    if (!cont) return;
+
+    const W      = cont.offsetWidth;
+    const H      = cont.offsetHeight;
+    const titleW = W * 0.82;
+    const titleH = H * 0.20;
+    const cx     = W * 0.5;
+    const cy     = H * 0.5;
+
+    // Mise à jour de la ref centralisée
+    dimensionsRef.current = { W, H, cx, cy, titleW, titleH };
+
+    // Redimensionnement des canvas — sans condition bloquante
+    [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
+      if (ref.current) {
+        ref.current.width  = W;
+        ref.current.height = H;
+      }
+    });
+
+    // ─────────────────────────────────────────────
+    // FIX 0.1b — Mise à jour des instances de particules existantes
+    //
+    // PROBLÈME : smokes/flames/debris ont W, H, cx, cy gravés
+    // dans chaque instance à leur création (portrait).
+    // Après rotation, ils conservent les anciennes dimensions :
+    //   → RadioactiveDebris.respawn() fait Math.random() * this.W (portrait)
+    //     = débris confinés à gauche en paysage
+    //   → this.y > this.H (portrait=844) jamais vrai en paysage (H=390)
+    //     = débris sortent de l'écran et ne respawnent JAMAIS
+    //
+    // SOLUTION : propager les nouvelles dimensions à chaque instance.
+    // Pour les débris hors-écran : forcer un respawn immédiat.
+    // ─────────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // FIX 0.1d — reset() forcé sur les particules vivantes
+    //
+    // PROBLÈME des corrections précédentes :
+    //   p.cx = cx et p.cy = cy mettent à jour la RÉFÉRENCE,
+    //   mais p.x et p.y (position courante) restent à l'ancienne valeur.
+    //   Ex: Paysage→Portrait : p.x était ~422 (centre paysage),
+    //   le canvas portrait fait 390px → p.x hors canvas → fumée invisible.
+    //   La fumée ne revient au bon endroit que particule par particule,
+    //   quand chaque instance meurt naturellement (2 à 3.5 secondes).
+    //
+    // SOLUTION : après avoir mis à jour cx/cy, appeler reset() immédiatement
+    //   sur chaque particule → p.x et p.y recalculés sur le champ
+    //   avec les nouvelles dimensions → transition instantanée, 0 frame décalée.
+    // ─────────────────────────────────────────────
+    smokeParticlesRef.current.forEach(p => {
+      p.cx = cx; p.cy = cy; p.titleW = titleW; p.titleH = titleH;
+      p.reset(false);
+    });
+
+    flameParticlesRef.current.forEach(p => {
+      p.cx = cx; p.cy = cy; p.titleW = titleW; p.titleH = titleH;
+      // Ne reset que les flammes vivantes — les inactives se spawneront
+      // automatiquement au bon endroit lors du prochain cycle
+      if (p.alive) p.reset();
+    });
+
+    debrisParticlesRef.current.forEach(d => {
+      d.W = W;
+      d.H = H;
+      // Forcer respawn si le débris est hors des nouvelles limites
+      if (d.x > W || d.y > H + 20) d.respawn();
+    });
+
+    // ─────────────────────────────────────────────
+    // FIX 0.1c — Propagation vers ShockRing et SpeedLine
+    //
+    // PROBLÈME identique aux débris mais sur les effets d'explosion :
+    //   ShockRing.cx/cy gravés à la création (ex: cx=422 en paysage)
+    //   → arc dessiné hors du canvas portrait (largeur=390)
+    //   → explosion visible hors-centre / décalée
+    //   ShockRing.maxR = √(W²+H²)×0.60 avec anciens W/H
+    //   → rayon de propagation incohérent avec les nouvelles dimensions
+    //   SpeedLine.cx/cy idem → lignes de vitesse partent d'hors-canvas
+    //   SpeedLine.maxR idem → longueur de propagation erronée
+    // ─────────────────────────────────────────────
+    const newMaxR = Math.sqrt(W * W + H * H);
+    ringsRef.current.forEach(ring => {
+      ring.cx   = cx;
+      ring.cy   = cy;
+      ring.maxR = newMaxR * 0.60;
+    });
+
+    speedLinesRef.current.forEach(sl => {
+      sl.cx   = cx;
+      sl.cy   = cy;
+      sl.maxR = newMaxR * 0.55;
+    });
+  }, []);
+
   // ── MOTEUR FUMÉE + FLAMMES + STRIES ──────────────────────
-  const startSmokeEngine = useCallback((W, H, cx, cy, titleW, titleH) => {
+  const startSmokeEngine = useCallback(() => {
     if (smokeEngineOn.current) return;
     smokeEngineOn.current = true;
 
     const canvas = smokeCanvasRef.current;
     if (!canvas) return;
+
+    // Lecture depuis dimensionsRef — toujours à jour
+    const { W, H, cx, cy, titleW, titleH } = dimensionsRef.current;
     const ctx    = canvas.getContext('2d');
     const mobile = isMobile();
 
@@ -608,24 +723,31 @@ export default function HeroImpact() {
       { length: mobile ? SMOKE_COUNT_MOBI : SMOKE_COUNT_DESK },
       () => new SmokeParticle(cx, cy, titleW, titleH)
     );
+    // FIX 0.1b — exposer le tableau pour que updateDimensions() puisse
+    // propager les nouvelles dimensions à chaque instance au resize
+    smokeParticlesRef.current = smokes;
+
     const flames = Array.from(
       { length: mobile ? FLAME_COUNT_MOBI : FLAME_COUNT_DESK },
       () => new FlameParticle(cx, cy, titleW, titleH)
     );
     flames.forEach((f) => { f.alive = false; });
+    // FIX 0.1b
+    flameParticlesRef.current = flames;
 
-    // Pool de stries de fumée (recyclé)
     const smokeLines = [];
     let   lineTimer  = 0;
 
     const render = () => {
       smokeRafRef.current = requestAnimationFrame(render);
-      ctx.clearRect(0, 0, W, H);
+
+      // Dimensions toujours lues depuis la ref — synchronisées avec les resize
+      const { W: cW, H: cH } = dimensionsRef.current;
+      ctx.clearRect(0, 0, cW, cH);
 
       const phase = smokePhaseRef.current;
       if (phase === 'idle') return;
 
-      // ── Fumée
       ctx.globalCompositeOperation = 'source-over';
       smokes.forEach((s) => {
         s.update(phase);
@@ -633,12 +755,11 @@ export default function HeroImpact() {
         else if (phase === 'rising' || phase === 'perspective') s.reset(false);
       });
 
-      // ── Stries de vitesse en mode perspective
       if (phase === 'perspective') {
         lineTimer++;
         if (lineTimer % 5 === 0) {
-          // Spawn un batch de 6 nouvelles stries
-          for (let i = 0; i < 6; i++) smokeLines.push(new SmokeSpeedLine(cx, cy));
+          const { cx: ccx, cy: ccy } = dimensionsRef.current;
+          for (let i = 0; i < 6; i++) smokeLines.push(new SmokeSpeedLine(ccx, ccy));
         }
         ctx.globalCompositeOperation = 'source-over';
         for (let i = smokeLines.length - 1; i >= 0; i--) {
@@ -648,7 +769,6 @@ export default function HeroImpact() {
         }
       }
 
-      // ── Flammes
       if (flamesActiveRef.current) {
         ctx.globalCompositeOperation = 'screen';
         const rate = flameSpawnRateRef.current;
@@ -667,16 +787,17 @@ export default function HeroImpact() {
     render();
   }, [isMobile]);
 
-  // ── MOTEUR POST-NOVA (speed burst + anneaux + débris) ────
-  const startNovaEngine = useCallback((W, H) => {
+  // ── MOTEUR POST-NOVA ────────────────────────
+  const startNovaEngine = useCallback(() => {
     if (novaEngineOn.current) return;
     novaEngineOn.current = true;
 
     const canvas = novaCanvasRef.current;
     if (!canvas) return;
+
+    // Lecture depuis dimensionsRef
+    const { W, H, cx, cy } = dimensionsRef.current;
     const ctx = canvas.getContext('2d');
-    const cx  = W * 0.5;
-    const cy  = H * 0.5;
 
     const rings = [
       new ShockRing(W, H, cx, cy,  0, 0),
@@ -684,38 +805,36 @@ export default function HeroImpact() {
       new ShockRing(W, H, cx, cy, 45, 2),
       new ShockRing(W, H, cx, cy, 68, 3),
     ];
+    // FIX 0.1c — exposer pour que updateDimensions() propage cx/cy/maxR
+    ringsRef.current = rings;
 
-    // Speed lines — créées une seule fois (one-shot burst)
     const speedLines = Array.from(
       { length: SPEED_LINES_COUNT },
       () => new SpeedLine(cx, cy, W, H)
     );
+    // FIX 0.1c
+    speedLinesRef.current = speedLines;
 
     const dCnt   = isMobile() ? DEBRIS_COUNT_MOBI : DEBRIS_COUNT_DESK;
     const debris = Array.from({ length: dCnt }, () => new RadioactiveDebris(W, H));
-
-    let t = 0;
+    // FIX 0.1b — exposer le tableau pour que updateDimensions() puisse
+    // propager W/H à chaque instance et forcer respawn hors-écran
+    debrisParticlesRef.current = debris;
 
     const render = () => {
       novaRafRef.current = requestAnimationFrame(render);
-      t++;
+      const { W: cW, H: cH } = dimensionsRef.current;
       ctx.fillStyle = 'rgba(0,0,0,0.13)';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, cW, cH);
 
-      // ── Speed Burst anime (one-shot, ~25 frames)
       if (speedBurstActive.current) {
         ctx.save();
         ctx.lineCap = 'round';
-        speedLines.forEach((sl) => {
-          sl.update();
-          sl.draw(ctx);
-        });
+        speedLines.forEach((sl) => { sl.update(); sl.draw(ctx); });
         ctx.restore();
-        // Désactiver une fois que toutes les lignes sont mortes
         if (speedLines.every((sl) => !sl.alive)) speedBurstActive.current = false;
       }
 
-      // ── Anneaux
       if (ringsActiveRef.current) {
         ctx.save();
         ctx.lineCap = 'round';
@@ -723,7 +842,6 @@ export default function HeroImpact() {
         ctx.restore();
       }
 
-      // ── Débris verticaux — passe halos
       if (debrisActiveRef.current) {
         debris.forEach((d) => {
           d.update();
@@ -737,7 +855,6 @@ export default function HeroImpact() {
           ctx.arc(d.x, d.y, hR, 0, Math.PI * 2);
           ctx.fill();
         });
-        // Passe traînes + noyaux
         debris.forEach((d) => {
           if (d.opacity < 0.01) return;
           d.draw(ctx);
@@ -748,42 +865,67 @@ export default function HeroImpact() {
     render();
   }, [isMobile]);
 
-  // ── RESIZE ───────────────────────────────────────────────
+  // ─────────────────────────────────────────────
+  // FIX 0.1 — ResizeObserver + orientationchange
+  //
+  // AVANT : la condition `if (!cont || smokeEngineOn.current) return`
+  // empêchait tout redimensionnement après le démarrage du moteur.
+  //
+  // APRÈS :
+  //   - updateDimensions() appelée sans condition bloquante
+  //   - ScrollTrigger.refresh() après 150ms pour recalculer
+  //     tous les points de déclenchement
+  //   - orientationchange écoute spécifiquement le retournement
+  //     de l'appareil et force un refresh après 200ms
+  //     (délai légèrement plus long — le navigateur mobile
+  //     finalise son propre layout avant qu'on recalcule)
+  // ─────────────────────────────────────────────
   useEffect(() => {
-    const onResize = () => {
-      const cont = containerRef.current;
-      if (!cont || smokeEngineOn.current) return;
-      [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
-        if (ref.current) {
-          ref.current.width  = cont.offsetWidth;
-          ref.current.height = cont.offsetHeight;
-        }
-      });
+    let refreshTimer   = null;
+    let orientTimer    = null;
+
+    const handleResize = () => {
+      updateDimensions();
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 150);
     };
-    const ro = new ResizeObserver(onResize);
+
+    const handleOrientation = () => {
+      clearTimeout(orientTimer);
+      orientTimer = setTimeout(() => {
+        updateDimensions();
+        ScrollTrigger.refresh();
+      }, 200);
+    };
+
+    const ro = new ResizeObserver(handleResize);
     if (containerRef.current) ro.observe(containerRef.current);
+
+    window.addEventListener('orientationchange', handleOrientation);
+
     return () => {
       ro.disconnect();
+      window.removeEventListener('orientationchange', handleOrientation);
+      clearTimeout(refreshTimer);
+      clearTimeout(orientTimer);
       if (smokeRafRef.current) cancelAnimationFrame(smokeRafRef.current);
       if (novaRafRef.current)  cancelAnimationFrame(novaRafRef.current);
       smokeEngineOn.current = false;
       novaEngineOn.current  = false;
     };
-  }, []);
+  }, [updateDimensions]);
 
   // ── GSAP ─────────────────────────────────────────────────
   useGSAP(() => {
     gsap.set(containerRef.current, { visibility: 'visible' });
-    const W      = containerRef.current.offsetWidth;
-    const H      = containerRef.current.offsetHeight;
-    const titleW = W * 0.82;
-    const titleH = H * 0.20;
-    const cx     = W * 0.5;
-    const cy     = H * 0.5;
 
-    [smokeCanvasRef, novaCanvasRef].forEach((ref) => {
-      if (ref.current) { ref.current.width = W; ref.current.height = H; }
-    });
+    // Initialisation des dimensions via updateDimensions
+    // — source unique de vérité dès le départ
+    updateDimensions();
+
+    const { W, H, cx, cy, titleW, titleH } = dimensionsRef.current;
 
     gsap.set(marsaiWrapperRef.current, { scale: 1.12, opacity: 0, filter: 'blur(28px)', x: 0, y: 0 });
     gsap.set(marsaiGlowRef.current,    { textShadow: GLOW.dormant });
@@ -812,7 +954,6 @@ export default function HeroImpact() {
       filter: 'blur(22px)', scale: 1.04, duration: 2.2, ease: 'power1.inOut',
     }, 'tension');
 
-    // Palier 1
     tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge1, duration: 0.4, ease: 'power1.out' }, 'tension+=0.2');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
@@ -822,7 +963,6 @@ export default function HeroImpact() {
       ],
     }, 'tension+=0.3');
 
-    // Palier 2
     tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge2, duration: 0.35, ease: 'power2.out' }, 'tension+=0.8');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
@@ -832,7 +972,6 @@ export default function HeroImpact() {
       ],
     }, 'tension+=0.9');
 
-    // Palier 3
     tl.to(marsaiGlowRef.current, { textShadow: GLOW.charge3, duration: 0.30, ease: 'power3.out' }, 'tension+=1.35');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
@@ -843,7 +982,6 @@ export default function HeroImpact() {
       ],
     }, 'tension+=1.4');
 
-    // Palier 4
     tl.to(marsaiGlowRef.current, { textShadow: GLOW.preimpact, duration: 0.2, ease: 'power4.in' }, 'tension+=1.82');
     tl.to(marsaiWrapperRef.current, {
       keyframes: [
@@ -872,7 +1010,6 @@ export default function HeroImpact() {
 
     tl.to(novaCanvasRef.current, { opacity: 1, duration: 0.35, ease: 'power2.out' }, 'impact+=0.04');
 
-    // Solar Bloom
     tl.to('.solar-bloom', { opacity: 1, duration: 0.03 }, 'impact');
     tl.to('.s-bloom-1',   { opacity: 1, duration: 0.15, ease: 'expo.out'   }, 'impact');
     tl.to('.s-bloom-2',   { opacity: 1, duration: 0.22, ease: 'power3.out' }, 'impact+=0.03');
@@ -890,7 +1027,7 @@ export default function HeroImpact() {
     tl.to('.s-bloom-7',   { opacity: 0, duration: 3.5,  ease: 'sine.in'   }, 'impact+=1.10');
     tl.to('.solar-bloom', { opacity: 0, duration: 0.1                      }, 'impact+=4.5');
 
-    // ── Aberration chromatique v4 ─────────────────────────────
+    // Aberration chromatique v4
     tl.set([caRedRef.current, caBlueRef.current], { x: 0, y: 0, skewX: 0, opacity: 0 }, 'impact');
 
     tl.to(caRedRef.current,  { x: -100, y: -16, skewX: -4, opacity: 1.0, duration: 0.055, ease: 'expo.out' }, 'impact');
@@ -958,28 +1095,24 @@ export default function HeroImpact() {
     const impactAt  = tl.labels['impact'] + delay;
     const tensionAt = tl.labels['tension'] + delay;
 
-    // Fumée — départ avec le titre
     gsap.delayedCall(delay + 0.3, () => {
-      startSmokeEngine(W, H, cx, cy, titleW, titleH);
+      startSmokeEngine();
       smokePhaseRef.current = 'rising';
     });
 
-    // Perspective au palier 3
     gsap.delayedCall(tensionAt + 1.4, () => {
       smokePhaseRef.current = 'perspective';
     });
 
-    // Impact : moteurs, speed burst, brasier, fumée fade
     gsap.delayedCall(impactAt + 0.04, () => {
-      startNovaEngine(W, H);
-      ringsActiveRef.current = true;
+      startNovaEngine();
+      ringsActiveRef.current   = true;
       speedBurstActive.current = true;
       flamesActiveRef.current  = true;
       flameSpawnRateRef.current = 0.75;
       smokePhaseRef.current    = 'fading';
     });
 
-    // Brasier qui se dissipe — spawn rate animé GSAP 0.75 → 0 sur 2.5s
     gsap.delayedCall(impactAt + 0.5, () => {
       const proxy = { rate: 0.75 };
       gsap.to(proxy, {
@@ -991,12 +1124,10 @@ export default function HeroImpact() {
       });
     });
 
-    // Débris verticaux
     gsap.delayedCall(impactAt + 2.4, () => {
       debrisActiveRef.current = true;
     });
 
-    // Nébuleuse
     gsap.delayedCall(impactAt + 1.9, () => {
       const maxOp = isMobile() ? 0.5 : 1;
       [
@@ -1016,14 +1147,12 @@ export default function HeroImpact() {
       });
     });
 
-    // Respiration titre
     gsap.delayedCall(ORGANIC + delay, () => {
       gsap.to(marsaiGlowRef.current, {
         textShadow: GLOW.breathing, duration: 2.8, repeat: -1, yoyo: true, ease: 'sine.inOut',
       });
     });
 
-    // Plasma instabilité
     gsap.delayedCall(ORGANIC + delay + 0.15, () => {
       gsap.to(plasmaRef.current, {
         scale: 1.18, opacity: 0.65, filter: 'blur(55px)',
@@ -1031,7 +1160,6 @@ export default function HeroImpact() {
       });
     });
 
-    // Gradient interne
     gsap.delayedCall(ORGANIC + delay, () => {
       gsap.to(marsaiInternalLightRef.current, {
         backgroundPosition: '200% center', duration: 5, repeat: -1, ease: 'none',
