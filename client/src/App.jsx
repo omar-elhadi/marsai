@@ -23,6 +23,8 @@ import ReglesConditions from './components/Ressources/regles-conditions.jsx';
 import Events from '@/pages/Events/Events.jsx'; 
 import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
 
+
+
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
  */
@@ -32,6 +34,7 @@ import JuryDashboard from './pages/Jury/JuryDashboard.jsx';
 /**
  * 3. IMPORTS LAYOUTS (Conteneurs de structure)
  */
+import FestivalNews from './pages/News/News.jsx';
 import AdminLayout from './Layouts/AdminLayout.jsx';
 import PublicLayout from './Layouts/PublicLayout.jsx';
 
@@ -78,6 +81,11 @@ function App() {
           <Route path="/login/verify" element={<VerifyToken />} />
           <Route path="/jury/dashboard" element={<JuryDashboard />} />
           <Route path="/regles-conditions" element={<ReglesConditions />} />
+
+          <Route path="/news" element={<FestivalNews />} />
+
+
+
           <Route path="/events" element={<Events />} />
         </Route>
 
