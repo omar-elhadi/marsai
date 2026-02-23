@@ -18,6 +18,10 @@ import FAQ from '@/components/Ressources/F-A-Q.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
 
+
+import FestivalNews from './pages/News/News.jsx';
+
+
 // 2. Imports Layouts
 import AdminLayout from './Layouts/AdminLayout.jsx';
 import PublicLayout from './Layouts/PublicLayout.jsx';
@@ -52,6 +56,11 @@ function App() {
           <Route path="/F-A-Q" element={<FAQ />} />
           <Route path="/calendrier" element={<Calendrier />} />
           <Route path="/regles-conditions" element={<ReglesConditions />} />
+
+          <Route path="/news" element={<FestivalNews />} />
+
+
+
         </Route>
 
     {/* --- ZONE ADMIN SÉCURISÉE --- */}
