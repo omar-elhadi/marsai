@@ -17,7 +17,7 @@ import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
-import FAQ from '@/components/Ressources/F-A-Q.jsx';
+import FAQ from '@/components/Ressources/FAQ.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
 import Events from '@/pages/Events/Events.jsx'; 
