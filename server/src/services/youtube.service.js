@@ -328,10 +328,7 @@ export const waitForVideoProcessing = async (
         await new Promise((resolve) => setTimeout(resolve, intervalMs));
       }
     } catch (error) {
-      console.error(
-        `Error on attempt ${attempt}:`,
-        error.message,
-      );
+      console.error(`Error on attempt ${attempt}:`, error.message);
 
       // Si c'est la dernière tentative, on lance l'erreur
       if (attempt === maxAttempts) {
@@ -449,13 +446,14 @@ export const getVideoStatistics = async (videoId) => {
  * @returns {Object} Métadonnées formatées pour YouTube
  */
 export const formatFilmMetadataForYouTube = (film) => {
+  const aiTools = film.aiStack || film.aiToolsUsed || "";
   const tags = [
     "MarsAI Festival",
     "Intelligence Artificielle",
     "Court-métrage",
     "IA",
     film.country,
-    ...film.aiToolsUsed.split(",").map((tool) => tool.trim()),
+    ...aiTools.split(",").map((tool) => tool.trim()),
   ].filter(Boolean);
 
   return {
@@ -465,7 +463,7 @@ ${film.description}
 
 🎬 Court-métrage créé avec l'Intelligence Artificielle
 🌍 Pays : ${film.country}
-🤖 Outils IA utilisés : ${film.aiToolsUsed}
+🤖 Outils IA utilisés : ${aiTools}
 
 Soumis au MarsAI Festival - Premier festival international de films créés avec l'IA
     `.trim(),

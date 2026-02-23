@@ -13,11 +13,14 @@ function SubmissionForm() {
     firstName: "",
     lastName: "",
     email: "",
+    bio: "",
+    instagram: "",
     title: "",
     subtitle: "",
     description: "",
     country: "",
-    aiToolsUsed: "",
+    language: "",
+    aiStack: "",
     acceptTerms: false,
     acceptPrivacy: false,
   });
@@ -302,20 +305,56 @@ function SubmissionForm() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label htmlFor="email" className={labelClass}>
+            Email de contact
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            placeholder="jean.dupont@email.com"
+            className={inputClass}
+            value={formData.email}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="instagram" className={labelClass}>
+            Instagram (Optionnel)
+          </label>
+          <input
+            type="text"
+            id="instagram"
+            name="instagram"
+            placeholder="@votre_compte"
+            className={inputClass}
+            value={formData.instagram}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
       <div>
-        <label htmlFor="email" className={labelClass}>
-          Email de contact
+        <label htmlFor="bio" className={labelClass}>
+          Bio de l'artiste
         </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          placeholder="jean.dupont@email.com"
+        <textarea
+          id="bio"
+          name="bio"
+          rows="3"
+          maxLength="300"
+          placeholder="Présentez-vous brièvement..."
           className={inputClass}
-          value={formData.email}
+          value={formData.bio}
           onChange={handleChange}
         />
+        <p className="text-[10px] text-white/30 text-right mt-1 tracking-wider">
+          MAX 300 CARACTÈRES
+        </p>
       </div>
 
       <div className="flex items-center gap-4 my-10 opacity-40">
@@ -341,6 +380,24 @@ function SubmissionForm() {
           value={formData.country}
           onChange={handleChange}
         />
+      </div>
+
+      <div>
+        <label htmlFor="language" className={labelClass}>
+          Langue du film
+        </label>
+        <input
+          type="text"
+          id="language"
+          name="language"
+          placeholder="FRANÇAIS"
+          className={inputClass}
+          value={formData.language}
+          onChange={handleChange}
+        />
+        <p className="text-[10px] text-white/30 mt-1 tracking-wider">
+          Langue principale du film
+        </p>
       </div>
 
       <div>
@@ -398,19 +455,23 @@ function SubmissionForm() {
       </div>
 
       <div>
-        <label htmlFor="aiToolsUsed" className={labelClass}>
-          Outils IA utilisés (Détails)
+        <label htmlFor="aiStack" className={labelClass}>
+          Outils IA utilisés (Stack)
         </label>
         <textarea
-          id="aiToolsUsed"
-          name="aiToolsUsed"
+          id="aiStack"
+          name="aiStack"
           rows="3"
+          maxLength="500"
           required
-          placeholder="Listez les outils utilisés..."
+          placeholder="Listez les outils IA utilisés (ex: Midjourney, RunwayML, 11Labs...)..."
           className={inputClass}
-          value={formData.aiToolsUsed}
+          value={formData.aiStack}
           onChange={handleChange}
         />
+        <p className="text-[10px] text-white/30 text-right mt-1 tracking-wider">
+          MAX 500 CARACTÈRES
+        </p>
       </div>
 
       {/* --- BLOC VIDÉO --- */}

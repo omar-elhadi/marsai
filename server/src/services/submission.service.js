@@ -95,23 +95,25 @@ export const deleteVideoFromS3 = async (key) => {
  * @returns {Promise<Object>} Submitter
  */
 export const getOrCreateSubmitter = async (submitterData) => {
-  const { email, firstName, lastName } = submitterData;
+  const { email, firstName, lastName, bio, instagram } = submitterData;
 
-  // Chercher si le submitter existe déjà
-  let submitter = await prisma.submitter.findUnique({
+  // Utiliser upsert pour créer ou mettre à jour
+  const submitter = await prisma.submitter.upsert({
     where: { email },
+    update: {
+      firstName,
+      lastName,
+      bio,
+      instagram,
+    },
+    create: {
+      email,
+      firstName: firstName || null,
+      lastName: lastName || null,
+      bio: bio || null,
+      instagram: instagram || null,
+    },
   });
-
-  // Si non, le créer
-  if (!submitter) {
-    submitter = await prisma.submitter.create({
-      data: {
-        email,
-        firstName: firstName || null,
-        lastName: lastName || null,
-      },
-    });
-  }
 
   return submitter;
 };
@@ -162,7 +164,7 @@ export const submitFilm = async (
       title: formData.title,
       description: formData.description,
       country: formData.country,
-      aiToolsUsed: formData.aiToolsUsed,
+      aiStack: formData.aiStack,
     });
 
     const youtubeResult = await uploadVideoToYouTube(
@@ -176,7 +178,6 @@ export const submitFilm = async (
     // ============================================================
     if (subtitleFile) {
       try {
-
         const { uploadCaptionToYouTube } = await import("./youtube.service.js");
         await uploadCaptionToYouTube(
           youtubeVideoId,
@@ -232,6 +233,8 @@ export const submitFilm = async (
       email: formData.email,
       firstName: formData.firstName,
       lastName: formData.lastName,
+      bio: formData.bio,
+      instagram: formData.instagram,
     });
 
     // ============================================================
@@ -247,7 +250,8 @@ export const submitFilm = async (
         title: formData.title,
         description: formData.description,
         country: formData.country,
-        aiToolsUsed: formData.aiToolsUsed,
+        language: formData.language || null,
+        aiStack: formData.aiStack,
 
         // YouTube
         youtubeVideoId: youtubeResult.videoId,
