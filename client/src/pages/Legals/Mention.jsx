@@ -3,10 +3,11 @@ import { gsap } from 'gsap';
 
 const Mention = () => {
   const particleContainerRef = useRef(null);
+  const mainContentRef = useRef(null);
   const [headerText, setHeaderText] = useState("");
   const fullText = "Mentions Légales";
 
-  // 1. Effet machine à écrire pour le titre
+  // 1. Effet machine à écrire (Conservé)
   useEffect(() => {
     let i = 0;
     const interval = setInterval(() => {
@@ -20,10 +21,10 @@ const Mention = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Animation des particules dorées (Style "Golden Sparks")
+  // 2. Animation des particules dorées (STRICTEMENT CONSERVÉES)
   useEffect(() => {
     const container = particleContainerRef.current;
-    const particleCount = 150; // Haute densité pour visibilité maximale
+    const particleCount = 150; 
 
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
@@ -60,59 +61,80 @@ const Mention = () => {
         }
       });
     }
-    return () => { container.innerHTML = ""; };
+    
+    // Entrée cinématographique du contenu
+    gsap.fromTo(mainContentRef.current, 
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1.5, ease: "expo.out" }
+    );
+
+    return () => { if(container) container.innerHTML = ""; };
   }, []);
 
+  const sections = [
+    { title: "Propriétaire", content: "Jean Dupont" },
+    { title: "Statut", content: "Festival" },
+    { title: "Adresse", content: "123 Rue des Festivals, 75000 Paris" },
+    { title: "SIRET", content: "123 456 789 00012" },
+    { title: "Email", content: "contact@festival.com", isLink: true },
+    { title: "Publication", content: "Jean Dupont" },
+    { title: "Hébergeur", content: "Hébergeur Web, 456 Avenue" },
+    { title: "Propriété", content: "Contenu protégé par les lois PI" },
+    { title: "RGPD", content: "Réglementation générale" },
+    { title: "Cookies", content: "Expérience utilisateur" }
+  ];
+
   return (
-    <div className="relative min-h-screen bg-black text-white font-serif p-4 md:p-8 flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen bg-[#050508] text-white p-6 flex items-center justify-center overflow-hidden">
       
-      {/* Fond de particules dorées */}
+      {/* Import de la typographie Inter 900 */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        .font-mars { font-family: 'Inter', sans-serif; }
+        .heavy-title {
+          font-weight: 900;
+          letter-spacing: -0.06em;
+          line-height: 0.85;
+          text-transform: lowercase;
+        }
+        .clean-panel {
+          background: #000000;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+      `}</style>
+
+      {/* 1. Fond de paillettes (Inchangé) */}
       <div ref={particleContainerRef} className="absolute inset-0 z-0" />
 
-      {/* Overlay Grain de film Cinéma */}
-      <div className="absolute inset-0 z-10 pointer-events-none opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-[pulse_0.1s_infinite]" />
-
-      {/* Cadre Principal Néon Transparent */}
-      <div className="relative z-20 w-full max-w-5xl border-[3px] border-purple-600 rounded-3xl p-6 md:p-12 shadow-[0_0_40px_rgba(147,51,234,0.6),inset_0_0_20px_rgba(147,51,234,0.4)] bg-transparent backdrop-blur-[3px]">
+      {/* 2. Contenu Épuré & Typo Massive */}
+      <div 
+        ref={mainContentRef}
+        className="relative z-20 w-full max-w-5xl clean-panel rounded-[2.5rem] p-10 md:p-20 font-mars"
+      >
         
-        {/* Badge Mars Ai */}
-        <div className="absolute -top-4 left-8 bg-black border border-purple-500 rounded-full px-4 py-1 flex items-center gap-2 shadow-[0_0_15px_#a855f7]">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-white italic">Mars Ai • Protocol</span>
-        </div>
-
-        {/* Titre Principal Animé */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-6xl font-black italic text-yellow-50 tracking-tighter drop-shadow-[0_0_20px_rgba(254,252,232,0.6)]">
-            {headerText}<span className="animate-pulse">_</span>
+        {/* Header Typo Massive (Style "rêve maintenant") */}
+        <div className="mb-20">
+          <p className="text-[10px] font-bold tracking-[0.6em] text-slate-500 mb-6 uppercase">
+            Mars AI • Legal Department
+          </p>
+          <h1 className="heavy-title text-6xl md:text-[100px] text-white">
+            {headerText}<span className="text-slate-700">.</span>
           </h1>
-          <div className="mt-4 h-1 w-24 mx-auto bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
         </div>
 
-        {/* Grille des Mentions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full text-sm relative z-30">
-          
-          {[
-            { title: "Propriétaire", content: "Jean Dupont" },
-            { title: "Statut", content: "Festival" },
-            { title: "Adresse", content: "123 Rue des Festivals, 75000 Paris" },
-            { title: "SIRET", content: "123 456 789 00012" },
-            { title: "Email", content: "contact@festival.com", isLink: true },
-            { title: "Publication", content: "Jean Dupont" },
-            { title: "Hébergeur", content: "Hébergeur Web, 456 Avenue de l'Hébergement" },
-            { title: "Propriété", content: "Contenu protégé par les lois PI" },
-            { title: "RGPD", content: "Respect de la réglementation générale" },
-            { title: "Cookies", content: "Utilisation pour l'expérience utilisateur" }
-          ].map((item, index) => (
-            <section key={index} className="text-center group">
-              <h2 className="text-xs font-black text-purple-400 mb-1 uppercase tracking-[0.2em] group-hover:text-purple-300 transition-colors">
+        {/* Grille de Mentions Minimaliste */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+          {sections.map((item, index) => (
+            <section key={index} className="border-l border-white/10 pl-6 group">
+              <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 group-hover:text-slate-300 transition-colors">
                 {item.title}
               </h2>
               {item.isLink ? (
-                <p className="text-yellow-50 font-bold italic group-hover:underline cursor-pointer transition-all">
+                <p className="text-xl font-bold tracking-tight text-white hover:underline cursor-pointer">
                   {item.content}
                 </p>
               ) : (
-                <p className="text-gray-300 italic group-hover:text-white transition-colors">
+                <p className="text-xl font-bold tracking-tight text-slate-300 group-hover:text-white transition-colors">
                   {item.content}
                 </p>
               )}
@@ -120,20 +142,22 @@ const Mention = () => {
           ))}
         </div>
 
-        {/* Section Responsabilité en bas */}
-        <section className="mt-10 pt-8 border-t border-purple-500/30 text-center w-full">
-          <h2 className="text-xs font-black text-purple-400 mb-1 uppercase tracking-[0.2em]">Responsabilité</h2>
-          <p className="text-gray-400 text-xs italic">
-            Le propriétaire décline toute responsabilité en cas d'erreurs dans le contenu.
-          </p>
-        </section>
-
-        {/* Effet de lueur en bas du cadre */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_15px_#a855f7]" />
+        {/* Section Responsabilité Footer */}
+        <footer className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-left">
+            <h2 className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Responsabilité</h2>
+            <p className="text-slate-500 text-xs italic max-w-md leading-relaxed">
+              Le propriétaire décline toute responsabilité en cas d'erreurs dans le contenu.
+            </p>
+          </div>
+          <div className="text-[9px] font-bold tracking-[0.4em] text-slate-700 uppercase">
+            Marseille Station // 2026
+          </div>
+        </footer>
       </div>
 
-      {/* Vignettage Cinéma */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,1)] z-40" />
+      {/* Effet de profondeur cinématographique */}
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,1)] z-30" />
     </div>
   );
 };
