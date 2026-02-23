@@ -1,124 +1,158 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 
-// Composant pour l'effet d'écriture rétro (pour le titre principal)
-const TypewriterHeader = ({ text }) => {
-  const [displayText, setDisplayText] = useState("");
-  
+const CookiesProtocol = () => {
+  const particleContainerRef = useRef(null);
+  const [headerText, setHeaderText] = useState("");
+  const fullText = "Protocole de Cookies";
+
+  // 1. Animation de machine à écrire pour le titre
   useEffect(() => {
     let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayText((prev) => text.substring(0, i + 1));
+    const interval = setInterval(() => {
+      if (i <= fullText.length) {
+        setHeaderText(fullText.slice(0, i));
         i++;
       } else {
-        clearInterval(typingInterval);
+        clearInterval(interval);
       }
-    }, 100); // Vitesse modérée pour un effet vintage
-    return () => clearInterval(typingInterval);
-  }, [text]);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
-  return (
-    <h1 className="text-4xl md:text-5xl font-serif font-black mb-8 text-center tracking-tight uppercase italic min-h-[60px]">
-      <span className="bg-clip-text text-transparent bg-gradient-to-b from-pink-400 via-purple-500 to-indigo-900 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-        {displayText}
-      </span>
-      <span className="animate-ping ml-2 inline-block w-3 h-3 bg-pink-500 rounded-full"></span>
-    </h1>
-  );
-};
+  // 2. Animation des particules dorées avec GSAP (Très visibles)
+  useEffect(() => {
+    const container = particleContainerRef.current;
+    const particleCount = 150; // Nombre de particules augmenté pour plus de densité
 
-const Cookies = () => {
-  return (
-    <div className="cookies-policy flex items-center justify-center min-h-screen bg-[#0d0214] p-6 font-serif relative overflow-hidden">
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      const size = Math.random() * 5 + 2; // Taille augmentée (2 à 7px)
       
-      {/* Styles et animations (grain de film, respiration néon) */}
-      <style>{`
-        @keyframes filmFlicker {
-          0% { opacity: 0.98; }
-          50% { opacity: 1; }
-          100% { opacity: 0.99; }
-        }
-        .retro-cinema {
-          background: radial-gradient(circle, transparent 20%, #000 150%);
-          animation: filmFlicker 0.15s infinite;
-        }
-        .breathe-neon-70s {
-          animation: breatheNeon 5s infinite ease-in-out;
-        }
-        @keyframes breatheNeon {
-          0%, 100% { border-color: #701a75; box-shadow: 0 0 15px rgba(112, 26, 117, 0.3); }
-          50% { border-color: #d946ef; box-shadow: 0 0 30px rgba(217, 70, 239, 0.5); }
-        }
-      `}</style>
+      particle.className = "absolute rounded-full pointer-events-none";
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      
+      // Fond et lueur dorée plus intenses
+      particle.style.background = 'radial-gradient(circle at center, #fcd34d 0%, #d97706 100%)'; // Dégradé doré
+      particle.style.boxShadow = `0 0 ${size * 4}px #fbbf24, 0 0 ${size * 8}px #f59e0b`; // Lueur plus large et intense
+      
+      container.appendChild(particle);
 
-      {/* Overlay Grain de film et texture poussière */}
-      <div className="absolute inset-0 pointer-events-none opacity-10 retro-cinema bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+      // Position aléatoire initiale
+      gsap.set(particle, {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        opacity: Math.random() * 0.8 + 0.5 // Opacité de base plus élevée
+      });
 
-      <div className="max-w-4xl w-full p-10 bg-[#160421] border-[6px] border-purple-900 rounded-sm breathe-neon-70s relative shadow-2xl z-10">
+      // Animation de flottement "Sync Stream" plus lente et visible
+      gsap.to(particle, {
+        duration: Math.random() * 6 + 4, // Durée plus longue pour un mouvement plus lent et majestueux
+        y: "-=250", // Elles montent plus haut
+        x: `+=${Math.random() * 80 - 40}`, // Mouvement latéral plus prononcé
+        opacity: Math.random() * 0.4 + 0.2, // Opacité fluctuante pour le scintillement
+        repeat: -1,
+        ease: "power1.inOut",
+        delay: Math.random() * 6,
+        onRepeat: () => {
+          // Repositionne en bas pour un flux continu
+          gsap.set(particle, { y: window.innerHeight + 50, x: Math.random() * window.innerWidth, opacity: Math.random() * 0.8 + 0.5 });
+        }
+      });
+    }
+
+    return () => { container.innerHTML = ""; };
+  }, []);
+
+  return (
+    <div className="relative min-h-screen bg-black text-white font-serif p-4 md:p-8 flex items-center justify-center overflow-hidden">
+      
+      {/* Fond de particules dorées (très visibles, derrière le cadre) */}
+      <div ref={particleContainerRef} className="absolute inset-0 z-0" />
+
+      {/* Overlay Grain de film Cinéma */}
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-[pulse_0.1s_infinite]" />
+
+      {/* Cadre Principal Néon (transparent avec flou) */}
+      <div className="relative z-20 w-full max-w-4xl border-[3px] border-purple-600 rounded-3xl p-6 md:p-12 shadow-[0_0_40px_rgba(147,51,234,0.6),inset_0_0_20px_rgba(147,51,234,0.4)] bg-transparent backdrop-blur-[3px]">
         
-        {/* En-tête de terminal/onglet */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-pink-600 text-white px-5 py-1 text-[10px] font-black uppercase tracking-[0.4em] rounded-full border-2 border-[#0d0214] shadow-lg">
-          Mars Ai • Cookies Protocol
+        {/* Badge Mars Ai */}
+        <div className="absolute -top-4 left-8 bg-black border border-purple-500 rounded-full px-4 py-1 flex items-center gap-2 shadow-[0_0_15px_#a855f7]">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white">Mars Ai • Golden Sparks</span>
         </div>
 
-        {/* Titre principal animé */}
-        <TypewriterHeader text="Politique de Cookies" />
-
-        <div className="space-y-8 text-center text-pink-100/80 leading-relaxed font-serif">
-          <p className="text-lg italic drop-shadow">
-            "Ce terminal utilise des traceurs de données (cookies) pour optimiser votre expérience utilisateur et analyser les flux de navigation inter-système."
-          </p>
-
-          <div className="text-left">
-            <h2 className="text-2xl font-black mb-3 text-pink-400 uppercase tracking-wide drop-shadow">
-              Utilisation des Cookies
-            </h2>
-            <p className="mb-4 text-lg italic text-purple-200">
-              Les cookies sont de petits paquets de données stockés dans votre unité de stockage local pour assurer une transmission stable. Nous les utilisons pour :
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-md text-pink-300 pl-4">
-              <li><span className="text-pink-500 font-bold">»</span> Assurer la fluidité des opérations système.</li>
-              <li><span className="text-pink-500 font-bold">»</span> Analyser les performances du réseau et l'utilisation des fonctions.</li>
-              <li><span className="text-pink-500 font-bold">»</span> Personnaliser l'interface utilisateur selon vos préférences.</li>
-            </ul>
+        {/* Titre Principal */}
+        <div className="text-center mb-6">
+          <h1 className="text-4xl md:text-6xl font-black italic text-yellow-50 tracking-tighter drop-shadow-[0_0_20px_rgba(254,252,232,0.6)]">
+            {headerText}
+            <span className="animate-pulse">_</span>
+          </h1>
+          <div className="mt-4 inline-block bg-purple-900/40 border border-purple-500/50 rounded-full px-6 py-1">
+             <span className="text-xs font-bold uppercase tracking-[0.3em] text-purple-200">CBETIEINIER GSAP Sync Stream</span>
           </div>
+        </div>
 
-          <div className="text-left pt-6 border-t-2 border-purple-900/40">
-            <h2 className="text-2xl font-black mb-3 text-pink-400 uppercase tracking-wide drop-shadow">
-              Gestion des Cookies
-            </h2>
-            <p className="mb-4 text-lg italic text-purple-200">
-              Vous pouvez configurer votre terminal pour gérer ces données via les paramètres de votre navigateur. Vous avez la possibilité de purger les cookies ou de bloquer de nouvelles transmissions. Notez qu'une désactivation peut affecter certaines fonctionnalités critiques du système.
-            </p>
-            <p className="text-lg italic text-pink-300">
-              <span className="text-pink-500 font-bold">»</span> Accédez à vos paramètres navigateur pour modifier vos préférences.
-            </p>
-          </div>
-
-          <div className="text-left pt-6 border-t-2 border-purple-900/40">
-            <h2 className="text-2xl font-black mb-3 text-pink-400 uppercase tracking-wide drop-shadow">
-              Contact Support
-            </h2>
-            <p className="text-lg italic text-purple-200">
-              Pour toute question relative aux protocoles de données, veuillez contacter notre centre de support technique :
-              <a href="mailto:support@marsai.com" className="text-pink-400 hover:text-pink-300 underline transition-colors block mt-2">support@marsai.com</a>
-            </p>
-          </div>
+        {/* Sections de contenu */}
+        <div className="space-y-6">
           
-          {/* Footer de statut style Terminal */}
-          <div className="mt-8 pt-8 border-t-4 border-double border-purple-900/50">
-             <p className="text-sm font-black uppercase tracking-[0.3em] bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-rose-600 animate-pulse drop-shadow">
-               DATA_STREAM_ACTIVE // COOKIES_COMPLIANCE_76
-             </p>
-             <div className="mt-2 h-[2px] w-48 mx-auto bg-pink-500 shadow-[0_0_10px_#ec4899]"></div>
+          {/* Utilisation 1 */}
+          <section>
+            <h2 className="text-xl font-bold italic text-yellow-100 mb-2 drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">Utilisation</h2>
+            <div className="bg-white/5 border border-white/10 p-4 rounded-xl italic text-sm text-gray-300 leading-relaxed">
+              "Ce cookies utilise des traceurs de datees (cookies) pour optimique vour expérience du utililtue e fluxs navigation inter-système."
+            </div>
+          </section>
+
+          {/* Utilisation 2 */}
+          <section>
+            <h2 className="text-xl font-bold italic text-yellow-100 mb-2">Utilisation</h2>
+            <div className="bg-white/5 border border-white/10 p-4 rounded-xl italic text-sm text-gray-300">
+              'Les cookies sers de paclues de dataes) pour ass pavaled ouiscntier stabl stable du flux se système.
+            </div>
+          </section>
+
+          {/* Bouton Mars Ai */}
+          <div className="bg-purple-900/20 border border-purple-500/30 p-3 rounded-xl flex items-center gap-3">
+            <div className="w-3 h-3 rounded-full bg-purple-400 shadow-[0_0_10px_#a855f7]" />
+            <span className="text-sm font-bold italic text-purple-100 italic">Mars Ai GBETEIINIER @I#Ton 2.50</span>
+          </div>
+
+          <hr className="border-purple-500/30 shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
+
+          {/* Contact */}
+          <section>
+            <h2 className="text-xl font-bold italic text-yellow-100 mb-2">Contact</h2>
+            <div className="bg-white/5 border border-white/10 p-4 rounded-xl text-sm italic text-gray-400">
+              "Les cookies fout text <span className="text-purple-400 font-bold tracking-widest">EET 50pp@DOT EGPENi</span>-Stream
+            </div>
+          </section>
+
+          {/* Points de détails */}
+          <div className="space-y-3 pl-4">
+            <div className="flex items-center gap-3 text-sm italic text-gray-300">
+              <div className="w-4 h-4 rounded-full bg-purple-600/50 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_white]" />
+              </div>
+              Fluidi' des operations p 500 p perforations système.
+            </div>
+            <div className="flex items-center gap-3 text-sm italic text-gray-300">
+              <div className="w-4 h-4 rounded-full bg-purple-600/50 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_white]" />
+              </div>
+              Fnalysies onfours 10 soperfert ete partnc600-1810
+            </div>
           </div>
         </div>
+
+        {/* Effet de lueur en bas */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_15px_#a855f7]" />
       </div>
 
-      {/* Vignettage final pour l'effet tube cathodique */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_200px_rgba(0,0,0,1)]"></div>
+      {/* Vignettage final */}
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,1)] z-40" />
     </div>
   );
 };
 
-export default Cookies;
+export default CookiesProtocol;

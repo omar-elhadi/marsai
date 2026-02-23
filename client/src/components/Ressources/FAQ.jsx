@@ -1,85 +1,162 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { gsap } from 'gsap';
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
+  const particleContainerRef = useRef(null);
+  const titleRef = useRef(null);
+  const frameRef = useRef(null);
 
-  const toggleAccordion = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  useEffect(() => {
+    // --- 1. ANIMATION DU TITRE (GLITCH CINÉMA 70s) ---
+    const titleTimeline = gsap.timeline({ repeat: -1, repeatDelay: 4 });
+    
+    titleTimeline
+      .to(titleRef.current, { skewX: 20, duration: 0.1, ease: "power4.inOut" })
+      .to(titleRef.current, { skewX: 0, duration: 0.1 })
+      .to(titleRef.current, { opacity: 0.5, x: -5, duration: 0.05 })
+      .to(titleRef.current, { opacity: 1, x: 0, duration: 0.05 })
+      .to(titleRef.current, { 
+        textShadow: "0 0 30px rgba(168,85,247,1), 5px 0px 0px rgba(236,72,153,0.5)", 
+        duration: 0.1 
+      })
+      .to(titleRef.current, { textShadow: "0 0 10px rgba(168,85,247,0.5)", duration: 0.5 });
+
+    // --- 2. PARTICULES 3D PROFONDEUR (GSAP) ---
+    const container = particleContainerRef.current;
+    const particleCount = 100;
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div');
+      const depth = Math.random(); // 0 = fond, 1 = premier plan
+      const size = depth * 8 + 1; // De 1px à 9px
+      const blur = (1 - depth) * 2; // Les plus lointaines sont un peu floues
+
+      particle.className = "absolute rounded-full pointer-events-none";
+      particle.style.width = `${size}px`;
+      particle.style.height = `${size}px`;
+      particle.style.filter = `blur(${blur}px)`;
+      particle.style.background = depth > 0.8 ? '#fff' : '#fbbf24'; // Éclats blancs au 1er plan
+      particle.style.boxShadow = `0 0 ${size * 2}px ${depth > 0.8 ? '#fff' : '#f59e0b'}`;
+      
+      container.appendChild(particle);
+
+      // Positionnement initial 3D
+      gsap.set(particle, {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        z: depth * 100,
+        opacity: Math.random() * 0.5 + 0.2
+      });
+
+      // Animation de "Voyage dans l'espace"
+      gsap.to(particle, {
+        duration: (1 - depth) * 10 + 5, // Les proches bougent plus vite
+        y: "-=300",
+        x: `+=${(Math.random() - 0.5) * 200}`,
+        repeat: -1,
+        ease: "none",
+        opacity: 0,
+        delay: Math.random() * 10
+      });
+    }
+
+    // --- 3. PULSATION DU CADRE NÉON ---
+    gsap.to(frameRef.current, {
+      boxShadow: "0 0 60px rgba(168,85,247,0.8), inset 0 0 30px rgba(168,85,247,0.4)",
+      duration: 2,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+
+    return () => { if(container) container.innerHTML = ""; };
+  }, []);
 
   const faqs = [
-    {
-      question: "Qu’est-ce que le Festival Mars AI ?",
-      answer:
-        "Le Festival Mars AI est un événement annuel dédié à l’intelligence artificielle et ses applications dans l’art, la musique, la robotique et la technologie. Il propose conférences, ateliers, expositions et performances interactives.",
-    },
-    {
-      question: "Quand et où a lieu le festival ?",
-      answer:
-        "Le festival se déroule chaque année au mois de mars à Parc des Expositions de Marseille. Les dates exactes sont annoncées sur le site officiel du festival.",
-    },
-    {
-      question: "Comment acheter des billets ?",
-      answer:
-        "Les billets sont disponibles en ligne via le site officiel. Différents pass existent : journée, week-end ou accès complet aux conférences et ateliers. Certaines activités sont gratuites mais nécessitent une réservation.",
-    },
-    {
-      question: "Qui peut participer ?",
-      answer:
-        "Le festival est ouvert à tous : professionnels, étudiants, familles et passionnés de technologie. Certaines activités pour enfants ou ateliers spécifiques peuvent avoir des restrictions d’âge.",
-    },
-    {
-      question: "Quels types d’activités sont proposés ?",
-      answer:
-        "Conférences et panels avec experts en IA, Ateliers interactifs (robotique, codage, création artistique AI), Expositions immersives et démonstrations technologiques, Performances musicales et artistiques générées par IA.",
-    },
-    {
-      question: "Est-il possible de se restaurer sur place ?",
-      answer:
-        "Oui, des food trucks et stands de restauration sont disponibles tout au long du festival. Il y a aussi des zones pour pique-nique.",
-    },
-    {
-      question: "Le festival est-il accessible aux personnes à mobilité réduite ?",
-      answer:
-        "Oui, toutes les zones principales du festival sont accessibles. Des services d’accompagnement peuvent être demandés à l’avance via le site officiel.",
-    },
-    {
-      question: "Puis-je proposer une conférence ou un atelier ?",
-      answer:
-        "Oui ! Le festival accepte les propositions de conférenciers et animateurs. Les candidatures doivent être soumises avant la date limite indiquée sur le site.",
-    },
-    {
-      question: "Comment rester informé des dernières actualités du festival ?",
-      answer:
-        "Abonnez-vous à la newsletter officielle ou suivez le festival sur les réseaux sociaux pour recevoir les annonces et mises à jour.",
-    },
+    { question: "Qu’est-ce que le Festival Mars AI ?", answer: "Une immersion totale dans le futur, mêlant IA et créativité humaine." },
+    { question: "Quand et où ?", answer: "Mars 2026, Marseille. Le point de convergence technologique." },
+    { question: "Accès au système ?", answer: "Billetterie ouverte. Pass prioritaires disponibles via le terminal Mars AI." },
+    { question: "Protocole PMR ?", answer: "Accessibilité universelle garantie sur tous les secteurs de l'exposition." },
   ];
 
   return (
-    <div className="faq bg-black text-white p-8 rounded-lg shadow-md font-serif flex flex-col items-center">
-      <div className="w-full max-w-3xl">
-        <h1 className="text-3xl font-bold mb-6 bg-black text-white p-4 rounded text-center italic">F.A.Q - Festival Mars AI</h1>
-        <p className="text-center mb-8">
-          Retrouvez ici les réponses aux questions les plus fréquentes concernant le Festival Mars AI. Si vous avez d’autres interrogations, n’hésitez pas à nous contacter via notre page de contact.
-        </p>
-        <div className="space-y-4">
+    <div className="relative min-h-screen bg-black text-white font-serif p-4 flex items-center justify-center overflow-hidden">
+      
+      {/* 1. FOND DE PARTICULES 3D PROFONDEUR */}
+      <div ref={particleContainerRef} className="absolute inset-0 z-0 overflow-hidden" />
+
+      {/* 2. OVERLAY VINTAGE CRT */}
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-30 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-40" />
+      <div className="absolute inset-0 z-10 pointer-events-none opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-[pulse_0.1s_infinite]" />
+
+      {/* 3. CADRE NÉON ULTRA-LUMINEUX */}
+      <div 
+        ref={frameRef}
+        className="relative z-20 w-full max-w-5xl border-[5px] border-purple-500 rounded-[3rem] p-8 md:p-16 shadow-[0_0_40px_rgba(168,85,247,0.5)] bg-black/20 backdrop-blur-[6px]"
+      >
+        
+        {/* Titre Glitch Futuriste */}
+        <div className="text-center mb-16 relative">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-4">
+             <div className="h-[1px] w-12 bg-purple-500 shadow-[0_0_10px_#a855f7]"></div>
+             <span className="text-[10px] font-black uppercase tracking-[0.8em] text-purple-400">MARS AI ARCHIVE</span>
+             <div className="h-[1px] w-12 bg-purple-500 shadow-[0_0_10px_#a855f7]"></div>
+          </div>
+
+          <h1 
+            ref={titleRef}
+            className="text-5xl md:text-8xl font-black italic tracking-tighter text-yellow-50 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+          >
+            F.A.Q SYSTEM
+          </h1>
+          
+          <div className="mt-6 inline-block bg-purple-500 text-black font-black text-[10px] px-3 py-1 skew-x-[-20deg] uppercase tracking-widest">
+            Protocol v.77.26
+          </div>
+        </div>
+
+        {/* Grille FAQ interactive */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-30">
           {faqs.map((faq, index) => (
-            <div key={index} className="border border-gray-700 rounded">
+            <div 
+              key={index} 
+              className={`border-2 rounded-2xl transition-all duration-500 ${openIndex === index ? 'border-yellow-400 bg-yellow-400/5 shadow-[0_0_20px_rgba(250,204,21,0.2)]' : 'border-purple-500/30 bg-black/40 hover:border-purple-500'}`}
+            >
               <button
-                onClick={() => toggleAccordion(index)}
-                className="w-full text-center p-4 bg-gray-800 text-gray-300 font-bold hover:bg-gray-700"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full flex justify-between items-center p-6 text-left"
               >
-                {faq.question}
+                <span className={`font-black italic text-lg ${openIndex === index ? 'text-yellow-400' : 'text-purple-100'}`}>
+                   {faq.question}
+                </span>
+                <div className={`w-6 h-6 flex items-center justify-center border-2 rounded-full transition-transform duration-500 ${openIndex === index ? 'rotate-180 border-yellow-400' : 'border-purple-500'}`}>
+                   <svg className={`w-3 h-3 ${openIndex === index ? 'text-yellow-400' : 'text-purple-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg>
+                </div>
               </button>
+              
               {openIndex === index && (
-                <div className="p-4 bg-gray-900 text-gray-300">
-                  <p>{faq.answer}</p>
+                <div className="px-6 pb-6 animate-in slide-in-from-top-2 duration-300">
+                  <p className="text-gray-300 italic border-l-2 border-yellow-400 pl-4 py-2 bg-yellow-400/5">
+                    {faq.answer}
+                  </p>
                 </div>
               )}
             </div>
           ))}
         </div>
+
+        {/* Footer Mars Protocol */}
+        <div className="mt-16 text-center">
+            <div className="inline-flex items-center gap-3 border border-purple-500/50 rounded-full px-6 py-2 bg-black/60 shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+                <div className="w-2 h-2 rounded-full bg-yellow-400 animate-ping" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white">Transmission stable // Ready for Mars</span>
+            </div>
+        </div>
       </div>
+
+      {/* Effet Vignette Master */}
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_300px_rgba(0,0,0,1)] z-50" />
     </div>
   );
 };

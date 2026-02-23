@@ -21,6 +21,7 @@ import FAQ from '@/components/Ressources/FAQ.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
 import Events from '@/pages/Events/Events.jsx'; 
+import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -50,6 +51,10 @@ function App() {
         {/* GROUPE : ROUTES PUBLIQUES 
             Utilisent le PublicLayout (Header/Footer classiques)
         */}
+        <Route path="/reglement" element={<PublicLayout />}>
+          <Route index element={<CompetitionRules />} />
+        </Route>
+
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/Newsletters" element={<Newsletters />} />
@@ -66,7 +71,6 @@ function App() {
           <Route path="/film/:id" element={<MovieDetails />} />
           <Route path="/FAQ" element={<FAQ />} />
           <Route path="/calendrier" element={<Calendrier />} />
-          
           {/* FLUX D'INVITATION JURY :
               1. Le lien mail pointe vers /login/verify?token=...
               2. VerifyToken valide et redirige vers /jury/dashboard
