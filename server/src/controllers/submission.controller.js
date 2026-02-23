@@ -24,15 +24,25 @@ const submissionSchema = z.object({
   firstName: z.string().min(2, "Prénom trop court").max(100),
   lastName: z.string().min(2, "Nom trop court").max(100),
   email: z.string().email("Email invalide"),
+  bio: z
+    .string()
+    .max(300, "La bio doit être concise (300 car. max)")
+    .optional()
+    .nullable(),
+  instagram: z.string().max(50).optional().nullable(),
 
   // Informations du film
   title: z.string().min(3, "Titre trop court").max(200),
-  description: z.string().min(10, "Description trop courte").max(2000),
-  country: z.string().min(2, "Pays invalide").max(100),
-  aiToolsUsed: z
+  description: z
     .string()
-    .min(5, "Veuillez détailler les outils IA utilisés")
-    .max(1000),
+    .min(10, "Description trop courte")
+    .max(500, "Le synopsis doit faire 500 caractères maximum"),
+  country: z.string().min(2, "Pays invalide").max(100),
+  language: z.string().min(2, "Langue invalide").max(30).optional().nullable(),
+  aiStack: z
+    .string()
+    .min(5, "Détaillez votre stack IA")
+    .max(500, "La liste des outils doit être concise"),
 });
 
 /**
@@ -295,10 +305,7 @@ export const getSubmitterSubmissions = async (req, res) => {
       })),
     });
   } catch (error) {
-    console.error(
-      "Get submitter submissions error:",
-      error.message,
-    );
+    console.error("Get submitter submissions error:", error.message);
 
     return res.status(500).json({
       success: false,
