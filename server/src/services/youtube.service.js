@@ -56,8 +56,6 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
       },
     };
 
-    console.log("📤 Upload vers YouTube en cours...");
-
     // 4. Upload de la vidéo
     const response = await youtube.videos.insert({
       part: ["snippet", "status", "contentDetails"],
@@ -69,8 +67,6 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
 
     const videoId = response.data.id;
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-    console.log(`✅ Vidéo uploadée avec succès : ${videoUrl}`);
 
     // 5. Retour des informations
     return {
@@ -85,7 +81,7 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
       duration: response.data.contentDetails?.duration,
     };
   } catch (error) {
-    console.error("❌ Erreur upload YouTube:", error);
+    console.error("YouTube upload error:", error);
 
     // Gestion des erreurs spécifiques YouTube
     if (error.code === 401) {
@@ -109,6 +105,109 @@ export const uploadVideoToYouTube = async (videoBuffer, metadata) => {
     }
 
     throw new Error(`Erreur lors de l'upload : ${error.message}`);
+  }
+};
+
+/**
+ * Upload un fichier de sous-titres vers YouTube
+ *
+ * @param {string} videoId - ID de la vidéo YouTube
+ * @param {Buffer} subtitleBuffer - Buffer du fichier de sous-titres
+ * @param {string} language - Code de langue (ex: 'fr', 'en')
+ * @param {string} name - Nom des sous-titres (ex: 'French')
+ * @returns {Promise<Object>} Résultat de l'upload
+ */
+export const uploadCaptionToYouTube = async (
+  videoId,
+  subtitleBuffer,
+  language = "fr",
+  name = "French",
+) => {
+  try {
+    const oauth2Client = getYouTubeAuthClient();
+    const youtube = getAuthenticatedYouTubeClient(oauth2Client);
+
+    // Convertir le Buffer en Stream lisible
+    const subtitleStream = Readable.from(subtitleBuffer);
+
+    // Upload des captions
+    const response = await youtube.captions.insert({
+      part: ["snippet"],
+      requestBody: {
+        snippet: {
+          videoId: videoId,
+          language: language,
+          name: name,
+          isDraft: false,
+        },
+      },
+      media: {
+        mimeType: "application/octet-stream",
+        body: subtitleStream,
+      },
+    });
+
+    return {
+      success: true,
+      captionId: response.data.id,
+      language: response.data.snippet.language,
+      name: response.data.snippet.name,
+    };
+  } catch (error) {
+    console.error("YouTube caption upload error:", error);
+
+    if (error.code === 403) {
+      throw new Error(
+        "Permissions insuffisantes pour uploader des sous-titres sur YouTube",
+      );
+    }
+
+    throw new Error(
+      `Erreur lors de l'upload des sous-titres : ${error.message}`,
+    );
+  }
+};
+
+/**
+ * Upload une miniature (thumbnail) vers YouTube
+ *
+ * @param {string} videoId - ID de la vidéo YouTube
+ * @param {Buffer} thumbnailBuffer - Buffer de l'image
+ * @returns {Promise<Object>} Résultat de l'upload
+ */
+export const uploadThumbnailToYouTube = async (videoId, thumbnailBuffer) => {
+  try {
+    const oauth2Client = getYouTubeAuthClient();
+    const youtube = getAuthenticatedYouTubeClient(oauth2Client);
+
+    // Convertir le Buffer en Stream lisible
+    const thumbnailStream = Readable.from(thumbnailBuffer);
+
+    // Upload de la miniature
+    const response = await youtube.thumbnails.set({
+      videoId: videoId,
+      media: {
+        mimeType: "image/jpeg",
+        body: thumbnailStream,
+      },
+    });
+
+    return {
+      success: true,
+      thumbnails: response.data.items[0].default,
+    };
+  } catch (error) {
+    console.error("YouTube thumbnail upload error:", error);
+
+    if (error.code === 403) {
+      throw new Error(
+        "Permissions insuffisantes pour uploader des miniatures sur YouTube",
+      );
+    }
+
+    throw new Error(
+      `Erreur lors de l'upload de la miniature : ${error.message}`,
+    );
   }
 };
 
@@ -193,7 +292,7 @@ export const checkVideoModerationStatus = async (videoId) => {
 
     return moderationStatus;
   } catch (error) {
-    console.error("❌ Erreur vérification statut YouTube:", error);
+    console.error("YouTube status check error:", error);
     throw new Error(`Impossible de vérifier le statut : ${error.message}`);
   }
 };
@@ -211,13 +310,9 @@ export const waitForVideoProcessing = async (
   maxAttempts = 20,
   intervalMs = 10000,
 ) => {
-  console.log(`⏳ Attente du traitement de la vidéo ${videoId}...`);
-
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       const status = await checkVideoModerationStatus(videoId);
-
-      console.log(`[${attempt}/${maxAttempts}] Statut: ${status.uploadStatus}`);
 
       // Si traité ou rejeté, on retourne le statut
       if (
@@ -225,20 +320,15 @@ export const waitForVideoProcessing = async (
         status.uploadStatus === "rejected" ||
         status.uploadStatus === "failed"
       ) {
-        console.log(`✅ Traitement terminé: ${status.message}`);
         return status;
       }
 
       // Sinon, on attend avant de réessayer
       if (attempt < maxAttempts) {
-        console.log(`⏱️  Prochain essai dans ${intervalMs / 1000}s...`);
         await new Promise((resolve) => setTimeout(resolve, intervalMs));
       }
     } catch (error) {
-      console.error(
-        `❌ Erreur lors de la tentative ${attempt}:`,
-        error.message,
-      );
+      console.error(`Error on attempt ${attempt}:`, error.message);
 
       // Si c'est la dernière tentative, on lance l'erreur
       if (attempt === maxAttempts) {
@@ -283,7 +373,7 @@ export const updateVideoMetadata = async (videoId, updates) => {
 
     return response.data;
   } catch (error) {
-    console.error("❌ Erreur mise à jour vidéo:", error);
+    console.error("YouTube video update error:", error);
     throw new Error(`Impossible de mettre à jour la vidéo : ${error.message}`);
   }
 };
@@ -303,10 +393,9 @@ export const deleteVideo = async (videoId) => {
       id: videoId,
     });
 
-    console.log(`🗑️  Vidéo ${videoId} supprimée de YouTube`);
     return true;
   } catch (error) {
-    console.error("❌ Erreur suppression vidéo:", error);
+    console.error("YouTube video deletion error:", error);
     throw new Error(`Impossible de supprimer la vidéo : ${error.message}`);
   }
 };
@@ -343,7 +432,7 @@ export const getVideoStatistics = async (videoId) => {
       favoriteCount: parseInt(video.statistics.favoriteCount || 0),
     };
   } catch (error) {
-    console.error("❌ Erreur récupération statistiques:", error);
+    console.error("YouTube statistics retrieval error:", error);
     throw new Error(
       `Impossible de récupérer les statistiques : ${error.message}`,
     );
@@ -357,13 +446,14 @@ export const getVideoStatistics = async (videoId) => {
  * @returns {Object} Métadonnées formatées pour YouTube
  */
 export const formatFilmMetadataForYouTube = (film) => {
+  const aiTools = film.aiStack || film.aiToolsUsed || "";
   const tags = [
     "MarsAI Festival",
     "Intelligence Artificielle",
     "Court-métrage",
     "IA",
     film.country,
-    ...film.aiToolsUsed.split(",").map((tool) => tool.trim()),
+    ...aiTools.split(",").map((tool) => tool.trim()),
   ].filter(Boolean);
 
   return {
@@ -373,7 +463,7 @@ ${film.description}
 
 🎬 Court-métrage créé avec l'Intelligence Artificielle
 🌍 Pays : ${film.country}
-🤖 Outils IA utilisés : ${film.aiToolsUsed}
+🤖 Outils IA utilisés : ${aiTools}
 
 Soumis au MarsAI Festival - Premier festival international de films créés avec l'IA
     `.trim(),

@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -103,12 +104,9 @@ function Footer() {
             <h2 className="text-white text-5xl md:text-7xl font-black mb-2 tracking-tighter uppercase">
               MARSAI
             </h2>
-            <p className="text-xl md:text-2xl text-amber-400/80 font-light tracking-widest uppercase">
-              L'apogée du cinéma génératif
-            </p>
           </div>
           <div className="flex items-center space-x-3 mt-6 md:mt-0 text-sm tracking-widest text-purple-300/60 uppercase">
-            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]"></span>
+            <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(155, 137, 255)]"></span>
             <span>Festival 2026</span>
           </div>
         </div>
@@ -121,7 +119,14 @@ function Footer() {
             <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs opacity-50">Participer</h3>
             <ul className="space-y-4 text-sm font-medium">
               <li><a href="soumettre" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Soumettre un film</a></li>
-              <li><a href="#" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Règlement du concours</a></li>
+              <li>
+                <Link
+                  to="/reglement"
+                  className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300"
+                >
+                  Règlement du concours
+                </Link>
+              </li>
               <li><a href="calendrier" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Calendrier</a></li>
               <li><a href="/login" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Se connecter</a></li>
             </ul>
