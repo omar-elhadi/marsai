@@ -1,1 +1,58 @@
-@import "tailwindcss"
+/* ═══════════════════════════════════════════════════════════════
+   MARSAI — App.css
+   Point d'entrée CSS unique.
+   
+   RÈGLE ABSOLUE :
+   L'import Tailwind n'apparaît qu'ici et nulle part ailleurs
+   dans tout le projet. Un seul import évite les doublons de
+   classes utilitaires dans le bundle final.
+   
+   ORDRE D'IMPORT :
+   1. Tailwind — génère toutes les classes utilitaires
+   2. Variables — tokens CSS disponibles dès que Tailwind est chargé
+   3. Base — reset qui peut utiliser les variables
+   4. Typography — classes qui utilisent les variables
+   5. Animations — keyframes qui utilisent les variables
+   6. Scrollbar — dernier, peut surcharger les styles natifs
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Tailwind CSS v4 — import unique */
+@import "tailwindcss";
+
+/* 2. Design system — tokens de référence */
+@import "./styles/Variables.css";
+
+/* 3. Fondations globales */
+@import "./styles/Base.css";
+
+/* 4. Vocabulaire typographique */
+@import "./styles/Typography.css";
+
+/* 5. Keyframes globaux */
+@import "./styles/Animations.css";
+
+/* 6. Scrollbar */
+@import "./styles/scrollbar.css";
+
+/* ── Tokens Tailwind 4 — @theme ────────────────────────────────
+   Expose les tokens du design system comme classes Tailwind.
+   Exemple : bg-bg, text-accent, font-display, etc.
+   Synchronisé avec Variables.css pour ne pas avoir deux sources.
+   ─────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Polices */
+  --font-sans:    "Manrope", sans-serif;
+  --font-display: "Manrope", sans-serif;
+
+  /* Couleurs — accessibles via bg-*, text-*, border-* */
+  --color-bg:           #0f0f0f;
+  --color-bg-pure:      #000000;
+  --color-surface:      #1a1a1a;
+  --color-surface-high: #242424;
+  --color-text:         #f1f5f9;
+  --color-text-muted:   #8a8a8a;
+  --color-text-faint:   #4a4a4a;
+  --color-accent:       #e2d1c3;
+  --color-border:       rgba(255, 255, 255, 0.08);
+}
