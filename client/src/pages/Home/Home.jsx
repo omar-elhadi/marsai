@@ -1,26 +1,27 @@
 /**
  * Home.jsx — MARSAI Festival
  *
- * Phase 3 — Programme intégré
+ * Phase 4 — Jury International intégré
  * ─────────────────────────────────────────────────────────────
- * Ordre narratif de la page :
- *   §1  HeroImpact + Stats        Phase 1 ✅
- *   §2  Manifeste                 Phase 2 ✅
- *   §3  Thème                     Phase 2 ✅
- *   §4  Programme                 Phase 3 ✅  ← nouveau
- *   §5  Jury                      Phase 4 (à venir)
- *   §6  Nexus (carte)             existant
+ * Ordre narratif :
+ *   §1  HeroImpact + Stats        ✅
+ *   §2  Manifeste                 ✅
+ *   §3  Thème                     ✅
+ *   §4  Programme                 ✅
+ *   §5  Jury International        ✅  ← Phase 4
+ *   §6  Nexus                     existant
  *   §7  Récompenses               Phase 5 (à venir)
  *   §8  Alliances                 existant
  *   §9  CTA final                 existant
  */
 
-import Reveal            from '../../components/animations/Reveal';
-import Parallax          from '../../components/animations/Parallax';
-import HeroImpact        from '../../components/animations/HeroImpact';
-import SectionManifeste  from '@/components/SectionManifeste';
-import SectionTheme      from '@/components/SectionTheme';
-import SectionProgramme  from '@/components/SectionProgramme';
+import Reveal           from '../../components/animations/Reveal';
+import Parallax         from '../../components/animations/Parallax';
+import HeroImpact       from '../../components/animations/HeroImpact';
+import SectionManifeste from '@/components/SectionManifeste';
+import SectionTheme     from '@/components/SectionTheme';
+import SectionProgramme from '@/components/SectionProgramme';
+import SectionJury      from '@/components/SectionJury';
 
 function Home() {
   return (
@@ -38,37 +39,8 @@ function Home() {
       {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
       <SectionProgramme />
 
-      {/* ── §5 JURY — placeholder Phase 4 ───────────────────────── */}
-      <section
-        id="jury"
-        className="bg-surface py-20 md:py-32 px-6 md:px-12"
-        style={{ borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}
-      >
-        <div className="max-w-5xl mx-auto">
-          <Reveal>
-            <h2 className="title-section mb-10 md:mb-16">Le Jury</h2>
-          </Reveal>
-          <div className="space-y-6 md:space-y-10">
-            {[
-              { name: 'Alice Dupont',  role: 'Innovation', delay: 0.1 },
-              { name: 'Marc Leroy',   role: 'Design',      delay: 0.2 },
-              { name: 'Sophie Martin',role: 'R&D I.A.',    delay: 0.3 },
-            ].map(({ name, role, delay }) => (
-              <Reveal key={name} delay={delay}>
-                <div
-                  className="flex flex-col md:flex-row justify-between md:items-end pb-4 md:pb-6 group cursor-default"
-                  style={{ borderBottom: '1px solid var(--color-border)' }}
-                >
-                  <span className="title-card transition-colors duration-300 group-hover:text-[var(--color-accent)]">
-                    {name}
-                  </span>
-                  <span className="label-category mt-2 md:mt-0">{role}</span>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
+      <SectionJury />
 
       {/* ── §6 NEXUS ─────────────────────────────────────────────── */}
       <section id="lieu" className="max-w-6xl mx-auto py-20 md:py-32 px-6 md:px-12">
@@ -104,7 +76,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §7 RÉCOMPENSES — placeholder Phase 5 ────────────────── */}
+      {/* ── §7 RÉCOMPENSES — Phase 5 à venir ─────────────────────── */}
       <section id="recompenses" className="max-w-5xl mx-auto py-20 md:py-32 px-6 md:px-12">
         <Reveal>
           <h2 className="title-section mb-10 md:mb-16">Récompenses</h2>
