@@ -76,12 +76,13 @@ export default function LuminousButton({
 
     const ov = document.createElement('div');
     ov.setAttribute('aria-hidden', 'true');
-    // Gradient crème/sable vers noir — cohérence visuelle du site
+    // Noir pur — l'overlay disparaît dans le fond sans flash.
+    // La révélation de la nouvelle page est entièrement gérée
+    // par PageTransitionLayer (grain dissolve pour /soumettre).
     ov.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:9999',
       'pointer-events:none',
-      `background:radial-gradient(circle at center,
-        #fffdf5 0%, #f1e8d8 20%, #e2d1c3 45%, #9a7a60 75%, #000000 100%)`,
+      'background:#000000',
     ].join(';');
     document.body.appendChild(ov);
 
@@ -89,16 +90,14 @@ export default function LuminousButton({
       { clipPath: `circle(0px at ${ox}px ${oy}px)` },
       {
         clipPath:  `circle(200vmax at ${ox}px ${oy}px)`,
-        duration:  0.72,
-        ease:      'power2.inOut',
+        duration:  0.55,
+        ease:      'power2.in',
         onComplete() {
-          gsap.to(ov, {
-            opacity:  0, duration: 0.22, ease: 'power1.in',
-            onComplete() {
-              navigate(to);
-              setTimeout(() => { ov.remove(); setClicking(false); }, 400);
-            },
-          });
+          // Navigation immédiate — PageTransitionLayer prend le relais.
+          // L'overlay est retiré sans fondu : il est noir,
+          // PageTransitionLayer est aussi noir → transition invisible.
+          navigate(to);
+          setTimeout(() => { ov.remove(); setClicking(false); }, 200);
         },
       }
     );
