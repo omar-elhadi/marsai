@@ -277,7 +277,7 @@ export default function HeroImpact() {
               maxWidth:      '36ch',
             }}
           >
-            Un futur à la fois <br/> Une minute à la fois
+            Un futur à la fois, une minute à la fois
           </p>
 
           {/* Date + filet */}

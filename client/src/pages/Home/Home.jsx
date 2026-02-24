@@ -1,52 +1,39 @@
 /**
  * Home.jsx — MARSAI Festival
  *
- * Phase 0.2 — Refactorisation design system
- * ─────────────────────────────────────────
- * Ce fichier ne contient AUCUN style inline ni longue chaîne
- * de classes Tailwind répétées. Tout passe par :
- *   - Les classes sémantiques de Typography.css
- *   - Les tokens de Variables.css via Tailwind @theme
- *   - Tailwind utilitaires pour l'espacement et la mise en page
- *
- * Structure préservée à l'identique — aucun contenu modifié.
- * HeroImpact conservé — remplacé en Phase 1.
+ * Phase 2 — Manifeste + Thème intégrés
+ * ─────────────────────────────────────────────────────────────
+ * Ordre narratif de la page :
+ *   §1  HeroImpact + Stats        Phase 1 ✅
+ *   §2  Manifeste                 Phase 2.1 ✅  ← nouveau
+ *   §3  Thème                     Phase 2.2 ✅  ← nouveau
+ *   §4  Jury                      Phase 4 (à venir)
+ *   §5  Nexus (carte)             existant
+ *   §6  Récompenses               Phase 5 (à venir)
+ *   §7  Alliances                 existant
+ *   §8  CTA final                 existant
  */
 
-import Reveal from '../../components/animations/Reveal';
-import Parallax from '../../components/animations/Parallax';
-import HeroImpact from '../../components/animations/HeroImpact';
+import Reveal        from '../../components/animations/Reveal';
+import Parallax      from '../../components/animations/Parallax';
+import HeroImpact    from '../../components/animations/HeroImpact';
+import SectionManifeste from '@/components/SectionManifeste';
+import SectionTheme     from '@/components/SectionTheme';
 
 function Home() {
   return (
     <div className="bg-bg-pure text-text">
 
-      {/* ── §1 HERO ─────────────────────────────────────────────────
-          Conservé intact — remplacé en Phase 1.
-          ──────────────────────────────────────────────────────── */}
+      {/* ── §1 HERO + STATS ──────────────────────────────────────── */}
       <HeroImpact />
 
-      {/* ── §2 MANIFESTE — La respiration ───────────────────────────
-          Texte d'accroche. Largeur max contrainte pour la lisibilité.
-          ──────────────────────────────────────────────────────── */}
-      <section className="max-w-5xl mx-auto py-20 md:py-32 lg:py-40 px-6 md:px-12">
-        <Reveal>
-          <h2 className="title-section mb-6 md:mb-10">
-            Description de l'événement
-          </h2>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <p className="body-editorial max-w-3xl">
-            Festival dédié à la créativité et à l'innovation réunissant participants,
-            jury et partenaires dans une symbiose technologique inédite.
-          </p>
-        </Reveal>
-      </section>
+      {/* ── §2 MANIFESTE — L'Art de la Contrainte ───────────────── */}
+      <SectionManifeste />
 
-      {/* ── §3 JURY — La hiérarchie ─────────────────────────────────
-          Liste structurée. Fond surface pour différencier la section.
-          Bordure subtile en haut et en bas via token border.
-          ──────────────────────────────────────────────────────── */}
+      {/* ── §3 THÈME — Imaginer des Futurs Souhaitables ─────────── */}
+      <SectionTheme />
+
+      {/* ── §4 JURY — La hiérarchie ─────────────────────────────── */}
       <section
         id="jury"
         className="bg-surface py-20 md:py-32 px-6 md:px-12"
@@ -59,18 +46,16 @@ function Home() {
 
           <div className="space-y-6 md:space-y-10">
             {[
-              { name: 'Alice Dupont',  role: 'Innovation', delay: 0.1 },
-              { name: 'Marc Leroy',   role: 'Design',      delay: 0.2 },
-              { name: 'Sophie Martin',role: 'R&D I.A.',    delay: 0.3 },
+              { name: 'Alice Dupont',   role: 'Innovation', delay: 0.1 },
+              { name: 'Marc Leroy',     role: 'Design',     delay: 0.2 },
+              { name: 'Sophie Martin',  role: 'R&D I.A.',   delay: 0.3 },
             ].map(({ name, role, delay }) => (
               <Reveal key={name} delay={delay}>
                 <div
                   className="flex flex-col md:flex-row justify-between md:items-end pb-4 md:pb-6 group cursor-default"
                   style={{ borderBottom: '1px solid var(--color-border)' }}
                 >
-                  <span
-                    className="title-card transition-colors duration-300 group-hover:text-[var(--color-accent)]"
-                  >
+                  <span className="title-card transition-colors duration-300 group-hover:text-[var(--color-accent)]">
                     {name}
                   </span>
                   <span className="label-category mt-2 md:mt-0">{role}</span>
@@ -81,10 +66,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §4 LIEU — Le Nexus ──────────────────────────────────────
-          Carte Google Maps avec parallaxe.
-          Radius cohérent avec l'esthétique éditoriale.
-          ──────────────────────────────────────────────────────── */}
+      {/* ── §5 NEXUS — La carte ──────────────────────────────────── */}
       <section id="lieu" className="max-w-6xl mx-auto py-20 md:py-32 px-6 md:px-12">
         <Reveal>
           <h2 className="title-section mb-8 md:mb-12">Le Nexus</h2>
@@ -119,10 +101,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §5 RÉCOMPENSES ──────────────────────────────────────────
-          Grille 1→2→4 colonnes.
-          Accent sable en lieu et place de l'ambre.
-          ──────────────────────────────────────────────────────── */}
+      {/* ── §6 RÉCOMPENSES ───────────────────────────────────────── */}
       <section id="recompenses" className="max-w-5xl mx-auto py-20 md:py-32 px-6 md:px-12">
         <Reveal>
           <h2 className="title-section mb-10 md:mb-16">Récompenses</h2>
@@ -130,10 +109,10 @@ function Home() {
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {[
-            { num: '01', title: 'Trophées I.A.',     desc: 'Pour les 3 premiers lauréats.',              delay: 0.1 },
-            { num: '02', title: 'Fonds de Création', desc: 'Prix en espèces et dotations matérielles.',  delay: 0.2 },
-            { num: '03', title: "Réseau d'Élite",    desc: 'Networking direct avec les investisseurs.',  delay: 0.3 },
-            { num: '04', title: 'Certification',     desc: "Label d'excellence MARSAI pour tous.",       delay: 0.4 },
+            { num: '01', title: 'Trophées I.A.',     desc: 'Pour les 3 premiers lauréats.',             delay: 0.1 },
+            { num: '02', title: 'Fonds de Création', desc: 'Prix en espèces et dotations matérielles.', delay: 0.2 },
+            { num: '03', title: "Réseau d'Élite",    desc: 'Networking direct avec les investisseurs.', delay: 0.3 },
+            { num: '04', title: 'Certification',     desc: "Label d'excellence MARSAI pour tous.",      delay: 0.4 },
           ].map(({ num, title, desc, delay }) => (
             <Reveal key={num} delay={delay}>
               <li
@@ -149,9 +128,7 @@ function Home() {
         </ul>
       </section>
 
-      {/* ── §6 PARTENAIRES — La constellation ───────────────────────
-          Grille de logos. Fond surface pour délimiter la section.
-          ──────────────────────────────────────────────────────── */}
+      {/* ── §7 ALLIANCES ─────────────────────────────────────────── */}
       <section
         id="partenaires"
         className="bg-surface py-20 md:py-32 px-6 md:px-12"
@@ -165,8 +142,7 @@ function Home() {
             {[1, 2, 3, 4].map((i) => (
               <Parallax key={i} speed={1 + i * 0.03}>
                 <div
-                  className="aspect-[3/2] flex items-center justify-center p-6 md:p-8
-                             transition-colors duration-500"
+                  className="aspect-[3/2] flex items-center justify-center p-6 md:p-8 transition-colors duration-500"
                   style={{
                     background:   'var(--color-surface-high)',
                     borderRadius: 'var(--radius-md)',
@@ -183,10 +159,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §7 CTA — L'appel final ───────────────────────────────────
-          Seule section inversée du site : fond blanc cassé, texte sombre.
-          La polarité s'inverse — le contraste maximal pour l'appel à l'action.
-          ──────────────────────────────────────────────────────── */}
+      {/* ── §8 CTA FINAL ─────────────────────────────────────────── */}
       <section
         className="py-24 md:py-40 text-center px-6 md:px-12"
         style={{ background: 'var(--color-text)', color: 'var(--color-bg-pure)' }}
