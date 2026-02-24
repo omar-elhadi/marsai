@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════
    MARSAI — App.css
-   Point d'entrée CSS unique.
-   
+   Point d'entrée CSS unique. Situé dans src/styles/.
+   Importé par main.jsx via : import './styles/App.css'
+
    RÈGLE ABSOLUE :
    L'import Tailwind n'apparaît qu'ici et nulle part ailleurs
    dans tout le projet. Un seul import évite les doublons de
    classes utilitaires dans le bundle final.
-   
+
    ORDRE D'IMPORT :
    1. Tailwind — génère toutes les classes utilitaires
    2. Variables — tokens CSS disponibles dès que Tailwind est chargé
@@ -14,30 +15,31 @@
    4. Typography — classes qui utilisent les variables
    5. Animations — keyframes qui utilisent les variables
    6. Scrollbar — dernier, peut surcharger les styles natifs
+
+   CHEMINS : relatifs à src/styles/ (même dossier → ./NomFichier.css)
    ═══════════════════════════════════════════════════════════════ */
 
 /* 1. Tailwind CSS v4 — import unique */
 @import "tailwindcss";
 
 /* 2. Design system — tokens de référence */
-@import "./styles/Variables.css";
+@import "./Variables.css";
 
 /* 3. Fondations globales */
-@import "./styles/Base.css";
+@import "./Base.css";
 
 /* 4. Vocabulaire typographique */
-@import "./styles/Typography.css";
+@import "./Typography.css";
 
 /* 5. Keyframes globaux */
-@import "./styles/Animations.css";
+@import "./Animations.css";
 
 /* 6. Scrollbar */
-@import "./styles/scrollbar.css";
+@import "./scrollbar.css";
 
 /* ── Tokens Tailwind 4 — @theme ────────────────────────────────
    Expose les tokens du design system comme classes Tailwind.
-   Exemple : bg-bg, text-accent, font-display, etc.
-   Synchronisé avec Variables.css pour ne pas avoir deux sources.
+   Synchronisé avec Variables.css — même source de vérité.
    ─────────────────────────────────────────────────────────────── */
 
 @theme {
@@ -45,7 +47,7 @@
   --font-sans:    "Manrope", sans-serif;
   --font-display: "Manrope", sans-serif;
 
-  /* Couleurs — accessibles via bg-*, text-*, border-* */
+  /* Couleurs — accessibles via bg-*, text-*, border-* en Tailwind */
   --color-bg:           #0f0f0f;
   --color-bg-pure:      #000000;
   --color-surface:      #1a1a1a;
