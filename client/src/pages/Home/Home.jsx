@@ -1,14 +1,15 @@
 /**
  * Home.jsx — MARSAI Festival
  *
- * Phase 4 — Jury International intégré
+ * Phase 5 — Récompenses intégrées
  * ─────────────────────────────────────────────────────────────
  * Ordre narratif :
  *   §1  HeroImpact + Stats        ✅
  *   §2  Manifeste                 ✅
  *   §3  Thème                     ✅
  *   §4  Programme                 ✅
- *   §5  Jury International        ✅  ← Phase 4
+ *   §5  Jury International        ✅
+ *   §7  Récompenses                ✅  ← Phase 5
  *   §6  Nexus                     existant
  *   §7  Récompenses               Phase 5 (à venir)
  *   §8  Alliances                 existant
@@ -22,6 +23,7 @@ import SectionManifeste from '@/components/SectionManifeste';
 import SectionTheme     from '@/components/SectionTheme';
 import SectionProgramme from '@/components/SectionProgramme';
 import SectionJury      from '@/components/SectionJury';
+import SectionRecompenses from '@/components/SectionRecompenses';
 
 function Home() {
   return (
@@ -76,28 +78,8 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §7 RÉCOMPENSES — Phase 5 à venir ─────────────────────── */}
-      <section id="recompenses" className="max-w-5xl mx-auto py-20 md:py-32 px-6 md:px-12">
-        <Reveal>
-          <h2 className="title-section mb-10 md:mb-16">Récompenses</h2>
-        </Reveal>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          {[
-            { num: '01', title: 'Trophées I.A.',     desc: 'Pour les 3 premiers lauréats.',             delay: 0.1 },
-            { num: '02', title: 'Fonds de Création', desc: 'Prix en espèces et dotations matérielles.', delay: 0.2 },
-            { num: '03', title: "Réseau d'Élite",    desc: 'Networking direct avec les investisseurs.', delay: 0.3 },
-            { num: '04', title: 'Certification',     desc: "Label d'excellence MARSAI pour tous.",      delay: 0.4 },
-          ].map(({ num, title, desc, delay }) => (
-            <Reveal key={num} delay={delay}>
-              <li className="flex flex-col pt-6" style={{ borderTop: '1px solid var(--color-border)' }}>
-                <span className="label-category mb-2">{num}.</span>
-                <span className="text-text font-semibold text-lg md:text-xl mb-2">{title}</span>
-                <span className="body-meta">{desc}</span>
-              </li>
-            </Reveal>
-          ))}
-        </ul>
-      </section>
+      {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
+      <SectionRecompenses />
 
       {/* ── §8 ALLIANCES ─────────────────────────────────────────── */}
       <section id="partenaires" className="bg-surface py-20 md:py-32 px-6 md:px-12">
