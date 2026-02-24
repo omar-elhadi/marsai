@@ -134,7 +134,10 @@ function JuryCard({ juré, animConfig, cardRef }) {
         const img = el.querySelector('.jury-photo');
         const overlay = el.querySelector('.jury-overlay');
         const nom = el.querySelector('.jury-nom');
-        if (img)     img.style.filter    = 'grayscale(0%) scale(1.04)';
+        if (img) {
+          img.style.filter    = 'grayscale(0%)';
+          img.style.transform = 'scale(1.04)';
+        }
         if (overlay) overlay.style.opacity = '0.55';
         if (nom)     nom.style.color      = 'var(--color-accent)';
       }}
@@ -145,7 +148,10 @@ function JuryCard({ juré, animConfig, cardRef }) {
         const img = el.querySelector('.jury-photo');
         const overlay = el.querySelector('.jury-overlay');
         const nom = el.querySelector('.jury-nom');
-        if (img)     img.style.filter    = 'grayscale(100%)';
+        if (img) {
+          img.style.filter    = 'grayscale(100%)';
+          img.style.transform = 'scale(1)';
+        }
         if (overlay) overlay.style.opacity = '0.72';
         if (nom)     nom.style.color      = 'var(--color-text)';
       }}
