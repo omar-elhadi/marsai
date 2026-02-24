@@ -31,6 +31,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import LuminousButton from '@/components/LuminousButton';
 
 // ─────────────────────────────────────────────────────────────
 // DONNÉES — liens de navigation
@@ -104,81 +105,8 @@ function NavLink({ link, isScrolled, isActive, onClick }) {
     : <a    href={link.href} {...commonProps}>{content}</a>;
 }
 
-// ─────────────────────────────────────────────────────────────
-// SOUS-COMPOSANT : Bouton "Soumettre" — barre lumineuse
-// La pièce unique. Référence photographique mémorisée.
-// ─────────────────────────────────────────────────────────────
-function SoumettreButton({ isScrolled }) {
-  const [hovered, setHovered] = useState(false);
+// (SoumettreButton supprimé — remplacé par LuminousButton)
 
-  return (
-    <a
-      href="/soumettre"
-      style={{
-        position:       'relative',
-        display:        'inline-flex',
-        alignItems:     'center',
-        gap:            '10px',
-        padding:        '0.55rem 1.1rem 0.55rem 0.85rem',
-        fontFamily:     'var(--font-sans)',
-        fontWeight:     700,
-        fontSize:       'clamp(0.60rem, 0.82vw, 0.70rem)',
-        letterSpacing:  '0.18em',
-        textTransform:  'uppercase',
-        color:          hovered ? 'var(--color-bg-pure)' : 'var(--color-accent)',
-        background:     hovered
-          ? 'var(--color-accent)'
-          : 'transparent',
-        border:         '1px solid',
-        borderColor:    hovered
-          ? 'var(--color-accent)'
-          : 'rgba(226,209,195,0.30)',
-        borderRadius:   'var(--radius-pill)',
-        textDecoration: 'none',
-        transition:     `background 300ms var(--ease-out),
-                         color     300ms var(--ease-out),
-                         border-color 300ms var(--ease-out),
-                         box-shadow 300ms var(--ease-out)`,
-        boxShadow:      hovered
-          ? '0 0 20px rgba(226,209,195,0.25), 0 0 6px rgba(226,209,195,0.12)'
-          : '0 0 0px rgba(226,209,195,0)',
-        overflow:       'hidden',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      aria-label="Soumettre un film au festival MARSAI"
-    >
-      {/* ── Barre verticale lumineuse — l'élément signature ───
-          Inspirée directement de la photo référence.
-          Une barre fine, un halo qui rayonne.
-          ──────────────────────────────────────────────────── */}
-      <span
-        aria-hidden="true"
-        style={{
-          position:     'relative',
-          display:      'block',
-          width:        '2px',
-          height:       '14px',
-          borderRadius: '1px',
-          background:   hovered
-            ? 'var(--color-bg-pure)'
-            : 'var(--color-accent)',
-          flexShrink:   0,
-          transition:   'background 300ms var(--ease-out)',
-          // Halo lumineux autour de la barre
-          boxShadow:    hovered
-            ? '0 0 0px rgba(226,209,195,0)'
-            : `0 0 8px rgba(226,209,195,0.8),
-               0 0 16px rgba(226,209,195,0.35),
-               0 0 24px rgba(226,209,195,0.12)`,
-        }}
-      />
-
-      {/* Texte */}
-      <span style={{ position: 'relative', zIndex: 1 }}>Soumettre</span>
-    </a>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────
 // COMPOSANT PRINCIPAL
@@ -300,8 +228,8 @@ export default function Header() {
               }}
             />
 
-            {/* Bouton Soumettre — barre lumineuse */}
-            <SoumettreButton isScrolled={isScrolled} />
+            {/* Bouton Soumettre — LuminousButton */}
+            <LuminousButton label="Soumettre" to="/soumettre" variant="dark" size="sm" />
           </nav>
 
           {/* ── BURGER MOBILE ─────────────────────────────────── */}

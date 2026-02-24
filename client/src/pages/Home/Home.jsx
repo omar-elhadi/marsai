@@ -15,7 +15,6 @@
  *   §8  Alliances                 existant
  *   §9  CTA final                 existant
  */
-
 import Reveal           from '../../components/animations/Reveal';
 import Parallax         from '../../components/animations/Parallax';
 import HeroImpact       from '../../components/animations/HeroImpact';
@@ -25,6 +24,8 @@ import SectionProgramme from '@/components/SectionProgramme';
 import SectionJury      from '@/components/SectionJury';
 import SectionRecompenses from '@/components/SectionRecompenses';
 import SectionGalerie      from '@/components/SectionGalerie';
+import SectionAlliances   from '@/components/SectionAlliances';
+import SectionCTA         from '@/components/SectionCTA';
 
 function Home() {
   return (
@@ -85,75 +86,12 @@ function Home() {
       {/* ── §8 GALERIE ──────────────────────────────────────────── */}
       <SectionGalerie />
 
-      {/* ── §9 ALLIANCES ─────────────────────────────────────────── */}
-      <section id="partenaires" className="bg-surface py-20 md:py-32 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto text-center">
-          <Reveal>
-            <h2 className="title-section mb-16 md:mb-24">Alliances</h2>
-          </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-12 items-center">
-            {[1, 2, 3, 4].map((i) => (
-              <Parallax key={i} speed={1 + i * 0.03}>
-                <div
-                  className="aspect-[3/2] flex items-center justify-center p-6 md:p-8 transition-colors duration-500"
-                  style={{
-                    background:   'var(--color-surface-high)',
-                    borderRadius: 'var(--radius-md)',
-                    border:       '1px solid var(--color-border)',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-accent)'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor  = 'var(--color-border)'}
-                >
-                  <span className="label-category">ORG {i}</span>
-                </div>
-              </Parallax>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ── §9 ALLIANCES ────────────────────────────────────────── */}
+      <SectionAlliances />
 
-      {/* ── §10 CTA FINAL ─────────────────────────────────────────── */}
-      <section
-        className="py-24 md:py-40 text-center px-6 md:px-12"
-        style={{ background: 'var(--color-text)', color: 'var(--color-bg-pure)' }}
-      >
-        <Reveal>
-          <h2
-            className="font-black uppercase leading-none mb-8 md:mb-16"
-            style={{
-              fontSize:      'clamp(2.5rem, 8vw, 7rem)',
-              letterSpacing: '-0.04em',
-              color:         'var(--color-bg-pure)',
-            }}
-          >
-            Intégrez la matrice.
-          </h2>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <a href="/soumettre" className="inline-block">
-            <button
-              className="font-bold tracking-widest uppercase transition-all duration-500"
-              style={{
-                background:   'var(--color-bg-pure)',
-                color:        'var(--color-text)',
-                padding:      'clamp(0.9rem, 1.5vw, 1.5rem) clamp(2.5rem, 4vw, 4rem)',
-                borderRadius: 'var(--radius-pill)',
-                fontSize:     'clamp(0.75rem, 1vw, 1rem)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'var(--color-accent)';
-                e.currentTarget.style.color      = 'var(--color-bg-pure)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'var(--color-bg-pure)';
-                e.currentTarget.style.color      = 'var(--color-text)';
-              }}
-            >
-              Soumettre une œuvre
-            </button>
-          </a>
-        </Reveal>
-      </section>
+      {/* ── §10 CTA FINAL ──────────────────────────────────────────── */}
+      <SectionCTA />
+
 
     </div>
   );
