@@ -1,24 +1,26 @@
 /**
  * Home.jsx — MARSAI Festival
  *
- * Phase 2 — Manifeste + Thème intégrés
+ * Phase 3 — Programme intégré
  * ─────────────────────────────────────────────────────────────
  * Ordre narratif de la page :
  *   §1  HeroImpact + Stats        Phase 1 ✅
- *   §2  Manifeste                 Phase 2.1 ✅  ← nouveau
- *   §3  Thème                     Phase 2.2 ✅  ← nouveau
- *   §4  Jury                      Phase 4 (à venir)
- *   §5  Nexus (carte)             existant
- *   §6  Récompenses               Phase 5 (à venir)
- *   §7  Alliances                 existant
- *   §8  CTA final                 existant
+ *   §2  Manifeste                 Phase 2 ✅
+ *   §3  Thème                     Phase 2 ✅
+ *   §4  Programme                 Phase 3 ✅  ← nouveau
+ *   §5  Jury                      Phase 4 (à venir)
+ *   §6  Nexus (carte)             existant
+ *   §7  Récompenses               Phase 5 (à venir)
+ *   §8  Alliances                 existant
+ *   §9  CTA final                 existant
  */
 
-import Reveal        from '../../components/animations/Reveal';
-import Parallax      from '../../components/animations/Parallax';
-import HeroImpact    from '../../components/animations/HeroImpact';
-import SectionManifeste from '@/components/SectionManifeste';
-import SectionTheme     from '@/components/SectionTheme';
+import Reveal            from '../../components/animations/Reveal';
+import Parallax          from '../../components/animations/Parallax';
+import HeroImpact        from '../../components/animations/HeroImpact';
+import SectionManifeste  from '@/components/SectionManifeste';
+import SectionTheme      from '@/components/SectionTheme';
+import SectionProgramme  from '@/components/SectionProgramme';
 
 function Home() {
   return (
@@ -27,13 +29,16 @@ function Home() {
       {/* ── §1 HERO + STATS ──────────────────────────────────────── */}
       <HeroImpact />
 
-      {/* ── §2 MANIFESTE — L'Art de la Contrainte ───────────────── */}
+      {/* ── §2 MANIFESTE ─────────────────────────────────────────── */}
       <SectionManifeste />
 
-      {/* ── §3 THÈME — Imaginer des Futurs Souhaitables ─────────── */}
+      {/* ── §3 THÈME ─────────────────────────────────────────────── */}
       <SectionTheme />
 
-      {/* ── §4 JURY — La hiérarchie ─────────────────────────────── */}
+      {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
+      <SectionProgramme />
+
+      {/* ── §5 JURY — placeholder Phase 4 ───────────────────────── */}
       <section
         id="jury"
         className="bg-surface py-20 md:py-32 px-6 md:px-12"
@@ -43,12 +48,11 @@ function Home() {
           <Reveal>
             <h2 className="title-section mb-10 md:mb-16">Le Jury</h2>
           </Reveal>
-
           <div className="space-y-6 md:space-y-10">
             {[
-              { name: 'Alice Dupont',   role: 'Innovation', delay: 0.1 },
-              { name: 'Marc Leroy',     role: 'Design',     delay: 0.2 },
-              { name: 'Sophie Martin',  role: 'R&D I.A.',   delay: 0.3 },
+              { name: 'Alice Dupont',  role: 'Innovation', delay: 0.1 },
+              { name: 'Marc Leroy',   role: 'Design',      delay: 0.2 },
+              { name: 'Sophie Martin',role: 'R&D I.A.',    delay: 0.3 },
             ].map(({ name, role, delay }) => (
               <Reveal key={name} delay={delay}>
                 <div
@@ -66,7 +70,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §5 NEXUS — La carte ──────────────────────────────────── */}
+      {/* ── §6 NEXUS ─────────────────────────────────────────────── */}
       <section id="lieu" className="max-w-6xl mx-auto py-20 md:py-32 px-6 md:px-12">
         <Reveal>
           <h2 className="title-section mb-8 md:mb-12">Le Nexus</h2>
@@ -77,7 +81,6 @@ function Home() {
             épicentre de la collision entre tradition, nostalgie, technologie et innovation.
           </p>
         </Reveal>
-
         <div
           className="relative h-[50vh] md:h-[600px] overflow-hidden"
           style={{
@@ -101,12 +104,11 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §6 RÉCOMPENSES ───────────────────────────────────────── */}
+      {/* ── §7 RÉCOMPENSES — placeholder Phase 5 ────────────────── */}
       <section id="recompenses" className="max-w-5xl mx-auto py-20 md:py-32 px-6 md:px-12">
         <Reveal>
           <h2 className="title-section mb-10 md:mb-16">Récompenses</h2>
         </Reveal>
-
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {[
             { num: '01', title: 'Trophées I.A.',     desc: 'Pour les 3 premiers lauréats.',             delay: 0.1 },
@@ -115,10 +117,7 @@ function Home() {
             { num: '04', title: 'Certification',     desc: "Label d'excellence MARSAI pour tous.",      delay: 0.4 },
           ].map(({ num, title, desc, delay }) => (
             <Reveal key={num} delay={delay}>
-              <li
-                className="flex flex-col pt-6"
-                style={{ borderTop: '1px solid var(--color-border)' }}
-              >
+              <li className="flex flex-col pt-6" style={{ borderTop: '1px solid var(--color-border)' }}>
                 <span className="label-category mb-2">{num}.</span>
                 <span className="text-text font-semibold text-lg md:text-xl mb-2">{title}</span>
                 <span className="body-meta">{desc}</span>
@@ -128,16 +127,12 @@ function Home() {
         </ul>
       </section>
 
-      {/* ── §7 ALLIANCES ─────────────────────────────────────────── */}
-      <section
-        id="partenaires"
-        className="bg-surface py-20 md:py-32 px-6 md:px-12"
-      >
+      {/* ── §8 ALLIANCES ─────────────────────────────────────────── */}
+      <section id="partenaires" className="bg-surface py-20 md:py-32 px-6 md:px-12">
         <div className="max-w-6xl mx-auto text-center">
           <Reveal>
             <h2 className="title-section mb-16 md:mb-24">Alliances</h2>
           </Reveal>
-
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-12 items-center">
             {[1, 2, 3, 4].map((i) => (
               <Parallax key={i} speed={1 + i * 0.03}>
@@ -159,7 +154,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §8 CTA FINAL ─────────────────────────────────────────── */}
+      {/* ── §9 CTA FINAL ─────────────────────────────────────────── */}
       <section
         className="py-24 md:py-40 text-center px-6 md:px-12"
         style={{ background: 'var(--color-text)', color: 'var(--color-bg-pure)' }}
