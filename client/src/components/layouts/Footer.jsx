@@ -137,7 +137,7 @@ function Footer() {
             <h3 className="text-white font-bold mb-6 uppercase tracking-widest text-xs opacity-50">Ressources</h3>
             <ul className="space-y-4 text-sm font-medium">
               <li><a href="F-A-Q" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">FAQ</a></li>
-              <li><a href="#" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Actualités</a></li>
+              <li><a href="/news" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Actualités</a></li>
               <li><a href="contact" className="inline-block hover:translate-x-2 hover:text-amber-400 transition-all duration-300">Contact</a></li>
             </ul>
           </div>

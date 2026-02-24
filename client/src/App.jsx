@@ -22,7 +22,7 @@ import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
 import Events from '@/pages/Events/Events.jsx'; 
 import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
-
+import News from '@/pages/News/News.jsx';
 
 
 /**
@@ -34,7 +34,6 @@ import JuryDashboard from './pages/Jury/JuryDashboard.jsx';
 /**
  * 3. IMPORTS LAYOUTS (Conteneurs de structure)
  */
-import FestivalNews from './pages/News/News.jsx';
 import AdminLayout from './Layouts/AdminLayout.jsx';
 import PublicLayout from './Layouts/PublicLayout.jsx';
 
@@ -82,8 +81,7 @@ function App() {
           <Route path="/jury/dashboard" element={<JuryDashboard />} />
           <Route path="/regles-conditions" element={<ReglesConditions />} />
 
-          <Route path="/news" element={<FestivalNews />} />
-
+          <Route path="/news" element={<News />} />
 
 
           <Route path="/events" element={<Events />} />

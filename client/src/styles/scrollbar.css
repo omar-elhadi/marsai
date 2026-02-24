@@ -24,3 +24,12 @@
   scrollbar-color: rgba(251, 191, 36, 0.8) rgba(255, 255, 255, 0.05);
   scrollbar-width: thin;
 }
+
+/* utility class to hide scrollbars while preserving scroll behavior */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;    /* Firefox */
+}
