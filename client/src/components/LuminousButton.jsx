@@ -1,78 +1,69 @@
 /**
  * LuminousButton.jsx — MARSAI Festival
- * v2 — Filament vivant + Phase 3 fix complet
+ * v3 — Visuel sable/ivoire (v1) + Phase 3 overlay document.body (fix)
+ *
+ * PHASE 1 IDLE  : barre ivoire sable, halo triple couche, keyframe 3s
+ * PHASE 2 HOVER : halo × 2.5, bloom texte, barre scale(1.15)
+ * PHASE 3 CLICK : explosion radiale crème depuis document.body
+ *                 (jamais dans l'arbre React → immunisé stacking context)
  */
 
 import { useRef, useState } from 'react';
 import { useNavigate }      from 'react-router-dom';
 import gsap                 from 'gsap';
 
-const KEYFRAMES_CSS = `
-  @keyframes lb-flicker {
-    0%,100% { opacity:1;    filter:brightness(1.00); }
-    30%      { opacity:0.88; filter:brightness(0.88); }
-    32%      { opacity:1;    filter:brightness(1.22); }
-    60%      { opacity:0.94; filter:brightness(0.94); }
-    62%      { opacity:1;    filter:brightness(1.12); }
-  }
-  @keyframes lb-ray-breathe {
-    0%   { opacity:0.50; transform:translateY(-50%) scaleX(0.65); }
-    100% { opacity:0.88; transform:translateY(-50%) scaleX(1.00); }
-  }
-  @keyframes lb-bloom-breathe {
-    0%   { opacity:0.40; transform:translate(-50%,-50%) scale(0.80); }
-    100% { opacity:0.72; transform:translate(-50%,-50%) scale(1.20); }
+// ── Keyframes sable/ivoire ────────────────────────────────────
+const KF = `
+  @keyframes lb-bar-breathe {
+    0%   { opacity:.78; box-shadow:
+             0 0  6px rgba(226,209,195,.82),
+             0 0 14px rgba(226,209,195,.36),
+             0 0 28px rgba(226,209,195,.13); }
+    100% { opacity:1;   box-shadow:
+             0 0 10px rgba(226,209,195,.98),
+             0 0 22px rgba(226,209,195,.52),
+             0 0 44px rgba(226,209,195,.22); }
   }
   @keyframes lb-btn-breathe {
-    0%   { box-shadow: 0 0  8px rgba(255,190,40,0.05); }
-    100% { box-shadow: 0 0 24px rgba(255,190,40,0.13); }
+    0%   { box-shadow: 0 0  8px rgba(226,209,195,.07); }
+    100% { box-shadow: 0 0 20px rgba(226,209,195,.15); }
   }
 `;
-
-let _injected = false;
-function injectKeyframes() {
-  if (_injected || typeof document === 'undefined') return;
-  _injected = true;
+let _kf = false;
+function injectKF() {
+  if (_kf || typeof document === 'undefined') return;
+  _kf = true;
   const s = document.createElement('style');
-  s.textContent = KEYFRAMES_CSS;
+  s.textContent = KF;
   document.head.appendChild(s);
 }
-
-const C = {
-  core:  '#ffffff',
-  hot:   '#fff5a0',
-  gold:  '#ffc830',
-  amber: '#ff8c14',
-  g1:    'rgba(255,210,60,0.92)',
-  g2:    'rgba(255,140,20,0.55)',
-  g3:    'rgba(200,70,10,0.18)',
-  g4:    'rgba(140,40,0,0.06)',
-};
 
 export default function LuminousButton({
   label   = 'Soumettre',
   to      = '/soumettre',
-  variant = 'dark',
-  size    = 'sm',
+  variant = 'dark',   // 'dark' | 'light'
+  size    = 'sm',     // 'sm' | 'lg'
 }) {
   const [hovered,  setHovered]  = useState(false);
   const [clicking, setClicking] = useState(false);
   const btnRef   = useRef(null);
   const navigate = useNavigate();
-
-  injectKeyframes();
+  injectKF();
 
   const isLg    = size === 'lg';
   const isLight = variant === 'light';
 
-  const textIdle  = isLight ? 'rgba(15,15,15,0.82)'   : 'rgba(255,220,140,0.90)';
-  const textHov   = isLight ? '#ffffff'                : '#000000';
-  const bgHov     = isLight ? '#0f0f0f'                : '#ffc830';
-  const bdIdle    = isLight ? 'rgba(15,15,15,0.18)'    : 'rgba(255,180,40,0.22)';
-  const bdHov     = isLight ? '#0f0f0f'                : '#ffc830';
+  // Palette sable/ivoire — identique à la vision d'origine
+  const accentColor = 'rgba(226,209,195,1)';
+  const accentDim   = 'rgba(226,209,195,0.30)';
+
+  const textIdle  = isLight ? 'rgba(15,15,15,.82)'  : accentColor;
+  const textHov   = isLight ? '#ffffff'              : '#000000';
+  const bgHov     = isLight ? '#0f0f0f'              : accentColor;
+  const bdIdle    = isLight ? 'rgba(15,15,15,.20)'   : accentDim;
+  const bdHov     = isLight ? '#0f0f0f'              : accentColor;
 
   // PHASE 3 — overlay impératif sur document.body
-  // Jamais dans React tree → immunisé contre les transform parents GSAP
   const handleClick = (e) => {
     e.preventDefault();
     if (clicking) return;
@@ -85,13 +76,12 @@ export default function LuminousButton({
 
     const ov = document.createElement('div');
     ov.setAttribute('aria-hidden', 'true');
+    // Gradient crème/sable vers noir — cohérence visuelle du site
     ov.style.cssText = [
-      'position:fixed',
-      'inset:0',
-      'z-index:9999',
+      'position:fixed', 'inset:0', 'z-index:9999',
       'pointer-events:none',
       `background:radial-gradient(circle at center,
-        #fffde0 0%,#ffd060 22%,#ff8c14 52%,#3a1200 82%,#000000 100%)`,
+        #fffdf5 0%, #f1e8d8 20%, #e2d1c3 45%, #9a7a60 75%, #000000 100%)`,
     ].join(';');
     document.body.appendChild(ov);
 
@@ -103,9 +93,7 @@ export default function LuminousButton({
         ease:      'power2.inOut',
         onComplete() {
           gsap.to(ov, {
-            opacity:  0,
-            duration: 0.20,
-            ease:     'power1.in',
+            opacity:  0, duration: 0.22, ease: 'power1.in',
             onComplete() {
               navigate(to);
               setTimeout(() => { ov.remove(); setClicking(false); }, 400);
@@ -116,10 +104,15 @@ export default function LuminousButton({
     );
   };
 
-  const BAR_W   = isLg ? '3px'  : '2px';
-  const BAR_H   = isLg ? '22px' : '15px';
-  const RAY_W   = hovered ? (isLg ? '58px' : '40px') : (isLg ? '30px' : '21px');
-  const BLOOM_S = hovered ? (isLg ? '82px' : '58px') : (isLg ? '44px' : '31px');
+  // Halo selon état
+  const barShadowIdle = `
+    0 0 ${isLg?'9px':'6px'}   rgba(226,209,195,.82),
+    0 0 ${isLg?'20px':'14px'} rgba(226,209,195,.36),
+    0 0 ${isLg?'38px':'26px'} rgba(226,209,195,.13)`;
+  const barShadowHover = `
+    0 0 ${isLg?'16px':'12px'} rgba(226,209,195,1.00),
+    0 0 ${isLg?'36px':'26px'} rgba(226,209,195,.65),
+    0 0 ${isLg?'62px':'46px'} rgba(226,209,195,.30)`;
 
   return (
     <a
@@ -130,157 +123,65 @@ export default function LuminousButton({
       onMouseLeave={() => setHovered(false)}
       aria-label={`${label} — festival MARSAI`}
       style={{
-        position:        'relative',
-        display:         'inline-flex',
-        alignItems:      'center',
-        gap:             isLg ? '16px' : '10px',
-        padding:         isLg
-          ? 'clamp(0.85rem,1.3vw,1.15rem) clamp(1.8rem,2.5vw,2.4rem) clamp(0.85rem,1.3vw,1.15rem) clamp(1.3rem,1.8vw,1.8rem)'
-          : '0.55rem 1.1rem 0.55rem 0.85rem',
-        fontFamily:      'var(--font-sans)',
-        fontWeight:      700,
-        fontSize:        isLg ? 'clamp(0.78rem,1.1vw,0.92rem)' : 'clamp(0.60rem,0.82vw,0.70rem)',
-        letterSpacing:   '0.18em',
-        textTransform:   'uppercase',
-        textDecoration:  'none',
-        cursor:          'pointer',
-        userSelect:      'none',
+        position:                'relative',
+        display:                 'inline-flex',
+        alignItems:              'center',
+        gap:                     isLg ? '14px' : '10px',
+        padding:                 isLg
+          ? 'clamp(.85rem,1.3vw,1.15rem) clamp(1.8rem,2.5vw,2.4rem) clamp(.85rem,1.3vw,1.15rem) clamp(1.3rem,1.8vw,1.8rem)'
+          : '.55rem 1.1rem .55rem .85rem',
+        fontFamily:              'var(--font-sans)',
+        fontWeight:              700,
+        fontSize:                isLg ? 'clamp(.78rem,1.1vw,.92rem)' : 'clamp(.60rem,.82vw,.70rem)',
+        letterSpacing:           '.18em',
+        textTransform:           'uppercase',
+        textDecoration:          'none',
+        cursor:                  'pointer',
+        userSelect:              'none',
         WebkitTapHighlightColor: 'transparent',
-        borderRadius:    'var(--radius-pill)',
-        border:          `1px solid ${hovered ? bdHov : bdIdle}`,
-        background:      hovered ? bgHov : 'transparent',
-        color:           hovered ? textHov : textIdle,
-        boxShadow:       hovered
-          ? `0 0 ${isLg?'34px':'22px'} rgba(255,180,40,0.20), 0 0 ${isLg?'12px':'7px'} rgba(255,180,40,0.10)`
+        borderRadius:            'var(--radius-pill)',
+        border:                  `1px solid ${hovered ? bdHov : bdIdle}`,
+        background:              hovered ? bgHov : 'transparent',
+        color:                   hovered ? textHov : textIdle,
+        // Souffle extérieur idle
+        animation:               hovered ? 'none' : 'lb-btn-breathe 3s ease-in-out alternate infinite',
+        // Halo bouton hover
+        boxShadow:               hovered
+          ? `0 0 ${isLg?'28px':'20px'} rgba(226,209,195,.22),
+             0 0 ${isLg?'10px':'6px'}  rgba(226,209,195,.10)`
           : undefined,
-        animation:       hovered ? 'none' : 'lb-btn-breathe 3.5s ease-in-out alternate infinite',
-        textShadow:      hovered
-          ? '0 0 14px rgba(255,220,80,0.85), 0 0 30px rgba(255,160,30,0.45)'
+        // Bloom texte hover
+        textShadow:              hovered
+          ? '0 0 12px rgba(226,209,195,.90), 0 0 24px rgba(226,209,195,.48)'
           : 'none',
-        transition:      'background 380ms var(--ease-out), color 380ms var(--ease-out), border-color 380ms var(--ease-out), box-shadow 380ms var(--ease-out), text-shadow 380ms var(--ease-out)',
-        overflow:        'visible',
+        transition:              `background 350ms var(--ease-out),
+                                  color      350ms var(--ease-out),
+                                  border-color 350ms var(--ease-out),
+                                  box-shadow 350ms var(--ease-out),
+                                  text-shadow 350ms var(--ease-out)`,
+        overflow:                'visible',
       }}
     >
-      {/* ── BARRE LUMINEUSE — 4 couches ──────────────────────
-          Référence : lumière.jpg — filament incandescent
-          Cœur blanc-or + rayons horizontaux + bloom radial
-          ────────────────────────────────────────────────── */}
+      {/* Barre lumineuse sable/ivoire */}
       <span
         data-lb-bar
         aria-hidden="true"
         style={{
-          position:       'relative',
-          display:        'flex',
-          alignItems:     'center',
-          justifyContent: 'center',
-          width:          BAR_W,
-          height:         BAR_H,
-          flexShrink:     0,
-          overflow:       'visible',
-        }}
-      >
-        {/* Couche 1 — Corps : gradient vertical chaud */}
-        <span style={{
-          position:     'absolute',
-          inset:        0,
-          borderRadius: '2px',
-          background:   `linear-gradient(to bottom,
-            transparent 0%,
-            ${C.amber}  8%,
-            ${C.gold}   25%,
-            ${C.hot}    44%,
-            ${C.core}   50%,
-            ${C.hot}    56%,
-            ${C.gold}   75%,
-            ${C.amber}  92%,
-            transparent 100%)`,
-          boxShadow:    hovered
-            ? `0 0 ${isLg?'18px':'12px'} ${C.g1},
-               0 0 ${isLg?'40px':'27px'} ${C.g2},
-               0 0 ${isLg?'68px':'46px'} ${C.g3},
-               0 0 ${isLg?'100px':'70px'} ${C.g4}`
-            : `0 0 ${isLg?'10px':'7px'}  ${C.g1},
-               0 0 ${isLg?'22px':'15px'} ${C.g2},
-               0 0 ${isLg?'40px':'28px'} ${C.g3},
-               0 0 ${isLg?'65px':'45px'} ${C.g4}`,
-          animation:    hovered ? 'none' : 'lb-flicker 4s ease-in-out infinite',
-          transition:   'box-shadow 400ms var(--ease-out)',
-        }} />
-
-        {/* Couche 2 — Cœur 1px blanc absolu */}
-        <span style={{
-          position:     'absolute',
-          top:          '12%',
-          bottom:       '12%',
-          left:         '50%',
-          width:        '1px',
-          transform:    'translateX(-50%)',
+          display:      'block',
+          width:        '2px',
+          height:       isLg ? '20px' : '14px',
           borderRadius: '1px',
-          background:   `linear-gradient(to bottom,
-            transparent, ${C.hot} 15%, ${C.core} 50%, ${C.hot} 85%, transparent)`,
-          opacity:      hovered ? 1 : 0.82,
-          filter:       `blur(${hovered ? '0.2' : '0.4'}px)`,
-          transition:   'opacity 380ms, filter 380ms',
-        }} />
+          background:   hovered ? (isLight ? '#000' : accentColor) : accentColor,
+          flexShrink:   0,
+          transform:    hovered ? 'scaleY(1.15)' : 'scaleY(1)',
+          // PHASE 1 : respiration sable
+          animation:    hovered ? 'none' : 'lb-bar-breathe 3s ease-in-out alternate infinite',
+          // PHASE 2 : halo intensifié
+          boxShadow:    hovered ? barShadowHover : undefined,
+          transition:   'transform 350ms var(--ease-out), box-shadow 350ms var(--ease-out)',
+        }}
+      />
 
-        {/* Couche 3a — Rayon horizontal DROIT */}
-        <span style={{
-          position:        'absolute',
-          top:             '50%',
-          left:            '100%',
-          transformOrigin: 'left center',
-          width:           RAY_W,
-          height:          hovered ? '2px' : '1.5px',
-          marginLeft:      '1px',
-          background:      `linear-gradient(to right,
-            ${C.g1} 0%,
-            rgba(255,150,25,0.40) 45%,
-            rgba(200,80,10,0.12) 72%,
-            transparent 100%)`,
-          borderRadius:    '0 1px 1px 0',
-          animation:       hovered ? 'none' : 'lb-ray-breathe 3s ease-in-out alternate infinite',
-          transition:      'width 380ms var(--ease-out), height 350ms',
-        }} />
-
-        {/* Couche 3b — Rayon horizontal GAUCHE */}
-        <span style={{
-          position:        'absolute',
-          top:             '50%',
-          right:           '100%',
-          transformOrigin: 'right center',
-          width:           RAY_W,
-          height:          hovered ? '2px' : '1.5px',
-          marginRight:     '1px',
-          background:      `linear-gradient(to left,
-            ${C.g1} 0%,
-            rgba(255,150,25,0.40) 45%,
-            rgba(200,80,10,0.12) 72%,
-            transparent 100%)`,
-          borderRadius:    '1px 0 0 1px',
-          animation:       hovered ? 'none' : 'lb-ray-breathe 3s ease-in-out alternate infinite',
-          transition:      'width 380ms var(--ease-out), height 350ms',
-        }} />
-
-        {/* Couche 4 — Bloom radial ambiant */}
-        <span style={{
-          position:     'absolute',
-          top:          '50%',
-          left:         '50%',
-          width:        BLOOM_S,
-          height:       BLOOM_S,
-          borderRadius: '50%',
-          background:   `radial-gradient(circle,
-            rgba(255,225,90,0.58) 0%,
-            rgba(255,140,22,0.22) 50%,
-            transparent 100%)`,
-          filter:       `blur(${hovered ? '5' : '4'}px)`,
-          pointerEvents:'none',
-          animation:    hovered ? 'none' : 'lb-bloom-breathe 3s ease-in-out alternate infinite',
-          transition:   'width 380ms var(--ease-out), height 380ms var(--ease-out), filter 380ms',
-        }} />
-      </span>
-
-      {/* Texte */}
       <span style={{ position: 'relative', zIndex: 1, pointerEvents: 'none' }}>
         {label}
       </span>
