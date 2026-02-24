@@ -1,7 +1,7 @@
 /**
  * Home.jsx — MARSAI Festival
  *
- * Phase 5 — Récompenses intégrées
+ * Phase 6 — Galerie intégrée
  * ─────────────────────────────────────────────────────────────
  * Ordre narratif :
  *   §1  HeroImpact + Stats        ✅
@@ -24,6 +24,7 @@ import SectionTheme     from '@/components/SectionTheme';
 import SectionProgramme from '@/components/SectionProgramme';
 import SectionJury      from '@/components/SectionJury';
 import SectionRecompenses from '@/components/SectionRecompenses';
+import SectionGalerie      from '@/components/SectionGalerie';
 
 function Home() {
   return (
@@ -81,7 +82,10 @@ function Home() {
       {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
       <SectionRecompenses />
 
-      {/* ── §8 ALLIANCES ─────────────────────────────────────────── */}
+      {/* ── §8 GALERIE ──────────────────────────────────────────── */}
+      <SectionGalerie />
+
+      {/* ── §9 ALLIANCES ─────────────────────────────────────────── */}
       <section id="partenaires" className="bg-surface py-20 md:py-32 px-6 md:px-12">
         <div className="max-w-6xl mx-auto text-center">
           <Reveal>
@@ -108,7 +112,7 @@ function Home() {
         </div>
       </section>
 
-      {/* ── §9 CTA FINAL ─────────────────────────────────────────── */}
+      {/* ── §10 CTA FINAL ─────────────────────────────────────────── */}
       <section
         className="py-24 md:py-40 text-center px-6 md:px-12"
         style={{ background: 'var(--color-text)', color: 'var(--color-bg-pure)' }}
