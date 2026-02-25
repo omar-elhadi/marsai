@@ -314,6 +314,136 @@ function transitionSweep(onDone) {
   });
 }
 
+/**
+ * T6 — FLASH ARGENTIQUE  →  route '/'
+ * Un éclat de lumière sable explose depuis le centre,
+ * comme l'ouverture soudaine d'un obturateur de caméra.
+ * Noir absolu → halo sable se dilate → obscurité → page révélée.
+ *
+ * Trois temps :
+ *   Phase 1 : le noir arrive instantanément (présent dès le départ)
+ *   Phase 2 : un halo sable grandit depuis le centre (0.28s)
+ *   Phase 3 : le halo s'éteint et l'overlay part vers le haut (0.38s)
+ * Effet total : 0.66s — vif, organique, mémorable.
+ */
+function transitionFlashArgentique(onDone) {
+  const ov = mkDiv(`background:${BG_WARM};`);
+  mkGrain(ov, 0.055);
+
+  // Halo sable — le cœur lumineux qui s'embrase
+  const halo = document.createElement('div');
+  halo.style.cssText = [
+    'position:absolute',
+    'top:50%', 'left:50%',
+    'width:20px', 'height:20px',
+    'transform:translate(-50%,-50%)',
+    'border-radius:50%',
+    'pointer-events:none',
+    `background:radial-gradient(circle,
+      rgba(255,253,240,0.95) 0%,
+      rgba(226,209,195,0.75) 28%,
+      rgba(180,160,130,0.30) 58%,
+      transparent 80%)`,
+    'opacity:0',
+  ].join(';');
+  ov.appendChild(halo);
+
+  // Filet de bords de pellicule (horizontal haut + bas)
+  ['top:0;height:2px', 'bottom:0;height:2px'].forEach(pos => {
+    const r = document.createElement('div');
+    r.style.cssText = [
+      'position:absolute', 'left:0', 'right:0',
+      pos,
+      `background:linear-gradient(to right,
+        transparent 0%, rgba(226,209,195,0.35) 20%,
+        rgba(226,209,195,0.55) 50%,
+        rgba(226,209,195,0.35) 80%, transparent 100%)`,
+    ].join(';');
+    ov.appendChild(r);
+  });
+
+  const tl = gsap.timeline({ onComplete: onDone });
+
+  // Phase 2 — embrasement du halo
+  tl.to(halo, {
+    width:   '180vmax',
+    height:  '180vmax',
+    opacity: 1,
+    duration: 0.28,
+    ease:    'power2.out',
+  });
+
+  // Phase 3 — extinction + montée de l'overlay
+  tl.to(halo, {
+    opacity:  0,
+    duration: 0.18,
+    ease:     'power1.in',
+  }, '+=0.04');
+
+  tl.to(ov, {
+    y:        '-105%',
+    duration:  0.38,
+    ease:      'power3.inOut',
+    onComplete() { ov.remove(); },
+  }, '-=0.10');
+}
+
+/**
+ * T7 — VOILE DÉCHIQUETÉ  →  route '/contact'
+ * Trois bandes horizontales inégales partent dans
+ * des directions différentes — comme un rideau de scène
+ * déchiré en trois pans qui s'ouvrent de façon organique.
+ *
+ *   Bande haute  (40% de l'écran) → monte  vers le haut
+ *   Bande milieu (32% de l'écran) → glisse vers la droite
+ *   Bande basse  (28% de l'écran) → descend vers le bas
+ *
+ * Stagger 55ms — pas simultané, pas mécanique.
+ * Grain plus dense sur la bande du milieu — texture vivante.
+ */
+function transitionVoileDechiquete(onDone) {
+  const BANDS = [
+    { top: '0',    height: '41%',  dir: 'y',  val: '-107%', delay: 0,     grain: 0.042 },
+    { top: '40%',  height: '33%',  dir: 'x',  val:  '107%', delay: 0.055, grain: 0.065 },
+    { top: '72%',  height: '30%',  dir: 'y',  val:  '107%', delay: 0.110, grain: 0.048 },
+  ];
+
+  const elements = BANDS.map(({ top, height, grain }) => {
+    const band = mkDiv(`
+      background:${BG_WARM};
+      top:${top}; height:${height};
+      left:0; right:0;
+      bottom:auto;
+    `);
+    mkGrain(band, grain);
+
+    // Filet lumineux sable sur le bord bas de chaque bande
+    const edge = document.createElement('div');
+    edge.style.cssText = [
+      'position:absolute', 'bottom:0', 'left:0', 'right:0',
+      'height:1px',
+      `background:linear-gradient(to right,
+        transparent 0%, rgba(226,209,195,0.28) 25%,
+        rgba(226,209,195,0.45) 50%,
+        rgba(226,209,195,0.28) 75%, transparent 100%)`,
+    ].join(';');
+    band.appendChild(edge);
+
+    return band;
+  });
+
+  const tl = gsap.timeline({ onComplete: onDone });
+
+  BANDS.forEach(({ dir, val, delay }, i) => {
+    tl.to(elements[i], {
+      [dir]:     val,
+      duration:  0.58,
+      ease:      'power3.inOut',
+      onComplete() { elements[i].remove(); },
+    }, delay);
+  });
+}
+
 // ─────────────────────────────────────────────────────────────
 // ROUTEUR DE TRANSITIONS — sélection par pathname
 // ─────────────────────────────────────────────────────────────
@@ -323,17 +453,25 @@ function runTransition(pathname, onDone) {
 
   const p = pathname.replace(/\/$/, '') || '/';
 
-  if (p === '/' || p === '/news' || p === '/events') {
+  // '/' — Flash argentique : obturateur qui s'ouvre
+  if (p === '/') {
+    return transitionFlashArgentique(onDone);
+  }
+  // '/news' '/events' — Lames du projecteur
+  if (p === '/news' || p === '/events') {
     return transitionLames(onDone);
   }
+  // '/galerie' '/film/:id' — Iris portail
   if (p === '/galerie' || p.startsWith('/film')) {
     return transitionIris(onDone);
   }
+  // '/soumettre' — Grain dissolve argentique
   if (p === '/soumettre') {
     return transitionGrainDissolve(onDone);
   }
+  // '/contact' — Voile déchiqueté : 3 pans qui s'ouvrent
   if (p === '/contact') {
-    return transitionSplit(onDone);
+    return transitionVoileDechiquete(onDone);
   }
   return transitionSweep(onDone);
 }
