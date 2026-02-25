@@ -46,40 +46,6 @@ function Home() {
       {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
       <SectionJury />
 
-      {/* ── §6 NEXUS ─────────────────────────────────────────────── */}
-      <section id="lieu" className="max-w-6xl mx-auto py-20 md:py-32 px-6 md:px-12">
-        <Reveal>
-          <h2 className="title-section mb-8 md:mb-12">Le Nexus</h2>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <p className="body-editorial max-w-2xl mb-10">
-            Le festival se tiendra à <strong className="text-text font-semibold">Marseille</strong>,
-            épicentre de la collision entre tradition, nostalgie, technologie et innovation.
-          </p>
-        </Reveal>
-        <div
-          className="relative h-[50vh] md:h-[600px] overflow-hidden"
-          style={{
-            borderRadius: 'var(--radius-md)',
-            border:       '1px solid var(--color-border)',
-            boxShadow:    '0 25px 60px rgba(0,0,0,0.5)',
-          }}
-        >
-          <Parallax speed={1.15} className="h-full w-full">
-            <iframe
-              title="Plan du lieu"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.142047744348!2d2.281344415674389!3d48.87838327928942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fec70fb1d8f%3A0xd9b5676e112e643d!2sPalais%20des%20congr%C3%A8s%20de%20Paris!5e0!3m2!1sfr!2sfr!4v1680000000000!5m2!1sfr!2sfr"
-              width="100%"
-              height="120%"
-              className="w-full h-full"
-              style={{ border: 0, marginTop: '-10%' }}
-              allowFullScreen
-              loading="lazy"
-            />
-          </Parallax>
-        </div>
-      </section>
-
       {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
       <SectionRecompenses />
 
