@@ -14,13 +14,15 @@ import Mention                   from '@/pages/Legals/Mention.jsx';
 import VotesJury                 from '@/pages/Jury/VotesJury.jsx';
 import Cookies                   from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
-import MovieDetails              from '@/pages/MovieDetails/MovieDetails.jsx';
-import ConditionsUtilisations    from '@/pages/Legals/conditions-utilisations.jsx';
-import FAQ                       from '@/components/Ressources/FAQ.jsx';
-import Calendrier                from './components/Ressources/calendrier.jsx';
-import ReglesConditions          from './components/Ressources/regles-conditions.jsx';
-import Events                    from '@/pages/Events/Events.jsx';
-import CompetitionRules          from '@/pages/CompetitionRules/CompetitionRules.jsx';
+import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
+import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
+import FAQ from '@/components/Ressources/FAQ.jsx';
+import Calendrier from './components/Ressources/calendrier.jsx';
+import ReglesConditions from './components/Ressources/regles-conditions.jsx';
+import Events from '@/pages/Events/Events.jsx'; 
+import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
+import News from '@/pages/News/News.jsx';
+
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -31,9 +33,8 @@ import JuryDashboard             from './pages/Jury/JuryDashboard.jsx';
 /**
  * 3. IMPORTS LAYOUTS
  */
-import FestivalNews              from './pages/News/News.jsx';
-import AdminLayout               from './Layouts/AdminLayout.jsx';
-import PublicLayout              from './Layouts/PublicLayout.jsx';
+import AdminLayout from './Layouts/AdminLayout.jsx';
+import PublicLayout from './Layouts/PublicLayout.jsx';
 
 /**
  * 4. IMPORTS ADMIN
@@ -75,15 +76,22 @@ function AppInner() {
           <Route path="/VotesJury"                 element={<VotesJury />} />
           <Route path="/cookies"                   element={<Cookies />} />
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
-          <Route path="/conditions-utilisations"   element={<ConditionsUtilisations />} />
-          <Route path="/film/:id"                  element={<MovieDetails />} />
-          <Route path="/FAQ"                       element={<FAQ />} />
-          <Route path="/calendrier"                element={<Calendrier />} />
-          <Route path="/login/verify"              element={<VerifyToken />} />
-          <Route path="/jury/dashboard"            element={<JuryDashboard />} />
-          <Route path="/regles-conditions"         element={<ReglesConditions />} />
-          <Route path="/news"                      element={<FestivalNews />} />
-          <Route path="/events"                    element={<Events />} />
+          <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
+          <Route path="/film/:id" element={<MovieDetails />} />
+          <Route path="/FAQ" element={<FAQ />} />
+          <Route path="/calendrier" element={<Calendrier />} />
+          {/* FLUX D'INVITATION JURY :
+              1. Le lien mail pointe vers /login/verify?token=...
+              2. VerifyToken valide et redirige vers /jury/dashboard
+          */}
+          <Route path="/login/verify" element={<VerifyToken />} />
+          <Route path="/jury/dashboard" element={<JuryDashboard />} />
+          <Route path="/regles-conditions" element={<ReglesConditions />} />
+
+          <Route path="/news" element={<News />} />
+
+
+          <Route path="/events" element={<Events />} />
         </Route>
 
         {/* ZONE ADMIN SÉCURISÉE */}
