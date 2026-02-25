@@ -2,15 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import Reveal from "../../components/animations/Reveal";
 import Parallax from "../../components/animations/Parallax";
 import "@/styles/scrollbar.css";
-import { galleryMovies } from "@/pages/Gallery/components/MovieGallery";
 
 const newsData = [
   {
     id: 1,
     date: "18 mars 2026",
-    image:
-      galleryMovies[0]?.img ||
-      "https://via.placeholder.com/1200x800.png?text=Festival+Ouverture",
+    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop",
     title: "Ouverture du Festival IA 2026",
     content:
       "Le Festival International du Film IA ouvre ses portes à Cannes pour deux jours dédiés au cinéma génératif, aux nouvelles écritures et aux innovations hybrides.",
@@ -18,9 +15,7 @@ const newsData = [
   {
     id: 2,
     date: "19 mars 2026",
-    image:
-      galleryMovies[1]?.img ||
-      "https://via.placeholder.com/1200x800.png?text=Selection+Officielle",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop",
     title: "Sélection Officielle",
     content:
       "40 films internationaux explorent la collaboration entre réalisateurs et intelligences artificielles, du script au montage.",
@@ -28,9 +23,7 @@ const newsData = [
   {
     id: 3,
     date: "20 mars 2026",
-    image:
-      galleryMovies[2]?.img ||
-      "https://via.placeholder.com/1200x800.png?text=Tables+Rondes",
+    image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop",
     title: "Tables Rondes & Débats",
     content:
       "Experts IA, producteurs et réalisateurs discutent des enjeux éthiques, des droits d’auteur et de la transparence algorithmique.",
@@ -38,9 +31,7 @@ const newsData = [
   {
     id: 4,
     date: "21 mars 2026",
-    image:
-      galleryMovies[3]?.img ||
-      "https://via.placeholder.com/1200x800.png?text=Prix+IA+2026",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop",
     title: "Prix IA 2026",
     content:
       "Meilleur Film Génératif, Narration Hybride et Innovation Technique seront récompensés lors de la cérémonie de clôture.",
@@ -86,6 +77,7 @@ export default function News() {
 
   return (
     <div className="bg-stone-900 text-stone-100 min-h-screen">
+      
       {/* HERO */}
       <header className="w-full border-b border-stone-800 py-12 px-6 md:px-12">
         <div className="max-w-7xl mx-auto">
@@ -102,7 +94,6 @@ export default function News() {
         </div>
       </header>
 
-      {/* SPLIT LAYOUT */}
       <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
         
         {/* LEFT SIDE */}
@@ -116,25 +107,24 @@ export default function News() {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.50), rgba(2,6,23,0.12)), url('${n.image}')`,
+                  backgroundImage: `linear-gradient(180deg, rgba(2,6,23,0.60), rgba(2,6,23,0.30)), url(${n.image})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   opacity: ratios[i] || 0,
-                  transition: "opacity 0.2s linear",
+                  transition: "opacity 0.4s ease",
                 }}
               />
             ))}
           </div>
 
-          {/* Perfect centered date */}
+          {/* Centered date */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <Reveal>
-              <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-center drop-shadow-2xl">
+              <h2 className="text-5xl md:text-7xl font-bold text-center drop-shadow-2xl">
                 {activeDate}
               </h2>
             </Reveal>
           </div>
-
         </aside>
 
         {/* RIGHT SIDE */}
@@ -146,7 +136,7 @@ export default function News() {
                   ref={(el) => (sectionsRef.current[index] = el)}
                   className="min-h-screen flex flex-col justify-center items-center p-12 border-b border-stone-800 text-center"
                 >
-                  {/* Mobile image */}
+                  {/* Image mobile */}
                   <img
                     src={item.image}
                     alt={item.title}
@@ -154,14 +144,9 @@ export default function News() {
                   />
 
                   <div className="max-w-xl mx-auto">
-                    <Parallax
-                      speed={1 + index * 0.06}
-                      className="w-full"
-                    >
-                      <h3 className="text-3xl md:text-4xl font-black mb-6 text-stone-100">
-                        {item.title}
-                      </h3>
-                    </Parallax>
+                    <h3 className="text-3xl md:text-4xl font-black mb-6 text-stone-100">
+                      {item.title}
+                    </h3>
 
                     <p className="text-stone-200 text-lg leading-relaxed">
                       {item.content}
