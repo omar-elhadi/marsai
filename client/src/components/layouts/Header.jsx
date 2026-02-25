@@ -37,10 +37,10 @@ import LuminousButton from '@/components/LuminousButton';
 // DONNÉES — liens de navigation
 // ─────────────────────────────────────────────────────────────
 const NAV_LINKS = [
-  { label: 'Le Festival', href: '/',         isLink: false, index: '01' },
+  { label: 'Le Festival', href: '/',         isLink: true,  index: '01' },
   { label: 'Galerie',     href: '/galerie',  isLink: true,  index: '02' },
   { label: 'Events',      href: '/events',   isLink: true,  index: '03' },
-  { label: 'Contacter',   href: '/contact',  isLink: false, index: '04' },
+  { label: 'Contacter',   href: '/contact',  isLink: true,  index: '04' },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -334,7 +334,7 @@ export default function Header() {
           style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.8rem, 4vw, 2.8rem)' }}
           aria-label="Navigation mobile"
         >
-          {[...NAV_LINKS, { label: 'Soumettre', href: '/soumettre', isLink: false, index: '05' }]
+          {[...NAV_LINKS, { label: 'Soumettre', href: '/soumettre', isLink: true, index: '05' }]
             .map((link, i) => {
               const isSoumettre = link.label === 'Soumettre';
               return (
