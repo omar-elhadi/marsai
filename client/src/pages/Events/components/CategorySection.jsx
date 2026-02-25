@@ -1,27 +1,50 @@
-import CategoryHeader from "./CategoryHeader";
-import EventCard from "./EventCard";
+/**
+ * CategorySection.jsx — MARSAI Festival · Phase 9
+ * Section de catégorie sur la timeline.
+ * Zéro Tailwind de couleur. 100% design system.
+ */
 
-const CategorySection = ({ category, startIndex, visibleCount }) => {
+import CategoryHeader from './CategoryHeader';
+import EventCard      from './EventCard';
+
+export default function CategorySection({ category, startIndex, visibleCount }) {
   const catOn = visibleCount >= startIndex + 1;
 
   return (
-    <div className="space-y-6">
-      <div className="relative">
-        <span className="absolute left-6 top-10 -translate-x-1/2">
-          <span
-            className={[
-              "block h-5 w-5 rounded-full",
-              catOn
-                ? "bg-indigo-200 shadow-[0_0_28px_rgba(99,102,241,0.95)]"
-                : "bg-white/20 shadow-none",
-            ].join(" ")}
-          />
-          {catOn ? (
-            <span className="absolute inset-0 rounded-full bg-indigo-400/30 blur-lg" />
-          ) : null}
-        </span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-        <span className="pointer-events-none absolute left-6 top-10 h-px w-8 bg-gradient-to-r from-indigo-300/50 to-transparent" />
+      {/* En-tête avec point de catégorie */}
+      <div style={{ position: 'relative' }}>
+
+        {/* Point catégorie — plus grand */}
+        <span aria-hidden="true" style={{
+          position:     'absolute',
+          left:         'calc(-2rem - 6px)',
+          top:          '1.35rem',
+          width:        '14px',
+          height:       '14px',
+          borderRadius: '50%',
+          background:   catOn ? 'var(--color-accent)' : 'var(--color-text-faint)',
+          border:       '2px solid var(--color-bg)',
+          boxShadow:    catOn
+            ? '0 0 18px rgba(226,209,195,0.80), 0 0 36px rgba(226,209,195,0.28)'
+            : 'none',
+          transition:   'background 380ms, box-shadow 380ms',
+          zIndex:       3,
+        }} />
+
+        {/* Trait horizontal catégorie */}
+        <span aria-hidden="true" style={{
+          position:   'absolute',
+          left:       'calc(-2rem + 8px)',
+          top:        'calc(1.35rem + 5px)',
+          width:      '1.2rem',
+          height:     '1px',
+          background: catOn
+            ? 'linear-gradient(to right, rgba(226,209,195,0.65), transparent)'
+            : 'transparent',
+          transition: 'background 380ms',
+        }} />
 
         <CategoryHeader
           title={category.title}
@@ -30,16 +53,28 @@ const CategorySection = ({ category, startIndex, visibleCount }) => {
         />
       </div>
 
-      <ul className="relative space-y-4">
+      {/* Liste événements */}
+      <ul style={{
+        position:      'relative',
+        listStyle:     'none',
+        padding:       0,
+        margin:        0,
+        display:       'flex',
+        flexDirection: 'column',
+        gap:           '0.65rem',
+      }}>
         {category.items.map((event, index) => {
           const globalIndex = startIndex + index;
-          const isVisible = globalIndex < visibleCount;
-
-          return <EventCard key={event.id} event={event} isVisible={isVisible} />;
+          const isVisible   = globalIndex < visibleCount;
+          return (
+            <EventCard
+              key={event.id}
+              event={event}
+              isVisible={isVisible}
+            />
+          );
         })}
       </ul>
     </div>
   );
-};
-
-export default CategorySection;
+}

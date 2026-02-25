@@ -1,24 +1,74 @@
-const CategoryHeader = ({ title, subtitle, image }) => {
+/**
+ * CategoryHeader.jsx — MARSAI Festival · Phase 9
+ * En-tête visuelle d'une catégorie d'événements.
+ * Zéro Tailwind de couleur. 100% design system.
+ */
+
+const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+export default function CategoryHeader({ title, subtitle, image }) {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
-      <img
-        src={image}
-        alt={title}
-        className="h-64 w-full object-cover md:h-80"
-        loading="lazy"
-      />
+    <div style={{
+      position:     'relative',
+      overflow:     'hidden',
+      borderRadius: 'var(--radius-sm)',
+      aspectRatio:  '21 / 7',
+      minHeight:    '140px',
+      background:   'var(--color-bg-pure)',
+      border:       '1px solid var(--color-border)',
+    }}>
+      {/* Image plein-cadre */}
+      {image && (
+        <img
+          src={image}
+          alt={title}
+          loading="lazy"
+          style={{
+            position:       'absolute',
+            inset:          0,
+            width:          '100%',
+            height:         '100%',
+            objectFit:      'cover',
+            objectPosition: 'center',
+            filter:         'grayscale(15%) brightness(0.50)',
+          }}
+        />
+      )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
+      {/* Gradient bas */}
+      <div aria-hidden="true" style={{
+        position:   'absolute',
+        inset:      0,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)',
+      }} />
 
-      <div className="absolute bottom-6 left-6 right-6">
-        <h3 className="text-3xl font-bold text-white tracking-wider">{title}</h3>
-        {subtitle ? (
-          <p className="mt-1 text-white/70 text-sm md:text-base">{subtitle}</p>
-        ) : null}
+      {/* Grain filmique */}
+      <div aria-hidden="true" style={{
+        position:        'absolute',
+        inset:           0,
+        backgroundImage: GRAIN,
+        backgroundSize:  '180px 180px',
+        opacity:         0.04,
+        mixBlendMode:    'overlay',
+        pointerEvents:   'none',
+      }} />
+
+      {/* Texte */}
+      <div style={{
+        position: 'absolute',
+        bottom:   0,
+        left:     0,
+        right:    0,
+        padding:  'clamp(0.8rem,1.5vw,1.2rem)',
+      }}>
+        <h3 className="title-card" style={{ marginBottom: subtitle ? '0.25rem' : 0 }}>
+          {/* Supprimer les emojis du titre original */}
+          {title.replace(/[\u{1F300}-\u{1FFFF}]/gu, '').replace(/[\u2600-\u26FF]/g, '').trim()}
+        </h3>
+        {subtitle && (
+          <p className="body-meta" style={{ opacity: 0.72 }}>{subtitle}</p>
+        )}
       </div>
     </div>
   );
-};
-
-export default CategoryHeader;
+}

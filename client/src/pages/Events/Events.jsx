@@ -1,183 +1,296 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+/**
+ * Events.jsx — MARSAI Festival · Phase 9
+ * "Le programme comme une séquence de film"
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * Refonte complète — zéro indigo/cyan/purple.
+ * Design system 100% : tokens CSS, Typography.css, animations GSAP.
+ *
+ * Timeline :
+ *   Filet 1px sable — gradient sable/ivoire
+ *   Point vivant qui suit la progression
+ *   Stagger 280ms entre chaque événement
+ *
+ * En-tête : rideau 2 lignes GSAP + overline
+ * ═══════════════════════════════════════════════════════════════
+ */
 
-import projectionsImg from "@/assets/projections-ia.png";
-import conferencesImg from "@/assets/conferences-ia.png";
-import awardsImg from "@/assets/remises-prix-ia.png";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import gsap              from 'gsap';
+import { useGSAP }       from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import CategorySection from "./components/CategorySection";
+import projectionsImg from '@/assets/projections-ia.png';
+import conferencesImg from '@/assets/conferences-ia.png';
+import awardsImg      from '@/assets/remises-prix-ia.png';
 
+import CategorySection from './components/CategorySection';
+
+gsap.registerPlugin(ScrollTrigger);
+
+// ─────────────────────────────────────────────────────────────
+// DONNÉES — titres sans emoji (design system épuré)
+// ─────────────────────────────────────────────────────────────
 const EVENT_CATEGORIES = [
-	{
-		key: "projections",
-		title: "🎬 Projections",
-		subtitle: "Festival du film réalisés en IA",
-		image: projectionsImg,
-		items: [
-			{
-				id: "p1",
-				title: "Film IA – Génération narrative",
-				time: "18:00",
-				place: "Salle 1",
-			},
-			{
-				id: "p2",
-				title: "Sélection Courts Métrages IA",
-				time: "19:30",
-				place: "Salle 2",
-			},
-		],
-	},
-	{
-		key: "conferences",
-		title: "🎤 Conférences",
-		subtitle: "Rencontres et talks autour de l’IA et du cinéma",
-		image: conferencesImg,
-		items: [
-			{
-				id: "c1",
-				title: "L’IA dans le cinéma de demain",
-				time: "14:00",
-				place: "Auditorium",
-			},
-			{
-				id: "c2",
-				title: "Créer un film avec l’IA : workflow",
-				time: "16:00",
-				place: "Auditorium",
-			},
-		],
-	},
-	{
-		key: "awards",
-		title: "🏆 Remises de prix",
-		subtitle: "Célébration des meilleures créations IA",
-		image: awardsImg,
-		items: [
-			{
-				id: "a1",
-				title: "Prix du Meilleur Film IA",
-				time: "21:30",
-				place: "Grande Salle",
-			},
-			{
-				id: "a2",
-				title: "Prix Innovation IA",
-				time: "22:00",
-				place: "Grande Salle",
-			},
-		],
-	},
+  {
+    key:      'projections',
+    title:    'Projections',
+    subtitle: 'Festival du film réalisé en IA',
+    image:    projectionsImg,
+    items: [
+      { id: 'p1', title: 'Film IA — Génération narrative',  time: '18:00', place: 'Salle 1' },
+      { id: 'p2', title: 'Sélection Courts Métrages IA',   time: '19:30', place: 'Salle 2' },
+    ],
+  },
+  {
+    key:      'conferences',
+    title:    'Conférences',
+    subtitle: 'Rencontres et talks autour de l\'IA et du cinéma',
+    image:    conferencesImg,
+    items: [
+      { id: 'c1', title: 'L\'IA dans le cinéma de demain',      time: '14:00', place: 'Auditorium' },
+      { id: 'c2', title: 'Créer un film avec l\'IA : workflow', time: '16:00', place: 'Auditorium' },
+    ],
+  },
+  {
+    key:      'awards',
+    title:    'Remises de prix',
+    subtitle: 'Célébration des meilleures créations IA',
+    image:    awardsImg,
+    items: [
+      { id: 'a1', title: 'Prix du Meilleur Film IA', time: '21:30', place: 'Grande Salle' },
+      { id: 'a2', title: 'Prix Innovation IA',       time: '22:00', place: 'Grande Salle' },
+    ],
+  },
 ];
 
 function prefersReducedMotion() {
-	if (typeof window === "undefined") return false;
-	return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-const FestivalEvents = () => {
-	const sectionRef = useRef(null);
-	const [started, setStarted] = useState(false);
-	const [visibleCount, setVisibleCount] = useState(0);
+// ─────────────────────────────────────────────────────────────
+// COMPOSANT
+// ─────────────────────────────────────────────────────────────
+export default function FestivalEvents() {
+  const sectionRef   = useRef(null);
+  const overlineRef  = useRef(null);
+  const line1Ref     = useRef(null);
+  const line2Ref     = useRef(null);
+  const subtitleRef  = useRef(null);
+  const timelineRef  = useRef(null);
+  const progressRef  = useRef(null);
+  const dotRef       = useRef(null);
 
-	const flatEvents = useMemo(
-		() => EVENT_CATEGORIES.flatMap((category) => category.items),
-		[]
-	);
-	const total = flatEvents.length;
-	const progress = total === 0 ? 0 : Math.min(1, visibleCount / total);
+  const [started,      setStarted]      = useState(false);
+  const [visibleCount, setVisibleCount] = useState(0);
 
-	const categoryStartIndex = useMemo(() => {
-		const result = {};
-		let cursor = 0;
+  const flatEvents = useMemo(
+    () => EVENT_CATEGORIES.flatMap(c => c.items), []
+  );
+  const total    = flatEvents.length;
+  const progress = total === 0 ? 0 : Math.min(1, visibleCount / total);
 
-		for (const category of EVENT_CATEGORIES) {
-			result[category.key] = cursor;
-			cursor += category.items.length;
-		}
+  const categoryStartIndex = useMemo(() => {
+    const result = {};
+    let cursor   = 0;
+    for (const cat of EVENT_CATEGORIES) {
+      result[cat.key] = cursor;
+      cursor += cat.items.length;
+    }
+    return result;
+  }, []);
 
-		return result;
-	}, []);
+  // ── Animations GSAP en-tête ───────────────────────────────
+  useGSAP(() => {
+    gsap.set(overlineRef.current, { opacity: 0, y: 12 });
+    gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110 });
+    gsap.set(subtitleRef.current, { opacity: 0, y: 18 });
 
-	useEffect(() => {
-		const el = sectionRef.current;
-		if (!el) return undefined;
+    ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start:   'top 75%',
+      once:    true,
+      onEnter() {
+        const tl = gsap.timeline();
+        tl.to(overlineRef.current,
+          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' });
+        tl.to([line1Ref.current, line2Ref.current],
+          { yPercent: 0, duration: 0.85, stagger: 0.12, ease: 'power3.out' }, 0.15);
+        tl.to(subtitleRef.current,
+          { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.50);
+      },
+    });
+  }, { scope: sectionRef });
 
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setStarted(true);
-					observer.disconnect();
-				}
-			},
-			{ threshold: 0.2 }
-		);
+  // ── Démarrage timeline ────────────────────────────────────
+  useEffect(() => {
+    const el = timelineRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); observer.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, []);
+  useEffect(() => {
+    if (!started) return;
+    if (prefersReducedMotion()) { setVisibleCount(total); return; }
+    setVisibleCount(0);
+    let current = 0;
+    const id = setInterval(() => {
+      current++;
+      setVisibleCount(current);
+      if (current >= total) clearInterval(id);
+    }, 280);
+    return () => clearInterval(id);
+  }, [started, total]);
 
-	useEffect(() => {
-		if (!started) return undefined;
+  // ── Progression barre + point vivant ─────────────────────
+  useEffect(() => {
+    if (!progressRef.current || !dotRef.current) return;
+    const pct = `${progress * 100}%`;
+    gsap.to(progressRef.current, { height: pct, duration: 0.42, ease: 'power2.out' });
+    gsap.to(dotRef.current,      { top: `calc(${pct} - 6px)`, duration: 0.42, ease: 'power2.out' });
+  }, [progress]);
 
-		if (prefersReducedMotion()) {
-			setVisibleCount(total);
-			return undefined;
-		}
+  return (
+    <section
+      ref={sectionRef}
+      id="events"
+      aria-label="Programme du festival MARSAI"
+      style={{
+        background: 'var(--color-bg-pure)',
+        borderTop:  '1px solid var(--color-border)',
+        padding:    'clamp(6rem,12vw,10rem) clamp(1.5rem,5vw,6rem)',
+        minHeight:  '100vh',
+      }}
+    >
+      <div style={{ maxWidth: '820px', margin: '0 auto' }}>
 
-		setVisibleCount(0);
+        {/* ── En-tête ───────────────────────────────────── */}
+        <div style={{ marginBottom: 'clamp(4rem,8vw,7rem)' }}>
 
-		const interval = setInterval(() => {
-			setVisibleCount((prev) => {
-				const next = prev + 1;
-				if (next >= total) {
-					clearInterval(interval);
-					return total;
-				}
-				return next;
-			});
-		}, 1000);
+          <div
+            ref={overlineRef}
+            style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem' }}
+          >
+            <span style={{
+              display:    'block',
+              width:      'clamp(2rem,3vw,3rem)',
+              height:     '1px',
+              background: 'var(--color-accent)',
+              flexShrink: 0,
+            }} />
+            <span className="label-overline">20 — 22 Juin 2026 · Marseille</span>
+          </div>
 
-		return () => clearInterval(interval);
-	}, [started, total]);
+          <div style={{ marginBottom: '1.5rem' }}>
+            {/* Ligne 1 */}
+            <div style={{ overflow: 'hidden', lineHeight: 1 }}>
+              <span
+                ref={line1Ref}
+                className="title-section"
+                style={{ display: 'block', paddingBottom: '0.06em' }}
+              >
+                Programme
+              </span>
+            </div>
+            {/* Ligne 2 accent */}
+            <div style={{ overflow: 'hidden', lineHeight: 1 }}>
+              <span
+                ref={line2Ref}
+                className="title-section"
+                style={{ display: 'block', color: 'var(--color-accent)', paddingBottom: '0.06em' }}
+              >
+                du festival
+              </span>
+            </div>
+          </div>
 
-	return (
-		<section ref={sectionRef} className="relative overflow-hidden py-20">
-			<div className="pointer-events-none absolute inset-0 -z-10">
-				<div className="absolute inset-0 bg-[#020617]" />
-				<div className="absolute inset-0 bg-gradient-to-b from-indigo-950/30 via-black to-black" />
-				<div className="absolute top-0 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-[140px]" />
-			</div>
+          <p
+            ref={subtitleRef}
+            className="body-editorial"
+            style={{ maxWidth: '50ch' }}
+          >
+            Trois jours de projections, de conférences et de remises de prix
+            autour de la création cinématographique par intelligence artificielle.
+          </p>
+        </div>
 
-			<div className="mx-auto max-w-5xl px-4 text-white">
-				<h2 className="text-3xl font-bold tracking-tight">Programme du Festival</h2>
-	
+        {/* ── Timeline ─────────────────────────────────── */}
+        <div
+          ref={timelineRef}
+          style={{ position: 'relative', paddingLeft: 'clamp(2.5rem,4vw,3.5rem)' }}
+        >
+          {/* Filet fond */}
+          <div aria-hidden="true" style={{
+            position:   'absolute',
+            left:       '1.5rem',
+            top:        0,
+            bottom:     0,
+            width:      '1px',
+            background: 'var(--color-border)',
+          }} />
 
-				<div className="relative mt-12 space-y-14 pl-14">
-					<div className="pointer-events-none absolute left-6 top-0 h-full w-px bg-white/10" />
+          {/* Filet de progression sable */}
+          <div aria-hidden="true" style={{
+            position: 'absolute',
+            left:     '1.5rem',
+            top:      0,
+            width:    '1px',
+            height:   '0%',
+          }}>
+            <div
+              ref={progressRef}
+              style={{
+                width:      '1px',
+                height:     '0%',
+                background: `linear-gradient(to bottom,
+                  rgba(226,209,195,0.85) 0%,
+                  rgba(226,209,195,0.45) 65%,
+                  rgba(226,209,195,0.12) 100%)`,
+              }}
+            />
+          </div>
 
-					<div
-						className="pointer-events-none absolute left-6 top-0 w-px"
-						style={{ height: `${progress * 100}%` }}
-					>
-						<div className="h-full w-px bg-gradient-to-b from-indigo-400/70 via-cyan-300/40 to-purple-400/60" />
-						<div className="absolute inset-0 w-px blur-[2px] bg-indigo-400/40" />
+          {/* Point vivant */}
+          <div
+            ref={dotRef}
+            aria-hidden="true"
+            style={{
+              position:     'absolute',
+              left:         'calc(1.5rem - 6px)',
+              top:          '-6px',
+              width:        '13px',
+              height:       '13px',
+              borderRadius: '50%',
+              background:   'var(--color-accent)',
+              boxShadow:    '0 0 18px rgba(226,209,195,0.90), 0 0 36px rgba(226,209,195,0.32)',
+              zIndex:       4,
+            }}
+          />
 
-						<div className="absolute -bottom-2 left-1/2 h-4 w-4 -translate-x-1/2 rounded-full bg-cyan-200 shadow-[0_0_30px_rgba(34,211,238,0.95)]" />
-						<div className="absolute -bottom-6 left-1/2 h-10 w-10 -translate-x-1/2 rounded-full bg-cyan-400/15 blur-2xl" />
-					</div>
+          {/* Catégories */}
+          <div style={{
+            display:       'flex',
+            flexDirection: 'column',
+            gap:           'clamp(3rem,6vw,5rem)',
+          }}>
+            {EVENT_CATEGORIES.map(category => (
+              <CategorySection
+                key={category.key}
+                category={category}
+                startIndex={categoryStartIndex[category.key]}
+                visibleCount={visibleCount}
+              />
+            ))}
+          </div>
+        </div>
 
-					{EVENT_CATEGORIES.map((category) => (
-						<CategorySection
-							key={category.key}
-							category={category}
-							startIndex={categoryStartIndex[category.key]}
-							visibleCount={visibleCount}
-						/>
-					))}
-				</div>
-			</div>
-		</section>
-	);
-};
-
-export default FestivalEvents;
+      </div>
+    </section>
+  );
+}
