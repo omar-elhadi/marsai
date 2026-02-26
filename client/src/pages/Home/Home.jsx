@@ -15,8 +15,6 @@
  *   §8  Alliances                 existant
  *   §9  CTA final                 existant
  */
-import Reveal           from '../../components/animations/Reveal';
-import Parallax         from '../../components/animations/Parallax';
 import HeroImpact       from '../../components/animations/HeroImpact';
 import SectionManifeste from '@/components/SectionManifeste';
 import SectionTheme     from '@/components/SectionTheme';
@@ -40,24 +38,23 @@ function Home() {
       {/* ── §3 THÈME ─────────────────────────────────────────────── */}
       <SectionTheme />
 
+            {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
+      <SectionRecompenses />
+
       {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
       <SectionProgramme />
 
       {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
       <SectionJury />
 
-      {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
-      <SectionRecompenses />
-
       {/* ── §8 GALERIE ──────────────────────────────────────────── */}
       <SectionGalerie />
-
-      {/* ── §9 ALLIANCES ────────────────────────────────────────── */}
-      <SectionAlliances />
 
       {/* ── §10 CTA FINAL ──────────────────────────────────────────── */}
       <SectionCTA />
 
+      {/* ── §9 ALLIANCES ────────────────────────────────────────── */}
+      <SectionAlliances />
 
     </div>
   );
