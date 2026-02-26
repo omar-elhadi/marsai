@@ -105,6 +105,7 @@ const ReglesConditions = () => {
                 <span className="text-[10px] font-black text-orange-400/40 tracking-[0.4em] uppercase">Section {rule.id}</span>
                 <h3 className="font-black uppercase tracking-[0.2em] text-2xl italic group-hover:text-orange-400 transition-colors">
                   {rule.title}
+                  
                 </h3>
                 <p className={`text-xl md:text-2xl leading-relaxed font-light italic transition-colors duration-700 ${isReading === rule.id ? 'text-white' : 'text-slate-500'}`}>
                   "{rule.text}"
