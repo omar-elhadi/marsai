@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Button from '../Button'; // Vérifie que le chemin vers Button.jsx est correct
+import Button from '../Button'; 
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,130 +9,116 @@ const ReglesConditions = () => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
   const lineRef = useRef(null);
+  const [isReading, setIsReading] = useState(null); // Stocke l'ID de la règle lue
+
+  // Fonction de lecture vocale
+  const speak = (text, id) => {
+    window.speechSynthesis.cancel(); // Arrête toute lecture en cours
+    
+    if (isReading === id) {
+      setIsReading(null);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.pitch = 0.8; // Voix un peu plus grave/robotique
+    utterance.rate = 0.9;  // Débit légèrement ralenti
+    
+    utterance.onstart = () => setIsReading(id);
+    utterance.onend = () => setIsReading(null);
+    
+    window.speechSynthesis.speak(utterance);
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Animation de l'image (Entrée immersive + Parallaxe)
+      // Animations de base (conservées et aérées)
       gsap.fromTo(imageRef.current, 
         { scale: 1.3, opacity: 0 },
-        { scale: 1, opacity: 0.5, duration: 2.5, ease: "power3.out" }
+        { scale: 1, opacity: 0.2, duration: 2.5, ease: "power3.out" }
       );
 
-      gsap.to(imageRef.current, {
-        yPercent: 15,
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
-      });
-
-      // 2. Animation du Titre "Rideau" (Comme sur la page d'accueil)
       gsap.fromTo(".reveal-title", 
         { clipPath: "inset(100% 0% 0% 0%)", y: 100 },
-        { 
-          clipPath: "inset(0% 0% 0% 0%)", 
-          y: 0, 
-          duration: 1.2, 
-          ease: "power4.out",
-          stagger: 0.1,
-          delay: 0.5 
-        }
-      );
-
-      // 3. Filet horizontal (Scale 0 -> 1)
-      gsap.fromTo(lineRef.current,
-        { scaleX: 0, transformOrigin: "left center" },
-        { scaleX: 1, duration: 1.5, ease: "expo.inOut", delay: 1 }
-      );
-
-      // 4. Apparition des items de règles
-      gsap.fromTo(".rule-item",
-        { opacity: 0, y: 30 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          stagger: 0.2, 
-          duration: 1, 
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: ".rules-grid",
-            start: "top 85%"
-          }
-        }
+        { clipPath: "inset(0% 0% 0% 0%)", y: 0, duration: 1.5, ease: "expo.out", stagger: 0.15, delay: 0.5 }
       );
     }, containerRef);
 
-    return () => ctx.revert();
+    return () => {
+        ctx.revert();
+        window.speechSynthesis.cancel(); // Coupe le son si on quitte la page
+    };
   }, []);
 
+  const rules = [
+    { id: "01", title: "Intelligence Artificielle", text: "Le film doit être généré à l'aide d'outils de synthèse algorithmique documentés. Chaque frame doit porter l'empreinte du futur." },
+    { id: "02", title: "Durée & Format", text: "60 secondes exactement. Ni plus, ni moins. Format vertical 9:16 ou CinemaScope 21:9 en résolution native 4K." },
+    { id: "03", title: "Droits d'Auteur", text: "L'artiste conserve la propriété intellectuelle. MARSAI obtient un droit de diffusion exclusif pour la durée du festival." },
+    { id: "04", title: "Éthique Algorithmique", text: "Interdiction formelle d'utiliser des modèles entraînés sans consentement. Le respect de la création humaine est la base de notre IA." }
+  ];
+
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#0f0f0f] text-white overflow-hidden font-sans">
+    <div ref={containerRef} className="relative min-h-screen bg-[#050505] text-white overflow-hidden font-sans">
       
-      {/* --- BACKGROUND : IMAGE DU BUREAU FUTURISTE --- */}
-      <div className="absolute inset-0 z-0 h-screen overflow-hidden">
-        <img 
-          ref={imageRef}
-          alt="Bureau Futuriste MARSAI" 
-          className="absolute inset-0 w-full h-full object-cover object-center" 
-          src="https://plus.unsplash.com/premium_photo-1705091308945-19adc45aeb07?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-        />
-        {/* Overlay sombre progressif pour la lisibilité */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f]/90 via-[#0f0f0f]/50 to-[#0f0f0f]" />
+      {/* BACKGROUND */}
+      <div className="fixed inset-0 z-0 h-screen overflow-hidden">
+        <img ref={imageRef} alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-20" src="https://plus.unsplash.com/premium_photo-1705091308945-19adc45aeb07?q=80&w=1074" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
       </div>
 
-      {/* --- CONTENU --- */}
-      <div className="relative z-10 p-8 md:p-24 pt-[30vh]">
+      <div className="relative z-10 px-8 flex flex-col items-center">
         
-        <header className="mb-24">
-          <div className="overflow-hidden mb-2">
-            <span className="reveal-title inline-block text-[10px] tracking-[0.4em] text-orange-400 font-black uppercase">
-              Terminal de Sécurité // MARSAI 2026
-            </span>
-          </div>
-          
-          <div className="overflow-hidden">
-            <h1 className="reveal-title text-6xl md:text-[110px] font-black leading-[0.85] tracking-[-0.05em] lowercase">
-              règles & <br />
-              <span className="text-orange-400">conditions.</span>
-            </h1>
-          </div>
-          
-          <div ref={lineRef} className="mt-12 h-[1px] w-full bg-white/20" />
+        {/* Header Hero */}
+        <header className="min-h-[80vh] flex flex-col items-center justify-center text-center">
+          <span className="reveal-title inline-block text-[10px] tracking-[0.8em] text-orange-400 mb-8 uppercase font-black">
+            Audio Guide Available
+          </span>
+          <h1 className="reveal-title text-7xl md:text-[130px] font-black leading-[0.8] tracking-[-0.06em] lowercase italic">
+            règles & <br /> <span className="text-orange-400">conditions.</span>
+          </h1>
+          <div className="mt-16 animate-bounce opacity-20 text-[10px] tracking-widest uppercase">Scroll to read</div>
         </header>
 
-        {/* Grille des règles */}
-        <div className="rules-grid grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16 max-w-6xl">
-          {[
-            { id: "01", title: "Intelligence Artificielle", text: "Le film doit être généré à l'aide d'outils de synthèse algorithmique documentés." },
-            { id: "02", title: "Durée & Format", text: "60 secondes exactement. Format vertical 9:16 ou large 21:9 en résolution 4K." },
-            { id: "03", title: "Droits d'Auteur", text: "L'artiste conserve ses droits. Le festival obtient un droit de diffusion mondial." },
-            { id: "04", title: "Éthique", text: "Interdiction d'utiliser des modèles entraînés sans consentement explicite." }
-          ].map((rule) => (
-            <div key={rule.id} className="rule-item border-l border-white/10 pl-8 space-y-4">
-              <h3 className="font-black uppercase tracking-[0.2em] text-[12px] text-orange-400">{rule.id}. {rule.title}</h3>
-              <p className="text-lg leading-relaxed text-slate-300 font-light">
-                {rule.text}
-              </p>
+        {/* Liste des règles */}
+        <div className="rules-grid grid grid-cols-1 gap-y-52 pb-60 max-w-2xl w-full">
+          {rules.map((rule) => (
+            <div key={rule.id} className="rule-item flex flex-col items-center text-center group">
+              
+              {/* Bouton Voice Control */}
+              <button 
+                onClick={() => speak(`${rule.title}. ${rule.text}`, rule.id)}
+                className={`mb-10 w-16 h-16 rounded-full border flex items-center justify-center transition-all duration-500 ${isReading === rule.id ? 'bg-orange-400 border-orange-400 scale-110' : 'border-white/10 hover:border-orange-400/50'}`}
+              >
+                {isReading === rule.id ? (
+                  <div className="flex gap-1">
+                    <span className="w-1 h-4 bg-black animate-[bounce_0.6s_infinite]"></span>
+                    <span className="w-1 h-4 bg-black animate-[bounce_0.6s_infinite_0.2s]"></span>
+                    <span className="w-1 h-4 bg-black animate-[bounce_0.6s_infinite_0.4s]"></span>
+                  </div>
+                ) : (
+                  <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+                )}
+              </button>
+
+              <div className="space-y-6">
+                <span className="text-[10px] font-black text-orange-400/40 tracking-[0.4em] uppercase">Section {rule.id}</span>
+                <h3 className="font-black uppercase tracking-[0.2em] text-2xl italic group-hover:text-orange-400 transition-colors">
+                  {rule.title}
+                  
+                </h3>
+                <p className={`text-xl md:text-2xl leading-relaxed font-light italic transition-colors duration-700 ${isReading === rule.id ? 'text-white' : 'text-slate-500'}`}>
+                  "{rule.text}"
+                </p>
+              </div>
             </div>
           ))}
+
+          <footer className="pt-20 flex justify-center">
+            <Button onClick={() => window.history.back()}>Fermer le terminal</Button>
+          </footer>
         </div>
-
-        {/* Pied de page avec ton bouton */}
-        <footer className="mt-32 pb-20 flex justify-center">
-          <Button onClick={() => window.history.back()}>
-            Revenir à l'accueil
-          </Button>
-        </footer>
       </div>
-
-      <style jsx>{`
-        .reveal-title {
-          will-change: transform, clip-path;
-        }
-      `}</style>
     </div>
   );
 };
