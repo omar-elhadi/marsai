@@ -66,15 +66,17 @@ const GRAIN_URI = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='h
 // LÉS DU RIDEAU — largeurs organiques (somme = 100%)
 // ─────────────────────────────────────────────────────────────
 //   11.5 + 13.0 + 11.0 + 13.5 + 12.5 + 11.0 + 13.5 + 14.0 = 100%
+// Chaque lé déborde de 1px sur le suivant (calc) pour éliminer les
+// joints d'antialiasing qui créent des lignes visibles entre lés.
 const STRIPS = [
-  { id: 0, left: '0%',     width: '11.5%', grainOpacity: 0.042 },
-  { id: 1, left: '11.5%',  width: '13.0%', grainOpacity: 0.055 },
-  { id: 2, left: '24.5%',  width: '11.0%', grainOpacity: 0.038 },
-  { id: 3, left: '35.5%',  width: '13.5%', grainOpacity: 0.060 },
-  { id: 4, left: '49.0%',  width: '12.5%', grainOpacity: 0.045 },
-  { id: 5, left: '61.5%',  width: '11.0%', grainOpacity: 0.052 },
-  { id: 6, left: '72.5%',  width: '13.5%', grainOpacity: 0.040 },
-  { id: 7, left: '86.0%',  width: '14.0%', grainOpacity: 0.058 },
+  { id: 0, left: '0%',                       width: 'calc(11.5% + 1px)', grainOpacity: 0.042 },
+  { id: 1, left: 'calc(11.5% - 1px)',        width: 'calc(13.0% + 1px)', grainOpacity: 0.055 },
+  { id: 2, left: 'calc(24.5% - 1px)',        width: 'calc(11.0% + 1px)', grainOpacity: 0.038 },
+  { id: 3, left: 'calc(35.5% - 1px)',        width: 'calc(13.5% + 1px)', grainOpacity: 0.060 },
+  { id: 4, left: 'calc(49.0% - 1px)',        width: 'calc(12.5% + 1px)', grainOpacity: 0.045 },
+  { id: 5, left: 'calc(61.5% - 1px)',        width: 'calc(11.0% + 1px)', grainOpacity: 0.052 },
+  { id: 6, left: 'calc(72.5% - 1px)',        width: 'calc(13.5% + 1px)', grainOpacity: 0.040 },
+  { id: 7, left: 'calc(86.0% - 1px)',        width: 'calc(14.0% + 1px)', grainOpacity: 0.058 },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -245,6 +247,7 @@ export default function InitialLoader({ onComplete }) {
           gap:             'clamp(1rem, 2vw, 1.6rem)',
           padding:         '0 clamp(1.5rem, 5vw, 6rem)',
           pointerEvents:   'none',
+          zIndex:          2,    // AU-DESSUS des lés (z-index auto)
         }}
       >
         {/* MARSAI — titre principal */}
