@@ -22,7 +22,8 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef } from 'react';
+import { useRef }    from 'react';
+import { useLoader } from '@/context/LoaderContext';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -43,6 +44,11 @@ const STATS = [
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────
 export default function HeroImpact() {
+  // Attend le signal du loader initial — zéro animation avant que
+  // le rideau ne se lève. Sur les visites suivantes, loaderReady=true
+  // dès le départ → comportement natif inchangé.
+  const { loaderReady } = useLoader();
+
   const heroRef       = useRef(null);
   const imageRef      = useRef(null);
   const overlayRef    = useRef(null);
@@ -55,7 +61,11 @@ export default function HeroImpact() {
   const statsRef      = useRef(null);
 
   useGSAP(() => {
-    // ── États initiaux ─────────────────────────────────────────
+    // ── Guard loader ───────────────────────────────────────────
+    // Si le loader est encore actif (première visite), on pose les
+    // états initiaux mais on n'amorce PAS la timeline.
+    // Quand loaderReady passe à true, useGSAP se relance et joue
+    // la timeline depuis le début — parfaitement synchronisé.
     gsap.set(imageRef.current,    { opacity: 0, scale: 1.06 });
     gsap.set(overlayRef.current,  { opacity: 1 });
     gsap.set(overlineRef.current, { opacity: 0, y: 18 });
@@ -64,6 +74,8 @@ export default function HeroImpact() {
     gsap.set(dateLineRef.current, { opacity: 0, y: 16 });
     gsap.set(ctaRef.current,      { opacity: 0, y: 18 });
     gsap.set(scrollIndRef.current,{ opacity: 0 });
+
+    if (!loaderReady) return; // Loader encore actif — attendre
 
     // ── Timeline principale ────────────────────────────────────
     const tl = gsap.timeline({ delay: 0.2 });
@@ -159,7 +171,7 @@ export default function HeroImpact() {
       },
     });
 
-  }, { scope: heroRef });
+  }, { scope: heroRef, dependencies: [loaderReady] });
 
   return (
     <div ref={heroRef}>
@@ -277,7 +289,7 @@ export default function HeroImpact() {
               maxWidth:      '36ch',
             }}
           >
-            Un futur à la fois, une minute à la fois
+            L'apogée du cinéma génératif.
           </p>
 
           {/* Date + filet */}
