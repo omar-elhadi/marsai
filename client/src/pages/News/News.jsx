@@ -249,15 +249,7 @@ export default function NewsBento() {
       {/* HEADER */}
       <header className="news-header">
         <div>
-          <div className="news-header__eyebrow">
-            FESTIVAL INTERNATIONAL DU FILM IA — CANNES
-          </div>
           <h1 className="news-header__title">Actualités</h1>
-        </div>
-        <div className="news-header__meta">
-          <div>18 – 21 MARS 2026</div>
-          <div>CANNES, FRANCE</div>
-          <div className="news-header__meta-articles">6 ARTICLES</div>
         </div>
       </header>
 
