@@ -14,15 +14,13 @@ import Mention                   from '@/pages/Legals/Mention.jsx';
 import VotesJury                 from '@/pages/Jury/VotesJury.jsx';
 import Cookies                   from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
-import MovieDetails from '@/pages/MovieDetails/MovieDetails.jsx';
-import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
-import FAQ from '@/components/Ressources/FAQ.jsx';
-import Calendrier from './components/Ressources/calendrier.jsx';
-import ReglesConditions from './components/Ressources/regles-conditions.jsx';
-import Events from '@/pages/Events/Events.jsx'; 
-import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
-import News from '@/pages/News/News.jsx';
-
+import MovieDetails              from '@/pages/MovieDetails/MovieDetails.jsx';
+import ConditionsUtilisations    from '@/pages/Legals/conditions-utilisations.jsx';
+import FAQ                       from '@/components/Ressources/FAQ.jsx';
+import Calendrier                from './components/Ressources/calendrier.jsx';
+import ReglesConditions          from './components/Ressources/regles-conditions.jsx';
+import Events                    from '@/pages/Events/Events.jsx';
+import CompetitionRules          from '@/pages/CompetitionRules/CompetitionRules.jsx';
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -33,8 +31,9 @@ import JuryDashboard             from './pages/Jury/JuryDashboard.jsx';
 /**
  * 3. IMPORTS LAYOUTS
  */
-import AdminLayout from './Layouts/AdminLayout.jsx';
-import PublicLayout from './Layouts/PublicLayout.jsx';
+import FestivalNews              from './pages/News/News.jsx';
+import AdminLayout               from './Layouts/AdminLayout.jsx';
+import PublicLayout              from './Layouts/PublicLayout.jsx';
 
 /**
  * 4. IMPORTS ADMIN
@@ -48,15 +47,32 @@ import { AdminDashboard }        from './pages/Admin/AdminDashboard.jsx';
  * 5. PHASE 8 — Transitions cinématographiques
  */
 import PageTransitionLayer       from './components/PageTransitionLayer.jsx';
+import { useState }        from 'react';
+import { LoaderContext }   from './context/LoaderContext';
+import InitialLoader       from './components/InitialLoader';
 
 // ─────────────────────────────────────────────────────────────
 // AppInner — vit DANS BrowserRouter pour avoir useLocation
 // ─────────────────────────────────────────────────────────────
 function AppInner() {
+  // ── Loader initial — une seule fois par session ──────────────
+  // sessionStorage persiste pendant la session (pas après fermeture).
+  // Rechargement : flag toujours là → pas de loader → HeroImpact natif.
+  // Nouvel onglet : flag absent → loader affiché.
+  const alreadyLoaded = typeof sessionStorage !== 'undefined'
+    && !!sessionStorage.getItem('marsai_loaded');
+
+  const [loaderReady, setLoaderReady] = useState(alreadyLoaded);
+
   return (
-    <>
+    <LoaderContext.Provider value={{ loaderReady }}>
       {/* Couche de transitions — écoute useLocation, rend null */}
       <PageTransitionLayer />
+
+      {/* Loader initial — se retire après sa séquence */}
+      {!loaderReady && (
+        <InitialLoader onComplete={() => setLoaderReady(true)} />
+      )}
 
       <Routes>
         {/* ROUTES PUBLIQUES */}
@@ -76,22 +92,15 @@ function AppInner() {
           <Route path="/VotesJury"                 element={<VotesJury />} />
           <Route path="/cookies"                   element={<Cookies />} />
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
-          <Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
-          <Route path="/film/:id" element={<MovieDetails />} />
-          <Route path="/FAQ" element={<FAQ />} />
-          <Route path="/calendrier" element={<Calendrier />} />
-          {/* FLUX D'INVITATION JURY :
-              1. Le lien mail pointe vers /login/verify?token=...
-              2. VerifyToken valide et redirige vers /jury/dashboard
-          */}
-          <Route path="/login/verify" element={<VerifyToken />} />
-          <Route path="/jury/dashboard" element={<JuryDashboard />} />
-          <Route path="/regles-conditions" element={<ReglesConditions />} />
-
-          <Route path="/news" element={<News />} />
-
-
-          <Route path="/events" element={<Events />} />
+          <Route path="/conditions-utilisations"   element={<ConditionsUtilisations />} />
+          <Route path="/film/:id"                  element={<MovieDetails />} />
+          <Route path="/FAQ"                       element={<FAQ />} />
+          <Route path="/calendrier"                element={<Calendrier />} />
+          <Route path="/login/verify"              element={<VerifyToken />} />
+          <Route path="/jury/dashboard"            element={<JuryDashboard />} />
+          <Route path="/regles-conditions"         element={<ReglesConditions />} />
+          <Route path="/news"                      element={<FestivalNews />} />
+          <Route path="/events"                    element={<Events />} />
         </Route>
 
         {/* ZONE ADMIN SÉCURISÉE */}
@@ -104,7 +113,7 @@ function AppInner() {
           </Route>
         </Route>
       </Routes>
-    </>
+    </LoaderContext.Provider>
   );
 }
 
