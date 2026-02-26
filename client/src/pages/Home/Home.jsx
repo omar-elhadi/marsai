@@ -15,8 +15,6 @@
  *   §8  Alliances                 existant
  *   §9  CTA final                 existant
  */
-import Reveal           from '../../components/animations/Reveal';
-import Parallax         from '../../components/animations/Parallax';
 import HeroImpact       from '../../components/animations/HeroImpact';
 import SectionManifeste from '@/components/SectionManifeste';
 import SectionTheme     from '@/components/SectionTheme';
