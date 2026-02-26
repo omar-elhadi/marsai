@@ -1,12 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "../../components/Button";
-import SubmissionStatus, {
-  SUBMISSION_STATES,
-} from "../../components/SubmissionStatus";
-import { submitFilm } from "../../services/submissionService";
-import { Upload, X, Image } from "lucide-react";
-
 
 /* ── MARSAI FORM STYLES ─────────────────────────────────────────
    Injection locale — surcharge des classes marsai-*
@@ -200,9 +194,9 @@ const FORM_STYLES = `
 
 let _injected = false;
 function injectFormStyles() {
-  if (_injected || typeof document === 'undefined') return;
+  if (_injected || typeof document === "undefined") return;
   _injected = true;
-  const s = document.createElement('style');
+  const s = document.createElement("style");
   s.textContent = FORM_STYLES;
   document.head.appendChild(s);
 }
@@ -216,36 +210,16 @@ function SubmissionForm() {
     bio: "",
     instagram: "",
     title: "",
-    subtitle: "",
     description: "",
     country: "",
     language: "",
     aiStack: "",
+    youtubeUrl: "",
     acceptTerms: false,
     acceptPrivacy: false,
   });
 
-  // State de la vidéo
-  const [videoFile, setVideoFile] = useState(null);
-  const [videoPreview, setVideoPreview] = useState(null);
-  const videoInputRef = useRef(null);
-
-  // State du fichier de sous-titres
-  const [subtitleFile, setSubtitleFile] = useState(null);
-  const subtitleInputRef = useRef(null);
-
-  // State du poster
-  const [posterFile, setPosterFile] = useState(null);
-  const [posterPreview, setPosterPreview] = useState(null);
-  const posterInputRef = useRef(null);
-
-  // State de la soumission
-  const [submissionStatus, setSubmissionStatus] = useState(
-    SUBMISSION_STATES.IDLE,
-  );
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [submissionResult, setSubmissionResult] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   /**
    * Gestion des changements de champs du formulaire
@@ -256,133 +230,6 @@ function SubmissionForm() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
-
-  /**
-   * Gestion de la sélection de fichier vidéo
-   */
-  const handleVideoChange = (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    // Validation côté client
-    const maxSize = 500 * 1024 * 1024; // 500 MB
-    if (file.size > maxSize) {
-      alert("Fichier trop volumineux. Taille maximale : 500 MB");
-      e.target.value = null;
-      return;
-    }
-
-    const allowedTypes = [
-      "video/mp4",
-      "video/quicktime",
-      "video/x-msvideo",
-      "video/webm",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      alert("Format non supporté. Utilisez MP4, MOV, AVI ou WEBM.");
-      e.target.value = null;
-      return;
-    }
-
-    setVideoFile(file);
-
-    // Créer une preview
-    const videoURL = URL.createObjectURL(file);
-    setVideoPreview(videoURL);
-  };
-
-  /**
-   * Suppression de la vidéo sélectionnée
-   */
-  const handleRemoveVideo = () => {
-    setVideoFile(null);
-    setVideoPreview(null);
-    if (videoInputRef.current) {
-      videoInputRef.current.value = null;
-    }
-  };
-
-  /**
-   * Gestion de la sélection de fichier de sous-titres
-   */
-  const handleSubtitleChange = (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    // Validation côté client
-    const maxSize = 5 * 1024 * 1024; // 5 MB
-    if (file.size > maxSize) {
-      alert("Fichier trop volumineux. Taille maximale : 5 MB");
-      e.target.value = null;
-      return;
-    }
-
-    const allowedExtensions = [".srt", ".vtt", ".sbv"];
-    const fileExtension = file.name
-      .substring(file.name.lastIndexOf("."))
-      .toLowerCase();
-
-    if (!allowedExtensions.includes(fileExtension)) {
-      alert("Format non supporté. Utilisez uniquement .srt, .vtt ou .sbv");
-      e.target.value = null;
-      return;
-    }
-
-    setSubtitleFile(file);
-  };
-
-  /**
-   * Suppression du fichier de sous-titres
-   */
-  const handleRemoveSubtitle = () => {
-    setSubtitleFile(null);
-    if (subtitleInputRef.current) {
-      subtitleInputRef.current.value = null;
-    }
-  };
-
-  /**
-   * Gestion de la sélection du poster
-   */
-  const handlePosterChange = (e) => {
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    // Validation côté client
-    const maxSize = 5 * 1024 * 1024; // 5 MB
-    if (file.size > maxSize) {
-      alert("Fichier trop volumineux. Taille maximale : 5 MB");
-      e.target.value = null;
-      return;
-    }
-
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-    if (!allowedTypes.includes(file.type)) {
-      alert("Format non supporté. Utilisez uniquement .jpg, .jpeg ou .png");
-      e.target.value = null;
-      return;
-    }
-
-    setPosterFile(file);
-
-    // Créer une preview
-    const posterURL = URL.createObjectURL(file);
-    setPosterPreview(posterURL);
-  };
-
-  /**
-   * Suppression du poster
-   */
-  const handleRemovePoster = () => {
-    setPosterFile(null);
-    setPosterPreview(null);
-    if (posterInputRef.current) {
-      posterInputRef.current.value = null;
-    }
   };
 
   /**
@@ -402,71 +249,21 @@ function SubmissionForm() {
       return;
     }
 
-    if (!videoFile) {
-      alert("Veuillez sélectionner une vidéo");
-      return;
-    }
+    setIsSubmitting(true);
+    console.log("📦 Données soumises:", formData);
 
-    if (!subtitleFile) {
-      alert("Veuillez ajouter un fichier de sous-titres");
-      return;
-    }
-
-    if (!posterFile) {
-      alert("Veuillez ajouter un poster pour votre film");
-      return;
-    }
-
-    try {
-      setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
-      setErrorMessage(null);
-
-      // Appel du service de soumission
-      const result = await submitFilm(
-        formData,
-        videoFile,
-        subtitleFile,
-        posterFile,
-        (progress) => {
-          setUploadProgress(progress);
-
-          // Changer le statut selon la progression
-          if (progress < 30) {
-            setSubmissionStatus(SUBMISSION_STATES.UPLOADING);
-          } else if (progress < 60) {
-            setSubmissionStatus(SUBMISSION_STATES.VALIDATING);
-          } else if (progress < 80) {
-            setSubmissionStatus(SUBMISSION_STATES.PROCESSING_S3);
-          } else if (progress < 95) {
-            setSubmissionStatus(SUBMISSION_STATES.PROCESSING_YOUTUBE);
-          } else {
-            setSubmissionStatus(SUBMISSION_STATES.CHECKING_MODERATION);
-          }
-        },
-      );
-
-      // Succès
-      setSubmissionStatus(SUBMISSION_STATES.SUCCESS);
-      setSubmissionResult(result.data);
-
-      console.log("✅ Soumission réussie:", result);
-    } catch (error) {
-      console.error("❌ Erreur soumission:", error);
-      setSubmissionStatus(SUBMISSION_STATES.ERROR);
-      setErrorMessage(
-        error.message || "Une erreur est survenue lors de la soumission",
-      );
-    }
+    // Simulation d'envoi
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert("Candidature envoyée avec succès!");
+    }, 1500);
   };
 
   const inputClass = "marsai-input";
   const labelClass = "marsai-label";
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="marsai-form-wrapper"
-    >
+    <form onSubmit={handleSubmit} className="marsai-form-wrapper">
       <div aria-hidden="true" className="marsai-form-top-line"></div>
 
       {/* --- BLOC IDENTITÉ --- */}
@@ -550,16 +347,12 @@ function SubmissionForm() {
           value={formData.bio}
           onChange={handleChange}
         />
-        <p className="marsai-finePrint">
-          MAX 300 CARACTÈRES
-        </p>
+        <p className="marsai-finePrint">MAX 300 CARACTÈRES</p>
       </div>
 
       <div className="marsai-section-divider">
         <span className="marsai-section-divider-line"></span>
-        <span className="marsai-section-divider-text">
-          Le Film
-        </span>
+        <span className="marsai-section-divider-text">Le Film</span>
         <span className="marsai-section-divider-line"></span>
       </div>
 
@@ -593,9 +386,7 @@ function SubmissionForm() {
           value={formData.language}
           onChange={handleChange}
         />
-        <p className="marsai-finePrint">
-          Langue principale du film
-        </p>
+        <p className="marsai-finePrint">Langue principale du film</p>
       </div>
 
       <div>
@@ -613,25 +404,6 @@ function SubmissionForm() {
           onChange={handleChange}
         />
       </div>
-
-      <div>
-        <label htmlFor="subtitle" className={labelClass}>
-          Sous-titre
-        </label>
-        <input
-          type="text"
-          id="subtitle"
-          name="subtitle"
-          placeholder="SOUS-TITRE DU FILM"
-          className={inputClass}
-          value={formData.subtitle}
-          onChange={handleChange}
-        />
-        <p className="marsai-finePrint">
-          Ajoutez un sous-titre si votre film en possède un
-        </p>
-      </div>
-
       <div>
         <label htmlFor="description" className={labelClass}>
           Synopsis
@@ -647,9 +419,7 @@ function SubmissionForm() {
           value={formData.description}
           onChange={handleChange}
         />
-        <p className="marsai-finePrint">
-          MAX 500 CARACTÈRES
-        </p>
+        <p className="marsai-finePrint">MAX 500 CARACTÈRES</p>
       </div>
 
       <div>
@@ -667,209 +437,32 @@ function SubmissionForm() {
           value={formData.aiStack}
           onChange={handleChange}
         />
-        <p className="marsai-finePrint">
-          MAX 500 CARACTÈRES
-        </p>
+        <p className="marsai-finePrint">MAX 500 CARACTÈRES</p>
       </div>
 
       {/* --- BLOC VIDÉO --- */}
       <div className="marsai-section-divider">
         <span className="marsai-section-divider-line"></span>
-        <span className="marsai-section-divider-text">
-          La Vidéo
-        </span>
+        <span className="marsai-section-divider-text">La Vidéo</span>
         <span className="marsai-section-divider-line"></span>
       </div>
 
       <div>
-        <label htmlFor="video" className={labelClass}>
-          Fichier Vidéo (Max 60 secondes)
+        <label htmlFor="youtubeUrl" className={labelClass}>
+          Lien du film (YouTube / Vimeo)
         </label>
         <input
-          type="file"
-          id="video"
-          name="video"
-          ref={videoInputRef}
-          accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
+          type="url"
+          id="youtubeUrl"
+          name="youtubeUrl"
           required
-          onChange={handleVideoChange}
-          className="hidden"
+          placeholder="https://www.youtube.com/watch?v=..."
+          className={inputClass}
+          value={formData.youtubeUrl}
+          onChange={handleChange}
         />
-
-        {!videoFile ? (
-          <button
-            type="button"
-            onClick={() => videoInputRef.current?.click()}
-            className="marsai-upload-zone marsai-upload-zone--lg"
-          >
-            <div className="flex flex-col items-center gap-3">
-              <Upload className="marsai-upload-icon" />
-              <span className="font-sans text-sm tracking-wide uppercase">
-                Cliquez pour sélectionner une vidéo
-              </span>
-              <span className="text-xs text-white/40">
-                MP4, MOV, AVI, WEBM • Max 500 MB • Max 60 secondes
-              </span>
-            </div>
-          </button>
-        ) : (
-          <div className="marsai-file-preview">
-            <div className="flex items-start gap-4">
-              {videoPreview && (
-                <video
-                  src={videoPreview}
-                  controls
-                  className="marsai-thumb-video"
-                />
-              )}
-              <div className="flex-1">
-                <p className="text-white font-bold text-sm">{videoFile.name}</p>
-                <p className="text-white/60 text-xs mt-1">
-                  {(videoFile.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleRemoveVideo}
-                className="marsai-delete-btn"
-                aria-label="Supprimer la vidéo"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        )}
-
         <p className="marsai-finePrint">
-          ⚠️ IMPORTANT : Votre vidéo doit durer maximum 60 secondes
-        </p>
-      </div>
-
-      {/* --- FICHIER SOUS-TITRES (OBLIGATOIRE) --- */}
-      <div>
-        <label htmlFor="subtitle" className={labelClass}>
-          Fichier de Sous-titres *
-        </label>
-        <input
-          type="file"
-          id="subtitle"
-          name="subtitle"
-          ref={subtitleInputRef}
-          accept=".srt,.vtt,.sbv"
-          required
-          onChange={handleSubtitleChange}
-          className="hidden"
-        />
-
-        {!subtitleFile ? (
-          <button
-            type="button"
-            onClick={() => subtitleInputRef.current?.click()}
-            className="marsai-upload-zone"
-          >
-            <div className="flex flex-col items-center gap-2">
-              <Upload className="w-8 h-8 text-white/40" />
-              <span className="font-sans text-sm tracking-wide uppercase">
-                Ajouter un fichier de sous-titres
-              </span>
-              <span className="text-xs text-white/40">
-                .SRT, .VTT, .SBV • Max 5 MB
-              </span>
-            </div>
-          </button>
-        ) : (
-          <div className="marsai-file-preview">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-white font-bold text-sm">
-                  {subtitleFile.name}
-                </p>
-                <p className="text-white/60 text-xs mt-1">
-                  {(subtitleFile.size / 1024).toFixed(2)} KB
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleRemoveSubtitle}
-                className="marsai-delete-btn"
-                aria-label="Supprimer le fichier de sous-titres"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <p className="marsai-finePrint">
-          ⚠️ OBLIGATOIRE : Les sous-titres permettent la traduction
-          internationale de votre film
-        </p>
-      </div>
-
-      {/* --- POSTER DU FILM (OBLIGATOIRE) --- */}
-      <div>
-        <label htmlFor="poster" className={labelClass}>
-          Poster du Film *
-        </label>
-        <input
-          type="file"
-          id="poster"
-          name="poster"
-          ref={posterInputRef}
-          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
-          required
-          onChange={handlePosterChange}
-          className="hidden"
-        />
-
-        {!posterFile ? (
-          <button
-            type="button"
-            onClick={() => posterInputRef.current?.click()}
-            className="marsai-upload-zone"
-          >
-            <div className="flex flex-col items-center gap-2">
-              <Image className="w-8 h-8 text-white/40" />
-              <span className="font-sans text-sm tracking-wide uppercase">
-                Ajouter un poster
-              </span>
-              <span className="text-xs text-white/40">
-                .JPG, .JPEG, .PNG • Max 5 MB • Recommandé: 1920x1080
-              </span>
-            </div>
-          </button>
-        ) : (
-          <div className="marsai-file-preview">
-            <div className="flex items-start gap-4">
-              {posterPreview && (
-                <img
-                  src={posterPreview}
-                  alt="Poster preview"
-                  className="marsai-thumb-poster"
-                />
-              )}
-              <div className="flex-1">
-                <p className="text-white font-bold text-sm">
-                  {posterFile.name}
-                </p>
-                <p className="text-white/60 text-xs mt-1">
-                  {(posterFile.size / 1024).toFixed(2)} KB
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleRemovePoster}
-                className="marsai-delete-btn"
-                aria-label="Supprimer le poster"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <p className="marsai-finePrint">
-          ⚠️ OBLIGATOIRE : Le poster sera utilisé comme miniature sur YouTube
+          Ajoutez le lien de votre film hébergé sur YouTube ou Vimeo
         </p>
       </div>
 
@@ -922,60 +515,12 @@ function SubmissionForm() {
         <Button
           type="submit"
           disabled={
-            !formData.acceptTerms ||
-            !formData.acceptPrivacy ||
-            !videoFile ||
-            !subtitleFile ||
-            !posterFile ||
-            submissionStatus !== SUBMISSION_STATES.IDLE
+            !formData.acceptTerms || !formData.acceptPrivacy || isSubmitting
           }
         >
-          {submissionStatus !== SUBMISSION_STATES.IDLE &&
-          submissionStatus !== SUBMISSION_STATES.ERROR
-            ? "Soumission en cours..."
-            : "Soumettre le film"}
+          {isSubmitting ? "Soumission en cours..." : "Soumettre le film"}
         </Button>
       </div>
-
-      {/* Composant de statut de soumission */}
-      <SubmissionStatus
-        status={submissionStatus}
-        uploadProgress={uploadProgress}
-        errorMessage={errorMessage}
-      />
-
-      {/* Affichage du résultat de soumission */}
-      {submissionResult && submissionStatus === SUBMISSION_STATES.SUCCESS && (
-        <div className="marsai-success-block">
-          <h4 className="marsai-success-title">
-            🎉 Film soumis avec succès !
-          </h4>
-          <div className="marsai-success-body">
-            <p>
-              <strong>Token de soumission :</strong>{" "}
-              <code className="marsai-token-code">
-                {submissionResult.submissionToken}
-              </code>
-            </p>
-            <p>
-              <strong>Statut YouTube :</strong> {submissionResult.youtubeStatus}
-            </p>
-            {submissionResult.youtubeUrl && (
-              <p>
-                <strong>Lien YouTube :</strong>{" "}
-                <a
-                  href={submissionResult.youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="marsai-link"
-                >
-                  Voir sur YouTube
-                </a>
-              </p>
-            )}
-          </div>
-        </div>
-      )}
     </form>
   );
 }

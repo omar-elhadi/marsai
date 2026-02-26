@@ -74,31 +74,12 @@ model Film {
   description      String        @db.Text
   country          String
   language         String?       
+  youtubeUrl  String?
   
   /// Transparence IA : Liste des outils
   aiStack          String        @db.Text
   aiMethodologyUrl String?       @db.Text
 
-  // --- GESTION DES FICHIERS (S3 / MINIO) ---
-  s3VideoKey       String?    
-  s3VideoUrl       String?    
-  posterUrl        String?       @db.Text
-  subtitleUrl      String?       @db.Text
-  
-  // YouTube Information
-  youtubeVideoId    String?         @unique
-  youtubeUrl        String?
-  youtubeStatus     YoutubeStatus?  @default(PENDING)
-  youtubeUploadedAt DateTime?
-  youtubeModerationData Json?
-
-  // Video Metadata
-  videoDuration      Float?
-  videoFormat        String?
-  videoSize          Int?
-  videoWidth         Int?
-  videoHeight        Int?
-  videoCodec         String?
 
   // --- WORKFLOW & SELECTION ---
   status           FilmStatus @default(PENDING)
@@ -118,7 +99,6 @@ model Film {
   versions         FilmVersion[]
 
   @@index([status])
-  @@index([youtubeStatus])
   @@index([country])
   @@index([averageRating])
   @@map("films")
@@ -133,7 +113,6 @@ model FilmVersion {
   description String   @db.Text
   aiStack     String   @db.Text
   s3VideoKey  String?
-  youtubeUrl  String?
   
   archivedAt  DateTime @default(now())
 
@@ -152,16 +131,6 @@ enum FilmStatus {
   TO_MODIFY
 }
 
-enum YoutubeStatus {
-  PENDING
-  UPLOADING
-  PROCESSING
-  APPROVED
-  REJECTED
-  EXPLICIT_CONTENT
-  VIOLENCE
-  FAILED
-}
 
 // -----------------------------------------------------------------------------
 // --- VOTES & DIALOGUE CRITIQUE ---
