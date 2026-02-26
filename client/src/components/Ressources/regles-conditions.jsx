@@ -1,134 +1,138 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Button from '../Button'; // Vérifie que le chemin vers Button.jsx est correct
 
-const TypewriterHeader = ({ text }) => {
-  const [displayText, setDisplayText] = useState("");
-  
-  useEffect(() => {
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayText(text.substring(0, i + 1));
-        i++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 80);
-    return () => clearInterval(typingInterval);
-  }, [text]);
-
-  return (
-    <div className="mb-16">
-      <h1 className="heavy-title text-5xl md:text-[85px] leading-[0.85] tracking-[-0.06em] text-white lowercase">
-        {displayText}<span className="text-slate-700 animate-pulse">.</span>
-      </h1>
-      <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-white/20 via-white/5 to-transparent" />
-    </div>
-  );
-};
+gsap.registerPlugin(ScrollTrigger);
 
 const ReglesConditions = () => {
-  const particleContainerRef = useRef(null);
-  const mainContentRef = useRef(null);
+  const containerRef = useRef(null);
+  const imageRef = useRef(null);
+  const lineRef = useRef(null);
 
-  // Animation des paillettes (CONSERVÉES)
   useEffect(() => {
-    const container = particleContainerRef.current;
-    if (container) {
-      for (let i = 0; i < 100; i++) {
-        const p = document.createElement('div');
-        p.className = "absolute bg-white rounded-full pointer-events-none opacity-20";
-        const size = Math.random() * 2 + 0.5;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        container.appendChild(p);
+    const ctx = gsap.context(() => {
+      // 1. Animation de l'image (Entrée immersive + Parallaxe)
+      gsap.fromTo(imageRef.current, 
+        { scale: 1.3, opacity: 0 },
+        { scale: 1, opacity: 0.5, duration: 2.5, ease: "power3.out" }
+      );
 
-        gsap.set(p, {
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-        });
+      gsap.to(imageRef.current, {
+        yPercent: 15,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true
+        }
+      });
 
-        gsap.to(p, {
-          y: "-=100",
-          duration: Math.random() * 15 + 10,
-          repeat: -1,
-          ease: "none",
-        });
-      }
-    }
+      // 2. Animation du Titre "Rideau" (Comme sur la page d'accueil)
+      gsap.fromTo(".reveal-title", 
+        { clipPath: "inset(100% 0% 0% 0%)", y: 100 },
+        { 
+          clipPath: "inset(0% 0% 0% 0%)", 
+          y: 0, 
+          duration: 1.2, 
+          ease: "power4.out",
+          stagger: 0.1,
+          delay: 0.5 
+        }
+      );
 
-    gsap.fromTo(mainContentRef.current, 
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1.5, ease: "power4.out" }
-    );
+      // 3. Filet horizontal (Scale 0 -> 1)
+      gsap.fromTo(lineRef.current,
+        { scaleX: 0, transformOrigin: "left center" },
+        { scaleX: 1, duration: 1.5, ease: "expo.inOut", delay: 1 }
+      );
+
+      // 4. Apparition des items de règles
+      gsap.fromTo(".rule-item",
+        { opacity: 0, y: 30 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          stagger: 0.2, 
+          duration: 1, 
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: ".rules-grid",
+            start: "top 85%"
+          }
+        }
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#050508] text-white p-6 flex items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="relative min-h-screen bg-[#0f0f0f] text-white overflow-hidden font-sans">
       
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
-        .font-mars { font-family: 'Inter', sans-serif; }
-        .heavy-title { font-weight: 900; }
-        .clean-panel {
-          background: #000000;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-      `}</style>
-
-      {/* Fond de paillettes (Inchangé) */}
-      <div ref={particleContainerRef} className="absolute inset-0 z-0" />
-
-      {/* Overlay Grain de film (Inchangé) */}
-      <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] z-10"></div>
-
-      {/* Conteneur Principal Épuré */}
-      <div 
-        ref={mainContentRef}
-        className="relative z-20 w-full max-w-5xl clean-panel rounded-[2.5rem] p-10 md:p-20 font-mars"
-      >
-        
-        {/* Badge Mars Ai Minimaliste */}
-        <div className="mb-10 text-left">
-          <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-500">
-            Mars Ai • Protocol 2026
-          </span>
-        </div>
-
-        <TypewriterHeader text="Règles & Conditions" />
-
-        <div className="space-y-12">
-          <p className="text-xl font-bold tracking-tight text-slate-400 max-w-2xl leading-relaxed italic">
-            "Bienvenue sur la station Mars Ai. Pour garantir la sécurité de votre voyage, veuillez prendre connaissance des protocoles de bord."
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 py-10 border-y border-white/5">
-            {['ACCÈS_TERMINAL_01', 'PROTOCOLE_SERVICES', 'DROITS_ÉQUIPAGE', 'UNITÉ_DE_DONNÉES'].map((txt) => (
-               <div key={txt} className="flex items-center gap-4 group cursor-default">
-                 <div className="w-1.5 h-1.5 bg-slate-700 rounded-full group-hover:bg-white transition-all duration-500"></div>
-                 <span className="text-slate-500 group-hover:text-white transition-colors tracking-widest font-black text-sm uppercase">
-                   {txt}
-                 </span>
-               </div>
-            ))}
-          </div>
-
-          <div className="pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
-             <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500/50 shadow-[0_0_10px_green]" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Système Mars Ai : Signal Stable
-                </p>
-             </div>
-             <p className="text-[9px] text-slate-700 font-bold tracking-[0.4em] uppercase">
-                v.2026 // Marseille Station
-             </p>
-          </div>
-        </div>
+      {/* --- BACKGROUND : IMAGE DU BUREAU FUTURISTE --- */}
+      <div className="absolute inset-0 z-0 h-screen overflow-hidden">
+        <img 
+          ref={imageRef}
+          alt="Bureau Futuriste MARSAI" 
+          className="absolute inset-0 w-full h-full object-cover object-center" 
+          src="https://plus.unsplash.com/premium_photo-1705091308945-19adc45aeb07?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+        />
+        {/* Overlay sombre progressif pour la lisibilité */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0f0f0f]/90 via-[#0f0f0f]/50 to-[#0f0f0f]" />
       </div>
 
-      {/* Vignettage Cinéma */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,1)] z-30"></div>
+      {/* --- CONTENU --- */}
+      <div className="relative z-10 p-8 md:p-24 pt-[30vh]">
+        
+        <header className="mb-24">
+          <div className="overflow-hidden mb-2">
+            <span className="reveal-title inline-block text-[10px] tracking-[0.4em] text-orange-400 font-black uppercase">
+              Terminal de Sécurité // MARSAI 2026
+            </span>
+          </div>
+          
+          <div className="overflow-hidden">
+            <h1 className="reveal-title text-6xl md:text-[110px] font-black leading-[0.85] tracking-[-0.05em] lowercase">
+              règles & <br />
+              <span className="text-orange-400">conditions.</span>
+            </h1>
+          </div>
+          
+          <div ref={lineRef} className="mt-12 h-[1px] w-full bg-white/20" />
+        </header>
+
+        {/* Grille des règles */}
+        <div className="rules-grid grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-16 max-w-6xl">
+          {[
+            { id: "01", title: "Intelligence Artificielle", text: "Le film doit être généré à l'aide d'outils de synthèse algorithmique documentés." },
+            { id: "02", title: "Durée & Format", text: "60 secondes exactement. Format vertical 9:16 ou large 21:9 en résolution 4K." },
+            { id: "03", title: "Droits d'Auteur", text: "L'artiste conserve ses droits. Le festival obtient un droit de diffusion mondial." },
+            { id: "04", title: "Éthique", text: "Interdiction d'utiliser des modèles entraînés sans consentement explicite." }
+          ].map((rule) => (
+            <div key={rule.id} className="rule-item border-l border-white/10 pl-8 space-y-4">
+              <h3 className="font-black uppercase tracking-[0.2em] text-[12px] text-orange-400">{rule.id}. {rule.title}</h3>
+              <p className="text-lg leading-relaxed text-slate-300 font-light">
+                {rule.text}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Pied de page avec ton bouton */}
+        <footer className="mt-32 pb-20 flex justify-center">
+          <Button onClick={() => window.history.back()}>
+            Revenir à l'accueil
+          </Button>
+        </footer>
+      </div>
+
+      <style jsx>{`
+        .reveal-title {
+          will-change: transform, clip-path;
+        }
+      `}</style>
     </div>
   );
 };
