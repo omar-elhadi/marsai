@@ -49,6 +49,16 @@ export const verifyToken = async (req, res) => {
       return res.status(401).json({ error: "Lien invalide ou expiré." });
     }
 
+    // Vérification de l'expiration du token
+    if (user.tokenExpires && new Date() > new Date(user.tokenExpires)) {
+      // Token expiré : on le nettoie en base pour éviter des tentatives futures
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { loginToken: null, tokenExpires: null },
+      });
+      return res.status(401).json({ error: "Ce lien a expiré. Demandez un nouvel accès à l'administrateur." });
+    }
+
     // MISE À JOUR ET SÉCURISATION :
     // 1. On enregistre la date (Badge VERT)
     // 2. On vide le token pour qu'il ne soit plus réutilisable (Sécurité)

@@ -57,8 +57,25 @@ export const isAdmin = (req, res, next) => {
 };
 
 /**
- * MIDDLEWARE 3 : Autorisation (Jury ou Admin)
- * Exemple d'extension future pour le rôle JURY mentionné dans l'audit.
+ * MIDDLEWARE 3 : Autorisation (Admin ou Modérateur)
+ * Utilisé pour les routes de gestion des films (ADMIN + MODERATOR).
+ */
+export const isAdminOrModerator = (req, res, next) => {
+  if (!req.user)
+    return res.status(500).json({ message: "Identification manquante." });
+
+  if (req.user.role === "ADMIN" || req.user.role === "MODERATOR") {
+    next();
+  } else {
+    return res.status(403).json({
+      message: "Accès interdit. Droits Admin ou Modérateur requis.",
+    });
+  }
+};
+
+/**
+ * MIDDLEWARE 4 : Autorisation (Jury — accès à ses films assignés)
+ * Le jury ne peut accéder qu'à ses films, pas au dashboard admin.
  */
 export const isJury = (req, res, next) => {
   if (!req.user)
