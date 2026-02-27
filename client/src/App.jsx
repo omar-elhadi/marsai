@@ -40,6 +40,7 @@ import PublicLayout              from './Layouts/PublicLayout.jsx';
  */
 import ProtectedRoute            from './components/ProtectedRoute.jsx';
 import FilmsList                 from './pages/Admin/FilmsList.jsx';
+import FilmDetail                from './pages/Admin/FilmDetail.jsx';
 import DashboardHome             from './pages/Admin/DashboardHome.jsx';
 import { AdminDashboard }        from './pages/Admin/AdminDashboard.jsx';
 
@@ -90,8 +91,9 @@ function AppInner() {
         {/* ZONE ADMIN SÉCURISÉE — ADMIN + MODERATOR uniquement */}
         <Route element={<ProtectedRoute requiredRole={["ADMIN", "MODERATOR"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index        element={<DashboardHome />} />
-            <Route path="films/*" element={<FilmsList />} />
+            <Route index           element={<DashboardHome />} />
+            <Route path="films/:id" element={<FilmDetail />} />
+            <Route path="films/*"   element={<FilmsList />} />
             <Route path="users" element={<AdminDashboard />} />
             <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
           </Route>

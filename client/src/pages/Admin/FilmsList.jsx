@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Play, Eye, Loader2, Users, X, AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Couleurs des badges et chips par statut
 const STATUS_STYLES = {
@@ -29,7 +30,7 @@ const NEXT_STATUSES = {
   SUBMITTED: ['IN_REVIEW', 'APPROVED', 'REJECTED', 'TO_MODIFY'],
   IN_REVIEW:  ['APPROVED', 'REJECTED', 'TO_MODIFY'],
   TO_MODIFY:  ['IN_REVIEW', 'APPROVED', 'REJECTED'],
-  APPROVED:   ['SELECTION', 'REJECTED'],
+  APPROVED:   ['SELECTION', 'REJECTED', 'TO_MODIFY'],
   SELECTION:  ['FINALIST', 'APPROVED'],
   FINALIST:   ['AWARD', 'SELECTION'],
   REJECTED:   [],
@@ -318,9 +319,10 @@ function FilmsList() {
                       {/* Actions */}
                       <td className="p-4 text-right">
                         <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                          <button title="Voir" className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
+                          <Link to={`/admin/films/${film.id}`} title="Voir le détail"
+                            className="p-2 hover:bg-white/10 rounded-full text-white transition-colors inline-flex">
                             <Eye size={16} />
-                          </button>
+                          </Link>
                           {film.youtubeUrl && (
                             <a href={film.youtubeUrl} target="_blank" rel="noopener noreferrer"
                                title="Voir sur YouTube"

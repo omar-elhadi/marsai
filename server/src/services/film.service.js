@@ -65,7 +65,7 @@ const VALID_TRANSITIONS = {
   SUBMITTED:  ["IN_REVIEW", "APPROVED", "REJECTED", "TO_MODIFY"],
   IN_REVIEW:  ["APPROVED", "REJECTED", "TO_MODIFY"],
   TO_MODIFY:  ["IN_REVIEW", "APPROVED", "REJECTED"],
-  APPROVED:   ["SELECTION", "REJECTED"],
+  APPROVED:   ["SELECTION", "REJECTED", "TO_MODIFY"],
   SELECTION:  ["FINALIST", "APPROVED"],
   FINALIST:   ["AWARD", "SELECTION"],
   REJECTED:   [], // statut final
@@ -170,6 +170,36 @@ export const assignUsersToFilm = async (filmId, userIds) => {
       assignedUsers: { select: { id: true, firstName: true, lastName: true } },
     },
   });
+};
+
+/**
+ * Récupérer le détail complet d'un film (admin).
+ * Inclut le réalisateur, les jurys assignés et tous les votes avec commentaires.
+ *
+ * @param {number} filmId
+ * @returns {Film} film avec relations complètes
+ */
+export const getFilmById = async (filmId) => {
+  const film = await prisma.film.findUnique({
+    where: { id: filmId },
+    include: {
+      submitter:     true,
+      assignedUsers: { select: { id: true, firstName: true, lastName: true, email: true } },
+      votes: {
+        include: {
+          user:     { select: { id: true, firstName: true, lastName: true } },
+          comments: true,
+        },
+        orderBy: { votedAt: "desc" },
+      },
+    },
+  });
+
+  if (!film) {
+    throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  }
+
+  return film;
 };
 
 // Transitions réservées à l'ADMIN uniquement (doc business-rules §WORKFLOW)

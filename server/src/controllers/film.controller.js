@@ -2,6 +2,7 @@ import {
   submitFilm,
   getFilms          as fetchFilms,
   getFilmsStats     as fetchFilmsStats,
+  getFilmById       as fetchFilmById,
   changeFilmStatus,
   assignUsersToFilm,
 } from "../services/film.service.js";
@@ -84,6 +85,21 @@ export const getStats = async (req, res) => {
   } catch (error) {
     console.error("❌ Erreur getStats:", error);
     return res.status(500).json({ error: "Erreur lors du calcul des statistiques" });
+  }
+};
+
+/**
+ * GET /api/films/:id
+ * Détail complet d'un film (admin) : réalisateur, jurys, votes + commentaires.
+ */
+export const getOne = async (req, res) => {
+  try {
+    const film = await fetchFilmById(parseInt(req.params.id));
+    return res.json(film);
+  } catch (error) {
+    const code = error.statusCode || 500;
+    console.error("❌ Erreur getOne:", error.message);
+    return res.status(code).json({ error: error.message });
   }
 };
 
