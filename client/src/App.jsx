@@ -103,8 +103,8 @@ function AppInner() {
           <Route path="/events"                    element={<Events />} />
         </Route>
 
-        {/* ZONE ADMIN SÉCURISÉE */}
-        <Route element={<ProtectedRoute />}>
+        {/* ZONE ADMIN SÉCURISÉE — ADMIN + MODERATOR uniquement */}
+        <Route element={<ProtectedRoute requiredRole={["ADMIN", "MODERATOR"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index        element={<DashboardHome />} />
             <Route path="films" element={<FilmsList />} />

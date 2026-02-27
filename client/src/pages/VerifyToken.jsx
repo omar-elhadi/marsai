@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function VerifyToken() {
@@ -6,8 +6,14 @@ export default function VerifyToken() {
   const navigate = useNavigate();
   const [status, setStatus] = useState("Vérification de votre accès...");
   const token = searchParams.get("token");
+  // Ref pour éviter le double appel causé par React.StrictMode en développement
+  const called = useRef(false);
 
   useEffect(() => {
+    // Si déjà appelé (StrictMode double-mount), on stoppe immédiatement
+    if (called.current) return;
+    called.current = true;
+
     const verify = async () => {
       if (!token) {
         setStatus("Lien d'invitation manquant.");

@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL + "/api";
+// VITE_API_URL inclut déjà /api (ex: http://localhost:5001/api)
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const userService = {
   /**
