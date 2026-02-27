@@ -23,7 +23,6 @@
  */
 
 import { useRef }    from 'react';
-import { useLoader } from '@/context/LoaderContext';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -34,21 +33,16 @@ gsap.registerPlugin(ScrollTrigger);
 // DONNÉES — Statistiques
 // ─────────────────────────────────────────────
 const STATS = [
-  { value: '600',  label: 'Films soumis'      },
-  { value: '120',  label: 'Présélections'     },
-  { value: '50',   label: 'Finalistes'        },
-  { value: '50',   label: 'Jurés'             },
+  { value: '600',  label: 'Films soumis',  target: 600,  suffix: '' },
+  { value: '120',  label: 'Présélections', target: 120,  suffix: '' },
+  { value: '50',   label: 'Finalistes',    target: 50,   suffix: '' },
+  { value: '50',   label: 'Jurés',         target: 50,   suffix: '' },
 ];
 
 // ─────────────────────────────────────────────
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────
 export default function HeroImpact() {
-  // Attend le signal du loader initial — zéro animation avant que
-  // le rideau ne se lève. Sur les visites suivantes, loaderReady=true
-  // dès le départ → comportement natif inchangé.
-  const { loaderReady } = useLoader();
-
   const heroRef       = useRef(null);
   const imageRef      = useRef(null);
   const overlayRef    = useRef(null);
@@ -61,11 +55,7 @@ export default function HeroImpact() {
   const statsRef      = useRef(null);
 
   useGSAP(() => {
-    // ── Guard loader ───────────────────────────────────────────
-    // Si le loader est encore actif (première visite), on pose les
-    // états initiaux mais on n'amorce PAS la timeline.
-    // Quand loaderReady passe à true, useGSAP se relance et joue
-    // la timeline depuis le début — parfaitement synchronisé.
+    // ── États initiaux ─────────────────────────────────────────
     gsap.set(imageRef.current,    { opacity: 0, scale: 1.06 });
     gsap.set(overlayRef.current,  { opacity: 1 });
     gsap.set(overlineRef.current, { opacity: 0, y: 18 });
@@ -74,8 +64,6 @@ export default function HeroImpact() {
     gsap.set(dateLineRef.current, { opacity: 0, y: 16 });
     gsap.set(ctaRef.current,      { opacity: 0, y: 18 });
     gsap.set(scrollIndRef.current,{ opacity: 0 });
-
-    if (!loaderReady) return; // Loader encore actif — attendre
 
     // ── Timeline principale ────────────────────────────────────
     const tl = gsap.timeline({ delay: 0.2 });
@@ -161,6 +149,7 @@ export default function HeroImpact() {
       start:    'top 80%',
       once:     true,
       onEnter() {
+        // Révélation stagger des cartes stats
         gsap.to(statItems, {
           opacity:  1,
           y:        0,
@@ -168,10 +157,32 @@ export default function HeroImpact() {
           stagger:  0.12,
           ease:     'power2.out',
         });
+
+        // Compteurs animés — chaque valeur monte de 0 à sa cible
+        statItems.forEach((item) => {
+          const valueEl = item.querySelector('.stat-value');
+          if (!valueEl) return;
+
+          const target  = parseInt(valueEl.dataset.target, 10);
+          if (isNaN(target)) return;
+
+          const counter = { val: 0 };
+          gsap.to(counter, {
+            val:      target,
+            duration: 1.8,
+            delay:    0.3,
+            ease:     'power2.out',
+            onUpdate() {
+              // Format : ajouter "+" si la valeur originale l'avait
+              const suffix = valueEl.dataset.suffix || '';
+              valueEl.textContent = Math.round(counter.val) + suffix;
+            },
+          });
+        });
       },
     });
 
-  }, { scope: heroRef, dependencies: [loaderReady] });
+  }, { scope: heroRef });
 
   return (
     <div ref={heroRef}>
@@ -414,7 +425,7 @@ export default function HeroImpact() {
         <div
           className="grid grid-cols-2 md:grid-cols-4 max-w-6xl mx-auto"
         >
-          {STATS.map(({ value, label }, i) => (
+          {STATS.map(({ value, label, target, suffix }, i) => (
             <div
               key={label}
               className="stat-item flex flex-col items-center justify-center text-center py-10 md:py-14 px-6"
@@ -428,6 +439,9 @@ export default function HeroImpact() {
               }}
             >
               <span
+                className="stat-value"
+                data-target={target}
+                data-suffix={suffix}
                 style={{
                   fontFamily:    'var(--font-sans)',
                   fontWeight:    900,
