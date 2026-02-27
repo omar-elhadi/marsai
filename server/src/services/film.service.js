@@ -78,11 +78,17 @@ const VALID_TRANSITIONS = {
  *
  * @param {{ status?: string, search?: string }} filters
  */
-export const getFilms = async ({ status, search } = {}) => {
+export const getFilms = async ({ status, search, hasSuggestions } = {}) => {
   const where = {};
 
   if (status) {
     where.status = status;
+  }
+
+  // Sous-filtre "Suggestions" : films IN_REVIEW avec ≥1 jury qui suggère une modif
+  if (hasSuggestions === "true" || hasSuggestions === true) {
+    where.status = "IN_REVIEW";
+    where.votes  = { some: { suggestModification: true } };
   }
 
   if (search) {
@@ -110,35 +116,87 @@ export const getFilms = async ({ status, search } = {}) => {
  * KPIs pour le dashboard home : total + comptage par statut.
  */
 export const getFilmsStats = async () => {
-  const [total, byStatus] = await Promise.all([
+  const [total, byStatus, suggestions] = await Promise.all([
     prisma.film.count(),
-    prisma.film.groupBy({
-      by: ["status"],
-      _count: { id: true },
+    prisma.film.groupBy({ by: ["status"], _count: { id: true } }),
+    // Films IN_REVIEW avec ≥1 jury suggérant une modification
+    prisma.film.count({
+      where: { status: "IN_REVIEW", votes: { some: { suggestModification: true } } },
     }),
   ]);
 
-  // Transformer le tableau en objet { SUBMITTED: 5, APPROVED: 3, ... }
   const counts = Object.fromEntries(
     byStatus.map(({ status, _count }) => [status, _count.id])
   );
 
-  return { total, byStatus: counts };
+  return { total, byStatus: counts, suggestions };
 };
+
+/**
+ * Assigner une liste de jurys à un film (remplacement complet).
+ * Prisma many-to-many via relation _FilmAssignments.
+ *
+ * @param {number}   filmId
+ * @param {number[]} userIds - tableau d'IDs (vide = tout désassigner)
+ */
+export const assignUsersToFilm = async (filmId, userIds) => {
+  const film = await prisma.film.findUnique({
+    where:   { id: filmId },
+    include: { _count: { select: { votes: true } } },
+  });
+  if (!film) {
+    throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  }
+
+  // Blocage si des votes ont déjà été déposés (règle business R-ASSIGN-003)
+  if (film._count.votes > 0 && userIds.length > 0) {
+    throw Object.assign(
+      new Error("Impossible de modifier les jurys : des votes ont déjà été déposés."),
+      { statusCode: 409 }
+    );
+  }
+
+  // Transition automatique SUBMITTED → IN_REVIEW dès qu'un jury est assigné
+  const newStatus =
+    film.status === "SUBMITTED" && userIds.length > 0 ? "IN_REVIEW" : film.status;
+
+  return prisma.film.update({
+    where: { id: filmId },
+    data:  {
+      assignedUsers: { set: userIds.map(id => ({ id })) },
+      status: newStatus,
+    },
+    include: {
+      assignedUsers: { select: { id: true, firstName: true, lastName: true } },
+    },
+  });
+};
+
+// Transitions réservées à l'ADMIN uniquement (doc business-rules §WORKFLOW)
+const ADMIN_ONLY_TARGETS = new Set(["SELECTION", "FINALIST", "AWARD"]);
 
 /**
  * Changer le statut d'un film avec validation des transitions.
  *
  * @param {number} filmId
  * @param {string} newStatus
+ * @param {string} [role] - Rôle de l'acteur (ADMIN | MODERATOR) — requis pour SELECTION+
  * @returns {Film} film mis à jour
- * @throws {Error} si la transition est invalide
+ * @throws {Error} si la transition est invalide ou rôle insuffisant
  */
-export const changeFilmStatus = async (filmId, newStatus) => {
+export const changeFilmStatus = async (filmId, newStatus, role) => {
   const film = await prisma.film.findUnique({ where: { id: filmId } });
 
   if (!film) {
     throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  }
+
+  // Transitions SELECTION / FINALIST / AWARD : ADMIN uniquement
+  if (ADMIN_ONLY_TARGETS.has(newStatus) && role !== "ADMIN") {
+    throw Object.assign(
+      new Error(`La transition vers ${newStatus} est réservée aux administrateurs.`),
+      { statusCode: 403 }
+    );
   }
 
   const allowed = VALID_TRANSITIONS[film.status] ?? [];

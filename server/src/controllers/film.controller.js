@@ -1,8 +1,9 @@
 import {
   submitFilm,
-  getFilms       as fetchFilms,
-  getFilmsStats  as fetchFilmsStats,
+  getFilms          as fetchFilms,
+  getFilmsStats     as fetchFilmsStats,
   changeFilmStatus,
+  assignUsersToFilm,
 } from "../services/film.service.js";
 
 /**
@@ -63,8 +64,8 @@ export const submit = async (req, res) => {
  */
 export const getFilms = async (req, res) => {
   try {
-    const { status, search } = req.query;
-    const films = await fetchFilms({ status, search });
+    const { status, search, hasSuggestions } = req.query;
+    const films = await fetchFilms({ status, search, hasSuggestions });
     return res.json(films);
   } catch (error) {
     console.error("❌ Erreur getFilms:", error);
@@ -100,11 +101,34 @@ export const updateStatus = async (req, res) => {
       return res.status(400).json({ error: "Le champ status est requis" });
     }
 
-    const film = await changeFilmStatus(filmId, status);
+    const film = await changeFilmStatus(filmId, status, req.user.role);
     return res.json(film);
   } catch (error) {
     const code = error.statusCode || 500;
     console.error("❌ Erreur updateStatus:", error.message);
+    return res.status(code).json({ error: error.message });
+  }
+};
+
+/**
+ * PUT /api/films/:id/assign
+ * Assigner une liste de jurys à un film (remplace la liste existante).
+ * Body : { userIds: [1, 2, 3] }
+ */
+export const assign = async (req, res) => {
+  try {
+    const filmId  = parseInt(req.params.id);
+    const { userIds } = req.body;
+
+    if (!Array.isArray(userIds)) {
+      return res.status(400).json({ error: "userIds doit être un tableau d'IDs" });
+    }
+
+    const film = await assignUsersToFilm(filmId, userIds.map(Number));
+    return res.json(film);
+  } catch (error) {
+    const code = error.statusCode || 500;
+    console.error("❌ Erreur assign:", error.message);
     return res.status(code).json({ error: error.message });
   }
 };

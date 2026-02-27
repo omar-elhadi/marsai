@@ -1,5 +1,5 @@
 import express from "express";
-import { submit, getFilms, getStats, updateStatus } from "../controllers/film.controller.js";
+import { submit, getFilms, getStats, updateStatus, assign } from "../controllers/film.controller.js";
 import { verifyToken, isAdminOrModerator } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -17,5 +17,8 @@ router.get("/stats", verifyToken, isAdminOrModerator, getStats);
 
 // Changement de statut d'un film (transitions validées)
 router.put("/:id/status", verifyToken, isAdminOrModerator, updateStatus);
+
+// Assignation des jurys à un film
+router.put("/:id/assign", verifyToken, isAdminOrModerator, assign);
 
 export default router;

@@ -12,6 +12,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import filmRoutes from "./routes/film.routes.js";
+import juryRoutes from "./routes/vote.routes.js";
 
 // --- GARDE-FOU (FAIL-SAFE) ---
 // On vérifie que les variables critiques sont présentes avant de démarrer.
@@ -48,6 +49,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/films", filmRoutes);
+app.use("/api/jury", juryRoutes);
 
 /**
  * Route de santé (Health Check)
