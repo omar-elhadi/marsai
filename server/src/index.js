@@ -11,8 +11,7 @@ import cors from "cors";
 // --- IMPORT DES ROUTES ---
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
-// Importez vos futures routes ici :
-// import movieRoutes from "./routes/movie.routes.js";
+import filmRoutes from "./routes/film.routes.js";
 
 // --- GARDE-FOU (FAIL-SAFE) ---
 // On vérifie que les variables critiques sont présentes avant de démarrer.
@@ -48,6 +47,7 @@ app.use(express.json());
 // Routes d'authentification (Login, Profile, etc.)
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/films", filmRoutes);
 
 /**
  * Route de santé (Health Check)
