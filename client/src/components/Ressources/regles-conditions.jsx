@@ -1,134 +1,124 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Button from '../Button'; 
 
-const TypewriterHeader = ({ text }) => {
-  const [displayText, setDisplayText] = useState("");
-  
-  useEffect(() => {
-    let i = 0;
-    const typingInterval = setInterval(() => {
-      if (i < text.length) {
-        setDisplayText(text.substring(0, i + 1));
-        i++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 80);
-    return () => clearInterval(typingInterval);
-  }, [text]);
-
-  return (
-    <div className="mb-16">
-      <h1 className="heavy-title text-5xl md:text-[85px] leading-[0.85] tracking-[-0.06em] text-white lowercase">
-        {displayText}<span className="text-slate-700 animate-pulse">.</span>
-      </h1>
-      <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-white/20 via-white/5 to-transparent" />
-    </div>
-  );
-};
+gsap.registerPlugin(ScrollTrigger);
 
 const ReglesConditions = () => {
-  const particleContainerRef = useRef(null);
-  const mainContentRef = useRef(null);
+  const containerRef = useRef(null);
+  const imageRef = useRef(null);
+  const lineRef = useRef(null);
+  const [isReading, setIsReading] = useState(null); // Stocke l'ID de la règle lue
 
-  // Animation des paillettes (CONSERVÉES)
-  useEffect(() => {
-    const container = particleContainerRef.current;
-    if (container) {
-      for (let i = 0; i < 100; i++) {
-        const p = document.createElement('div');
-        p.className = "absolute bg-white rounded-full pointer-events-none opacity-20";
-        const size = Math.random() * 2 + 0.5;
-        p.style.width = `${size}px`;
-        p.style.height = `${size}px`;
-        container.appendChild(p);
-
-        gsap.set(p, {
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-        });
-
-        gsap.to(p, {
-          y: "-=100",
-          duration: Math.random() * 15 + 10,
-          repeat: -1,
-          ease: "none",
-        });
-      }
+  // Fonction de lecture vocale
+  const speak = (text, id) => {
+    window.speechSynthesis.cancel(); // Arrête toute lecture en cours
+    
+    if (isReading === id) {
+      setIsReading(null);
+      return;
     }
 
-    gsap.fromTo(mainContentRef.current, 
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1.5, ease: "power4.out" }
-    );
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.pitch = 0.8; // Voix un peu plus grave/robotique
+    utterance.rate = 0.9;  // Débit légèrement ralenti
+    
+    utterance.onstart = () => setIsReading(id);
+    utterance.onend = () => setIsReading(null);
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Animations de base (conservées et aérées)
+      gsap.fromTo(imageRef.current, 
+        { scale: 1.3, opacity: 0 },
+        { scale: 1, opacity: 0.2, duration: 2.5, ease: "power3.out" }
+      );
+
+      gsap.fromTo(".reveal-title", 
+        { clipPath: "inset(100% 0% 0% 0%)", y: 100 },
+        { clipPath: "inset(0% 0% 0% 0%)", y: 0, duration: 1.5, ease: "expo.out", stagger: 0.15, delay: 0.5 }
+      );
+    }, containerRef);
+
+    return () => {
+        ctx.revert();
+        window.speechSynthesis.cancel(); // Coupe le son si on quitte la page
+    };
   }, []);
 
+  const rules = [
+    { id: "01", title: "Intelligence Artificielle", text: "Le film doit être généré à l'aide d'outils de synthèse algorithmique documentés. Chaque frame doit porter l'empreinte du futur." },
+    { id: "02", title: "Durée & Format", text: "60 secondes exactement. Ni plus, ni moins. Format vertical 9:16 ou CinemaScope 21:9 en résolution native 4K." },
+    { id: "03", title: "Droits d'Auteur", text: "L'artiste conserve la propriété intellectuelle. MARSAI obtient un droit de diffusion exclusif pour la durée du festival." },
+    { id: "04", title: "Éthique Algorithmique", text: "Interdiction formelle d'utiliser des modèles entraînés sans consentement. Le respect de la création humaine est la base de notre IA." }
+  ];
+
   return (
-    <div className="relative min-h-screen bg-[#050508] text-white p-6 flex items-center justify-center overflow-hidden">
+    <div ref={containerRef} className="relative min-h-screen bg-[#050505] text-white overflow-hidden font-sans">
       
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
-        .font-mars { font-family: 'Inter', sans-serif; }
-        .heavy-title { font-weight: 900; }
-        .clean-panel {
-          background: #000000;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-      `}</style>
-
-      {/* Fond de paillettes (Inchangé) */}
-      <div ref={particleContainerRef} className="absolute inset-0 z-0" />
-
-      {/* Overlay Grain de film (Inchangé) */}
-      <div className="absolute inset-0 pointer-events-none opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] z-10"></div>
-
-      {/* Conteneur Principal Épuré */}
-      <div 
-        ref={mainContentRef}
-        className="relative z-20 w-full max-w-5xl clean-panel rounded-[2.5rem] p-10 md:p-20 font-mars"
-      >
-        
-        {/* Badge Mars Ai Minimaliste */}
-        <div className="mb-10 text-left">
-          <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-slate-500">
-            Mars Ai • Protocol 2026
-          </span>
-        </div>
-
-        <TypewriterHeader text="Règles & Conditions" />
-
-        <div className="space-y-12">
-          <p className="text-xl font-bold tracking-tight text-slate-400 max-w-2xl leading-relaxed italic">
-            "Bienvenue sur la station Mars Ai. Pour garantir la sécurité de votre voyage, veuillez prendre connaissance des protocoles de bord."
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 py-10 border-y border-white/5">
-            {['ACCÈS_TERMINAL_01', 'PROTOCOLE_SERVICES', 'DROITS_ÉQUIPAGE', 'UNITÉ_DE_DONNÉES'].map((txt) => (
-               <div key={txt} className="flex items-center gap-4 group cursor-default">
-                 <div className="w-1.5 h-1.5 bg-slate-700 rounded-full group-hover:bg-white transition-all duration-500"></div>
-                 <span className="text-slate-500 group-hover:text-white transition-colors tracking-widest font-black text-sm uppercase">
-                   {txt}
-                 </span>
-               </div>
-            ))}
-          </div>
-
-          <div className="pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
-             <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-500/50 shadow-[0_0_10px_green]" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Système Mars Ai : Signal Stable
-                </p>
-             </div>
-             <p className="text-[9px] text-slate-700 font-bold tracking-[0.4em] uppercase">
-                v.2026 // Marseille Station
-             </p>
-          </div>
-        </div>
+      {/* BACKGROUND */}
+      <div className="fixed inset-0 z-0 h-screen overflow-hidden">
+        <img ref={imageRef} alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-20" src="https://plus.unsplash.com/premium_photo-1705091308945-19adc45aeb07?q=80&w=1074" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-transparent to-[#050505]" />
       </div>
 
-      {/* Vignettage Cinéma */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,1)] z-30"></div>
+      <div className="relative z-10 px-8 flex flex-col items-center">
+        
+        {/* Header Hero */}
+        <header className="min-h-[80vh] flex flex-col items-center justify-center text-center">
+          <span className="reveal-title inline-block text-[10px] tracking-[0.8em] text-orange-400 mb-8 uppercase font-black">
+            Audio Guide Available
+          </span>
+          <h1 className="reveal-title text-7xl md:text-[130px] font-black leading-[0.8] tracking-[-0.06em] lowercase italic">
+            règles & <br /> <span className="text-orange-400">conditions.</span>
+          </h1>
+          <div className="mt-16 animate-bounce opacity-20 text-[10px] tracking-widest uppercase">Scroll to read</div>
+        </header>
+
+        {/* Liste des règles */}
+        <div className="rules-grid grid grid-cols-1 gap-y-52 pb-60 max-w-2xl w-full">
+          {rules.map((rule) => (
+            <div key={rule.id} className="rule-item flex flex-col items-center text-center group">
+              
+              {/* Bouton Voice Control */}
+              <button 
+                onClick={() => speak(`${rule.title}. ${rule.text}`, rule.id)}
+                className={`mb-10 w-16 h-16 rounded-full border flex items-center justify-center transition-all duration-500 ${isReading === rule.id ? 'bg-orange-400 border-orange-400 scale-110' : 'border-white/10 hover:border-orange-400/50'}`}
+              >
+                {isReading === rule.id ? (
+                  <div className="flex gap-1">
+                    <span className="w-1 h-4 bg-black animate-[bounce_0.6s_infinite]"></span>
+                    <span className="w-1 h-4 bg-black animate-[bounce_0.6s_infinite_0.2s]"></span>
+                    <span className="w-1 h-4 bg-black animate-[bounce_0.6s_infinite_0.4s]"></span>
+                  </div>
+                ) : (
+                  <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+                )}
+              </button>
+
+              <div className="space-y-6">
+                <span className="text-[10px] font-black text-orange-400/40 tracking-[0.4em] uppercase">Section {rule.id}</span>
+                <h3 className="font-black uppercase tracking-[0.2em] text-2xl italic group-hover:text-orange-400 transition-colors">
+                  {rule.title}
+                  
+                </h3>
+                <p className={`text-xl md:text-2xl leading-relaxed font-light italic transition-colors duration-700 ${isReading === rule.id ? 'text-white' : 'text-slate-500'}`}>
+                  "{rule.text}"
+                </p>
+              </div>
+            </div>
+          ))}
+
+          <footer className="pt-20 flex justify-center">
+            <Button onClick={() => window.history.back()}>Fermer le terminal</Button>
+          </footer>
+        </div>
+      </div>
     </div>
   );
 };
