@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Film, Users, LogOut, Menu, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Film, Users, LogOut, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isFilmSubmenuOpen, setIsFilmSubmenuOpen] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
 
@@ -118,18 +117,18 @@ function AdminLayout() {
             )}
           </NavLink>
 
-          {/* FILMS (Déroulable) */}
-          <div className="space-y-2">
-            <button 
-              onClick={() => setIsFilmSubmenuOpen(!isFilmSubmenuOpen)}
-              className={`w-full flex items-center hover:bg-white/5 hover:text-white transition-all outline-none text-white/40 group
-              ${isCollapsed && !isMobileMenuOpen ? 'justify-center p-3' : 'justify-between gap-5 px-6 py-4 md:py-3.5'}
-              ${isMobileMenuOpen ? 'py-8 px-10' : ''}`}
-            >
-              <div className="flex items-center gap-5">
-                <Film 
-                  size={isCollapsed && !isMobileMenuOpen ? 28 : (isMobileMenuOpen ? 32 : 20)} 
-                  className="text-gray-600 group-hover:text-white transition-colors" 
+          {/* FILMS */}
+          <NavLink to="/admin/films" className={({ isActive }) =>
+            `flex items-center transition-all rounded-sm border-2 group
+            ${isCollapsed && !isMobileMenuOpen ? 'justify-center p-3' : 'gap-5 px-6 py-4 md:py-3.5'}
+            ${isMobileMenuOpen ? 'py-8 px-10' : ''}
+            ${isActive ? 'border-indigo-600 text-white' : 'border-transparent text-white/40 hover:bg-white/5 hover:text-white'}`
+          }>
+            {({ isActive }) => (
+              <>
+                <Film
+                  size={isCollapsed && !isMobileMenuOpen ? 28 : (isMobileMenuOpen ? 32 : 20)}
+                  className={isActive ? "text-indigo-500" : "text-gray-600 group-hover:text-white transition-colors"}
                 />
                 {showFullMenu && (
                   <span className={`font-black uppercase tracking-[0.25em] transition-all
@@ -137,32 +136,9 @@ function AdminLayout() {
                     Films
                   </span>
                 )}
-              </div>
-              {showFullMenu && (
-                <ChevronDown size={isMobileMenuOpen ? 28 : 18} 
-                  className={`transition-transform duration-300 ${isFilmSubmenuOpen ? 'rotate-180' : ''}`} 
-                />
-              )}
-            </button>
-
-            {isFilmSubmenuOpen && showFullMenu && (
-              <div className={`ml-8 border-l border-white/10 space-y-1 mt-1 py-1 ${isMobileMenuOpen ? 'ml-16 space-y-6' : ''}`}>
-                {["Reçus", "Workflow", "Sélection", "Finalistes"].map((label, i) => (
-                  <NavLink 
-                    key={i} 
-                    to={`/admin/films/${label.toLowerCase().replace(/\s/g, '')}`} 
-                    className={({ isActive }) => 
-                      `block px-8 transition-all font-bold uppercase tracking-widest
-                      ${isMobileMenuOpen ? 'py-4 text-lg' : 'py-2 text-[10px]'} 
-                      ${isActive ? 'text-indigo-500 italic' : 'text-white/30 hover:text-white'}`
-                    }
-                  >
-                    {label}
-                  </NavLink>
-                ))}
-              </div>
+              </>
             )}
-          </div>
+          </NavLink>
         </nav>
 
         {/* DECONNEXION : Aligné à gauche, petite taille */}

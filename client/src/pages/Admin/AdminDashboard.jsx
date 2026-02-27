@@ -94,11 +94,11 @@ export const AdminDashboard = () => {
     return { color: 'text-red-600', bg: 'bg-red-600', label: 'NON INVITÉ' };
   };
 
-  if (loading) return <div className="bg-black min-h-screen flex items-center justify-center text-white font-mono text-[10px] tracking-[0.5em]">SYNC_IN_PROGRESS_</div>;
+  if (loading) return <div className="flex items-center justify-center h-64 text-white font-mono text-[10px] tracking-[0.5em]">SYNC_IN_PROGRESS_</div>;
 
   return (
-    <div className="p-4 sm:p-6 md:p-10 bg-black min-h-screen text-white font-sans selection:bg-indigo-500">
-      <div className="max-w-6xl mx-auto">
+    <div className="animate-fade-in text-white font-sans selection:bg-indigo-500">
+      <div>
         
         {/* --- HEADER --- */}
         <div className="flex flex-col lg:flex-row justify-between items-start mb-8 border-b border-white/5 pb-8 gap-8">

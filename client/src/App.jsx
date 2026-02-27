@@ -47,32 +47,16 @@ import { AdminDashboard }        from './pages/Admin/AdminDashboard.jsx';
  * 5. PHASE 8 — Transitions cinématographiques
  */
 import PageTransitionLayer       from './components/PageTransitionLayer.jsx';
-import { useState }        from 'react';
 import { LoaderContext }   from './context/LoaderContext';
-import InitialLoader       from './components/InitialLoader';
 
 // ─────────────────────────────────────────────────────────────
 // AppInner — vit DANS BrowserRouter pour avoir useLocation
 // ─────────────────────────────────────────────────────────────
 function AppInner() {
-  // ── Loader initial — une seule fois par session ──────────────
-  // sessionStorage persiste pendant la session (pas après fermeture).
-  // Rechargement : flag toujours là → pas de loader → HeroImpact natif.
-  // Nouvel onglet : flag absent → loader affiché.
-  const alreadyLoaded = typeof sessionStorage !== 'undefined'
-    && !!sessionStorage.getItem('marsai_loaded');
-
-  const [loaderReady, setLoaderReady] = useState(alreadyLoaded);
-
   return (
-    <LoaderContext.Provider value={{ loaderReady }}>
+    <LoaderContext.Provider value={{ loaderReady: true }}>
       {/* Couche de transitions — écoute useLocation, rend null */}
       <PageTransitionLayer />
-
-      {/* Loader initial — se retire après sa séquence */}
-      {!loaderReady && (
-        <InitialLoader onComplete={() => setLoaderReady(true)} />
-      )}
 
       <Routes>
         {/* ROUTES PUBLIQUES */}
@@ -107,7 +91,7 @@ function AppInner() {
         <Route element={<ProtectedRoute requiredRole={["ADMIN", "MODERATOR"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index        element={<DashboardHome />} />
-            <Route path="films" element={<FilmsList />} />
+            <Route path="films/*" element={<FilmsList />} />
             <Route path="users" element={<AdminDashboard />} />
             <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
           </Route>
