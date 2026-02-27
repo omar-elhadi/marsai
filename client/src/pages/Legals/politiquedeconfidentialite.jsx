@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import "./politiquedeconfidentialite.css";
 // Sous-composant pour l'effet d'écriture (Typewriter) identique à Mentions Légales
 const TypewriterHeader = ({ text }) => {
   const [displayText, setDisplayText] = useState("");
@@ -66,21 +66,6 @@ function PolitiqueDeConfidentialite() {
       {/* Overlay gradient radial aligné à gauche pour le titre */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_20%_40%,rgba(20,20,25,0.3)_0%,rgba(5,5,8,1)_100%)] z-1" />
 
-      <style>{`
-        @keyframes breathe {
-          0%, 100% { 
-            box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
-            border-color: rgba(212, 175, 55, 0.2);
-          }
-          50% { 
-            box-shadow: 0 0 20px rgba(230, 213, 172, 0.5);
-            border-color: rgba(230, 213, 172, 0.6);
-          }
-        }
-        .breathe-effect {
-          animation: breathe 4s infinite ease-in-out;
-        }
-      `}</style>
 
       <div className="max-w-4xl mx-auto relative z-10 pt-[15vh]">
         
