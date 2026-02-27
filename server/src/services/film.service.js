@@ -56,3 +56,101 @@ export const submitFilm = async (data) => {
 
   return { film, submissionToken: film.submissionToken };
 };
+
+/**
+ * Transitions de statuts autorisées (règles métier).
+ * Admin = décideur final — peut faire toutes les transitions listées.
+ */
+const VALID_TRANSITIONS = {
+  SUBMITTED:  ["IN_REVIEW", "APPROVED", "REJECTED", "TO_MODIFY"],
+  IN_REVIEW:  ["APPROVED", "REJECTED", "TO_MODIFY"],
+  TO_MODIFY:  ["IN_REVIEW", "APPROVED", "REJECTED"],
+  APPROVED:   ["SELECTION", "REJECTED"],
+  SELECTION:  ["FINALIST", "APPROVED"],
+  FINALIST:   ["AWARD", "SELECTION"],
+  REJECTED:   [], // statut final
+  AWARD:      [], // statut final
+};
+
+/**
+ * Récupérer la liste des films pour le dashboard admin.
+ * Inclut le Submitter pour afficher nom/email du réalisateur.
+ *
+ * @param {{ status?: string, search?: string }} filters
+ */
+export const getFilms = async ({ status, search } = {}) => {
+  const where = {};
+
+  if (status) {
+    where.status = status;
+  }
+
+  if (search) {
+    where.OR = [
+      { title:     { contains: search } },
+      { country:   { contains: search } },
+      { submitter: { email:     { contains: search } } },
+      { submitter: { firstName: { contains: search } } },
+      { submitter: { lastName:  { contains: search } } },
+    ];
+  }
+
+  return prisma.film.findMany({
+    where,
+    include: {
+      submitter:     { select: { id: true, firstName: true, lastName: true, email: true } },
+      assignedUsers: { select: { id: true, firstName: true, lastName: true } },
+      _count:        { select: { votes: true } },
+    },
+    orderBy: { submittedAt: "desc" },
+  });
+};
+
+/**
+ * KPIs pour le dashboard home : total + comptage par statut.
+ */
+export const getFilmsStats = async () => {
+  const [total, byStatus] = await Promise.all([
+    prisma.film.count(),
+    prisma.film.groupBy({
+      by: ["status"],
+      _count: { id: true },
+    }),
+  ]);
+
+  // Transformer le tableau en objet { SUBMITTED: 5, APPROVED: 3, ... }
+  const counts = Object.fromEntries(
+    byStatus.map(({ status, _count }) => [status, _count.id])
+  );
+
+  return { total, byStatus: counts };
+};
+
+/**
+ * Changer le statut d'un film avec validation des transitions.
+ *
+ * @param {number} filmId
+ * @param {string} newStatus
+ * @returns {Film} film mis à jour
+ * @throws {Error} si la transition est invalide
+ */
+export const changeFilmStatus = async (filmId, newStatus) => {
+  const film = await prisma.film.findUnique({ where: { id: filmId } });
+
+  if (!film) {
+    throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  }
+
+  const allowed = VALID_TRANSITIONS[film.status] ?? [];
+  if (!allowed.includes(newStatus)) {
+    throw Object.assign(
+      new Error(`Transition invalide : ${film.status} → ${newStatus}`),
+      { statusCode: 400 }
+    );
+  }
+
+  return prisma.film.update({
+    where: { id: filmId },
+    data:  { status: newStatus },
+  });
+};
