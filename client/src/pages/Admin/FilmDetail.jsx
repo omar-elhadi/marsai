@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Loader2, Users, Globe, Calendar, Cpu } from 'lucide-react';
+import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Loader2, Users, Globe, Calendar, Cpu, CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react';
 
 const STATUS_STYLES = {
   SUBMITTED: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
@@ -38,6 +38,12 @@ function FilmDetail() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
+  // Modal TO_MODIFY
+  const [showModal, setShowModal]       = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalError, setModalError]     = useState('');
+
   const token = localStorage.getItem('token');
   const API   = import.meta.env.VITE_API_URL;
 
@@ -60,6 +66,13 @@ function FilmDetail() {
   }, [id, token, API]);
 
   const handleStatusChange = async (newStatus) => {
+    // TO_MODIFY passe par la modale — jamais en appel direct
+    if (newStatus === 'TO_MODIFY') {
+      setModalMessage('');
+      setModalError('');
+      setShowModal(true);
+      return;
+    }
     setUpdating(true);
     try {
       const res  = await fetch(`${API}/films/${id}/status`, {
@@ -71,6 +84,36 @@ function FilmDetail() {
       setFilm(prev => ({ ...prev, status: updated.status }));
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Confirmer la demande de modification (backend gère le status TO_MODIFY)
+  const handleConfirmModification = async () => {
+    if (!modalMessage.trim()) {
+      setModalError('Le message est obligatoire.');
+      return;
+    }
+    setModalLoading(true);
+    setModalError('');
+    try {
+      const res  = await fetch(`${API}/films/${id}/request-modification`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body:    JSON.stringify({ message: modalMessage.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur inconnue');
+      setFilm(prev => ({
+        ...prev,
+        status:                  data.status,
+        modificationRequest:     data.modificationRequest,
+        modificationRequestedAt: data.modificationRequestedAt,
+      }));
+      setShowModal(false);
+    } catch (err) {
+      setModalError(err.message);
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -100,6 +143,50 @@ function FilmDetail() {
 
   return (
     <div className="animate-fade-in max-w-5xl mx-auto">
+
+      {/* ── MODAL TO_MODIFY ─────────────────────────── */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="bg-[#1a1a1a] border border-orange-500/30 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-sm font-black uppercase tracking-widest text-orange-400 mb-1">
+              Demander des modifications
+            </h3>
+            <p className="text-xs text-white/40 mb-4">
+              Ce message sera envoyé par email au réalisateur avec un lien valable 7 jours.
+            </p>
+
+            <textarea
+              className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-orange-500/50 resize-none transition-colors"
+              rows={5}
+              placeholder="Décrivez précisément les modifications attendues…"
+              value={modalMessage}
+              onChange={e => setModalMessage(e.target.value)}
+              autoFocus
+            />
+
+            {modalError && (
+              <p className="text-xs text-red-400 mt-2">{modalError}</p>
+            )}
+
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setShowModal(false)}
+                disabled={modalLoading}
+                className="flex-1 rounded-lg border border-white/10 py-2.5 text-xs text-white/60 hover:text-white hover:border-white/30 transition-colors disabled:opacity-40"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleConfirmModification}
+                disabled={modalLoading || !modalMessage.trim()}
+                className="flex-1 rounded-lg bg-orange-500 py-2.5 text-xs font-black uppercase tracking-widest text-black hover:bg-orange-400 transition-colors disabled:opacity-40"
+              >
+                {modalLoading ? 'Envoi…' : 'Confirmer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── HEADER ─────────────────────────────────── */}
       <div className="flex items-start gap-4 mb-8">
@@ -286,20 +373,121 @@ function FilmDetail() {
             )}
           </div>
 
-          {/* TO_MODIFY — note de modification */}
-          {film.modificationRequest && (
-            <div className="bg-orange-500/5 rounded-lg border border-orange-500/20 p-5">
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-orange-400/70 mb-3 flex items-center gap-2">
-                <AlertTriangle size={11} /> Demande de modification
-              </h3>
-              <p className="text-xs text-orange-300/80 leading-relaxed">{film.modificationRequest}</p>
-              {film.modificationRequestedAt && (
-                <p className="text-[10px] text-orange-400/40 mt-2">
-                  {new Date(film.modificationRequestedAt).toLocaleDateString('fr-FR')}
-                </p>
-              )}
-            </div>
-          )}
+          {/* TO_MODIFY — panneau de review complet */}
+          {film.modificationRequest && (() => {
+            const versions = film.versions ?? [];
+            // La version la plus récente est celle créée par applyFilmEdit (snapshot avant edit du submitter)
+            const lastVersion = versions[0] ?? null;
+            const submitterResponded = lastVersion
+              && film.modificationRequestedAt
+              && new Date(lastVersion.archivedAt) > new Date(film.modificationRequestedAt);
+
+            // Champs à comparer pour le diff
+            const DIFF_FIELDS = [
+              { key: 'title',       label: 'Titre' },
+              { key: 'description', label: 'Description' },
+              { key: 'aiToolsUsed', label: 'Outils IA' },
+              { key: 'youtubeUrl',  label: 'Lien YouTube' },
+            ];
+            const changedFields = submitterResponded
+              ? DIFF_FIELDS.filter(f => lastVersion[f.key] !== film[f.key])
+              : [];
+
+            return (
+              <div className="rounded-lg border border-orange-500/20 overflow-hidden">
+
+                {/* En-tête */}
+                <div className="bg-orange-500/8 px-5 pt-5 pb-3">
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-orange-400/70 mb-3 flex items-center gap-2">
+                    <AlertTriangle size={11} /> Demande de modification
+                  </h3>
+                  <p className="text-xs text-orange-300/80 leading-relaxed whitespace-pre-wrap">
+                    {film.modificationRequest}
+                  </p>
+                  {film.modificationRequestedAt && (
+                    <p className="text-[10px] text-orange-400/40 mt-2">
+                      Envoyée le {new Date(film.modificationRequestedAt).toLocaleDateString('fr-FR')}
+                    </p>
+                  )}
+                </div>
+
+                {/* Statut de réponse */}
+                <div className={`px-5 py-3 flex items-center gap-2 border-t border-orange-500/15 ${submitterResponded ? 'bg-green-500/5' : 'bg-white/2'}`}>
+                  {submitterResponded ? (
+                    <>
+                      <CheckCircle size={11} className="text-green-400 flex-shrink-0" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-green-400">
+                        Réalisateur a répondu le {new Date(lastVersion.archivedAt).toLocaleDateString('fr-FR')}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock size={11} className="text-orange-400/50 flex-shrink-0 animate-pulse" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400/50">
+                        En attente de réponse
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {/* Diff avant/après (si répondu) */}
+                {submitterResponded && changedFields.length > 0 && (
+                  <div className="border-t border-white/5 px-5 py-4 space-y-4 bg-black/20">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-white/30">Modifications apportées</p>
+                    {changedFields.map(({ key, label }) => (
+                      <div key={key}>
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-white/25 mb-1.5">{label}</p>
+                        {/* Avant */}
+                        <div className="bg-red-500/5 border border-red-500/15 rounded px-2.5 py-2 mb-1">
+                          <span className="text-[9px] font-bold text-red-400/60 uppercase block mb-0.5">Avant</span>
+                          <p className="text-[11px] text-red-300/70 leading-relaxed break-words line-clamp-3">
+                            {lastVersion[key] || <em className="opacity-40">vide</em>}
+                          </p>
+                        </div>
+                        {/* Après */}
+                        <div className="bg-green-500/5 border border-green-500/15 rounded px-2.5 py-2">
+                          <span className="text-[9px] font-bold text-green-400/60 uppercase block mb-0.5">Après</span>
+                          <p className="text-[11px] text-green-300/70 leading-relaxed break-words line-clamp-3">
+                            {film[key] || <em className="opacity-40">vide</em>}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {changedFields.length === 0 && (
+                      <p className="text-xs text-white/25 italic">Aucun champ modifié.</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Boutons de décision */}
+                <div className="border-t border-white/5 px-5 py-4 space-y-2 bg-black/10">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-white/25 mb-3">Décision</p>
+                  <button
+                    onClick={() => handleStatusChange('APPROVED')}
+                    disabled={updating}
+                    className="w-full flex items-center justify-center gap-2 rounded bg-green-500/15 border border-green-500/20 py-2 text-[10px] font-black uppercase tracking-wider text-green-400 hover:bg-green-500/25 transition-colors disabled:opacity-40"
+                  >
+                    <CheckCircle size={11} /> Approuver
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('REJECTED')}
+                    disabled={updating}
+                    className="w-full flex items-center justify-center gap-2 rounded bg-red-500/15 border border-red-500/20 py-2 text-[10px] font-black uppercase tracking-wider text-red-400 hover:bg-red-500/25 transition-colors disabled:opacity-40"
+                  >
+                    <XCircle size={11} /> Rejeter
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('TO_MODIFY')}
+                    disabled={updating}
+                    className="w-full flex items-center justify-center gap-2 rounded bg-orange-500/10 border border-orange-500/15 py-2 text-[10px] font-black uppercase tracking-wider text-orange-400/70 hover:bg-orange-500/20 transition-colors disabled:opacity-40"
+                  >
+                    <RotateCcw size={11} /> Nouvelle demande
+                  </button>
+                </div>
+
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

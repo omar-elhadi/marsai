@@ -21,6 +21,7 @@ import Calendrier                from './components/Ressources/calendrier.jsx';
 import ReglesConditions          from './components/Ressources/regles-conditions.jsx';
 import Events                    from '@/pages/Events/Events.jsx';
 import CompetitionRules          from '@/pages/CompetitionRules/CompetitionRules.jsx';
+import EditFilmPage              from '@/pages/Submission/EditFilmPage.jsx';
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -86,6 +87,7 @@ function AppInner() {
           <Route path="/regles-conditions"         element={<ReglesConditions />} />
           <Route path="/news"                      element={<FestivalNews />} />
           <Route path="/events"                    element={<Events />} />
+          <Route path="/edit-film/:token"          element={<EditFilmPage />} />
         </Route>
 
         {/* ZONE ADMIN SÉCURISÉE — ADMIN + MODERATOR uniquement */}
