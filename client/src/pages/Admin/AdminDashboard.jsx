@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Trash2, Edit, UserPlus, Loader2 } from 'lucide-react';
 
 /**
@@ -16,10 +16,11 @@ export const AdminDashboard = () => {
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', role: 'JURY' });
   
   // Logs d'activité (Interface Terminal - Hauteur Fixe pour stabilité)
-  const [logs, setLogs] = useState([{ 
-    id: 1, 
-    msg: "SYSTÈME MARSAI PRÊT. CONNEXION SÉCURISÉE.", 
-    time: new Date().toLocaleTimeString() 
+  const logCounter = useRef(2); // commence à 2, le log initial a l'id 1
+  const [logs, setLogs] = useState([{
+    id: 1,
+    msg: "SYSTÈME MARSAI PRÊT. CONNEXION SÉCURISÉE.",
+    time: new Date().toLocaleTimeString()
   }]);
 
   // --- SYNCHRONISATION ---
@@ -27,7 +28,7 @@ export const AdminDashboard = () => {
 
   /** Ajoute une ligne de log sans décaler la liste des jurys */
   const addLog = (msg) => {
-    const newLog = { id: Date.now(), msg: msg.toUpperCase(), time: new Date().toLocaleTimeString() };
+    const newLog = { id: logCounter.current++, msg: msg.toUpperCase(), time: new Date().toLocaleTimeString() };
     setLogs(prev => [newLog, ...prev].slice(0, 3));
   };
 
