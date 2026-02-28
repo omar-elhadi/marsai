@@ -1,12 +1,17 @@
 import express from "express";
-import { submit, getFilms, getStats, getOne, updateStatus, assign } from "../controllers/film.controller.js";
+import { submit, getFilms, getStats, getOne, updateStatus, assign, requestModification, getByEditToken, applyEdit } from "../controllers/film.controller.js";
 import { verifyToken, isAdminOrModerator } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// --- ROUTE PUBLIQUE ---
+// --- ROUTES PUBLIQUES ---
 // Soumission d'un film par un réalisateur (pas d'auth requise)
 router.post("/submit", submit);
+
+// Récupérer le film à modifier via le token submitter — AVANT /:id pour éviter la capture
+router.get("/edit/:token", getByEditToken);
+// Appliquer les corrections du réalisateur
+router.put("/edit/:token", applyEdit);
 
 // --- ROUTES PROTÉGÉES (ADMIN + MODERATOR) ---
 // Liste des films avec filtres optionnels (?status=SUBMITTED&search=titre)
@@ -23,5 +28,8 @@ router.put("/:id/status", verifyToken, isAdminOrModerator, updateStatus);
 
 // Assignation des jurys à un film
 router.put("/:id/assign", verifyToken, isAdminOrModerator, assign);
+
+// Demander des modifications au réalisateur (envoie email + génère token 7j)
+router.post("/:id/request-modification", verifyToken, isAdminOrModerator, requestModification);
 
 export default router;

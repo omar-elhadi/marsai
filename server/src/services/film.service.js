@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import prisma from "../utils/prisma.js";
 import { mailService } from "./mail.service.js";
 
@@ -192,6 +193,8 @@ export const getFilmById = async (filmId) => {
         },
         orderBy: { votedAt: "desc" },
       },
+      // Historique des versions — nécessaire pour afficher le diff TO_MODIFY
+      versions: { orderBy: { archivedAt: "desc" }, take: 3 },
     },
   });
 
@@ -240,5 +243,139 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
   return prisma.film.update({
     where: { id: filmId },
     data:  { status: newStatus },
+  });
+};
+
+/**
+ * Demander des modifications à un réalisateur (workflow TO_MODIFY).
+ *
+ * - Crée un snapshot FilmVersion (traçabilité avant édition)
+ * - Génère un token d'édition 7j sur le Submitter
+ * - Met le film en TO_MODIFY avec le message admin
+ * - Envoie l'email au réalisateur
+ *
+ * @param {number} filmId
+ * @param {string} message     - Message de l'admin expliquant les modifications
+ * @param {number} adminUserId - ID de l'admin/moderator qui fait la demande
+ */
+export const requestModification = async (filmId, message, adminUserId) => {
+  const film = await prisma.film.findUnique({
+    where:   { id: filmId },
+    include: { submitter: true },
+  });
+
+  if (!film) {
+    throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  }
+  if (!film.submitter) {
+    throw Object.assign(new Error("Réalisateur introuvable"), { statusCode: 404 });
+  }
+
+  // Snapshot de la version actuelle avant modification
+  await prisma.filmVersion.create({
+    data: {
+      filmId:      film.id,
+      title:       film.title,
+      description: film.description,
+      aiToolsUsed: film.aiToolsUsed,
+      youtubeUrl:  film.youtubeUrl  ?? null,
+      posterUrl:   film.posterUrl   ?? null,
+    },
+  });
+
+  // Token d'édition 7 jours sur le compte Submitter
+  const token   = crypto.randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await prisma.submitter.update({
+    where: { id: film.submitter.id },
+    data:  { loginToken: token, tokenExpires: expires },
+  });
+
+  // Mise à jour du film
+  const updated = await prisma.film.update({
+    where: { id: filmId },
+    data: {
+      status:                  "TO_MODIFY",
+      modificationRequest:     message,
+      modificationRequestedAt: new Date(),
+      modificationRequestedBy: adminUserId,
+    },
+  });
+
+  // Email au réalisateur (non bloquant)
+  await mailService.sendModificationRequest(
+    film.submitter.email,
+    film.submitter.firstName,
+    film.title,
+    token,
+    message,
+  );
+
+  return updated;
+};
+
+/**
+ * Récupérer un film via le token d'édition du réalisateur.
+ * Vérifie que le token est valide (non expiré) et que le film est TO_MODIFY.
+ *
+ * @param {string} token - Submitter.loginToken
+ */
+export const getFilmByEditToken = async (token) => {
+  const submitter = await prisma.submitter.findUnique({
+    where: { loginToken: token },
+  });
+
+  if (!submitter || !submitter.tokenExpires || submitter.tokenExpires < new Date()) {
+    throw Object.assign(new Error("Lien invalide ou expiré"), { statusCode: 404 });
+  }
+
+  const film = await prisma.film.findFirst({
+    where: { submitterId: submitter.id, status: "TO_MODIFY" },
+  });
+
+  if (!film) {
+    throw Object.assign(new Error("Aucun film en attente de modification"), { statusCode: 404 });
+  }
+
+  return film;
+};
+
+/**
+ * Appliquer les corrections du réalisateur sur son film.
+ * Crée un snapshot avant modification — le film reste TO_MODIFY.
+ *
+ * Champs éditables : title, description, youtubeUrl, aiToolsUsed
+ * Champ bloqué : country (règle business — non modifiable)
+ *
+ * @param {string} token - Submitter.loginToken
+ * @param {{ title, description, youtubeUrl, aiToolsUsed }} data
+ */
+export const applyFilmEdit = async (token, { title, description, youtubeUrl, aiToolsUsed }) => {
+  // Vérification token + récupération film
+  const film = await getFilmByEditToken(token);
+
+  // Snapshot avant modification (traçabilité)
+  await prisma.filmVersion.create({
+    data: {
+      filmId:      film.id,
+      title:       film.title,
+      description: film.description,
+      aiToolsUsed: film.aiToolsUsed,
+      youtubeUrl:  film.youtubeUrl ?? null,
+      posterUrl:   film.posterUrl  ?? null,
+    },
+  });
+
+  // Mise à jour des champs éditables uniquement
+  return prisma.film.update({
+    where: { id: film.id },
+    data: {
+      title:       title?.trim()       ?? film.title,
+      description: description?.trim() ?? film.description,
+      youtubeUrl:  youtubeUrl?.trim()  ?? film.youtubeUrl,
+      aiToolsUsed: aiToolsUsed?.trim() ?? film.aiToolsUsed,
+      // status reste TO_MODIFY — c'est l'admin qui décide ensuite
+    },
   });
 };

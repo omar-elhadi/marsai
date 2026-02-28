@@ -1,10 +1,13 @@
 import {
   submitFilm,
-  getFilms          as fetchFilms,
-  getFilmsStats     as fetchFilmsStats,
-  getFilmById       as fetchFilmById,
+  getFilms             as fetchFilms,
+  getFilmsStats        as fetchFilmsStats,
+  getFilmById          as fetchFilmById,
   changeFilmStatus,
   assignUsersToFilm,
+  requestModification  as requestModificationService,
+  getFilmByEditToken   as fetchFilmByEditToken,
+  applyFilmEdit        as applyFilmEditService,
 } from "../services/film.service.js";
 
 /**
@@ -122,6 +125,61 @@ export const updateStatus = async (req, res) => {
   } catch (error) {
     const code = error.statusCode || 500;
     console.error("❌ Erreur updateStatus:", error.message);
+    return res.status(code).json({ error: error.message });
+  }
+};
+
+/**
+ * POST /api/films/:id/request-modification
+ * Demander des modifications au réalisateur.
+ * Body : { message: "..." }
+ */
+export const requestModification = async (req, res) => {
+  try {
+    const filmId     = parseInt(req.params.id);
+    const { message } = req.body;
+
+    if (!message || String(message).trim() === "") {
+      return res.status(400).json({ error: "Le message de modification est obligatoire" });
+    }
+
+    const film = await requestModificationService(filmId, message.trim(), req.user.id);
+    return res.json(film);
+  } catch (error) {
+    const code = error.statusCode || 500;
+    console.error("❌ Erreur requestModification:", error.message);
+    return res.status(code).json({ error: error.message });
+  }
+};
+
+/**
+ * GET /api/films/edit/:token
+ * Récupérer le film à modifier via le token du réalisateur (public).
+ */
+export const getByEditToken = async (req, res) => {
+  try {
+    const film = await fetchFilmByEditToken(req.params.token);
+    return res.json(film);
+  } catch (error) {
+    const code = error.statusCode || 500;
+    console.error("❌ Erreur getByEditToken:", error.message);
+    return res.status(code).json({ error: error.message });
+  }
+};
+
+/**
+ * PUT /api/films/edit/:token
+ * Appliquer les corrections du réalisateur (public).
+ * Body : { title, description, youtubeUrl, aiToolsUsed }
+ */
+export const applyEdit = async (req, res) => {
+  try {
+    const { title, description, youtubeUrl, aiToolsUsed } = req.body;
+    const film = await applyFilmEditService(req.params.token, { title, description, youtubeUrl, aiToolsUsed });
+    return res.json({ message: "Modifications enregistrées", film });
+  } catch (error) {
+    const code = error.statusCode || 500;
+    console.error("❌ Erreur applyEdit:", error.message);
     return res.status(code).json({ error: error.message });
   }
 };
