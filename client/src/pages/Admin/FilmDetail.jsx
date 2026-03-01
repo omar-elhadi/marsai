@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Loader2, Users, Globe, Calendar, Cpu, CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react';
 
+// "12 jan. 2026 · 14h37"
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '';
+  const d    = new Date(dateStr);
+  const date = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+  const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  return `${date} · ${time}`;
+};
+
 const STATUS_STYLES = {
   SUBMITTED: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
   IN_REVIEW: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -307,6 +316,12 @@ function FilmDetail() {
                         <span className="text-sm font-medium text-white">
                           {vote.user?.firstName} {vote.user?.lastName}
                         </span>
+                        {/* Note 1-10 */}
+                        {vote.rating != null && (
+                          <span className="text-[9px] font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded">
+                            {vote.rating}/10
+                          </span>
+                        )}
                         {vote.suggestModification && (
                           <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider bg-orange-500/15 text-orange-400 border border-orange-500/20 px-1.5 py-0.5 rounded">
                             <AlertTriangle size={9} /> Modification suggérée
@@ -317,15 +332,33 @@ function FilmDetail() {
                         </span>
                       </div>
 
-                      {/* Commentaires ReviewComment */}
+                      {/* Commentaires jury */}
                       {vote.comments?.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          {vote.comments.map(c => (
-                            <p key={c.id} className="text-xs text-white/50 bg-white/5 rounded px-2 py-1">
-                              {c.isInternal && <span className="text-orange-400/70 mr-1">[interne]</span>}
-                              {c.content}
-                            </p>
-                          ))}
+                        <div className="mt-3 space-y-2">
+                          {[...vote.comments]
+                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            .map(c => (
+                              <div key={c.id} className={`rounded px-3 py-2 border
+                                ${c.isInternal
+                                  ? 'bg-white/3 border-white/5'
+                                  : 'bg-orange-500/5 border-orange-500/15'}`}>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className={`text-[9px] font-bold uppercase tracking-wider
+                                    ${c.isInternal ? 'text-white/25' : 'text-orange-400/70'}`}>
+                                    {c.isInternal ? '● Commentaire' : '● Suggestion modification'}
+                                  </span>
+                                  {c.createdAt && (
+                                    <span className="text-[9px] font-mono text-white/20">
+                                      {formatDateTime(c.createdAt)}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className={`text-xs leading-relaxed
+                                  ${c.isInternal ? 'text-white/55' : 'text-orange-300/70'}`}>
+                                  {c.content}
+                                </p>
+                              </div>
+                            ))}
                         </div>
                       )}
                     </div>
