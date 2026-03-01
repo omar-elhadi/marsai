@@ -5,11 +5,12 @@ import jwt from "jsonwebtoken";
  * Vérifie si l'utilisateur est porteur d'un badge (Token) valide.
  */
 export const verifyToken = (req, res, next) => {
-  // Extraction du header 'Authorization'
+  // Priorité 1 : cookie httpOnly (navigateur)
+  // Priorité 2 : header Authorization (outils API / tests)
   const authHeader = req.headers["authorization"];
-
-  // Format attendu : "Bearer <token>"
-  const token = authHeader && authHeader.split(" ")[1];
+  const token =
+    req.cookies?.marsai_token ||
+    (authHeader && authHeader.split(" ")[1]);
 
   if (!token) {
     return res.status(403).json({

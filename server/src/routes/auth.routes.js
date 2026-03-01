@@ -2,6 +2,8 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import * as authController from "../controllers/auth.controller.js";
 import { verifyToken, isAdmin } from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/validate.middleware.js";
+import { loginSchema } from "../validators/auth.validator.js";
 
 const router = express.Router();
 
@@ -30,9 +32,17 @@ const verifyTokenLimiter = rateLimit({
 });
 
 // Route publique pour se connecter
-router.post("/login", loginLimiter, authController.login);
+router.post("/login", loginLimiter, validate(loginSchema), authController.login);
 router.get("/verify-token", verifyTokenLimiter, authController.verifyToken);
 
-// Les futures routes protégées viendront ici...
+// Déconnexion — efface le cookie httpOnly côté serveur
+router.post("/logout", (req, res) => {
+  res.clearCookie("marsai_token", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure:   process.env.NODE_ENV === "production",
+  });
+  res.status(200).json({ message: "Déconnecté." });
+});
 
 export default router;

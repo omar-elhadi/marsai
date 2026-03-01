@@ -22,7 +22,16 @@ export const login = async (req, res) => {
       data: { lastLogin: new Date() },
     });
 
-    return res.status(200).json(result);
+    // Pose le JWT dans un cookie httpOnly — inaccessible depuis JS (protection XSS)
+    res.cookie("marsai_token", result.token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure:   process.env.NODE_ENV === "production",
+      maxAge:   24 * 60 * 60 * 1000, // 24h en ms
+    });
+
+    // Retourne uniquement les données utilisateur (jamais le token en clair)
+    return res.status(200).json({ user: result.user });
   } catch (e) {
     console.error("❌ Erreur Login Controller:", e);
     return res.status(500).json({ error: "Erreur serveur" });
@@ -77,8 +86,15 @@ export const verifyToken = async (req, res) => {
       { expiresIn: "24h" },
     );
 
+    // Pose le JWT dans un cookie httpOnly (même logique que le login admin)
+    res.cookie("marsai_token", sessionToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure:   process.env.NODE_ENV === "production",
+      maxAge:   24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({
-      token: sessionToken,
       user: {
         id: user.id,
         email: user.email,

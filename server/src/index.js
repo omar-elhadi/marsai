@@ -7,6 +7,7 @@
 import "dotenv/config"; // Charge les variables d'environnement (.env)
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 // --- IMPORT DES ROUTES ---
 import authRoutes  from "./routes/auth.routes.js";
@@ -43,6 +44,7 @@ app.use(
  * Permet de lire le contenu des requêtes (req.body)
  */
 app.use(express.json());
+app.use(cookieParser());
 
 // --- ROUTES DE L'API ---
 
