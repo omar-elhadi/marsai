@@ -6,15 +6,12 @@ import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Home                      from '@/pages/Home/Home.jsx';
 import SubmissionPage            from '@/pages/Submission/SubmissionPage.jsx';
 import LoginAdmin                from '@/pages/LoginAdmin.jsx';
-import ConnectionPage            from '@/pages/Jury/ConnectionPage.jsx';
 import Newsletters               from '@/pages/Newsletters.jsx';
 import Gallery                   from '@/pages/Gallery/Gallery.jsx';
 import Contact                   from '@/pages/Contact/Contact.jsx';
 import Mention                   from '@/pages/Legals/Mention.jsx';
-import VotesJury                 from '@/pages/Jury/VotesJury.jsx';
 import Cookies                   from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
-import MovieDetails              from '@/pages/MovieDetails/MovieDetails.jsx';
 import ConditionsUtilisations    from '@/pages/Legals/conditions-utilisations.jsx';
 import FAQ                       from '@/components/Ressources/FAQ.jsx';
 import Calendrier                from './components/Ressources/calendrier.jsx';
@@ -73,17 +70,14 @@ function AppInner() {
         <Route element={<PublicLayout />}>
           <Route path="/"                          element={<Home />} />
           <Route path="/Newsletters"               element={<Newsletters />} />
-          <Route path="/ConnectionPage"            element={<ConnectionPage />} />
           <Route path="/galerie"                   element={<Gallery />} />
           <Route path="/soumettre"                 element={<SubmissionPage />} />
           <Route path="/login"                     element={<LoginAdmin />} />
           <Route path="/contact"                   element={<Contact />} />
           <Route path="/Mention"                   element={<Mention />} />
-          <Route path="/VotesJury"                 element={<VotesJury />} />
           <Route path="/cookies"                   element={<Cookies />} />
           <Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
           <Route path="/conditions-utilisations"   element={<ConditionsUtilisations />} />
-          <Route path="/film/:id"                  element={<MovieDetails />} />
           <Route path="/FAQ"                       element={<FAQ />} />
           <Route path="/calendrier"                element={<Calendrier />} />
           <Route path="/login/verify"              element={<VerifyToken />} />
