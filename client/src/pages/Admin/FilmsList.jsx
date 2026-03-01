@@ -155,9 +155,9 @@ function FilmsList() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-white mb-2">Films Soumis</h2>
-          <p className="text-white/40">Gérez les candidatures et la modération.</p>
+          <p className="text-white/50">Gérez les candidatures et la modération.</p>
         </div>
-        <div className="bg-[#262626] px-4 py-2 rounded text-sm text-white/60">
+        <div className="bg-white/8 px-4 py-2 text-sm text-white/60">
           Total : <span className="text-white font-bold">{stats.total}</span>
         </div>
       </div>
@@ -169,10 +169,10 @@ function FilmsList() {
           {/* ALL */}
           <button
             onClick={() => { setFilter(''); setSuggestions(false); }}
-            className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded border transition-all
+            className={`px-3 py-1.5 text-xs font-black uppercase tracking-widest border transition-all
               ${!statusFilter
                 ? 'bg-white/10 text-white border-white/30'
-                : 'bg-transparent text-white/40 border-white/10 hover:border-white/20 hover:text-white/70'}`}
+                : 'bg-transparent text-white/40 border-white/10 hover:border-white/20 hover:text-white/60'}`}
           >
             All <span className="ml-1 opacity-60">{stats.total}</span>
           </button>
@@ -185,7 +185,7 @@ function FilmsList() {
               <button
                 key={status}
                 onClick={() => selectFilter(status)}
-                className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded border transition-all
+                className={`px-3 py-1.5 text-xs font-black uppercase tracking-widest border transition-all
                   ${isActive
                     ? STATUS_CHIP_ACTIVE[status]
                     : `${STATUS_STYLES[status]} opacity-70 hover:opacity-100`}`}
@@ -202,7 +202,7 @@ function FilmsList() {
             <div className="w-3 h-px bg-white/20" />
             <button
               onClick={() => setSuggestions(prev => !prev)}
-              className={`flex items-center gap-1.5 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded border transition-all
+              className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-black uppercase tracking-widest border transition-all
                 ${hasSuggestions
                   ? 'bg-orange-500/20 text-orange-300 border-orange-500/40'
                   : 'bg-orange-500/5 text-orange-400/60 border-orange-500/15 hover:opacity-100'}`}
@@ -222,23 +222,23 @@ function FilmsList() {
           placeholder="Rechercher titre, pays, réalisateur..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full md:w-96 bg-[#1a1a1a] border border-white/10 rounded px-4 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+          className="w-full md:w-96 bg-white/5 border border-white/15 px-4 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
         />
       </div>
 
       {/* Tableau */}
-      <div className="bg-[#1a1a1a] rounded-lg border border-white/5 overflow-hidden shadow-xl">
+      <div className="bg-white/5 border border-white/15 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center p-16 text-white/40">
             <Loader2 size={24} className="animate-spin mr-3" />Chargement...
           </div>
         ) : films.length === 0 ? (
-          <div className="p-16 text-center text-white/30">Aucun film trouvé.</div>
+          <div className="p-16 text-center text-white/40">Aucun film trouvé.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[1050px]">
+            <table className="w-full text-left border-collapse min-w-262.5">
               <thead>
-                <tr className="bg-[#262626] text-white/40 text-xs uppercase tracking-wider border-b border-white/5">
+                <tr className="bg-white/8 text-white/50 text-[11px] uppercase tracking-wider border-b border-white/15">
                   <th className="p-4 font-medium">Statut</th>
                   <th className="p-4 font-medium">Film / Pays</th>
                   <th className="p-4 font-medium">Réalisateur</th>
@@ -248,7 +248,7 @@ function FilmsList() {
                   <th className="p-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-white/10">
                 {films.map((film) => {
                   const nextOptions   = NEXT_STATUSES[film.status] ?? [];
                   const assignedJurys = film.assignedUsers ?? [];
@@ -257,19 +257,19 @@ function FilmsList() {
                     <tr key={film.id} className="hover:bg-white/5 transition-colors group">
 
                       <td className="p-4">
-                        <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded border ${STATUS_STYLES[film.status] ?? ''}`}>
+                        <span className={`text-xs font-bold uppercase px-2 py-1 border ${STATUS_STYLES[film.status] ?? ''}`}>
                           {film.status}
                         </span>
                       </td>
 
                       <td className="p-4">
                         <div className="font-bold text-white text-sm">{film.title}</div>
-                        <div className="text-xs text-white/30 mt-0.5">{film.country}</div>
+                        <div className="text-xs text-white/50 mt-0.5">{film.country}</div>
                       </td>
 
                       <td className="p-4 text-sm text-white/70">
                         <div>{film.submitter?.firstName} {film.submitter?.lastName}</div>
-                        <div className="text-xs text-white/30">{film.submitter?.email}</div>
+                        <div className="text-xs text-white/50">{film.submitter?.email}</div>
                       </td>
 
                       <td className="p-4 text-xs text-white/40">
@@ -280,16 +280,16 @@ function FilmsList() {
                       <td className="p-4">
                         <div className="flex flex-wrap gap-1 items-center">
                           {assignedJurys.length > 0 ? assignedJurys.map(u => (
-                            <span key={u.id} className="text-[9px] uppercase tracking-wider bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5 rounded-sm">
+                            <span key={u.id} className="text-[11px] uppercase tracking-wider bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5">
                               {u.firstName}
                             </span>
                           )) : (
-                            <span className="text-white/20 text-xs italic">—</span>
+                            <span className="text-white/40 text-xs italic">—</span>
                           )}
                           <button
                             onClick={() => openAssignPopup(film)}
                             title="Gérer les jurys"
-                            className="ml-1 p-1 rounded text-white/30 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                            className="ml-1 p-1 text-white/40 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
                           >
                             <Users size={13} />
                           </button>
@@ -304,7 +304,7 @@ function FilmsList() {
                           <select
                             defaultValue=""
                             onChange={e => { if (e.target.value) handleStatusChange(film, e.target.value); }}
-                            className="bg-[#262626] border border-white/10 rounded px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-white/30"
+                            className="bg-white/8 border border-white/15 px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-white/30"
                           >
                             <option value="" disabled>Choisir...</option>
                             {nextOptions.map(s => (
@@ -312,21 +312,21 @@ function FilmsList() {
                             ))}
                           </select>
                         ) : (
-                          <span className="text-xs text-white/20 italic">Final</span>
+                          <span className="text-xs text-white/40 italic">Final</span>
                         )}
                       </td>
 
                       {/* Actions */}
                       <td className="p-4 text-right">
-                        <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-2">
                           <Link to={`/admin/films/${film.id}`} title="Voir le détail"
-                            className="p-2 hover:bg-white/10 rounded-full text-white transition-colors inline-flex">
+                            className="p-2 hover:bg-white/10 text-white/60 hover:text-white transition-colors inline-flex">
                             <Eye size={16} />
                           </Link>
                           {film.youtubeUrl && (
                             <a href={film.youtubeUrl} target="_blank" rel="noopener noreferrer"
                                title="Voir sur YouTube"
-                               className="p-2 hover:bg-indigo-500/20 hover:text-indigo-400 rounded-full text-white transition-colors">
+                               className="p-2 hover:bg-indigo-500/20 text-white/60 hover:text-indigo-400 transition-colors">
                               <Play size={16} />
                             </a>
                           )}
@@ -349,22 +349,22 @@ function FilmsList() {
           onClick={() => setAssignPopup(null)}
         >
           <div
-            className="bg-[#141414] border border-white/10 rounded-lg p-6 w-full max-w-sm shadow-2xl"
+            className="bg-[#111827] border border-white/15 p-6 w-full max-w-sm shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-sm font-black uppercase tracking-widest text-white">Assigner des jurys</h3>
-              <button onClick={() => setAssignPopup(null)} className="text-white/30 hover:text-white transition-colors">
+              <button onClick={() => setAssignPopup(null)} className="text-white/40 hover:text-white transition-colors">
                 <X size={16} />
               </button>
             </div>
 
             {juryUsers.length === 0 ? (
-              <p className="text-white/30 text-sm italic">Aucun jury disponible.</p>
+              <p className="text-white/40 text-sm italic">Aucun jury disponible.</p>
             ) : (
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {juryUsers.map(user => (
-                  <label key={user.id} className="flex items-center gap-3 p-2 rounded hover:bg-white/5 cursor-pointer transition-colors">
+                  <label key={user.id} className="flex items-center gap-3 p-2 hover:bg-white/5 cursor-pointer transition-colors">
                     <input
                       type="checkbox"
                       checked={assignPopup.selectedIds.includes(user.id)}
@@ -373,7 +373,7 @@ function FilmsList() {
                     />
                     <div>
                       <p className="text-sm text-white font-medium">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-white/30">{user.email}</p>
+                      <p className="text-xs text-white/50">{user.email}</p>
                     </div>
                   </label>
                 ))}
@@ -383,14 +383,14 @@ function FilmsList() {
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => setAssignPopup(null)}
-                className="flex-1 py-2 text-xs uppercase tracking-widest text-white/40 hover:text-white border border-white/10 hover:border-white/30 transition-colors rounded"
+                className="flex-1 py-2 text-xs uppercase tracking-widest text-white/40 hover:text-white border border-white/15 hover:border-white/30 transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={handleAssign}
                 disabled={assigning === assignPopup?.filmId}
-                className="flex-1 py-2 text-xs uppercase tracking-widest font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors rounded flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-2 text-xs uppercase tracking-widest font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {assigning === assignPopup?.filmId ? <Loader2 size={14} className="animate-spin" /> : 'Confirmer'}
               </button>

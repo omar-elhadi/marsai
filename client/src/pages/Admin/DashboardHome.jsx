@@ -26,14 +26,14 @@ function DashboardHome() {
 
   // Petite fonction pour générer une carte de stat
   const StatCard = ({ title, count, icon, color }) => (
-    <div className="bg-[#1a1a1a] p-6 rounded-lg border border-white/5 flex items-center gap-4">
-      <div className={`p-3 rounded-full bg-opacity-10 ${color.bg} ${color.text}`}>
+    <div className="bg-white/5 p-6 border border-white/15 flex items-center gap-4">
+      <div className={`p-3 bg-opacity-10 ${color.bg} ${color.text}`}>
         {icon}
       </div>
       <div>
-        <p className="text-white/40 text-xs uppercase font-bold tracking-wider">{title}</p>
-        <p className="text-2xl font-bold text-white">
-          {loading ? <Loader2 size={20} className="animate-spin text-white/30" /> : (count ?? 0)}
+        <p className="text-xs font-bold uppercase tracking-widest text-white/50">{title}</p>
+        <p className="text-3xl font-black text-white">
+          {loading ? <Loader2 size={20} className="animate-spin text-white/40" /> : (count ?? 0)}
         </p>
       </div>
     </div>
@@ -99,7 +99,7 @@ function DashboardHome() {
       </div>
 
       {/* Section vide pour l'instant (Graphiques ou Derniers ajouts) */}
-      <div className="bg-[#1a1a1a] rounded-lg border border-white/5 p-8 text-center text-white/30 h-64 flex items-center justify-center">
+      <div className="bg-white/5 border border-white/15 p-8 text-center text-white/50 h-64 flex items-center justify-center">
         Zone pour les graphiques futurs ou les activités récentes
       </div>
     </div>

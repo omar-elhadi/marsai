@@ -109,12 +109,12 @@ export const AdminDashboard = () => {
             </h1>
             
             {/* TERMINAL LOGS : Stabilité visuelle fixée à 80px */}
-            <div className="h-[80px] font-mono text-[9px] uppercase tracking-wider bg-white/[0.02] p-3 border-l-2 border-indigo-500 overflow-hidden shadow-inner">
-              <p className="text-indigo-500 font-bold mb-1 tracking-[0.2em]">Live_Activity_Logs</p>
+            <div className="h-[80px] font-mono text-[10px] uppercase tracking-wider bg-white/5 p-3 border-l-2 border-indigo-500 overflow-hidden">
+              <p className="text-indigo-400 font-bold mb-1 tracking-[0.2em]">Live_Activity_Logs</p>
               {logs.map(log => (
-                <div key={log.id} className="flex gap-3 opacity-60 italic truncate">
-                  <span className="text-indigo-500 shrink-0">[{log.time}]</span>
-                  <span className="text-gray-400 truncate">&gt; {log.msg}</span>
+                <div key={log.id} className="flex gap-3 italic truncate text-white/50">
+                  <span className="text-indigo-400 shrink-0">[{log.time}]</span>
+                  <span className="truncate">&gt; {log.msg}</span>
                 </div>
               ))}
             </div>
@@ -135,33 +135,33 @@ export const AdminDashboard = () => {
           {users.map((user, index) => {
             const status = getStatus(user);
             return (
-              <div key={user.id} className={`flex flex-col md:grid md:grid-cols-12 gap-4 items-center px-4 sm:px-6 py-5 border border-transparent hover:border-white/10 transition-all duration-300 ${index % 2 === 0 ? 'bg-[#0A0A0A]' : 'bg-transparent'}`}>
+              <div key={user.id} className={`flex flex-col md:grid md:grid-cols-12 gap-4 items-center px-4 sm:px-6 py-5 border border-transparent hover:border-white/15 transition-all duration-300 ${index % 2 === 0 ? 'bg-white/5' : 'bg-transparent'}`}>
                 {/* IDENTITÉ */}
                 <div className="col-span-5 w-full">
                   <div className="flex flex-col">
-                    <span className="text-base font-bold tracking-tight uppercase truncate">{user.firstName} <span className="text-gray-500 font-normal">{user.lastName}</span></span>
+                    <span className="text-base font-bold tracking-tight uppercase truncate">{user.firstName} <span className="text-white/50 font-normal">{user.lastName}</span></span>
                     <div className="flex items-center gap-2 mt-1">
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${status.bg}`} />
-                      <span className="text-[10px] font-mono text-gray-600 truncate">{user.email}</span>
-                      <span className={`text-[9px] italic font-medium ${status.color} opacity-80 ml-1 uppercase tracking-tighter shrink-0`}>// {status.label}</span>
+                      <span className="text-xs font-mono text-white/50 truncate">{user.email}</span>
+                      <span className={`text-[10px] italic font-medium ${status.color} ml-1 uppercase tracking-tighter shrink-0`}>// {status.label}</span>
                     </div>
                   </div>
                 </div>
                 {/* RÔLE */}
                 <div className="col-span-3 w-full md:text-center flex md:justify-center">
-                  <span className={`px-4 py-1 text-[9px] font-black tracking-[0.2em] uppercase border ${user.role === 'ADMIN' ? 'border-red-900/30 text-red-600 bg-red-900/5' : 'border-indigo-500/30 text-indigo-500 bg-indigo-500/5'}`}>{user.role}</span>
+                  <span className={`px-4 py-1 text-[10px] font-black tracking-[0.2em] uppercase border ${user.role === 'ADMIN' ? 'border-red-500/30 text-red-400 bg-red-500/5' : 'border-indigo-500/30 text-indigo-400 bg-indigo-500/5'}`}>{user.role}</span>
                 </div>
                 {/* ACTIONS */}
                 <div className="col-span-4 w-full flex flex-row justify-end gap-2 sm:gap-1.5 mt-2 md:mt-0">
                   {user.role !== 'ADMIN' ? (
                     <>
-                      <button onClick={() => handleSendInvite(user)} className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 bg-white/5 hover:bg-emerald-600 text-gray-500 hover:text-white transition-all">
+                      <button onClick={() => handleSendInvite(user)} className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 bg-white/5 hover:bg-emerald-600 text-white/40 hover:text-white transition-all">
                         {inviteLoading === user.id ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
                       </button>
-                      <button onClick={() => { setEditingUser(user); setFormData({...user}); setIsModalOpen(true); }} className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 bg-white/5 hover:bg-orange-500 text-gray-500 hover:text-white transition-all"><Edit size={16} /></button>
-                      <button onClick={() => handleDelete(user)} className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 bg-white/5 hover:bg-red-600 text-gray-500 hover:text-white transition-all"><Trash2 size={16} /></button>
+                      <button onClick={() => { setEditingUser(user); setFormData({...user}); setIsModalOpen(true); }} className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 bg-white/5 hover:bg-orange-500 text-white/40 hover:text-white transition-all"><Edit size={16} /></button>
+                      <button onClick={() => handleDelete(user)} className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 bg-white/5 hover:bg-red-600 text-white/40 hover:text-white transition-all"><Trash2 size={16} /></button>
                     </>
-                  ) : <div className="text-gray-600 font-mono font-bold text-[9px] tracking-[0.3em] uppercase py-2 w-full text-right opacity-30">SYSTEM_ROOT_ACCESS</div>}
+                  ) : <div className="text-white/30 font-mono font-bold text-[10px] tracking-[0.3em] uppercase py-2 w-full text-right">SYSTEM_ROOT_ACCESS</div>}
                 </div>
               </div>
             );
