@@ -8,18 +8,16 @@ const RATING_BY_SENTIMENT = { LIKE: 7, DISLIKE: 3 };
 
 /**
  * Films disponibles pour le vote jury.
- * Statuts visibles : FINALIST (et SELECTION pour les votes préliminaires).
+ * Jury voit uniquement ses films assignés en IN_REVIEW (règle R-JURY-001).
  * Inclut le vote courant du jury authentifié pour affichage frontend.
  *
  * @param {number} userId - ID du jury authentifié
  */
 export const getFilmsForJury = async (userId) => {
   return prisma.film.findMany({
-    // Jury voit uniquement ses films assignés en IN_REVIEW (règle R-JURY-001)
     where: { status: "IN_REVIEW", assignedUsers: { some: { id: userId } } },
     include: {
       submitter: { select: { firstName: true, lastName: true } },
-      // On filtre les votes par l'utilisateur courant — tableau de 0 ou 1 élément
       votes: {
         where:  { userId },
         select: { id: true, sentiment: true, rating: true },
@@ -33,12 +31,15 @@ export const getFilmsForJury = async (userId) => {
 /**
  * Voter sur un film (upsert — un jury peut modifier son vote).
  * Met à jour les compteurs dénormalisés sur le film après chaque vote.
+ * Les commentaires internes sont gérés séparément via addCommentToVote.
  *
  * @param {number} filmId
  * @param {number} userId
  * @param {"LIKE"|"DISLIKE"} sentiment
  */
-export const castVote = async (filmId, userId, sentiment) => {
+export const castVote = async (filmId, userId, sentiment, options = {}) => {
+  const { suggestModification = false, comment = null, ratingOverride = null } = options;
+
   // Vérification : votes gelés si film APPROVED ou REJECTED (règle business R-VOTE-003)
   const film = await prisma.film.findUnique({ where: { id: filmId }, select: { status: true } });
   if (!film) {
@@ -51,17 +52,89 @@ export const castVote = async (filmId, userId, sentiment) => {
     );
   }
 
-  const rating = RATING_BY_SENTIMENT[sentiment];
+  // Utilise la note saisie par le jury (1-10) si fournie, sinon valeur auto-dérivée
+  const rating = (ratingOverride !== null && ratingOverride >= 1 && ratingOverride <= 10)
+    ? ratingOverride
+    : RATING_BY_SENTIMENT[sentiment];
 
   // upsert : crée si absent, met à jour si existant
   const vote = await prisma.vote.upsert({
     where:  { filmId_userId: { filmId, userId } },
-    create: { filmId, userId, sentiment, rating },
-    update: { sentiment, rating, updatedAt: new Date() },
+    create: { filmId, userId, sentiment, rating, suggestModification },
+    update: { sentiment, rating, suggestModification, updatedAt: new Date() },
   });
+
+  // Commentaire suggestion (isInternal: false) — destiné à être relayé au réalisateur
+  if (suggestModification && comment) {
+    await prisma.reviewComment.deleteMany({ where: { voteId: vote.id, isInternal: false } });
+    await prisma.reviewComment.create({
+      data: { voteId: vote.id, content: comment, isInternal: false },
+    });
+  } else if (!suggestModification) {
+    // Le jury a retiré sa suggestion → supprime uniquement le commentaire suggestion
+    await prisma.reviewComment.deleteMany({ where: { voteId: vote.id, isInternal: false } });
+  }
 
   await recalcFilmStats(filmId);
   return vote;
+};
+
+/**
+ * Ajouter un commentaire interne à un vote existant.
+ * Les commentaires s'accumulent (historique) — jamais supprimés ici.
+ *
+ * @param {number} filmId
+ * @param {number} userId
+ * @param {string} content
+ */
+export const addCommentToVote = async (filmId, userId, content) => {
+  // Retrouver le vote existant
+  const vote = await prisma.vote.findUnique({
+    where: { filmId_userId: { filmId, userId } },
+  });
+  if (!vote) {
+    throw Object.assign(
+      new Error("Vous devez voter avant de pouvoir commenter."),
+      { statusCode: 400 }
+    );
+  }
+
+  return prisma.reviewComment.create({
+    data: { voteId: vote.id, content: content.trim(), isInternal: true },
+    select: { id: true, content: true, isInternal: true, createdAt: true },
+  });
+};
+
+/**
+ * Film détail pour un jury — vérifie que le film lui est bien assigné.
+ * Retourne le vote courant avec l'historique complet des commentaires.
+ *
+ * @param {number} filmId
+ * @param {number} userId
+ */
+export const getFilmForJury = async (filmId, userId) => {
+  const film = await prisma.film.findUnique({
+    where: { id: filmId },
+    include: {
+      submitter: { select: { firstName: true, lastName: true } },
+      assignedUsers: { select: { id: true } },
+      votes: {
+        where: { userId },
+        select: {
+          id: true, sentiment: true, rating: true,
+          suggestModification: true, votedAt: true, updatedAt: true,
+          comments: {
+            select: { id: true, content: true, isInternal: true, createdAt: true },
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      },
+    },
+  });
+  if (!film) throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  const isAssigned = film.assignedUsers.some(u => u.id === userId);
+  if (!isAssigned) throw Object.assign(new Error("Film non assigné à ce jury"), { statusCode: 403 });
+  return film;
 };
 
 /**
