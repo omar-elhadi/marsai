@@ -8,6 +8,7 @@ import {
   requestModification  as requestModificationService,
   getFilmByEditToken   as fetchFilmByEditToken,
   applyFilmEdit        as applyFilmEditService,
+  trackFilmByToken     as fetchFilmBySubmissionToken,
 } from "../services/film.service.js";
 
 /**
@@ -180,6 +181,22 @@ export const applyEdit = async (req, res) => {
   } catch (error) {
     const code = error.statusCode || 500;
     console.error("❌ Erreur applyEdit:", error.message);
+    return res.status(code).json({ error: error.message });
+  }
+};
+
+/**
+ * GET /api/films/track/:token
+ * Suivi public d'un film via le submissionToken reçu par email (sans auth).
+ * Retourne uniquement les champs non-sensibles : titre, statut, pays, dates.
+ */
+export const trackFilm = async (req, res) => {
+  try {
+    const film = await fetchFilmBySubmissionToken(req.params.token);
+    return res.json(film);
+  } catch (error) {
+    const code = error.statusCode || 500;
+    console.error("❌ Erreur trackFilm:", error.message);
     return res.status(code).json({ error: error.message });
   }
 };

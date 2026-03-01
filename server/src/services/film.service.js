@@ -343,6 +343,39 @@ export const getFilmByEditToken = async (token) => {
 };
 
 /**
+ * Suivi public d'un film via le submissionToken (reçu par email à la soumission).
+ * Retourne uniquement les infos non-sensibles : pas de votes, pas de jurys.
+ *
+ * @param {string} submissionToken - UUID unique du film (Film.submissionToken)
+ */
+export const trackFilmByToken = async (submissionToken) => {
+  const film = await prisma.film.findUnique({
+    where: { submissionToken },
+    select: {
+      title:                   true,
+      description:             true,
+      country:                 true,
+      language:                true,
+      aiToolsUsed:             true,
+      youtubeUrl:              true,
+      status:                  true,
+      submittedAt:             true,
+      modificationRequest:     true,
+      modificationRequestedAt: true,
+      submitter: {
+        select: { firstName: true, lastName: true },
+      },
+    },
+  });
+
+  if (!film) {
+    throw Object.assign(new Error("Film introuvable ou lien invalide"), { statusCode: 404 });
+  }
+
+  return film;
+};
+
+/**
  * Appliquer les corrections du réalisateur sur son film.
  * Crée un snapshot avant modification — le film reste TO_MODIFY.
  *

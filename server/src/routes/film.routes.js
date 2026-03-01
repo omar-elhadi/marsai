@@ -1,5 +1,5 @@
 import express from "express";
-import { submit, getFilms, getStats, getOne, updateStatus, assign, requestModification, getByEditToken, applyEdit } from "../controllers/film.controller.js";
+import { submit, getFilms, getStats, getOne, updateStatus, assign, requestModification, getByEditToken, applyEdit, trackFilm } from "../controllers/film.controller.js";
 import { verifyToken, isAdminOrModerator } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -12,6 +12,9 @@ router.post("/submit", submit);
 router.get("/edit/:token", getByEditToken);
 // Appliquer les corrections du réalisateur
 router.put("/edit/:token", applyEdit);
+
+// Suivi public d'un film via le submissionToken reçu par email — sans auth
+router.get("/track/:token", trackFilm);
 
 // --- ROUTES PROTÉGÉES (ADMIN + MODERATOR) ---
 // Liste des films avec filtres optionnels (?status=SUBMITTED&search=titre)
