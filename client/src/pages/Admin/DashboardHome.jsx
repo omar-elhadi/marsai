@@ -5,13 +5,11 @@ function DashboardHome() {
   const [stats, setStats]     = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem('token');
-
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const res  = await fetch(`${import.meta.env.VITE_API_URL}/films/stats`, {
-          headers: { Authorization: `Bearer ${token}` },
+          credentials: 'include',
         });
         const data = await res.json();
         setStats(data);
@@ -22,7 +20,7 @@ function DashboardHome() {
       }
     };
     fetchStats();
-  }, [token]);
+  }, []);
 
   // Carte de statistique — fond et bordure via CSS variables, icône garde sa couleur Tailwind
   const StatCard = ({ title, count, icon, color }) => (

@@ -20,15 +20,11 @@ export default function JuryDashboard() {
     }
   }, [navigate]);
 
-  const token = localStorage.getItem("marsai_token");
-
   // Chargement des films assignés
   const fetchFilms = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/jury/films`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res  = await fetch(`${API}/jury/films`, { credentials: 'include' });
       const data = await res.json();
       setFilms(Array.isArray(data) ? data : []);
     } catch {
@@ -36,13 +32,12 @@ export default function JuryDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => { if (user) fetchFilms(); }, [user, fetchFilms]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("marsai_token");
+  const handleLogout = async () => {
+    await fetch(`${API}/auth/logout`, { method: 'POST', credentials: 'include' });
     localStorage.removeItem("marsai_user");
     navigate("/");
   };

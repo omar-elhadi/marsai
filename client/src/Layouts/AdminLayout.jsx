@@ -18,8 +18,8 @@ function AdminLayout() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('marsai_token');
+  const handleLogout = async () => {
+    await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
     localStorage.removeItem('marsai_user');
     navigate('/', { replace: true });
   };

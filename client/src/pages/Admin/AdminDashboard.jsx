@@ -23,7 +23,7 @@ export const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        credentials: 'include'
       });
       const data = await response.json();
       setUsers(data.sort((a, b) => (a.role === 'ADMIN' ? -1 : 1)));
@@ -42,7 +42,8 @@ export const AdminDashboard = () => {
       : `${import.meta.env.VITE_API_URL}/users`;
     const response = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(formData),
     });
     if (response.ok) {
@@ -56,7 +57,7 @@ export const AdminDashboard = () => {
     if (!window.confirm(`CONFIRMER LA SUPPRESSION DE ${user.firstName.toUpperCase()} ?`)) return;
     const response = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      credentials: 'include',
     });
     if (response.ok) { addLog(`RÉVOCATION_ACCÈS : ${user.firstName}`); fetchUsers(); }
   };
@@ -66,7 +67,7 @@ export const AdminDashboard = () => {
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/users/${user.id}/invite`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        credentials: 'include',
       });
       addLog(`INVITATION_TRANSMISE : ${user.email}`);
     } catch { addLog(`ERREUR_MAIL : ÉCHEC`); } finally { setInviteLoading(null); fetchUsers(); }

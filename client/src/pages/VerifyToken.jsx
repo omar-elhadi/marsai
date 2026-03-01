@@ -22,14 +22,14 @@ export default function VerifyToken() {
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/auth/verify-token?token=${token}`
+          `${import.meta.env.VITE_API_URL}/auth/verify-token?token=${token}`,
+          { credentials: "include" } // Le cookie httpOnly est posé automatiquement
         );
         const data = await response.json();
 
         if (response.ok) {
-          localStorage.setItem("marsai_token", data.token);
+          // Le token est dans un cookie httpOnly — on stocke uniquement les infos utilisateur
           localStorage.setItem("marsai_user", JSON.stringify(data.user));
-          localStorage.setItem("token", data.token); // Compatibilité anciens composants
 
           setStatus("Accès validé ! Redirection...");
           setTimeout(() => navigate("/jury/dashboard"), 1500);

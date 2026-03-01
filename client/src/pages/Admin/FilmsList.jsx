@@ -50,16 +50,15 @@ function FilmsList() {
   const [juryUsers, setJuryUsers]       = useState([]);
   const [assignPopup, setAssignPopup]   = useState(null);
 
-  const token = localStorage.getItem('token');
-  const API   = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.VITE_API_URL;
 
   const fetchStats = useCallback(async () => {
     try {
-      const res  = await fetch(`${API}/films/stats`, { headers: { Authorization: `Bearer ${token}` } });
+      const res  = await fetch(`${API}/films/stats`, { credentials: 'include' });
       const data = await res.json();
       setStats(data);
     } catch { /* silencieux */ }
-  }, [token, API]);
+  }, [API]);
 
   const fetchFilms = useCallback(async () => {
     setLoading(true);
@@ -68,7 +67,7 @@ function FilmsList() {
       if (statusFilter)   params.set('status', statusFilter);
       if (search)         params.set('search', search);
       if (hasSuggestions) params.set('hasSuggestions', 'true');
-      const res  = await fetch(`${API}/films?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res  = await fetch(`${API}/films?${params}`, { credentials: 'include' });
       const data = await res.json();
       setFilms(Array.isArray(data) ? data : []);
     } catch {
@@ -76,7 +75,7 @@ function FilmsList() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, search, hasSuggestions, token, API]);
+  }, [statusFilter, search, hasSuggestions, API]);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchFilms(); }, [fetchFilms]);
@@ -84,13 +83,13 @@ function FilmsList() {
   useEffect(() => {
     const fetchJury = async () => {
       try {
-        const res  = await fetch(`${API}/users`, { headers: { Authorization: `Bearer ${token}` } });
+        const res  = await fetch(`${API}/users`, { credentials: 'include' });
         const data = await res.json();
         setJuryUsers(Array.isArray(data) ? data.filter(u => u.role === 'JURY') : []);
       } catch { setJuryUsers([]); }
     };
     fetchJury();
-  }, [token, API]);
+  }, [API]);
 
   const selectFilter = (status) => {
     setSuggestions(false);
@@ -102,7 +101,8 @@ function FilmsList() {
     try {
       await fetch(`${API}/films/${film.id}/status`, {
         method:  'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body:    JSON.stringify({ status: newStatus }),
       });
       await Promise.all([fetchFilms(), fetchStats()]);
@@ -121,7 +121,8 @@ function FilmsList() {
     try {
       await fetch(`${API}/films/${assignPopup.filmId}/assign`, {
         method:  'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body:    JSON.stringify({ userIds: assignPopup.selectedIds }),
       });
       await Promise.all([fetchFilms(), fetchStats()]);

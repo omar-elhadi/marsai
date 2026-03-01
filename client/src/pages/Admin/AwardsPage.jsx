@@ -17,10 +17,7 @@ const CURRENT_EDITION = new Date().getFullYear();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function authHeader() {
-  const token = localStorage.getItem('marsai_token') || localStorage.getItem('token');
-  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-}
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 const STATUS_BG = {
   APPROVED:  'bg-green-500/10 border-green-500/20 text-green-400',
@@ -60,7 +57,7 @@ function TabSelection({ onStatusChange }) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/awards/selection`, { headers: authHeader() });
+      const res  = await fetch(`${API}/awards/selection`, { headers: JSON_HEADERS, credentials: 'include' });
       const data = await res.json();
       setFilms(Array.isArray(data) ? data : []);
     } finally {
@@ -75,7 +72,8 @@ function TabSelection({ onStatusChange }) {
     try {
       await fetch(`${API}/films/${filmId}/status`, {
         method:  'PUT',
-        headers: authHeader(),
+        headers: JSON_HEADERS,
+        credentials: 'include',
         body:    JSON.stringify({ status: newStatus }),
       });
       await load();
@@ -186,7 +184,7 @@ function TabCategories({ edition, userRole }) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/awards/categories?edition=${edition}`, { headers: authHeader() });
+      const res  = await fetch(`${API}/awards/categories?edition=${edition}`, { headers: JSON_HEADERS, credentials: 'include' });
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } finally {
@@ -204,7 +202,8 @@ function TabCategories({ edition, userRole }) {
       const method = editId ? 'PUT' : 'POST';
       await fetch(url, {
         method,
-        headers: authHeader(),
+        headers: JSON_HEADERS,
+        credentials: 'include',
         body: JSON.stringify({ ...form, edition }),
       });
       setForm({ name: '', description: '', displayOrder: 0 });
@@ -355,8 +354,8 @@ function TabNominations({ edition }) {
     setLoading(true);
     try {
       const [catRes, selRes] = await Promise.all([
-        fetch(`${API}/awards/categories?edition=${edition}`, { headers: authHeader() }),
-        fetch(`${API}/awards/selection`, { headers: authHeader() }),
+        fetch(`${API}/awards/categories?edition=${edition}`, { headers: JSON_HEADERS, credentials: 'include' }),
+        fetch(`${API}/awards/selection`, { headers: JSON_HEADERS, credentials: 'include' }),
       ]);
       const cats = await catRes.json();
       const sel  = await selRes.json();
@@ -376,7 +375,8 @@ function TabNominations({ edition }) {
     try {
       await fetch(`${API}/awards/nominations`, {
         method:  'POST',
-        headers: authHeader(),
+        headers: JSON_HEADERS,
+        credentials: 'include',
         body:    JSON.stringify({ filmId: Number(filmId), categoryId }),
       });
       setSelectedFilm(p => ({ ...p, [categoryId]: '' }));
@@ -487,7 +487,7 @@ function TabWinners({ edition }) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/awards/categories?edition=${edition}`, { headers: authHeader() });
+      const res  = await fetch(`${API}/awards/categories?edition=${edition}`, { headers: JSON_HEADERS, credentials: 'include' });
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } finally {

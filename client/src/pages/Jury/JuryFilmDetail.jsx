@@ -25,8 +25,6 @@ const formatDateTime = (dateStr) => {
 export default function JuryFilmDetail() {
   const { id }   = useParams();
   const navigate = useNavigate();
-  const token    = localStorage.getItem("marsai_token");
-
   const [film, setFilm]       = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
@@ -53,9 +51,7 @@ export default function JuryFilmDetail() {
     setLoading(true);
     setError(null);
     try {
-      const res  = await fetch(`${API}/jury/films/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res  = await fetch(`${API}/jury/films/${id}`, { credentials: 'include' });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Erreur lors du chargement."); return; }
       setFilm(data);
@@ -80,20 +76,18 @@ export default function JuryFilmDetail() {
     } finally {
       setLoading(false);
     }
-  }, [id, token]);
+  }, [id]);
 
   // Fetch liste complète pour navigation "film suivant"
   const fetchAllFilms = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/jury/films`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`${API}/jury/films`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setAllFilms(Array.isArray(data) ? data : []);
       }
     } catch { /* silently fail — navigation désactivée */ }
-  }, [token]);
+  }, []);
 
   useEffect(() => { fetchFilm(); }, [fetchFilm]);
   useEffect(() => { fetchAllFilms(); }, [fetchAllFilms]);
@@ -112,7 +106,8 @@ export default function JuryFilmDetail() {
     try {
       await fetch(`${API}/jury/votes`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body:    JSON.stringify({ filmId: parseInt(id), sentiment, rating }),
       });
       await fetchFilm();
@@ -120,7 +115,7 @@ export default function JuryFilmDetail() {
     } finally {
       setVoting(false);
     }
-  }, [sentiment, rating, token, id, fetchFilm, fetchAllFilms]);
+  }, [sentiment, rating, id, fetchFilm, fetchAllFilms]);
 
   // Ref toujours à jour — évite les closures périmées dans le listener clavier
   const handleSubmitRef = useRef(handleSubmit);
@@ -137,7 +132,8 @@ export default function JuryFilmDetail() {
     try {
       await fetch(`${API}/jury/votes`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body:    JSON.stringify({
           filmId:              parseInt(id),
           sentiment:           vote.sentiment,
@@ -157,7 +153,7 @@ export default function JuryFilmDetail() {
     try {
       await fetch(`${API}/jury/votes/${id}`, {
         method:  "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       setSentiment(null);
       setRating(5);
@@ -176,8 +172,9 @@ export default function JuryFilmDetail() {
     try {
       const res  = await fetch(`${API}/jury/votes/${id}/comments`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body:    JSON.stringify({ content: newComment.trim() }),
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',
+        body:    JSON.stringify({ comment: newComment.trim() }),
       });
       const data = await res.json();
       if (!res.ok) { setCommentError(data.error || "Erreur lors de l'envoi."); return; }

@@ -53,16 +53,13 @@ function FilmDetail() {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError]     = useState('');
 
-  const token = localStorage.getItem('token');
-  const API   = import.meta.env.VITE_API_URL;
+  const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchFilm = async () => {
       setLoading(true);
       try {
-        const res  = await fetch(`${API}/films/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res  = await fetch(`${API}/films/${id}`, { credentials: 'include' });
         const data = await res.json();
         setFilm(data);
       } catch {
@@ -72,7 +69,7 @@ function FilmDetail() {
       }
     };
     fetchFilm();
-  }, [id, token, API]);
+  }, [id, API]);
 
   const handleStatusChange = async (newStatus) => {
     // TO_MODIFY passe par la modale — jamais en appel direct
@@ -86,7 +83,8 @@ function FilmDetail() {
     try {
       const res  = await fetch(`${API}/films/${id}/status`, {
         method:  'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body:    JSON.stringify({ status: newStatus }),
       });
       const updated = await res.json();
@@ -107,7 +105,8 @@ function FilmDetail() {
     try {
       const res  = await fetch(`${API}/films/${id}/request-modification`, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body:    JSON.stringify({ message: modalMessage.trim() }),
       });
       const data = await res.json();
