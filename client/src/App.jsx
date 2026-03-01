@@ -50,9 +50,9 @@ import { AdminDashboard }        from './pages/Admin/AdminDashboard.jsx';
 import AwardsPage               from './pages/Admin/AwardsPage.jsx';
 
 /**
- * 5. PHASE 8 — Transitions cinématographiques
+ * 5. PHASE 8 — Transitions cinématographiques (désactivées)
  */
-import PageTransitionLayer       from './components/PageTransitionLayer.jsx';
+// import PageTransitionLayer       from './components/PageTransitionLayer.jsx';
 import { LoaderContext }   from './context/LoaderContext';
 
 // ─────────────────────────────────────────────────────────────
@@ -61,8 +61,8 @@ import { LoaderContext }   from './context/LoaderContext';
 function AppInner() {
   return (
     <LoaderContext.Provider value={{ loaderReady: true }}>
-      {/* Couche de transitions — écoute useLocation, rend null */}
-      <PageTransitionLayer />
+      {/* Couche de transitions — désactivée */}
+      {/* <PageTransitionLayer /> */}
 
       <Routes>
         {/* ROUTES PUBLIQUES */}
