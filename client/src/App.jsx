@@ -28,6 +28,7 @@ import EditFilmPage              from '@/pages/Submission/EditFilmPage.jsx';
  */
 import VerifyToken               from './pages/VerifyToken';
 import JuryDashboard             from './pages/Jury/JuryDashboard.jsx';
+import JuryFilmDetail            from './pages/Jury/JuryFilmDetail.jsx';
 
 /**
  * 3. IMPORTS LAYOUTS
@@ -83,11 +84,16 @@ function AppInner() {
           <Route path="/FAQ"                       element={<FAQ />} />
           <Route path="/calendrier"                element={<Calendrier />} />
           <Route path="/login/verify"              element={<VerifyToken />} />
-          <Route path="/jury/dashboard"            element={<JuryDashboard />} />
           <Route path="/regles-conditions"         element={<ReglesConditions />} />
           <Route path="/news"                      element={<FestivalNews />} />
           <Route path="/events"                    element={<Events />} />
           <Route path="/edit-film/:token"          element={<EditFilmPage />} />
+        </Route>
+
+        {/* ZONE JURY SÉCURISÉE */}
+        <Route element={<ProtectedRoute requiredRole="JURY" />}>
+          <Route path="/jury/dashboard"  element={<JuryDashboard />} />
+          <Route path="/jury/film/:id"   element={<JuryFilmDetail />} />
         </Route>
 
         {/* ZONE ADMIN SÉCURISÉE — ADMIN + MODERATOR uniquement */}
