@@ -159,7 +159,7 @@ model Film {
   assignedUsers User[]        @relation("FilmAssignments")
   votes         Vote[]
   versions      FilmVersion[]
-  awards        Award[]
+  nominations   FilmNomination[]
 
   @@index([status])
   @@index([country])
@@ -241,21 +241,42 @@ model ReviewComment {
 }
 
 // -----------------------------------------------------------------------------
-// PALMARÈS
+// PALMARÈS — Catégories + Nominations multi-éditions
 // -----------------------------------------------------------------------------
 
-model Award {
-  id           Int     @id @default(autoincrement())
+/// Catégorie de prix par édition — créée librement par l'admin
+model AwardCategory {
+  id           Int              @id @default(autoincrement())
+  /// Année de l'édition (2026, 2027…)
+  edition      Int
+  /// Nom libre : "Meilleur film IA", "Coup de cœur", etc.
   name         String
-  description  String? @db.Text
+  description  String?          @db.Text
   /// Ordre d'affichage sur la page palmarès
-  displayOrder Int     @default(0)
-  /// Null tant que le gagnant n'est pas désigné
-  filmId       Int?
+  displayOrder Int              @default(0)
 
-  film Film? @relation(fields: [filmId], references: [id])
+  nominations  FilmNomination[]
 
-  @@map("awards")
+  @@index([edition])
+  @@map("award_categories")
+}
+
+/// Nomination d'un film dans une catégorie — isWinner=true pour le gagnant
+model FilmNomination {
+  id         Int           @id @default(autoincrement())
+  filmId     Int
+  categoryId Int
+  /// true = gagnant de la catégorie (un seul par catégorie)
+  isWinner   Boolean       @default(false)
+
+  film     Film          @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  category AwardCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  /// Un film ne peut être nominé qu'une seule fois par catégorie
+  @@unique([filmId, categoryId])
+  @@index([filmId])
+  @@index([categoryId])
+  @@map("film_nominations")
 }
 
 // -----------------------------------------------------------------------------
