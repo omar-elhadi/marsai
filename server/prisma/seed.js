@@ -4,364 +4,587 @@ import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
+// Vidéo de démo commune à tous les films
+const VIDEO_URL = 'https://www.youtube.com/watch?v=oCMKHAsD_F4';
+const VIDEO_ID  = 'oCMKHAsD_F4';
+
+// Poster portrait 600×900 — thématique par film
+const poster = (id) => `https://images.unsplash.com/photo-${id}?w=600&h=900&fit=crop&q=80`;
+
 async function main() {
-  console.log('🌱 Seed marsAI Festival - Exploration complète système\n');
+  console.log('🌱 Seed marsAI Festival 2026 — Couverture complète système\n');
 
   // =============================================================================
-  // 1️⃣ USERS - Hiérarchie ADMIN/MODERATOR/JURY
+  // 0️⃣  RESET — Nettoyage BDD avant insertion (ordre FK)
   // =============================================================================
 
-  console.log('👥 Création users (3 niveaux permissions)...');
+  console.log('🧹 Nettoyage base de données...');
+  await prisma.filmNomination.deleteMany();
+  await prisma.awardCategory.deleteMany();
+  await prisma.reviewComment.deleteMany();
+  await prisma.vote.deleteMany();
+  await prisma.filmVersion.deleteMany();
+  await prisma.film.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.submitter.deleteMany();
+  await prisma.juryMember.deleteMany();
+  await prisma.siteSettings.deleteMany();
+  await prisma.newsletterSubscriber.deleteMany();
+  console.log('  ✅ Base de données réinitialisée\n');
+
+  // =============================================================================
+  // 1️⃣  USERS — 3 niveaux de permissions
+  // =============================================================================
+
+  console.log('👥 Création utilisateurs (2 ADMIN · 1 MODERATOR · 3 JURY)...');
 
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
-  const bruno = await prisma.user.create({
-    data: {
-      email: 'bruno.smadja@marsai.com',
-      password: hashedPassword,
-      firstName: 'Bruno',
-      lastName: 'Smadja',
-      role: 'ADMIN',
-      bio: 'Fondateur marsAI Festival. Passionné par intersection IA et cinéma expérimental.'
-    }
-  });
-  console.log(`  ✅ ADMIN: ${bruno.firstName} ${bruno.lastName}`);
+  const bruno = await prisma.user.create({ data: {
+    email: 'bruno.smadja@marsai.com',
+    password: hashedPassword,
+    firstName: 'Bruno', lastName: 'Smadja',
+    role: 'ADMIN',
+    bio: "Fondateur marsAI Festival. Passionné par l'intersection entre intelligence artificielle et cinéma expérimental.",
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
+  }});
+  console.log(`  ✅ ADMIN     : ${bruno.firstName} ${bruno.lastName} — bruno.smadja@marsai.com / admin123`);
 
-  const jules = await prisma.user.create({
-    data: {
-      email: 'jules.fournier@marsai.com',
-      password: hashedPassword,
-      firstName: 'Jules',
-      lastName: 'Fournier',
-      role: 'ADMIN',
-      bio: 'Co-fondateur marsAI Festival. Expert intelligence artificielle générative.'
-    }
-  });
-  console.log(`  ✅ ADMIN: ${jules.firstName} ${jules.lastName}`);
+  const jules = await prisma.user.create({ data: {
+    email: 'jules.fournier@marsai.com',
+    password: hashedPassword,
+    firstName: 'Jules', lastName: 'Fournier',
+    role: 'ADMIN',
+    bio: 'Co-fondateur. Expert intelligence artificielle générative et ingénierie logicielle.',
+    photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
+  }});
+  console.log(`  ✅ ADMIN     : ${jules.firstName} ${jules.lastName} — jules.fournier@marsai.com / admin123`);
 
-  const moderator = await prisma.user.create({
-    data: {
-      email: 'admin.test@marsai.com',
-      password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'Test',
-      role: 'MODERATOR',
-      bio: 'Gestionnaire pré-sélection films. Droits limités films uniquement.'
-    }
-  });
-  console.log(`  ✅ MODERATOR: ${moderator.firstName} ${moderator.lastName}`);
+  const sophie = await prisma.user.create({ data: {
+    email: 'sophie.martin@marsai.com',
+    password: hashedPassword,
+    firstName: 'Sophie', lastName: 'Martin',
+    role: 'MODERATOR',
+    bio: 'Responsable pré-sélection. Coordinatrice relations réalisateurs.',
+  }});
+  console.log(`  ✅ MODERATOR : ${sophie.firstName} ${sophie.lastName} — sophie.martin@marsai.com / admin123`);
 
-  const agnes = await prisma.user.create({
-    data: {
-      email: 'agnes.varda@marsai.com',
-      firstName: 'Agnès',
-      lastName: 'Varda',
-      role: 'JURY',
-      bio: 'Cinéaste française pionnière Nouvelle Vague. Regard poétique et expérimental.'
-    }
-  });
-  console.log(`  ✅ JURY: ${agnes.firstName} ${agnes.lastName} (France)`);
+  const agnes = await prisma.user.create({ data: {
+    email: 'agnes.varda@marsai.com',
+    firstName: 'Agnès', lastName: 'Varda',
+    role: 'JURY',
+    bio: 'Cinéaste française pionnière Nouvelle Vague. Regard poétique et documentaire humaniste.',
+    photoUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop',
+  }});
+  console.log(`  ✅ JURY      : ${agnes.firstName} ${agnes.lastName} (France)`);
 
-  const mati = await prisma.user.create({
-    data: {
-      email: 'mati.diop@marsai.com',
-      firstName: 'Mati',
-      lastName: 'Diop',
-      role: 'JURY',
-      bio: "Cinéaste franco-sénégalaise. Palme d'Or Cannes 2019. Perspective afro-diasporique."
-    }
-  });
-  console.log(`  ✅ JURY: ${mati.firstName} ${mati.lastName} (Sénégal/France)`);
+  const mati = await prisma.user.create({ data: {
+    email: 'mati.diop@marsai.com',
+    firstName: 'Mati', lastName: 'Diop',
+    role: 'JURY',
+    bio: "Cinéaste franco-sénégalaise. Palme d'Or Cannes 2019. Perspective afro-diasporique singulière.",
+    photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop',
+  }});
+  console.log(`  ✅ JURY      : ${mati.firstName} ${mati.lastName} (Sénégal/France)`);
 
-  const bela = await prisma.user.create({
-    data: {
-      email: 'bela.tarr@marsai.com',
-      firstName: 'Béla',
-      lastName: 'Tarr',
-      role: 'JURY',
-      bio: 'Cinéaste hongrois. Maître plans-séquences contemplatifs. Esthétique radicale.'
-    }
-  });
-  console.log(`  ✅ JURY: ${bela.firstName} ${bela.lastName} (Hongrie)\n`);
+  const bela = await prisma.user.create({ data: {
+    email: 'bela.tarr@marsai.com',
+    firstName: 'Béla', lastName: 'Tarr',
+    role: 'JURY',
+    bio: 'Cinéaste hongrois. Maître des plans-séquences contemplatifs. Esthétique radicale et austère.',
+    photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
+  }});
+  console.log(`  ✅ JURY      : ${bela.firstName} ${bela.lastName} (Hongrie)\n`);
 
   // =============================================================================
-  // 2️⃣ SUBMITTERS - Diversité internationale
+  // 2️⃣  SUBMITTERS — 14 réalisateurs, diversité internationale
   // =============================================================================
 
-  console.log('🎬 Création submitters (réalisateurs mondiaux)...');
+  console.log('🎬 Création réalisateurs (14 pays)...');
 
-  const submitters = await Promise.all([
-    prisma.submitter.create({ data: { email: 'yuki.tanaka@example.jp', firstName: 'Yuki', lastName: 'Tanaka', bio: 'Réalisatrice expérimentale Tokyo. Explore mémoire collective via IA générative.', website: 'https://yukitanaka.art', instagram: '@yuki_films' } }),
-    prisma.submitter.create({ data: { email: 'chioma.okonkwo@example.ng', firstName: 'Chioma', lastName: 'Okonkwo', bio: 'Cinéaste nigériane. Afrofuturisme et intelligence artificielle décoloniale.', website: 'https://chiomaokonkwo.com', instagram: '@chioma_creates' } }),
-    prisma.submitter.create({ data: { email: 'thomas.werner@example.de', firstName: 'Thomas', lastName: 'Werner', bio: 'Artiste berlinois. Critique posthumanisme via algorithmes génératifs.', website: 'https://thomas-werner.de' } }),
-    prisma.submitter.create({ data: { email: 'ana.silva@example.br', firstName: 'Ana', lastName: 'Silva', bio: 'Réalisatrice São Paulo. Cinéma documentaire augmenté par IA.', instagram: '@ana_silva_films' } }),
-    prisma.submitter.create({ data: { email: 'priya.sharma@example.in', firstName: 'Priya', lastName: 'Sharma', bio: 'Cinéaste Mumbai. Récits mythologiques indiens réinventés par machine learning.', website: 'https://priyasharma.in' } }),
-    prisma.submitter.create({ data: { email: 'diego.martinez@example.ar', firstName: 'Diego', lastName: 'Martínez', bio: 'Réalisateur Buenos Aires. Poésie visuelle générée par réseaux neuronaux.', instagram: '@diego_cine' } }),
-    prisma.submitter.create({ data: { email: 'min-ji.park@example.kr', firstName: 'Min-Ji', lastName: 'Park', bio: 'Artiste Séoul. Installations vidéo IA questionnant surveillance algorithmique.', website: 'https://minjip.art' } }),
-    prisma.submitter.create({ data: { email: 'yasmine.alaoui@example.ma', firstName: 'Yasmine', lastName: 'Alaoui', bio: 'Cinéaste Casablanca. Mémoires diasporiques via deep learning.', instagram: '@yasmine_films' } }),
-    prisma.submitter.create({ data: { email: 'alex.tremblay@example.ca', firstName: 'Alex', lastName: 'Tremblay', bio: 'Réalisateur Montréal. Documentaire interactif IA sur crise climatique.', website: 'https://alextremblay.ca' } })
+  const [
+    yuki, chioma, thomas, ana, priya, diego, minji, yasmine, alex,
+    nour, lena, carlos, amara, erik,
+  ] = await Promise.all([
+    prisma.submitter.create({ data: { email: 'yuki.tanaka@example.jp',    firstName: 'Yuki',    lastName: 'Tanaka',    bio: 'Réalisatrice expérimentale Tokyo. Mémoire collective et IA générative.',                         website: 'https://yukitanaka.art',   instagram: '@yuki_films'         }}),
+    prisma.submitter.create({ data: { email: 'chioma.okonkwo@example.ng', firstName: 'Chioma',  lastName: 'Okonkwo',  bio: 'Cinéaste nigériane. Afrofuturisme et intelligence artificielle décoloniale.',                  website: 'https://chiomaokonkwo.com', instagram: '@chioma_creates'    }}),
+    prisma.submitter.create({ data: { email: 'thomas.werner@example.de',  firstName: 'Thomas',  lastName: 'Werner',   bio: 'Artiste berlinois. Critique du posthumanisme via algorithmes génératifs.',                    website: 'https://thomas-werner.de'                                      }}),
+    prisma.submitter.create({ data: { email: 'ana.silva@example.br',      firstName: 'Ana',     lastName: 'Silva',    bio: 'Réalisatrice São Paulo. Cinéma documentaire augmenté par IA.',                               instagram: '@ana_silva_films'                                             }}),
+    prisma.submitter.create({ data: { email: 'priya.sharma@example.in',   firstName: 'Priya',   lastName: 'Sharma',   bio: 'Cinéaste Mumbai. Récits mythologiques indiens réinventés par machine learning.',             website: 'https://priyasharma.in'                                         }}),
+    prisma.submitter.create({ data: { email: 'diego.martinez@example.ar', firstName: 'Diego',   lastName: 'Martínez', bio: 'Réalisateur Buenos Aires. Poésie visuelle générée par réseaux neuronaux.',                  instagram: '@diego_cine'                                                  }}),
+    prisma.submitter.create({ data: { email: 'minji.park@example.kr',     firstName: 'Min-Ji',  lastName: 'Park',     bio: 'Artiste Séoul. Installations vidéo IA questionnant la surveillance algorithmique.',         website: 'https://minjip.art'                                             }}),
+    prisma.submitter.create({ data: { email: 'yasmine.alaoui@example.ma', firstName: 'Yasmine', lastName: 'Alaoui',   bio: 'Cinéaste Casablanca. Mémoires diasporiques via deep learning.',                            instagram: '@yasmine_films'                                               }}),
+    prisma.submitter.create({ data: { email: 'alex.tremblay@example.ca',  firstName: 'Alex',    lastName: 'Tremblay', bio: 'Réalisateur Montréal. Documentaire interactif IA sur crise climatique.',                    website: 'https://alextremblay.ca'                                        }}),
+    prisma.submitter.create({ data: { email: 'nour.khalil@example.eg',    firstName: 'Nour',    lastName: 'Khalil',   bio: 'Cinéaste Caire. Espoirs révolutionnaires reconstruits par GAN.',                           instagram: '@nour_khalil_films'                                           }}),
+    prisma.submitter.create({ data: { email: 'lena.kovac@example.hr',     firstName: 'Léna',    lastName: 'Kovač',    bio: 'Artiste Zagreb. Corps et machine — exploration danse algorithmique.',                      website: 'https://lenakovac.hr'                                           }}),
+    prisma.submitter.create({ data: { email: 'carlos.mendez@example.mx',  firstName: 'Carlos',  lastName: 'Mendez',   bio: 'Réalisateur Mexico City. Muralisme mexicain réinterprété par diffusion models.',           instagram: '@carlos_mendez_art'                                           }}),
+    prisma.submitter.create({ data: { email: 'amara.diallo@example.sn',   firstName: 'Amara',   lastName: 'Diallo',   bio: 'Cinéaste Dakar. Griot numérique — tradition orale transmise par IA.',                     website: 'https://amaradiallo.sn'                                         }}),
+    prisma.submitter.create({ data: { email: 'erik.lindqvist@example.se', firstName: 'Erik',    lastName: 'Lindqvist',bio: 'Réalisateur Stockholm. Nature nordique et algorithmes génératifs contemplatifs.',           website: 'https://eriklindqvist.se'                                       }}),
   ]);
 
-  submitters.forEach(s => console.log(`  ✅ ${s.firstName} ${s.lastName}`));
-  console.log('');
+  console.log('  ✅ 14 réalisateurs — JP · NG · DE · BR · IN · AR · KR · MA · CA · EG · HR · MX · SN · SE\n');
 
   // =============================================================================
-  // 3️⃣ FILMS - 9 films couvrant TOUS les statuts workflow
+  // 3️⃣  FILMS — 14 films, couverture complète de tous les cas workflow
   // =============================================================================
 
-  console.log('🎥 Création films (tous statuts workflow)...\n');
+  console.log('🎥 Création films — tous les statuts et cas métier...\n');
 
-  // FILM 1 — SUBMITTED
-  const film1 = await prisma.film.create({
-    data: {
-      submitterId: submitters[0].id,
-      submissionToken: 'sub-f1-tokyo-dreams',
-      title: 'Tokyo Pixel Dreams',
-      description: 'Exploration onirique Tokyo nocturne générée par diffusion models. Mémoires urbaines fragmentées.',
-      country: 'Japon',
-      language: 'Japonais',
-      aiToolsUsed: 'Stable Diffusion, Runway Gen-2, ElevenLabs',
-      posterUrl: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'SUBMITTED',
-      submittedAt: new Date('2026-01-15')
-    }
-  });
-  console.log(`  ✅ ${film1.status}: "${film1.title}"`);
+  // ─────────────────────────────────────────────────────────────
+  // SUBMITTED × 2 — soumis, pas encore traités
+  // ─────────────────────────────────────────────────────────────
 
-  // FILM 2 — IN_REVIEW (2/3 jurys votés)
-  const film2 = await prisma.film.create({
-    data: {
-      submitterId: submitters[1].id,
-      submissionToken: 'sub-f2-ancestral-code',
-      title: 'Ancestral Code',
-      description: "Algorithmes inspirés art yoruba traditionnel. IA décoloniale questionnant hégémonie occidentale tech.",
-      country: 'Nigeria',
-      language: 'Anglais',
-      aiToolsUsed: 'StyleGAN, TouchDesigner, Custom ML models',
-      posterUrl: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'IN_REVIEW',
-      submittedAt: new Date('2026-01-20'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film2.status}: "${film2.title}" — 3 jurys assignés`);
+  const film01 = await prisma.film.create({ data: {
+    submitterId:     yuki.id,
+    submissionToken: 'sub-f01-tokyo-pixel-dreams',
+    title:           'Tokyo Pixel Dreams',
+    description:     "Exploration onirique de Tokyo nocturne générée par diffusion models. Mémoires urbaines fragmentées, identité visuelle à l'ère de l'image synthétique.",
+    country: 'Japon', language: 'Japonais',
+    aiToolsUsed: 'Stable Diffusion XL, Runway Gen-3, ElevenLabs',
+    posterUrl:    poster('1540959733332-eab4deabeeaf'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'SUBMITTED', submittedAt: new Date('2026-03-01'),
+  }});
+  console.log(`  ✅ SUBMITTED  : "${film01.title}" (Japon) — soumis récemment`);
 
-  await prisma.vote.create({ data: { filmId: film2.id, userId: agnes.id, sentiment: 'LIKE', rating: 9, comments: { create: { content: 'Démarche radicale et nécessaire. Esthétique yoruba magnifiquement traduite en langage algorithmique.', isInternal: false } } } });
-  await prisma.vote.create({ data: { filmId: film2.id, userId: mati.id, sentiment: 'LIKE', rating: 10, comments: { create: { content: "Perspective afro-diasporique puissante. Enfin une IA qui ne reproduit pas seulement canons occidentaux.", isInternal: false } } } });
-  // Béla pas encore voté (2/3)
-  await prisma.film.update({ where: { id: film2.id }, data: { avgRating: 9.5, totalVotes: 2, totalLikes: 2, totalDislikes: 0 } });
+  const film02 = await prisma.film.create({ data: {
+    submitterId:     thomas.id,
+    submissionToken: 'sub-f02-neural-requiem',
+    title:           'Neural Requiem',
+    description:     "Méditation visuelle sur l'obsolescence humaine. Des réseaux neuronaux génèrent une liturgie post-humaniste entre beauté et angoisse.",
+    country: 'Allemagne', language: 'Allemand',
+    aiToolsUsed: 'DALL-E 3, Suno AI, ControlNet, Deforum',
+    posterUrl:    poster('1518709268805-4e9042af9f23'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'SUBMITTED', submittedAt: new Date('2026-02-10'),
+  }});
+  console.log(`  ✅ SUBMITTED  : "${film02.title}" (Allemagne) — en attente depuis 3 semaines`);
 
-  // FILM 3 — IN_REVIEW avec suggestion ⚠️
-  const film3 = await prisma.film.create({
-    data: {
-      submitterId: submitters[2].id,
-      submissionToken: 'sub-f3-neural-requiem',
-      title: 'Neural Requiem',
-      description: 'Méditation visuelle sur obsolescence humaine. Réseaux neuronaux génèrent liturgie post-humaniste.',
-      country: 'Allemagne',
-      language: 'Allemand',
-      aiToolsUsed: 'DALL-E 3, Suno AI, ControlNet',
-      posterUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'IN_REVIEW',
-      submittedAt: new Date('2026-01-22'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film3.status}: "${film3.title}" — avec suggestion ⚠️`);
+  // ─────────────────────────────────────────────────────────────
+  // IN_REVIEW × 3 — stades différents d'évaluation
+  // ─────────────────────────────────────────────────────────────
 
-  await prisma.vote.create({ data: { filmId: film3.id, userId: agnes.id, sentiment: 'LIKE', rating: 7, comments: { create: { content: 'Concept philosophique intéressant mais narration parfois hermétique.', isInternal: true } } } });
-  await prisma.vote.create({ data: { filmId: film3.id, userId: bela.id, sentiment: 'DISLIKE', rating: 5, suggestModification: true, comments: { create: [{ content: 'Audio trop faible. Mixage insuffisant. Dialogues synthétiques inaudibles par moments.', isInternal: false }, { content: 'Admin : considérer TO_MODIFY pour corrections techniques audio.', isInternal: true }] } } });
-  await prisma.film.update({ where: { id: film3.id }, data: { avgRating: 6.0, totalVotes: 2, totalLikes: 1, totalDislikes: 1 } });
+  // Cas 1 : assigné, aucun jury n'a encore voté
+  const film03 = await prisma.film.create({ data: {
+    submitterId:     priya.id,
+    submissionToken: 'sub-f03-mumbai-mythologies',
+    title:           'Mumbai Mythologies',
+    description:     'Épopée mythologique indienne réinventée par machine learning. Ganesh, Kali et Vishnu rencontrent les GAN dans une fresque visuelle envoûtante.',
+    country: 'Inde', language: 'Hindi',
+    aiToolsUsed: 'MidJourney v6, Adobe Firefly, MuseNet, Sora',
+    posterUrl:    poster('1524492412937-b28074a5d7da'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'IN_REVIEW', submittedAt: new Date('2026-02-18'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ IN_REVIEW  : "${film03.title}" (Inde) — 0/3 votes, jurys assignés`);
 
-  // FILM 4 — APPROVED (unanime)
-  const film4 = await prisma.film.create({
-    data: {
-      submitterId: submitters[3].id,
-      submissionToken: 'sub-f4-amazonia-synthetic',
-      title: 'Amazônia Synthetic',
-      description: 'Forêt amazonienne régénérée par IA après déforestation. Poésie documentaire écologique.',
-      country: 'Brésil',
-      language: 'Portugais',
-      aiToolsUsed: 'Midjourney v6, Pika Labs, Adobe Firefly',
-      posterUrl: 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'APPROVED',
-      submittedAt: new Date('2026-01-25'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film4.status}: "${film4.title}" — unanime`);
+  // Cas 2 : 1 vote sur 2, évaluation en cours
+  const film04 = await prisma.film.create({ data: {
+    submitterId:     chioma.id,
+    submissionToken: 'sub-f04-ancestral-code',
+    title:           'Ancestral Code',
+    description:     "Algorithmes inspirés de l'art yoruba traditionnel. IA décoloniale questionnant l'hégémonie occidentale dans la tech. Manifeste visionnaire.",
+    country: 'Nigeria', language: 'Yoruba / Anglais',
+    aiToolsUsed: 'StyleGAN3, TouchDesigner, Custom ML models, Processing',
+    posterUrl:    poster('1547036967-23d11aacaee0'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'IN_REVIEW', submittedAt: new Date('2026-02-22'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }] },
+  }});
+  console.log(`  ✅ IN_REVIEW  : "${film04.title}" (Nigeria) — 1/2 votes`);
+  await prisma.vote.create({ data: {
+    filmId: film04.id, userId: agnes.id, sentiment: 'LIKE', rating: 9,
+    comments: { create: { content: "Démarche radicale et nécessaire. L'esthétique yoruba magnifiquement traduite en langage algorithmique. À sélectionner absolument.", isInternal: false } },
+  }});
+  await prisma.film.update({ where: { id: film04.id }, data: { avgRating: 9.0, totalVotes: 1, totalLikes: 1 } });
 
-  for (const { jury, rating } of [{ jury: agnes, rating: 8 }, { jury: mati, rating: 9 }, { jury: bela, rating: 8 }]) {
-    await prisma.vote.create({ data: { filmId: film4.id, userId: jury.id, sentiment: 'LIKE', rating, comments: { create: { content: `Magnifique travail visuel. Message écologique puissant. (${jury.firstName})`, isInternal: false } } } });
-  }
-  await prisma.film.update({ where: { id: film4.id }, data: { avgRating: 8.3, totalVotes: 3, totalLikes: 3, totalDislikes: 0 } });
+  // Cas 3 : 2/2 votes, 1 LIKE + 1 DISLIKE avec suggestModification
+  const film05 = await prisma.film.create({ data: {
+    submitterId:     diego.id,
+    submissionToken: 'sub-f05-tango-algorithms',
+    title:           'Tango Algorithms',
+    description:     'Chorégraphie tango de Buenos Aires réinterprétée par ML. Poésie du mouvement synthétique — entre mémoire corporelle et génération artificielle.',
+    country: 'Argentine', language: 'Espagnol',
+    aiToolsUsed: 'Runway Gen-3, MuseNet, DeepMotion, Stable Video Diffusion',
+    posterUrl:    poster('1504609773096-104ff2c73ba4'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'IN_REVIEW', submittedAt: new Date('2026-02-25'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ IN_REVIEW  : "${film05.title}" (Argentine) — 2/2 votes, DISLIKE + suggestModification ⚠️`);
+  await prisma.vote.create({ data: {
+    filmId: film05.id, userId: agnes.id, sentiment: 'LIKE', rating: 8,
+    comments: { create: { content: 'Concept superbe. Quelques imperfections techniques mineures, mais l\'émotion est là.', isInternal: true } },
+  }});
+  await prisma.vote.create({ data: {
+    filmId: film05.id, userId: bela.id, sentiment: 'DISLIKE', rating: 5, suggestModification: true,
+    comments: { create: [
+      { content: 'Audio trop faible. Synchronisation labiale insuffisante. Dialogues synthétiques inaudibles par moments.', isInternal: false },
+      { content: 'Note admin : TO_MODIFY recommandé — corrections techniques audio réalisables en quelques heures.',       isInternal: true  },
+    ]},
+  }});
+  await prisma.film.update({ where: { id: film05.id }, data: { avgRating: 6.5, totalVotes: 2, totalLikes: 1, totalDislikes: 1 } });
 
-  // FILM 5 — REJECTED
-  const film5 = await prisma.film.create({
-    data: {
-      submitterId: submitters[4].id,
-      submissionToken: 'sub-f5-bollywood-ai',
-      title: 'Bollywood AI Dreams',
-      description: 'Tentative mélange Bollywood classique et IA générative. Résultat expérimental.',
-      country: 'Inde',
-      language: 'Hindi',
-      aiToolsUsed: 'ChatGPT, DALL-E, Synthesia',
-      posterUrl: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'REJECTED',
-      submittedAt: new Date('2026-01-28'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }] }
-    }
-  });
-  console.log(`  ✅ ${film5.status}: "${film5.title}"`);
+  // ─────────────────────────────────────────────────────────────
+  // APPROVED × 2 — validés, pas encore sélectionnés
+  // ─────────────────────────────────────────────────────────────
 
-  await prisma.vote.createMany({ data: [{ filmId: film5.id, userId: agnes.id, sentiment: 'DISLIKE', rating: 3 }, { filmId: film5.id, userId: mati.id, sentiment: 'DISLIKE', rating: 4 }] });
-  await prisma.film.update({ where: { id: film5.id }, data: { avgRating: 3.5, totalVotes: 2, totalLikes: 0, totalDislikes: 2 } });
+  const film06 = await prisma.film.create({ data: {
+    submitterId:     ana.id,
+    submissionToken: 'sub-f06-amazonia-synthetic',
+    title:           'Amazônia Synthetic',
+    description:     "Forêt amazonienne régénérée par IA après déforestation virtuelle. Poésie documentaire écologique — un futur souhaitable rendu visible par la machine.",
+    country: 'Brésil', language: 'Portugais',
+    aiToolsUsed: 'MidJourney v6, Pika Labs, Adobe Firefly, World Models',
+    posterUrl:    poster('1516026672322-bc52d61a55d5'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'APPROVED', submittedAt: new Date('2026-02-12'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ APPROVED   : "${film06.title}" (Brésil) — 3/3 LIKE unanime`);
+  await prisma.vote.create({ data: { filmId: film06.id, userId: agnes.id, sentiment: 'LIKE', rating: 8, comments: { create: { content: 'Message écologique puissant. Imagerie d\'une beauté renversante.', isInternal: false } } } });
+  await prisma.vote.create({ data: { filmId: film06.id, userId: mati.id,  sentiment: 'LIKE', rating: 9, comments: { create: { content: 'Ce film dit quelque chose d\'urgent. L\'IA au service du vivant.', isInternal: false } } } });
+  await prisma.vote.create({ data: { filmId: film06.id, userId: bela.id,  sentiment: 'LIKE', rating: 8 } });
+  await prisma.film.update({ where: { id: film06.id }, data: { avgRating: 8.3, totalVotes: 3, totalLikes: 3 } });
 
-  // FILM 6 — TO_MODIFY
-  const film6 = await prisma.film.create({
-    data: {
-      submitterId: submitters[5].id,
-      submissionToken: 'sub-f6-tango-algorithms',
-      title: 'Tango Algorithms',
-      description: 'Chorégraphie tango Buenos Aires réinterprétée par ML. Poésie mouvement synthétique.',
-      country: 'Argentine',
-      language: 'Espagnol',
-      aiToolsUsed: 'Runway Gen-2, MuseNet, DeepMotion',
-      posterUrl: 'https://images.unsplash.com/photo-1504609773096-104ff2c73ba4',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'TO_MODIFY',
-      modificationRequest: "Bonjour Diego,\n\nVotre film présente un potentiel artistique remarquable. Nous vous demandons d'améliorer :\n\n- Synchronisation audio/vidéo (décalage ~0.5s en intro)\n- Résolution finale trop basse (720p → minimum 1080p)\n- Crédits finaux : ajouter mention outils IA\n\nMerci de soumettre une version corrigée.\n\nÉquipe marsAI Festival",
-      modificationRequestedAt: new Date('2026-02-01'),
-      modificationRequestedBy: bruno.id,
-      submittedAt: new Date('2026-01-30'),
-      assignedUsers: { connect: [{ id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film6.status}: "${film6.title}" — corrections demandées`);
+  const film07 = await prisma.film.create({ data: {
+    submitterId:     nour.id,
+    submissionToken: 'sub-f07-cairo-echo',
+    title:           'Cairo Echo',
+    description:     'Le Caire révolutionnaire de 2011 reconstruit par GAN à partir d\'archives photographiques. Mémoire collective et résilience algorithmique.',
+    country: 'Égypte', language: 'Arabe',
+    aiToolsUsed: 'DALL-E 3, GPT-4 Vision, Custom GAN, CLIP',
+    posterUrl:    poster('1553913861-c5e37ac4ab65'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'APPROVED', submittedAt: new Date('2026-02-08'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ APPROVED   : "${film07.title}" (Égypte) — 2/2 LIKE`);
+  await prisma.vote.create({ data: { filmId: film07.id, userId: agnes.id, sentiment: 'LIKE', rating: 8 } });
+  await prisma.vote.create({ data: { filmId: film07.id, userId: bela.id,  sentiment: 'LIKE', rating: 7, comments: { create: { content: 'Plan d\'ouverture saisissant. Montage parfois décousu mais intention forte.', isInternal: true } } } });
+  await prisma.film.update({ where: { id: film07.id }, data: { avgRating: 7.5, totalVotes: 2, totalLikes: 2 } });
 
-  await prisma.vote.create({ data: { filmId: film6.id, userId: bela.id, sentiment: 'LIKE', rating: 7, suggestModification: true, comments: { create: { content: 'Très beau travail esthétique. Problèmes techniques mineurs à corriger.', isInternal: false } } } });
-  await prisma.filmVersion.create({ data: { filmId: film6.id, title: film6.title, description: film6.description, aiToolsUsed: film6.aiToolsUsed, posterUrl: film6.posterUrl, youtubeUrl: film6.youtubeUrl, archivedAt: new Date('2026-02-01') } });
-  await prisma.film.update({ where: { id: film6.id }, data: { avgRating: 7.0, totalVotes: 1, totalLikes: 1, totalDislikes: 0 } });
+  // ─────────────────────────────────────────────────────────────
+  // REJECTED × 1
+  // ─────────────────────────────────────────────────────────────
 
-  // FILM 7 — SELECTION
-  const film7 = await prisma.film.create({
-    data: {
-      submitterId: submitters[6].id,
-      submissionToken: 'sub-f7-seoul-surveillance',
-      title: 'Seoul Surveillance',
-      description: 'Critique société surveillance algorithmique Corée Sud. Dystopie documentaire temps réel.',
-      country: 'Corée du Sud',
-      language: 'Coréen',
-      aiToolsUsed: 'YOLOv8, OpenCV, Stable Diffusion',
-      posterUrl: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'SELECTION',
-      avgRating: 8.7, totalVotes: 3, totalLikes: 3, totalDislikes: 0,
-      submittedAt: new Date('2026-02-02'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film7.status}: "${film7.title}" — sélection officielle`);
-  await prisma.vote.createMany({ data: [{ filmId: film7.id, userId: agnes.id, sentiment: 'LIKE', rating: 9 }, { filmId: film7.id, userId: mati.id, sentiment: 'LIKE', rating: 9 }, { filmId: film7.id, userId: bela.id, sentiment: 'LIKE', rating: 8 }] });
+  const film08 = await prisma.film.create({ data: {
+    submitterId:     carlos.id,
+    submissionToken: 'sub-f08-neon-murales',
+    title:           'Neon Murales',
+    description:     'Tentative de réinterprétation du muralisme mexicain par IA. Résultat trop décoratif, sans profondeur narrative ni point de vue artistique.',
+    country: 'Mexique', language: 'Espagnol',
+    aiToolsUsed: 'DALL-E 2, Canva IA, Synthesia',
+    posterUrl:    poster('1545486332-9e0999c535b2'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'REJECTED', submittedAt: new Date('2026-02-05'),
+    assignedUsers: { connect: [{ id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ REJECTED   : "${film08.title}" (Mexique) — 2/2 DISLIKE`);
+  await prisma.vote.create({ data: { filmId: film08.id, userId: mati.id, sentiment: 'DISLIKE', rating: 3, comments: { create: { content: "Pas de point de vue artistique. L'IA utilisée comme filtre décoratif seulement. Hors sujet festival.", isInternal: false } } } });
+  await prisma.vote.create({ data: { filmId: film08.id, userId: bela.id, sentiment: 'DISLIKE', rating: 2, comments: { create: { content: 'Aucune tension dramatique. Refus ferme.', isInternal: false } } } });
+  await prisma.film.update({ where: { id: film08.id }, data: { avgRating: 2.5, totalVotes: 2, totalDislikes: 2 } });
 
-  // FILM 8 — FINALIST
-  const film8 = await prisma.film.create({
-    data: {
-      submitterId: submitters[7].id,
-      submissionToken: 'sub-f8-casablanca-memories',
-      title: 'Casablanca Digital Memories',
-      description: 'Mémoires diaspora marocaine reconstruites par IA. Archives familiales augmentées machine learning.',
-      country: 'Maroc',
-      language: 'Arabe',
-      aiToolsUsed: 'GPT-4 Vision, CLIP, LoRA fine-tuning',
-      posterUrl: 'https://images.unsplash.com/photo-1489749798305-4fea3ae63d43',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'FINALIST',
-      avgRating: 9.0, totalVotes: 3, totalLikes: 3, totalDislikes: 0,
-      submittedAt: new Date('2026-02-05'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film8.status}: "${film8.title}" — nominé`);
-  await prisma.vote.createMany({ data: [{ filmId: film8.id, userId: agnes.id, sentiment: 'LIKE', rating: 9 }, { filmId: film8.id, userId: mati.id, sentiment: 'LIKE', rating: 9 }, { filmId: film8.id, userId: bela.id, sentiment: 'LIKE', rating: 9 }] });
+  // ─────────────────────────────────────────────────────────────
+  // TO_MODIFY × 1 — corrections demandées + snapshot FilmVersion
+  // ─────────────────────────────────────────────────────────────
 
-  // FILM 9 — AWARD
-  const film9 = await prisma.film.create({
-    data: {
-      submitterId: submitters[8].id,
-      submissionToken: 'sub-f9-climate-oracle',
-      title: 'Climate Oracle',
-      description: "IA prédit futurs climatiques 2050-2100. Documentaire anticipation généré par simulations ML.",
-      country: 'Canada',
-      language: 'Anglais',
-      aiToolsUsed: 'Climate ML models, Stable Diffusion, ElevenLabs',
-      posterUrl: 'https://images.unsplash.com/photo-1551244072-5d12893278ab',
-      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      status: 'AWARD',
-      avgRating: 9.7, totalVotes: 3, totalLikes: 3, totalDislikes: 0,
-      submittedAt: new Date('2026-02-08'),
-      assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] }
-    }
-  });
-  console.log(`  ✅ ${film9.status}: "${film9.title}" — 🏆 GAGNANT\n`);
-  await prisma.vote.createMany({ data: [{ filmId: film9.id, userId: agnes.id, sentiment: 'LIKE', rating: 10 }, { filmId: film9.id, userId: mati.id, sentiment: 'LIKE', rating: 10 }, { filmId: film9.id, userId: bela.id, sentiment: 'LIKE', rating: 9 }] });
+  const film09 = await prisma.film.create({ data: {
+    submitterId:     lena.id,
+    submissionToken: 'sub-f09-body-algorithms',
+    title:           'Body Algorithms',
+    description:     'Corps humain et machine — exploration danse algorithmique entre présence et absence. Mouvement synthétique, émotion réelle.',
+    country: 'Croatie', language: 'Anglais',
+    aiToolsUsed: 'DeepMotion, Runway Gen-3, Suno AI',
+    posterUrl:    poster('1535183655428-b3c15c0e3d93'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'TO_MODIFY',
+    modificationRequest:      "Bonjour Léna,\n\nVotre film présente un potentiel artistique remarquable. Pour poursuivre le processus de sélection, nous vous demandons d'apporter les corrections suivantes :\n\n• Synchronisation audio/vidéo — décalage d'environ 0.4s perceptible à partir de la 2e minute\n• Résolution export final insuffisante (720p → minimum 1080p requis)\n• Crédits finaux incomplets — ajouter la mention de chaque outil IA utilisé\n\nVous disposez de 7 jours pour soumettre une version corrigée via votre lien personnel.\n\nL'équipe marsAI Festival",
+    modificationRequestedAt:  new Date('2026-02-28'),
+    modificationRequestedBy:  bruno.id,
+    submittedAt: new Date('2026-02-20'),
+    assignedUsers: { connect: [{ id: bela.id }] },
+  }});
+  console.log(`  ✅ TO_MODIFY  : "${film09.title}" (Croatie) — corrections demandées + snapshot archivé`);
+  await prisma.vote.create({ data: {
+    filmId: film09.id, userId: bela.id, sentiment: 'LIKE', rating: 7, suggestModification: true,
+    comments: { create: { content: 'Très beau travail esthétique. Problèmes techniques mineurs mais bloquants pour la projection.', isInternal: false } },
+  }});
+  // Snapshot de la version avant modification
+  await prisma.filmVersion.create({ data: {
+    filmId:      film09.id,
+    title:       film09.title,
+    description: film09.description,
+    aiToolsUsed: film09.aiToolsUsed,
+    posterUrl:   film09.posterUrl,
+    youtubeUrl:  film09.youtubeUrl,
+    archivedAt:  new Date('2026-02-28'),
+  }});
+  await prisma.film.update({ where: { id: film09.id }, data: { avgRating: 7.0, totalVotes: 1, totalLikes: 1 } });
+
+  // ─────────────────────────────────────────────────────────────
+  // SELECTION × 2 — top 50 officiel
+  // ─────────────────────────────────────────────────────────────
+
+  const film10 = await prisma.film.create({ data: {
+    submitterId:     minji.id,
+    submissionToken: 'sub-f10-seoul-surveillance',
+    title:           'Seoul Surveillance',
+    description:     'Critique de la société de surveillance algorithmique en Corée du Sud. Dystopie documentaire en temps réel — chaque pixel devient données.',
+    country: 'Corée du Sud', language: 'Coréen',
+    aiToolsUsed: 'YOLOv8, OpenCV, Stable Diffusion, Custom dataset',
+    posterUrl:    poster('1517154421773-0529f29ea451'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'SELECTION', avgRating: 8.7, totalVotes: 3, totalLikes: 3,
+    submittedAt: new Date('2026-02-01'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ SELECTION  : "${film10.title}" (Corée du Sud) — top 50`);
+  await prisma.vote.createMany({ data: [
+    { filmId: film10.id, userId: agnes.id, sentiment: 'LIKE', rating: 9 },
+    { filmId: film10.id, userId: mati.id,  sentiment: 'LIKE', rating: 9 },
+    { filmId: film10.id, userId: bela.id,  sentiment: 'LIKE', rating: 8 },
+  ]});
+
+  const film11 = await prisma.film.create({ data: {
+    submitterId:     amara.id,
+    submissionToken: 'sub-f11-griot-numerique',
+    title:           'Griot Numérique',
+    description:     "La tradition orale africaine du griot transmise par IA. Mémoire ancestrale encodée en données — l'intelligence artificielle comme passeur de mémoire.",
+    country: 'Sénégal', language: 'Wolof / Français',
+    aiToolsUsed: 'GPT-4, ElevenLabs, DALL-E 3, LoRA fine-tuning',
+    posterUrl:    poster('1489749798305-4fea3ae63d43'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'SELECTION', avgRating: 8.3, totalVotes: 3, totalLikes: 3,
+    submittedAt: new Date('2026-01-28'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ SELECTION  : "${film11.title}" (Sénégal) — top 50`);
+  await prisma.vote.createMany({ data: [
+    { filmId: film11.id, userId: agnes.id, sentiment: 'LIKE', rating: 9 },
+    { filmId: film11.id, userId: mati.id,  sentiment: 'LIKE', rating: 9 },
+    { filmId: film11.id, userId: bela.id,  sentiment: 'LIKE', rating: 7 },
+  ]});
+
+  // ─────────────────────────────────────────────────────────────
+  // FINALIST × 1 — nominé, ne gagne pas le Grand Prix
+  // ─────────────────────────────────────────────────────────────
+
+  const film12 = await prisma.film.create({ data: {
+    submitterId:     yasmine.id,
+    submissionToken: 'sub-f12-casablanca-memories',
+    title:           'Casablanca Digital Memories',
+    description:     "Mémoires de la diaspora marocaine reconstruites par IA. Archives familiales augmentées par machine learning — l'identité entre deux rives.",
+    country: 'Maroc', language: 'Arabe / Français',
+    aiToolsUsed: 'GPT-4 Vision, CLIP, LoRA fine-tuning, Stable Diffusion',
+    posterUrl:    poster('1558618666-fcd25c85cd64'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'FINALIST', avgRating: 9.0, totalVotes: 3, totalLikes: 3,
+    submittedAt: new Date('2026-01-20'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ FINALIST   : "${film12.title}" (Maroc) — nominé 2 catégories`);
+  await prisma.vote.createMany({ data: [
+    { filmId: film12.id, userId: agnes.id, sentiment: 'LIKE', rating: 9 },
+    { filmId: film12.id, userId: mati.id,  sentiment: 'LIKE', rating: 9 },
+    { filmId: film12.id, userId: bela.id,  sentiment: 'LIKE', rating: 9 },
+  ]});
+
+  // ─────────────────────────────────────────────────────────────
+  // AWARD × 2 — 🏆 lauréats
+  // ─────────────────────────────────────────────────────────────
+
+  const film13 = await prisma.film.create({ data: {
+    submitterId:     erik.id,
+    submissionToken: 'sub-f13-nordic-silence',
+    title:           'Nordic Silence',
+    description:     "Nature nordique et algorithmes génératifs contemplatifs. Aurores boréales synthétisées, sons ambiants générés — un futur souhaitable dans le grand silence.",
+    country: 'Suède', language: 'Suédois',
+    aiToolsUsed: 'Stable Diffusion XL, Suno AI, Luma Dream Machine, AudioCraft',
+    posterUrl:    poster('1470252649427-9bea9a6a97ab'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'AWARD', avgRating: 9.7, totalVotes: 3, totalLikes: 3,
+    submittedAt: new Date('2026-01-15'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ AWARD      : "${film13.title}" (Suède) — 🏆 Grand Prix marsAI`);
+  await prisma.vote.createMany({ data: [
+    { filmId: film13.id, userId: agnes.id, sentiment: 'LIKE', rating: 10 },
+    { filmId: film13.id, userId: mati.id,  sentiment: 'LIKE', rating: 10 },
+    { filmId: film13.id, userId: bela.id,  sentiment: 'LIKE', rating: 9  },
+  ]});
+
+  const film14 = await prisma.film.create({ data: {
+    submitterId:     alex.id,
+    submissionToken: 'sub-f14-climate-oracle',
+    title:           'Climate Oracle',
+    description:     "L'IA prédit les futurs climatiques 2050-2100. Documentaire d'anticipation généré par simulations machine learning — beauté terrifiante des mondes à venir.",
+    country: 'Canada', language: 'Anglais / Français',
+    aiToolsUsed: 'Climate ML models, Stable Diffusion XL, ElevenLabs, World Models',
+    posterUrl:    poster('1464822759023-fed622ff2c3b'),
+    youtubeUrl:   VIDEO_URL, youtubeVideoId: VIDEO_ID,
+    status: 'AWARD', avgRating: 9.3, totalVotes: 3, totalLikes: 3,
+    submittedAt: new Date('2026-01-18'),
+    assignedUsers: { connect: [{ id: agnes.id }, { id: mati.id }, { id: bela.id }] },
+  }});
+  console.log(`  ✅ AWARD      : "${film14.title}" (Canada) — 🏆 Prix Futur Souhaitable\n`);
+  await prisma.vote.createMany({ data: [
+    { filmId: film14.id, userId: agnes.id, sentiment: 'LIKE', rating: 10 },
+    { filmId: film14.id, userId: mati.id,  sentiment: 'LIKE', rating: 9  },
+    { filmId: film14.id, userId: bela.id,  sentiment: 'LIKE', rating: 9  },
+  ]});
 
   // =============================================================================
-  // 4️⃣ AWARDS
+  // 4️⃣  AWARDS — AwardCategory + FilmNomination, édition 2026
   // =============================================================================
 
-  console.log('🏆 Création Awards (palmarès)...');
+  console.log('🏆 Création palmarès édition 2026...');
 
-  await prisma.award.create({ data: { name: 'Meilleur Film', description: 'Prix du meilleur film toutes catégories confondues', displayOrder: 1, filmId: film9.id } });
-  await prisma.award.create({ data: { name: "Prix Innovation IA", description: "Usage le plus innovant de l'intelligence artificielle", displayOrder: 2, filmId: film8.id } });
-  await prisma.award.create({ data: { name: 'Meilleur Documentaire', description: 'Documentaire IA le plus impactant', displayOrder: 3, filmId: film7.id } });
-  console.log('  ✅ 3 catégories créées\n');
+  const cat1 = await prisma.awardCategory.create({ data: {
+    edition: 2026, displayOrder: 1,
+    name: 'Grand Prix marsAI',
+    description: "Récompense le film le plus abouti artistiquement et techniquement — toutes catégories confondues.",
+  }});
+
+  const cat2 = await prisma.awardCategory.create({ data: {
+    edition: 2026, displayOrder: 2,
+    name: 'Prix Futur Souhaitable',
+    description: "Décerné au film qui incarne le mieux le thème 2026 : imaginer des futurs souhaitables grâce à l'IA.",
+  }});
+
+  const cat3 = await prisma.awardCategory.create({ data: {
+    edition: 2026, displayOrder: 3,
+    name: 'Prix Innovation Technique',
+    description: "Usage le plus innovant et maîtrisé de l'intelligence artificielle dans le processus de création.",
+  }});
+
+  const cat4 = await prisma.awardCategory.create({ data: {
+    edition: 2026, displayOrder: 4,
+    name: 'Mention Spéciale',
+    description: "Coup de cœur du jury — film remarquable n'entrant pas dans les catégories principales.",
+  }});
+
+  // Nominations — Grand Prix : film12 nominé, film13 gagnant
+  await prisma.filmNomination.create({ data: { filmId: film12.id, categoryId: cat1.id, isWinner: false } });
+  await prisma.filmNomination.create({ data: { filmId: film13.id, categoryId: cat1.id, isWinner: true  } });
+
+  // Nominations — Futur Souhaitable : film12 nominé, film14 gagnant
+  await prisma.filmNomination.create({ data: { filmId: film12.id, categoryId: cat2.id, isWinner: false } });
+  await prisma.filmNomination.create({ data: { filmId: film14.id, categoryId: cat2.id, isWinner: true  } });
+
+  // Nominations — Innovation Technique : film10 nominé, film13 gagnant (double lauréat)
+  await prisma.filmNomination.create({ data: { filmId: film10.id, categoryId: cat3.id, isWinner: false } });
+  await prisma.filmNomination.create({ data: { filmId: film13.id, categoryId: cat3.id, isWinner: true  } });
+
+  // Nominations — Mention Spéciale : film11 nominé, pas de gagnant désigné
+  await prisma.filmNomination.create({ data: { filmId: film11.id, categoryId: cat4.id, isWinner: false } });
+
+  console.log('  ✅ 4 catégories · 7 nominations · 3 lauréats\n');
 
   // =============================================================================
-  // 5️⃣ JURY MEMBERS - Page publique
+  // 5️⃣  JURY MEMBERS — Page publique festival
   // =============================================================================
 
-  console.log('🎭 Création jury officiel public...');
+  console.log('🎭 Création membres jury publics...');
 
-  await prisma.juryMember.create({ data: { firstName: 'Agnès', lastName: 'Varda', title: 'Présidente Jury', bio: 'Légende Nouvelle Vague française. Pionnière documentaire poétique.', displayOrder: 1 } });
-  await prisma.juryMember.create({ data: { firstName: 'Mati', lastName: 'Diop', title: 'Membre Jury', bio: "Cinéaste franco-sénégalaise. Palme d'Or Cannes.", displayOrder: 2 } });
-  await prisma.juryMember.create({ data: { firstName: 'Béla', lastName: 'Tarr', title: 'Membre Jury', bio: 'Maître hongrois plans-séquences contemplatifs.', displayOrder: 3 } });
-  console.log('  ✅ 3 membres jury publics\n');
+  await prisma.juryMember.create({ data: {
+    firstName: 'Agnès', lastName: 'Varda',
+    title: 'Présidente du Jury',
+    bio: "Pionnière de la Nouvelle Vague française, Agnès Varda a consacré sa vie à explorer les frontières du cinéma documentaire et de fiction. Son regard humaniste et poétique en fait la présidente idéale pour un festival célébrant l'IA créatrice.",
+    photoUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+    displayOrder: 1, twitter: '@agnes_varda_films',
+  }});
+
+  await prisma.juryMember.create({ data: {
+    firstName: 'Mati', lastName: 'Diop',
+    title: 'Membre du Jury',
+    bio: "Cinéaste franco-sénégalaise, Palme d'Or à Cannes 2019 pour « Atlantique ». Sa sensibilité afro-diasporique et son engagement envers les récits invisibilisés apportent une perspective critique et nécessaire sur l'usage de l'IA dans la création.",
+    photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+    displayOrder: 2, instagram: '@matidiop_official',
+  }});
+
+  await prisma.juryMember.create({ data: {
+    firstName: 'Béla', lastName: 'Tarr',
+    title: 'Membre du Jury',
+    bio: "Cinéaste hongrois, auteur de chefs-d'œuvre comme « Sátántangó » et « Le Cheval de Turin ». Maître incontesté des plans-séquences contemplatifs, son œil exigeant garantit un palmarès d'une intégrité artistique absolue.",
+    photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop',
+    displayOrder: 3, website: 'https://belatar.com',
+  }});
+
+  await prisma.juryMember.create({ data: {
+    firstName: 'Sofia', lastName: 'Al-Amin',
+    title: 'Membre du Jury',
+    bio: "Directrice artistique de l'AI Art Institute de Dubai. Curatrice internationale spécialisée dans les intersections entre intelligence artificielle et pratiques artistiques émergentes. Sa vision prospective enrichit le jury d'une expertise technique rare.",
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop',
+    displayOrder: 4, instagram: '@sofia_alamin_art', twitter: '@sofiaamin',
+  }});
+
+  console.log('  ✅ 4 membres jury publics (avec photos et réseaux sociaux)\n');
 
   // =============================================================================
-  // 6️⃣ SITE SETTINGS
+  // 6️⃣  SITE SETTINGS
   // =============================================================================
 
   console.log('⚙️  Configuration site...');
 
-  await prisma.siteSettings.create({
-    data: {
-      currentYear: 2026,
-      festivalTheme: 'IA & Cinéma : Vers de Nouvelles Frontières',
-      festivalDates: '12-13 juin 2026',
-      trailerUrl: 'https://www.youtube.com/watch?v=example',
-      aboutText: 'marsAI Festival célèbre intersection intelligence artificielle et cinéma expérimental. Première édition 2026 Marseille.',
-      rulesText: 'Films 3-15 min. Outils IA obligatoires. Toutes nationalités bienvenues.'
-    }
-  });
+  await prisma.siteSettings.create({ data: {
+    currentYear:   2026,
+    festivalTheme: 'Imaginez des futurs souhaitables',
+    festivalDates: '12-13 juin 2026, Marseille',
+    trailerUrl:    VIDEO_URL,
+    heroImageUrl:  'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1920&h=1080&fit=crop',
+    aboutText:     "marsAI Festival célèbre la rencontre entre l'intelligence artificielle et le cinéma. Films d'1 minute, 120 pays, 3 000 visiteurs — Marseille devient capitale mondiale du cinéma IA.",
+    rulesText:     "Films d'exactement 1 minute. Usage d'outils IA obligatoire dans le processus créatif. Toutes nationalités bienvenues. Thème 2026 : imaginer des futurs souhaitables.",
+  }});
+
   console.log('  ✅ Site settings configuré\n');
 
   // =============================================================================
-  // 📊 STATS
+  // 7️⃣  NEWSLETTER — Abonnés
   // =============================================================================
 
-  console.log('📊 STATISTIQUES SEED:\n');
-  console.log('  Users (6) : 2 ADMIN · 1 MODERATOR · 3 JURY');
-  console.log('  Submitters (9) : JP · NG · DE · BR · IN · AR · KR · MA · CA');
-  console.log('  Films (9) : SUBMITTED·IN_REVIEW(×2)·APPROVED·REJECTED·TO_MODIFY·SELECTION·FINALIST·AWARD');
-  console.log('  Votes (~18) : LIKE/DISLIKE + suggestions');
-  console.log('  FilmVersions (1) · Awards (3) · JuryMembers (3) · SiteSettings (1)');
-  console.log('\n✅ Seed complet terminé !');
+  console.log('📧 Création abonnés newsletter...');
+
+  await prisma.newsletterSubscriber.createMany({ data: [
+    { email: 'marie.dupont@example.fr'       },
+    { email: 'john.smith@example.co.uk'      },
+    { email: 'hiroshi.yamamoto@example.jp'   },
+    { email: 'fatou.ndiaye@example.sn'       },
+    { email: 'marco.rossi@example.it'        },
+    { email: 'elena.petrov@example.ru'       },
+    { email: 'layla.hassan@example.eg'       },
+  ]});
+
+  console.log('  ✅ 7 abonnés newsletter\n');
+
+  // =============================================================================
+  // 📊 RÉCAPITULATIF
+  // =============================================================================
+
+  const sep = '─'.repeat(62);
+  console.log(sep);
+  console.log('📊 SEED TERMINÉ — RÉCAPITULATIF COMPLET\n');
+  console.log('  👥 Users         : 2 ADMIN · 1 MODERATOR · 3 JURY');
+  console.log('  🎬 Submitters    : 14 réalisateurs (14 pays)');
+  console.log('  🎥 Films         : 14 films — tous les statuts couverts');
+  console.log('     SUBMITTED(2) · IN_REVIEW(3) · APPROVED(2) · REJECTED(1)');
+  console.log('     TO_MODIFY(1) · SELECTION(2) · FINALIST(1) · AWARD(2)');
+  console.log('  🖼️  Posters       : portrait 600×900 Unsplash sur chaque film');
+  console.log('  🗳️  Votes         : ~26 votes · LIKE + DISLIKE · suggestModification');
+  console.log('  💬 Commentaires  : internes (admin) + externes (transmis réalisateur)');
+  console.log('  📁 FilmVersions  : 1 snapshot TO_MODIFY archivé');
+  console.log('  🏆 AwardCategory : 4 catégories édition 2026');
+  console.log('  📋 Nominations   : 7 nominations · 3 lauréats');
+  console.log('  🎭 JuryMembers   : 4 membres publics avec photos + réseaux');
+  console.log('  ⚙️  SiteSettings  : 1 configuration complète');
+  console.log('  📧 Newsletter    : 7 abonnés');
+  console.log('');
+  console.log('  🔑 Admin     : bruno.smadja@marsai.com  / admin123');
+  console.log('  🔑 Admin     : jules.fournier@marsai.com / admin123');
+  console.log('  🔑 Modérat.  : sophie.martin@marsai.com / admin123');
+  console.log(sep);
+  console.log('\n✅ Prêt pour la démo !\n');
 }
 
 main()
