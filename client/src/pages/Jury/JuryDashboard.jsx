@@ -61,29 +61,31 @@ export default function JuryDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-[#111827] text-white font-sans">
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)', color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>
 
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-[#111827]/95 backdrop-blur border-b border-white/10 px-6 md:px-8 py-5">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
+      <header
+        className="sticky top-0 z-10 backdrop-blur"
+        style={{ background: 'rgba(15,15,15,0.95)', borderBottom: '1px solid var(--color-border)', padding: 'clamp(0.875rem, 2vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem)' }}
+      >
+        <div style={{ maxWidth: '72rem', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 className="text-lg font-black uppercase tracking-tighter italic">
-              Espace <span className="text-indigo-400">Jury</span>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(0.875rem, 2vw, 1.125rem)', letterSpacing: '-0.02em', textTransform: 'uppercase', fontStyle: 'italic', lineHeight: 1 }}>
+              Espace <span style={{ color: '#10b981' }}>Jury</span>
             </h1>
-            <p className="text-white/40 text-xs uppercase tracking-widest mt-0.5">
-              MARSAI Festival · Session 2026
-            </p>
+            <p className="label-overline" style={{ marginTop: '0.25rem' }}>MARSAI Festival · Session 2026</p>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="text-right">
-              <p className="text-sm font-bold">{user.firstName} {user.lastName}</p>
-              <p className="text-xs text-white/40 uppercase tracking-widest">Jury</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)' }}>{user.firstName} {user.lastName}</p>
+              <p className="label-overline" style={{ marginTop: '0.125rem' }}>Jury</p>
             </div>
             <button
               onClick={handleLogout}
-              className="text-xs uppercase tracking-widest text-white/40 hover:text-white
-                         border border-white/15 hover:border-white/30 px-4 py-2 transition-colors"
+              style={{ fontSize: '0.625rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', padding: '0.5rem 1rem', background: 'none', cursor: 'pointer', transition: 'color 0.2s, border-color 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-text)'; e.currentTarget.style.borderColor = 'var(--color-border-hover)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
             >
               Quitter
             </button>
@@ -92,56 +94,58 @@ export default function JuryDashboard() {
       </header>
 
       {/* ── CONTENU ────────────────────────────────────────── */}
-      <main className="max-w-5xl mx-auto px-6 md:px-8 py-10">
+      <main style={{ maxWidth: '72rem', margin: '0 auto', padding: 'clamp(2rem, 4vw, 3rem) clamp(1.5rem, 4vw, 2.5rem)' }}>
 
-        {/* Titre + progression */}
-        <div className="mb-10">
-          <h2 className="text-2xl font-black uppercase tracking-tighter italic mb-2">
-            Films en <span className="text-indigo-400">évaluation</span>
+        {/* ── Header éditorial section ── */}
+        <header style={{ marginBottom: '2.5rem', paddingBottom: '2rem', borderBottom: '1px solid var(--color-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+            <span style={{ width: 'clamp(2rem, 3vw, 3rem)', height: '1px', background: '#10b981', flexShrink: 0 }} />
+            <span className="label-overline">Évaluation</span>
+          </div>
+
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.03em', textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--color-text)', lineHeight: 1, marginBottom: '0.75rem' }}>
+            Films en <span style={{ color: '#10b981' }}>évaluation</span>
           </h2>
-          <p className="text-white/50 text-sm mb-6">
+
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
             {voted} évalué{voted > 1 ? "s" : ""} · {remaining} restant{remaining > 1 ? "s" : ""}
           </p>
 
           {/* Barre de progression 2 segments */}
           {films.length > 0 && (
-            <div className="flex h-0.5">
+            <div style={{ display: 'flex', height: '2px' }}>
               <div
-                className="bg-indigo-500 transition-all duration-500"
-                style={{ flex: voted }}
+                style={{ background: '#10b981', flex: voted, transition: 'flex 0.5s' }}
               />
               <div
-                className="bg-white/15"
-                style={{ flex: remaining || 0.001 }}
+                style={{ background: 'var(--color-border)', flex: remaining || 0.001 }}
               />
             </div>
           )}
-        </div>
+        </header>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64 text-white/40">
-            <Loader2 size={20} className="animate-spin mr-3" />
-            <span className="text-sm">Chargement des films...</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16rem', color: 'var(--color-text-faint)' }}>
+            <Loader2 size={20} className="animate-spin" style={{ marginRight: '0.75rem' }} />
+            <span style={{ fontSize: '0.875rem' }}>Chargement des films...</span>
           </div>
         ) : films.length === 0 ? (
-          <div className="border border-white/15 p-20 text-center">
-            <p className="text-base text-white/60 font-light">Aucun film à évaluer pour le moment.</p>
-            <p className="text-sm mt-2 text-white/40">
+          <div style={{ border: '1px solid var(--color-border)', padding: '5rem 2rem', textAlign: 'center' }}>
+            <p style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: 300 }}>Aucun film à évaluer pour le moment.</p>
+            <p style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: 'var(--color-text-faint)' }}>
               Revenez lorsque des films vous auront été assignés.
             </p>
           </div>
         ) : (
           <>
             {/* En-tête colonnes */}
-            <div className="grid grid-cols-[2rem_1fr_7rem_5rem_7rem] gap-6 items-center px-4 pb-3">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">#</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Film</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Pays</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Statut</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Vote</span>
+            <div className="hidden sm:grid grid-cols-[2rem_1fr_7rem_5rem_7rem] gap-6 items-center px-4 pb-3">
+              {['#', 'Film', 'Pays', 'Statut', 'Vote'].map(h => (
+                <span key={h} className="label-overline">{h}</span>
+              ))}
             </div>
 
-            <div className="border-t border-white/10">
+            <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {sortedFilms.map((film, i) => {
                 const currentVote = film.votes?.[0];
 
@@ -149,49 +153,48 @@ export default function JuryDashboard() {
                   <div
                     key={film.id}
                     onClick={() => navigate(`/jury/film/${film.id}`)}
-                    className="grid grid-cols-[2rem_1fr_7rem_5rem_7rem] gap-6 items-center
-                               px-4 py-5 border-b border-white/10
-                               hover:bg-white/5 cursor-pointer transition-colors group"
+                    className="grid grid-cols-[2rem_1fr_7rem_5rem_7rem] gap-6 items-center px-4 py-5 cursor-pointer group"
+                    style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     {/* Numéro */}
-                    <span className="font-mono text-xs text-white/40 tabular-nums">
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>
                       {String(i + 1).padStart(2, "0")}
                     </span>
 
                     {/* Titre + réalisateur */}
                     <div className="min-w-0">
-                      <p className="font-black text-sm uppercase tracking-tight leading-tight truncate
-                                    group-hover:text-indigo-300 transition-colors">
+                      <p className="font-black text-sm uppercase tracking-tight leading-tight truncate group-hover:text-emerald-400 transition-colors">
                         {film.title}
                       </p>
                       {film.submitter && (
-                        <p className="text-xs text-white/45 mt-0.5 truncate">
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {film.submitter.firstName} {film.submitter.lastName}
                         </p>
                       )}
                     </div>
 
                     {/* Pays */}
-                    <span className="text-xs text-white/50 truncate">{film.country}</span>
+                    <span className="hidden sm:block" style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{film.country}</span>
 
                     {/* Statut film */}
-                    <span className="text-[11px] text-indigo-400 uppercase tracking-wider font-bold">
+                    <span className="hidden sm:block" style={{ fontSize: '0.6875rem', color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
                       {film.status}
                     </span>
 
                     {/* Badge vote */}
                     {currentVote ? (
-                      <span className={`inline-flex items-center text-[11px] font-black uppercase tracking-widest
-                                       px-3 py-1 w-fit
-                                       ${currentVote.sentiment === "LIKE"
-                                         ? "bg-green-500/10 text-green-400 border border-green-500/30"
-                                         : "bg-red-500/10 text-red-400 border border-red-500/30"}`}>
+                      <span className={`inline-flex items-center text-[11px] font-black uppercase tracking-widest px-3 py-1 w-fit
+                        ${currentVote.sentiment === "LIKE"
+                          ? "bg-green-500/10 text-green-400 border border-green-500/30"
+                          : "bg-red-500/10 text-red-400 border border-red-500/30"}`}>
                         {currentVote.sentiment === "LIKE" ? "✓ Like" : "✕ Dislike"}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-white/40
-                                       border border-white/15 px-3 py-1 w-fit
-                                       group-hover:border-white/30 group-hover:text-white/60 transition-colors">
+                      <span
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.6875rem', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', padding: '0.25rem 0.75rem', whiteSpace: 'nowrap' }}
+                      >
                         À évaluer
                         <ChevronRight size={9} />
                       </span>

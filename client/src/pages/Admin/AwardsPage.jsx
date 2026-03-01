@@ -22,13 +22,6 @@ function authHeader() {
   return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 }
 
-const STATUS_COLORS = {
-  APPROVED:  'text-green-400',
-  SELECTION: 'text-indigo-400',
-  FINALIST:  'text-purple-400',
-  AWARD:     'text-amber-400',
-};
-
 const STATUS_BG = {
   APPROVED:  'bg-green-500/10 border-green-500/20 text-green-400',
   SELECTION: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400',
@@ -38,20 +31,24 @@ const STATUS_BG = {
 
 function Badge({ status }) {
   return (
-    <span className={`text-[11px] px-2 py-0.5 rounded border ${STATUS_BG[status] ?? 'bg-white/5 border-white/10 text-white/50'}`}>
+    <span className={`text-[11px] px-2 py-0.5 border ${STATUS_BG[status] ?? 'text-white/50'}`}
+      style={!STATUS_BG[status] ? { background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' } : {}}
+    >
       {status}
     </span>
   );
 }
 
 function Rating({ avg, total }) {
-  if (avg == null) return <span className="text-white/30 text-xs">—</span>;
+  if (avg == null) return <span style={{ color: 'var(--color-text-faint)', fontSize: '0.75rem' }}>—</span>;
   return (
-    <span className="text-white/70 text-xs font-mono">
-      {avg.toFixed(1)} <span className="text-white/30">/ {total}v</span>
+    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', fontFamily: 'monospace' }}>
+      {avg.toFixed(1)} <span style={{ color: 'var(--color-text-faint)' }}>/ {total}v</span>
     </span>
   );
 }
+
+const spinnerStyle = { display: 'flex', justifyContent: 'center', padding: '4rem 0' };
 
 // ── Onglet 1 — Sélection ─────────────────────────────────────────────────────
 
@@ -88,10 +85,10 @@ function TabSelection({ onStatusChange }) {
     }
   };
 
-  const approved   = films.filter(f => f.status === 'APPROVED');
+  const approved    = films.filter(f => f.status === 'APPROVED');
   const inSelection = films.filter(f => ['SELECTION','FINALIST','AWARD'].includes(f.status));
 
-  if (loading) return <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-white/30" /></div>;
+  if (loading) return <div style={spinnerStyle}><Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} /></div>;
 
   return (
     <div className="space-y-6">
@@ -102,37 +99,42 @@ function TabSelection({ onStatusChange }) {
           { label: 'En sélection',               count: inSelection.filter(f=>f.status==='SELECTION').length, color: 'text-indigo-400' },
           { label: 'Finalistes + Primés',        count: inSelection.filter(f=>['FINALIST','AWARD'].includes(f.status)).length, color: 'text-purple-400' },
         ].map(({ label, count, color }) => (
-          <div key={label} className="bg-white/5 border border-white/10 p-4">
+          <div key={label} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem' }}>
             <p className={`text-2xl font-black ${color}`}>{count}</p>
-            <p className="text-xs text-white/40 mt-1">{label}</p>
+            <p className="label-overline" style={{ marginTop: '0.25rem' }}>{label}</p>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div className="bg-white/5 border border-white/10 overflow-hidden">
+      <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-200">
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.03]">
+              <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-high)' }}>
                 {['Film', 'Réalisateur', 'Pays', 'Note moy.', 'Statut', 'Action'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-white/40">{h}</th>
+                  <th key={h} className="px-4 py-3 text-left label-overline">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {films.map(film => (
-                <tr key={film.id} className="hover:bg-white/[0.03] transition-colors">
-                  <td className="px-4 py-3 text-sm text-white font-medium max-w-48 truncate">{film.title}</td>
-                  <td className="px-4 py-3 text-xs text-white/50">
+                <tr
+                  key={film.id}
+                  style={{ borderTop: '1px solid var(--color-border)', transition: 'background 0.15s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--color-text)', fontWeight: 500, maxWidth: '12rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{film.title}</td>
+                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                     {film.submitter?.firstName} {film.submitter?.lastName}
                   </td>
-                  <td className="px-4 py-3 text-xs text-white/50">{film.country}</td>
-                  <td className="px-4 py-3"><Rating avg={film.avgRating} total={film.totalVotes} /></td>
-                  <td className="px-4 py-3"><Badge status={film.status} /></td>
-                  <td className="px-4 py-3">
+                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{film.country}</td>
+                  <td style={{ padding: '0.75rem 1rem' }}><Rating avg={film.avgRating} total={film.totalVotes} /></td>
+                  <td style={{ padding: '0.75rem 1rem' }}><Badge status={film.status} /></td>
+                  <td style={{ padding: '0.75rem 1rem' }}>
                     {updating === film.id ? (
-                      <Loader2 size={14} className="animate-spin text-white/30" />
+                      <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} />
                     ) : film.status === 'APPROVED' ? (
                       <button
                         onClick={() => changeStatus(film.id, 'SELECTION')}
@@ -143,18 +145,24 @@ function TabSelection({ onStatusChange }) {
                     ) : film.status === 'SELECTION' ? (
                       <button
                         onClick={() => changeStatus(film.id, 'APPROVED')}
-                        className="text-[11px] px-3 py-1 bg-white/5 text-white/40 border border-white/10 hover:bg-white/10 transition-colors flex items-center gap-1"
+                        style={{ fontSize: '0.6875rem', padding: '0.25rem 0.75rem', background: 'var(--color-surface-high)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
                       >
                         <RotateCcw size={10} /> Retirer
                       </button>
                     ) : (
-                      <span className="text-[11px] text-white/25">Nominé/Primé</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>Nominé/Primé</span>
                     )}
                   </td>
                 </tr>
               ))}
               {films.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-sm text-white/30">Aucun film approuvé</td></tr>
+                <tr>
+                  <td colSpan={6} style={{ padding: '2.5rem 1rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-text-faint)' }}>
+                    Aucun film approuvé
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -218,29 +226,43 @@ function TabCategories({ edition, userRole }) {
     setForm({ name: cat.name, description: cat.description ?? '', displayOrder: cat.displayOrder });
   };
 
-  if (loading) return <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-white/30" /></div>;
+  const inputStyle = {
+    background:   'transparent',
+    border:       '1px solid var(--color-border)',
+    color:        'var(--color-text)',
+    fontSize:     '0.875rem',
+    padding:      '0.5rem 0.75rem',
+    outline:      'none',
+    width:        '100%',
+    boxSizing:    'border-box',
+    transition:   'border-color 0.2s',
+  };
+
+  if (loading) return <div style={spinnerStyle}><Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} /></div>;
 
   return (
     <div className="space-y-6">
       {/* Formulaire ajout/édition — ADMIN uniquement */}
       {isAdmin && (
-        <div className="bg-white/5 border border-white/10 p-5 space-y-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-white/40">
-            {editId ? 'Modifier la catégorie' : 'Nouvelle catégorie'}
-          </p>
+        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem' }} className="space-y-4">
+          <p className="label-overline">{editId ? 'Modifier la catégorie' : 'Nouvelle catégorie'}</p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <input
               placeholder="Nom de la catégorie *"
               value={form.name}
               onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              className="bg-white/5 border border-white/15 text-white text-sm px-3 py-2 outline-none focus:border-white/30 placeholder:text-white/25"
+              style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
             />
             <input
               type="number"
               placeholder="Ordre d'affichage (0, 1, 2…)"
               value={form.displayOrder}
               onChange={e => setForm(p => ({ ...p, displayOrder: parseInt(e.target.value) || 0 }))}
-              className="bg-white/5 border border-white/15 text-white text-sm px-3 py-2 outline-none focus:border-white/30"
+              style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#6366f1'}
+              onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
             />
           </div>
           <textarea
@@ -248,20 +270,29 @@ function TabCategories({ edition, userRole }) {
             value={form.description}
             onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
             rows={2}
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2 outline-none focus:border-white/30 resize-none placeholder:text-white/25"
+            style={{ ...inputStyle, resize: 'none' }}
+            onFocus={e => e.target.style.borderColor = '#6366f1'}
+            onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
           />
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
               onClick={save}
               disabled={saving || !form.name.trim()}
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-4 py-2 bg-white text-black disabled:opacity-40"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.625rem', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '0.625rem 1rem', background: 'var(--color-text)', color: 'var(--color-bg-pure)', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+              className="disabled:opacity-40"
+              onMouseEnter={e => { if (!saving && form.name.trim()) e.currentTarget.style.background = '#6366f1'; }}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--color-text)'}
             >
               {saving ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
               {editId ? 'Mettre à jour' : 'Créer'}
             </button>
             {editId && (
-              <button onClick={() => { setEditId(null); setForm({ name: '', description: '', displayOrder: 0 }); }}
-                className="text-xs px-4 py-2 border border-white/15 text-white/50 hover:bg-white/5">
+              <button
+                onClick={() => { setEditId(null); setForm({ name: '', description: '', displayOrder: 0 }); }}
+                style={{ fontSize: '0.625rem', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0.625rem 1rem', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)', background: 'none', cursor: 'pointer', transition: 'color 0.2s, border-color 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-text)'; e.currentTarget.style.borderColor = 'var(--color-border-hover)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
+              >
                 Annuler
               </button>
             )}
@@ -272,23 +303,29 @@ function TabCategories({ edition, userRole }) {
       {/* Liste des catégories */}
       <div className="space-y-2">
         {categories.map(cat => (
-          <div key={cat.id} className="bg-white/5 border border-white/10 p-4 flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-1">
+          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
                 <Star size={14} className="text-amber-400 shrink-0" />
-                <p className="text-sm font-semibold text-white">{cat.name}</p>
-                <span className="text-[11px] text-white/30">{cat.nominations.length} nominé(s)</span>
+                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>{cat.name}</p>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>{cat.nominations.length} nominé(s)</span>
               </div>
-              {cat.description && <p className="text-xs text-white/40 ml-5">{cat.description}</p>}
+              {cat.description && <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: '1.375rem' }}>{cat.description}</p>}
             </div>
             {isAdmin && (
-              <div className="flex gap-2 shrink-0">
-                <button onClick={() => startEdit(cat)}
-                  className="text-[11px] px-3 py-1 border border-white/15 text-white/50 hover:bg-white/5">
+              <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                <button
+                  onClick={() => startEdit(cat)}
+                  style={{ fontSize: '0.6875rem', padding: '0.25rem 0.75rem', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)', background: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                >
                   Modifier
                 </button>
-                <button onClick={() => remove(cat.id)}
-                  className="text-[11px] px-2 py-1 border border-red-500/20 text-red-400/70 hover:bg-red-500/10">
+                <button
+                  onClick={() => remove(cat.id)}
+                  className="text-[11px] px-2 py-1 border border-red-500/20 text-red-400/70 hover:bg-red-500/10"
+                >
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -296,7 +333,7 @@ function TabCategories({ edition, userRole }) {
           </div>
         ))}
         {categories.length === 0 && (
-          <p className="text-sm text-white/30 py-8 text-center">
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', padding: '2rem 0', textAlign: 'center' }}>
             Aucune catégorie pour l'édition {edition}. {isAdmin ? 'Créez-en une ci-dessus.' : ''}
           </p>
         )}
@@ -354,34 +391,32 @@ function TabNominations({ edition }) {
     await load();
   };
 
-  if (loading) return <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-white/30" /></div>;
+  if (loading) return <div style={spinnerStyle}><Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} /></div>;
 
   if (categories.length === 0) {
-    return <p className="text-sm text-white/30 py-8 text-center">Créez d'abord des catégories dans l'onglet "Catégories".</p>;
+    return <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', padding: '2rem 0', textAlign: 'center' }}>Créez d'abord des catégories dans l'onglet "Catégories".</p>;
   }
 
   return (
     <div className="space-y-4">
       {categories.map(cat => {
-        const nominated = cat.nominations.filter(n => !n.isWinner);
-        const winner    = cat.nominations.find(n => n.isWinner);
         // Films disponibles = SELECTION, pas encore nominés dans cette catégorie
         const nominatedFilmIds = new Set(cat.nominations.map(n => n.film.id));
         const available = selection.filter(f => !nominatedFilmIds.has(f.id));
 
         return (
-          <div key={cat.id} className="bg-white/5 border border-white/10 p-5">
-            <div className="flex items-center gap-2 mb-4">
+          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
               <Star size={14} className="text-amber-400" />
-              <p className="text-sm font-bold text-white uppercase tracking-wide">{cat.name}</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.name}</p>
             </div>
 
             {/* Ajouter un nominé */}
-            <div className="flex gap-2 mb-4">
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
               <select
                 value={selectedFilm[cat.id] ?? ''}
                 onChange={e => setSelectedFilm(p => ({ ...p, [cat.id]: e.target.value }))}
-                className="flex-1 bg-white/5 border border-white/15 text-white text-xs px-3 py-2 outline-none"
+                style={{ flex: 1, background: 'var(--color-surface-high)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.5rem 0.75rem', outline: 'none' }}
               >
                 <option value="">— Choisir un film en SELECTION —</option>
                 {available.map(f => (
@@ -393,7 +428,10 @@ function TabNominations({ edition }) {
               <button
                 onClick={() => nominate(cat.id)}
                 disabled={!selectedFilm[cat.id] || nominating === cat.id}
-                className="flex items-center gap-1 text-xs px-4 py-2 bg-white/10 text-white hover:bg-white/15 disabled:opacity-30 shrink-0"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', padding: '0.5rem 1rem', background: 'var(--color-surface-high)', color: 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s' }}
+                className="disabled:opacity-40"
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-border)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
               >
                 {nominating === cat.id ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
                 Nominer
@@ -404,17 +442,25 @@ function TabNominations({ edition }) {
             {cat.nominations.length > 0 ? (
               <div className="space-y-1">
                 {cat.nominations.map(nom => (
-                  <div key={nom.id} className={`flex items-center justify-between px-3 py-2 text-xs ${nom.isWinner ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-white/[0.03] border border-white/5'}`}>
-                    <div className="flex items-center gap-2">
+                  <div
+                    key={nom.id}
+                    className={`flex items-center justify-between px-3 py-2 text-xs ${nom.isWinner ? 'bg-amber-500/10 border border-amber-500/20' : ''}`}
+                    style={!nom.isWinner ? { background: 'var(--color-surface-high)', border: '1px solid var(--color-border)' } : {}}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       {nom.isWinner && <Crown size={11} className="text-amber-400" />}
-                      <span className={nom.isWinner ? 'text-amber-300 font-semibold' : 'text-white/70'}>
+                      <span className={nom.isWinner ? 'text-amber-300 font-semibold' : ''} style={!nom.isWinner ? { color: 'var(--color-text-muted)' } : {}}>
                         {nom.film.title}
                       </span>
-                      <span className="text-white/30">{nom.film.country}</span>
+                      <span style={{ color: 'var(--color-text-faint)' }}>{nom.film.country}</span>
                     </div>
                     {!nom.isWinner && (
-                      <button onClick={() => removeNom(nom.id)}
-                        className="text-red-400/50 hover:text-red-400 transition-colors">
+                      <button
+                        onClick={() => removeNom(nom.id)}
+                        style={{ color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
+                      >
                         <X size={12} />
                       </button>
                     )}
@@ -422,7 +468,7 @@ function TabNominations({ edition }) {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-white/25 text-center py-2">Aucun nominé</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', textAlign: 'center', padding: '0.5rem 0' }}>Aucun nominé</p>
             )}
           </div>
         );
@@ -471,51 +517,59 @@ function TabWinners({ edition }) {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-16"><Loader2 size={20} className="animate-spin text-white/30" /></div>;
+  if (loading) return <div style={spinnerStyle}><Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} /></div>;
 
   return (
     <div className="space-y-4">
       {categories.map(cat => {
         const winner = cat.nominations.find(n => n.isWinner);
-        const others = cat.nominations.filter(n => !n.isWinner);
 
         return (
-          <div key={cat.id} className="bg-white/5 border border-white/10 p-5">
-            <div className="flex items-center gap-2 mb-4">
+          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
               <Trophy size={14} className="text-amber-400" />
-              <p className="text-sm font-bold text-white uppercase tracking-wide">{cat.name}</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.name}</p>
               {winner && <span className="text-[11px] px-2 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/25">PRIMÉ</span>}
             </div>
 
             {cat.nominations.length === 0 ? (
-              <p className="text-xs text-white/25 text-center py-2">Aucun nominé</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', textAlign: 'center', padding: '0.5rem 0' }}>Aucun nominé</p>
             ) : (
               <div className="space-y-2">
                 {cat.nominations.map(nom => (
-                  <div key={nom.id} className={`flex items-center justify-between px-4 py-3 border ${nom.isWinner ? 'bg-amber-500/10 border-amber-500/25' : 'bg-white/[0.03] border-white/8'}`}>
-                    <div className="flex items-center gap-3">
+                  <div
+                    key={nom.id}
+                    className={`flex items-center justify-between px-4 py-3 border ${nom.isWinner ? 'bg-amber-500/10 border-amber-500/25' : ''}`}
+                    style={!nom.isWinner ? { background: 'var(--color-surface-high)', border: '1px solid var(--color-border)' } : {}}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       {nom.isWinner
                         ? <Crown size={14} className="text-amber-400" />
-                        : <Film  size={14} className="text-white/30" />
+                        : <Film  size={14} style={{ color: 'var(--color-text-faint)' }} />
                       }
                       <div>
-                        <p className={`text-sm font-medium ${nom.isWinner ? 'text-amber-300' : 'text-white'}`}>
+                        <p className={`text-sm font-medium ${nom.isWinner ? 'text-amber-300' : ''}`}
+                          style={!nom.isWinner ? { color: 'var(--color-text)' } : {}}>
                           {nom.film.title}
                         </p>
-                        <p className="text-xs text-white/40">{nom.film.country}</p>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{nom.film.country}</p>
                       </div>
                     </div>
                     <div>
                       {processing === nom.id ? (
-                        <Loader2 size={14} className="animate-spin text-white/30" />
+                        <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} />
                       ) : nom.isWinner ? (
-                        <button onClick={() => clearWinner(nom.id)}
-                          className="text-[11px] px-3 py-1 border border-amber-500/25 text-amber-400/70 hover:bg-amber-500/10 flex items-center gap-1">
+                        <button
+                          onClick={() => clearWinner(nom.id)}
+                          className="text-[11px] px-3 py-1 border border-amber-500/25 text-amber-400/70 hover:bg-amber-500/10 flex items-center gap-1"
+                        >
                           <X size={10} /> Retirer
                         </button>
                       ) : (
-                        <button onClick={() => setWinner(nom.id)}
-                          className="text-[11px] px-3 py-1 bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 flex items-center gap-1">
+                        <button
+                          onClick={() => setWinner(nom.id)}
+                          className="text-[11px] px-3 py-1 bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 flex items-center gap-1"
+                        >
                           <Crown size={10} /> Désigner gagnant
                         </button>
                       )}
@@ -528,7 +582,9 @@ function TabWinners({ edition }) {
         );
       })}
       {categories.length === 0 && (
-        <p className="text-sm text-white/30 py-8 text-center">Aucune catégorie pour l'édition {edition}.</p>
+        <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', padding: '2rem 0', textAlign: 'center' }}>
+          Aucune catégorie pour l'édition {edition}.
+        </p>
       )}
     </div>
   );
@@ -552,59 +608,62 @@ export default function AwardsPage() {
   const userRole = user.role ?? 'MODERATOR';
 
   return (
-    <div className="min-h-screen bg-[#111827] text-white">
+    <div className="animate-fade-in" style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text)' }}>
 
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#111827]/95 backdrop-blur border-b border-white/10 px-8 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Trophy size={18} className="text-amber-400" />
-          <h1 className="text-xl font-black uppercase tracking-tight">Palmarès & Awards</h1>
+      {/* ── Header éditorial ── */}
+      <header style={{ marginBottom: '2.5rem', paddingBottom: '2rem', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+          <span style={{ width: 'clamp(2rem, 3vw, 3rem)', height: '1px', background: 'var(--color-accent)', flexShrink: 0 }} />
+          <span className="label-overline">Administration</span>
         </div>
 
-        {/* Sélecteur d'édition */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-white/40 uppercase tracking-wider">Édition</span>
-          <div className="relative">
-            <select
-              value={edition}
-              onChange={e => setEdition(Number(e.target.value))}
-              className="appearance-none bg-white/5 border border-white/15 text-white text-sm px-3 py-1.5 pr-7 outline-none"
-            >
-              {[CURRENT_EDITION, CURRENT_EDITION + 1, CURRENT_EDITION - 1].map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem' }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.03em', textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--color-text)', lineHeight: 1 }}>
+            Palmarès <span style={{ color: '#6366f1' }}>Awards</span>
+          </h1>
+
+          {/* Sélecteur d'édition */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="label-overline">Édition</span>
+            <div style={{ position: 'relative' }}>
+              <select
+                value={edition}
+                onChange={e => setEdition(Number(e.target.value))}
+                style={{ appearance: 'none', background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.875rem', padding: '0.375rem 1.75rem 0.375rem 0.75rem', outline: 'none', cursor: 'pointer' }}
+              >
+                {[CURRENT_EDITION, CURRENT_EDITION + 1, CURRENT_EDITION - 1].map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-faint)', pointerEvents: 'none' }} />
+            </div>
           </div>
         </div>
+      </header>
+
+      {/* ── Onglets ── */}
+      <div style={{ display: 'flex', gap: '0.25rem', borderBottom: '1px solid var(--color-border)', marginBottom: '2rem' }}>
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex items-center gap-2 px-4 py-3 border-b-2 -mb-px transition-colors
+              ${tab === id ? 'border-indigo-600' : 'border-transparent'}`}
+            style={{ fontSize: '0.625rem', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', color: tab === id ? 'var(--color-text)' : 'var(--color-text-muted)', background: 'none', cursor: 'pointer' }}
+            onMouseEnter={e => { if (tab !== id) e.currentTarget.style.color = 'var(--color-text)'; }}
+            onMouseLeave={e => { if (tab !== id) e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+          >
+            <Icon size={13} />
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div className="px-8 py-8 max-w-5xl mx-auto">
-
-        {/* Onglets */}
-        <div className="flex gap-1 border-b border-white/10 mb-8">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={`flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-px
-                ${tab === id
-                  ? 'text-white border-white'
-                  : 'text-white/40 border-transparent hover:text-white/70'
-                }`}
-            >
-              <Icon size={13} />
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Contenu */}
-        {tab === 'selection'   && <TabSelection onStatusChange={() => {}} />}
-        {tab === 'categories'  && <TabCategories edition={edition} userRole={userRole} />}
-        {tab === 'nominations' && <TabNominations edition={edition} />}
-        {tab === 'winners'     && <TabWinners edition={edition} />}
-      </div>
+      {/* ── Contenu ── */}
+      {tab === 'selection'   && <TabSelection onStatusChange={() => {}} />}
+      {tab === 'categories'  && <TabCategories edition={edition} userRole={userRole} />}
+      {tab === 'nominations' && <TabNominations edition={edition} />}
+      {tab === 'winners'     && <TabWinners edition={edition} />}
     </div>
   );
 }

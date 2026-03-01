@@ -189,7 +189,6 @@ export default function JuryFilmDetail() {
   };
 
   // ── Raccourcis clavier ───────────────────────────────────
-  // Ref partagé — mise à jour à chaque render pour lire les valeurs actuelles
   const stateRef = useRef({});
   stateRef.current = { sentiment, rating, voting, nextFilm };
 
@@ -197,14 +196,9 @@ export default function JuryFilmDetail() {
     const onKey = (e) => {
       const tag  = document.activeElement?.tagName;
       const type = document.activeElement?.type;
-
-      // Laisser les champs texte gérer leurs propres touches
       if (tag === "TEXTAREA") return;
-      // Laisser le slider gérer ses propres flèches
       if (tag === "INPUT" && type === "range") return;
-      // Sur les autres inputs, intercepter seulement Escape
       if (tag === "INPUT" && e.key !== "Escape") return;
-      // Ignorer les combinaisons Ctrl/Cmd (sauf Escape)
       if ((e.metaKey || e.ctrlKey) && e.key !== "Escape") return;
 
       const st = stateRef.current;
@@ -214,33 +208,27 @@ export default function JuryFilmDetail() {
           e.preventDefault();
           setSentiment(s => s === "LIKE" ? null : "LIKE");
           break;
-
         case "d": case "D":
           e.preventDefault();
           setSentiment(s => s === "DISLIKE" ? null : "DISLIKE");
           break;
-
         case "ArrowUp":
           e.preventDefault();
           setRating(r => Math.min(10, r + 1));
           break;
-
         case "ArrowDown":
           e.preventDefault();
           setRating(r => Math.max(1, r - 1));
           break;
-
         case "Enter":
           if (!st.voting && st.sentiment) {
             e.preventDefault();
             handleSubmitRef.current();
           }
           break;
-
         case "Escape":
           navigate("/jury/dashboard");
           break;
-
         case "ArrowRight":
           if (st.nextFilm) {
             e.preventDefault();
@@ -249,28 +237,30 @@ export default function JuryFilmDetail() {
           break;
       }
     };
-
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigate]); // navigate est stable — effet monté une seule fois
+  }, [navigate]);
 
   // ── États de chargement / erreur ─────────────────────────
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#111827] text-white flex items-center justify-center">
-        <Loader2 size={24} className="animate-spin text-white/40 mr-3" />
-        <span className="text-white/50 text-sm">Chargement...</span>
+      <div style={{ minHeight: '100vh', background: 'var(--color-bg)', color: 'var(--color-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)' }}>
+        <Loader2 size={24} className="animate-spin" style={{ color: 'var(--color-text-faint)', marginRight: '0.75rem' }} />
+        <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>Chargement...</span>
       </div>
     );
   }
 
   if (error || !film) {
     return (
-      <div className="min-h-screen bg-[#111827] text-white flex flex-col items-center justify-center gap-4">
-        <p className="text-white/60 text-sm">{error || "Film introuvable."}</p>
+      <div style={{ minHeight: '100vh', background: 'var(--color-bg)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', fontFamily: 'var(--font-sans)' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{error || "Film introuvable."}</p>
         <button
           onClick={() => navigate("/jury/dashboard")}
-          className="text-xs uppercase tracking-widest text-indigo-400 hover:text-indigo-300 transition-colors"
+          style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#10b981', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#34d399'}
+          onMouseLeave={e => e.currentTarget.style.color = '#10b981'}
         >
           ← Retour au dashboard
         </button>
@@ -280,37 +270,41 @@ export default function JuryFilmDetail() {
 
   const currentVote      = film.votes?.[0];
   const youtubeId        = getYoutubeId(film.youtubeUrl);
-  // Commentaires internes (isInternal: true), du plus récent au plus ancien
   const internalComments = currentVote?.comments
     ?.filter(c => c.isInternal)
     .slice()
     .reverse() ?? [];
 
   return (
-    <div className="min-h-screen bg-[#111827] text-white font-sans">
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)', color: 'var(--color-text)', fontFamily: 'var(--font-sans)' }}>
 
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-[#111827]/95 backdrop-blur border-b border-white/10 px-6 md:px-8 py-5">
-        <div className="max-w-7xl mx-auto flex items-center gap-4">
+      <header
+        className="sticky top-0 z-10 backdrop-blur"
+        style={{ background: 'rgba(15,15,15,0.95)', borderBottom: '1px solid var(--color-border)', padding: 'clamp(0.875rem, 2vw, 1.25rem) clamp(1.5rem, 4vw, 2.5rem)' }}
+      >
+        <div style={{ maxWidth: '88rem', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
 
           {/* Retour */}
           <button
             onClick={() => navigate("/jury/dashboard")}
-            className="text-white/50 hover:text-white transition-colors p-1 shrink-0"
+            style={{ color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
             title="Retour (Esc)"
           >
             <ArrowLeft size={18} />
           </button>
 
           {/* Titre film */}
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-black uppercase tracking-tight italic truncate">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(0.875rem, 2vw, 1.125rem)', letterSpacing: '-0.02em', textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--color-text)', lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {film.title}
             </h1>
-            <p className="text-xs text-white/50 uppercase tracking-widest mt-0.5">
+            <p className="label-overline" style={{ marginTop: '0.25rem' }}>
               {film.country}
               {film.submitter && (
-                <span className="text-white/40 ml-2">
+                <span style={{ color: 'var(--color-text-faint)', marginLeft: '0.5rem' }}>
                   · {film.submitter.firstName} {film.submitter.lastName}
                 </span>
               )}
@@ -326,7 +320,7 @@ export default function JuryFilmDetail() {
               {currentVote.sentiment === "LIKE" ? "✓ Like" : "✕ Dislike"} · {currentVote.rating}/10
             </span>
           ) : (
-            <span className="text-[11px] text-white/50 border border-white/15 px-3 py-2 uppercase tracking-widest shrink-0">
+            <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', padding: '0.5rem 0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', flexShrink: 0 }}>
               À évaluer
             </span>
           )}
@@ -335,30 +329,28 @@ export default function JuryFilmDetail() {
           {nextFilm && (
             <button
               onClick={() => navigate(`/jury/film/${nextFilm.id}`)}
-              className="hidden sm:flex items-center gap-1.5 shrink-0
-                         text-xs uppercase tracking-widest
-                         text-white/50 hover:text-white
-                         border border-white/15 hover:border-white/30
-                         px-3 py-2 transition-all"
+              className="hidden sm:flex items-center gap-1.5 shrink-0"
+              style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', padding: '0.5rem 0.75rem', background: 'none', cursor: 'pointer', transition: 'color 0.2s, border-color 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-text)'; e.currentTarget.style.borderColor = 'var(--color-border-hover)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
               title="Film suivant (→)"
             >
-              <span className="max-w-28 truncate">{nextFilm.title}</span>
+              <span style={{ maxWidth: '7rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nextFilm.title}</span>
               <ChevronRight size={10} />
             </button>
           )}
-
         </div>
       </header>
 
       {/* ── CONTENU ────────────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-6 md:px-8 py-10">
+      <main style={{ maxWidth: '88rem', margin: '0 auto', padding: 'clamp(2rem, 4vw, 3rem) clamp(1.5rem, 4vw, 2.5rem)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
 
           {/* ── COLONNE GAUCHE ─────────────────────────────── */}
           <div className="space-y-6">
 
             {/* Player YouTube */}
-            <div className="aspect-video bg-black border border-white/10 overflow-hidden">
+            <div style={{ aspectRatio: '16/9', background: 'var(--color-bg-pure)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
               {youtubeId ? (
                 <iframe
                   src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -368,52 +360,50 @@ export default function JuryFilmDetail() {
                   allowFullScreen
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/40 text-sm">
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-faint)', fontSize: '0.875rem' }}>
                   Vidéo non disponible
                 </div>
               )}
             </div>
 
             {/* Métadonnées */}
-            <div className="bg-white/5 border border-white/15 p-6 space-y-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/50">À propos</p>
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }} className="space-y-4">
+              <p className="label-overline">À propos</p>
               {film.description && (
-                <p className="text-sm text-white/70 leading-relaxed">{film.description}</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.75 }}>{film.description}</p>
               )}
               <div className="grid grid-cols-2 gap-6 pt-1">
                 {film.country && (
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-white/50 mb-1">Pays</p>
-                    <p className="text-sm text-white/70">{film.country}</p>
+                    <p className="label-overline" style={{ marginBottom: '0.25rem' }}>Pays</p>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{film.country}</p>
                   </div>
                 )}
                 {film.aiToolsUsed && (
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-white/50 mb-1">Outils IA</p>
-                    <p className="text-sm text-white/70">{film.aiToolsUsed}</p>
+                    <p className="label-overline" style={{ marginBottom: '0.25rem' }}>Outils IA</p>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{film.aiToolsUsed}</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* ── COMMENTAIRES INTERNES ─────────────────────── */}
-            <div className="bg-white/5 border border-white/15 p-6 space-y-5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/50 flex items-center gap-2">
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }} className="space-y-5">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p className="label-overline" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                   <MessageSquare size={12} />
                   Commentaires
                   {internalComments.length > 0 && (
-                    <span className="text-white/40">({internalComments.length})</span>
+                    <span style={{ color: 'var(--color-text-faint)', fontStyle: 'normal' }}>({internalComments.length})</span>
                   )}
                 </p>
-                <span className="text-[11px] text-white/40 uppercase tracking-wider">
-                  Admin uniquement
-                </span>
+                <span className="label-overline">Admin uniquement</span>
               </div>
 
               {currentVote ? (
                 <div className="space-y-3">
-                  <div className="flex gap-2">
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <textarea
                       rows={2}
                       placeholder="Ajouter une observation, un contexte, une analyse…"
@@ -422,18 +412,18 @@ export default function JuryFilmDetail() {
                       onKeyDown={e => {
                         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleAddComment();
                       }}
-                      className="flex-1 bg-black/30 border border-white/15
-                                 focus:border-white/30 focus:outline-none
-                                 px-3 py-2.5 text-sm text-white/70
-                                 placeholder:text-white/30 resize-none transition-colors"
+                      style={{ flex: 1, background: 'transparent', border: '1px solid var(--color-border)', padding: '0.625rem 0.75rem', fontSize: '0.875rem', color: 'var(--color-text)', outline: 'none', resize: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                      className="placeholder:text-text-faint"
+                      onFocus={e => e.target.style.borderColor = '#10b981'}
+                      onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
                     />
                     <button
                       onClick={handleAddComment}
                       disabled={!newComment.trim() || commenting}
-                      className="px-4 bg-white/5 border border-white/15
-                                 hover:bg-white/10 hover:border-white/30
-                                 text-white/50 hover:text-white/80
-                                 transition-all disabled:opacity-30"
+                      style={{ padding: '0 1rem', background: 'var(--color-surface-high)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)', cursor: 'pointer', transition: 'all 0.2s' }}
+                      className="disabled:opacity-30"
+                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'var(--color-surface-high)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
                       title="Envoyer (Ctrl+Entrée)"
                     >
                       {commenting
@@ -443,25 +433,24 @@ export default function JuryFilmDetail() {
                     </button>
                   </div>
                   {commentError && (
-                    <p className="text-xs text-red-400">{commentError}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#f87171' }}>{commentError}</p>
                   )}
-                  <p className="text-[11px] text-white/40">Ctrl + Entrée pour envoyer</p>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>Ctrl + Entrée pour envoyer</p>
                 </div>
               ) : (
-                <p className="text-sm text-white/50 italic">
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
                   Votez d&apos;abord pour pouvoir laisser un commentaire.
                 </p>
               )}
 
               {internalComments.length > 0 && (
-                <div className="space-y-3 pt-2 border-t border-white/10">
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '0.75rem' }} className="space-y-3">
                   {internalComments.map(c => (
                     <div key={c.id} className="space-y-1.5">
-                      <p className="text-[11px] text-white/40 font-mono">
+                      <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)', fontFamily: 'monospace' }}>
                         {formatDateTime(c.createdAt)}
                       </p>
-                      <p className="text-sm text-white/70 bg-white/5 border border-white/10
-                                    px-4 py-3 leading-relaxed">
+                      <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', background: 'var(--color-surface-high)', border: '1px solid var(--color-border)', padding: '0.75rem 1rem', lineHeight: 1.75 }}>
                         {c.content}
                       </p>
                     </div>
@@ -470,34 +459,33 @@ export default function JuryFilmDetail() {
               )}
 
               {currentVote && internalComments.length === 0 && (
-                <p className="text-sm text-white/40 italic">
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
                   Aucun commentaire pour l&apos;instant.
                 </p>
               )}
             </div>
 
             {/* ── SUGGESTION DE MODIFICATION ────────────────── */}
-            <div className="bg-white/5 border border-white/15 p-6 space-y-5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/50 flex items-center gap-2">
+            {/* Orange conservé — sémantique */}
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }} className="space-y-5">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p className="label-overline" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                   <MessageSquare size={12} />
                   Suggestion de modification
                 </p>
-                <span className="text-[11px] text-white/40 uppercase tracking-wider">
-                  Transmis à l&apos;admin
-                </span>
+                <span className="label-overline">Transmis à l&apos;admin</span>
               </div>
 
               {currentVote ? (
                 <div className="space-y-4">
                   {currentVote.suggestModification && (
-                    <div className="flex items-center gap-2 text-xs text-orange-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block shrink-0" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: '#fb923c' }}>
+                      <span style={{ width: '0.375rem', height: '0.375rem', borderRadius: '50%', background: '#fb923c', flexShrink: 0 }} />
                       Suggestion active — l&apos;admin a été notifié
                     </div>
                   )}
 
-                  <label className="flex items-center gap-3 cursor-pointer group">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={suggestion.checked}
@@ -508,13 +496,13 @@ export default function JuryFilmDetail() {
                       }))}
                       className="accent-orange-500"
                     />
-                    <span className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
+                    <span style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', transition: 'color 0.2s' }}>
                       {suggestion.checked ? "Retirer la suggestion" : "Suggérer des modifications"}
                     </span>
                   </label>
 
                   {suggestion.checked && (
-                    <div className="flex gap-2">
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <textarea
                         rows={3}
                         placeholder="Décrivez précisément les modifications souhaitées…"
@@ -553,8 +541,9 @@ export default function JuryFilmDetail() {
                     <button
                       onClick={handleSendSuggestion}
                       disabled={sendingSuggestion}
-                      className="text-xs text-white/40 hover:text-red-400
-                                 uppercase tracking-wider transition-colors"
+                      style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
                     >
                       {sendingSuggestion
                         ? <Loader2 size={12} className="animate-spin inline" />
@@ -563,12 +552,12 @@ export default function JuryFilmDetail() {
                   )}
 
                   {suggestion.error && (
-                    <p className="text-xs text-red-400">{suggestion.error}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#f87171' }}>{suggestion.error}</p>
                   )}
-                  <p className="text-[11px] text-white/40">Ctrl + Entrée pour envoyer</p>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>Ctrl + Entrée pour envoyer</p>
                 </div>
               ) : (
-                <p className="text-sm text-white/50 italic">
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
                   Votez d&apos;abord pour pouvoir suggérer une modification.
                 </p>
               )}
@@ -579,31 +568,28 @@ export default function JuryFilmDetail() {
           {/* ── COLONNE DROITE — Panel évaluation ────────────── */}
           <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
 
-            <div className="bg-white/[0.07] border border-white/15 p-6 space-y-6">
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }} className="space-y-6">
 
               {/* En-tête */}
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/50">
-                  Votre évaluation
-                </p>
-                <p className="text-[11px] text-white/40 font-mono tracking-widest">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <p className="label-overline">Votre évaluation</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)', fontFamily: 'monospace', letterSpacing: '0.15em' }}>
                   L · D · ↑↓ · ↵
                 </p>
               </div>
 
               {/* LIKE / DISLIKE */}
               <div className="space-y-3">
-                <p className="text-xs uppercase tracking-widest text-white/50">Sentiment</p>
+                <p className="label-overline">Sentiment</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setSentiment(s => s === "LIKE" ? null : "LIKE")}
                     title="Like (L)"
-                    className={`flex items-center justify-center gap-2 py-4
-                                text-xs font-black uppercase tracking-widest
-                                border transition-all
-                                ${sentiment === "LIKE"
-                                  ? "bg-green-500/15 border-green-500/40 text-green-400"
-                                  : "bg-white/5 border-white/15 text-white/50 hover:border-white/30 hover:text-white/80"}`}
+                    className={`flex items-center justify-center gap-2 py-4 text-xs font-black uppercase tracking-widest border transition-all
+                      ${sentiment === "LIKE" ? "bg-green-500/15 border-green-500/40 text-green-400" : ""}`}
+                    style={sentiment !== "LIKE" ? { background: 'var(--color-surface-high)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' } : {}}
+                    onMouseEnter={e => { if (sentiment !== "LIKE") { e.currentTarget.style.borderColor = 'var(--color-border-hover)'; e.currentTarget.style.color = 'var(--color-text)'; }}}
+                    onMouseLeave={e => { if (sentiment !== "LIKE") { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}}
                   >
                     <ThumbsUp size={14} />
                     Like
@@ -611,12 +597,11 @@ export default function JuryFilmDetail() {
                   <button
                     onClick={() => setSentiment(s => s === "DISLIKE" ? null : "DISLIKE")}
                     title="Dislike (D)"
-                    className={`flex items-center justify-center gap-2 py-4
-                                text-xs font-black uppercase tracking-widest
-                                border transition-all
-                                ${sentiment === "DISLIKE"
-                                  ? "bg-red-500/15 border-red-500/40 text-red-400"
-                                  : "bg-white/5 border-white/15 text-white/50 hover:border-white/30 hover:text-white/80"}`}
+                    className={`flex items-center justify-center gap-2 py-4 text-xs font-black uppercase tracking-widest border transition-all
+                      ${sentiment === "DISLIKE" ? "bg-red-500/15 border-red-500/40 text-red-400" : ""}`}
+                    style={sentiment !== "DISLIKE" ? { background: 'var(--color-surface-high)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' } : {}}
+                    onMouseEnter={e => { if (sentiment !== "DISLIKE") { e.currentTarget.style.borderColor = 'var(--color-border-hover)'; e.currentTarget.style.color = 'var(--color-text)'; }}}
+                    onMouseLeave={e => { if (sentiment !== "DISLIKE") { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}}
                   >
                     <ThumbsDown size={14} />
                     Dislike
@@ -626,11 +611,11 @@ export default function JuryFilmDetail() {
 
               {/* Slider Note 1-10 */}
               <div className="space-y-3">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-xs uppercase tracking-widest text-white/50">Note</p>
-                  <span className="text-indigo-400 font-mono font-bold text-xl leading-none">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <p className="label-overline">Note</p>
+                  <span style={{ color: '#10b981', fontFamily: 'monospace', fontWeight: 700, fontSize: '1.25rem', lineHeight: 1 }}>
                     {rating}
-                    <span className="text-white/40 text-sm">/10</span>
+                    <span style={{ color: 'var(--color-text-faint)', fontSize: '0.875rem' }}>/10</span>
                   </span>
                 </div>
                 <input
@@ -639,24 +624,25 @@ export default function JuryFilmDetail() {
                   max={10}
                   value={rating}
                   onChange={e => setRating(parseInt(e.target.value))}
-                  className="w-full cursor-pointer accent-indigo-500"
+                  style={{ width: '100%', cursor: 'pointer', accentColor: '#10b981' }}
                   title="Note (↑ ↓ quand le slider n'est pas actif)"
                 />
-                <div className="flex justify-between text-[11px] text-white/40 font-mono">
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.6875rem', color: 'var(--color-text-faint)', fontFamily: 'monospace' }}>
                   <span>1</span>
                   <span>5</span>
                   <span>10</span>
                 </div>
               </div>
 
-              {/* Bouton soumettre */}
+              {/* Bouton soumettre — accent emerald */}
               <button
                 onClick={handleSubmit}
                 disabled={!sentiment || voting}
                 title="Soumettre (Entrée)"
-                className="w-full py-4 text-sm font-black uppercase tracking-widest
-                           bg-indigo-600 hover:bg-indigo-500 text-white
-                           transition-colors disabled:opacity-30 flex items-center justify-center gap-2"
+                style={{ width: '100%', padding: '1rem', fontSize: '0.875rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', background: '#059669', color: '#fff', border: 'none', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                className="disabled:opacity-30"
+                onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.background = '#10b981'; }}
+                onMouseLeave={e => e.currentTarget.style.background = '#059669'}
               >
                 {voting
                   ? <Loader2 size={15} className="animate-spin" />
@@ -670,8 +656,9 @@ export default function JuryFilmDetail() {
               {currentVote && !voting && (
                 <button
                   onClick={handleRemoveVote}
-                  className="w-full text-xs uppercase tracking-widest text-white/40
-                             hover:text-red-400 transition-colors py-1"
+                  style={{ width: '100%', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', transition: 'color 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
                 >
                   Annuler mon vote
                 </button>
@@ -680,8 +667,8 @@ export default function JuryFilmDetail() {
 
             {/* Récapitulatif vote */}
             {currentVote && (
-              <div className="bg-white/5 border border-white/15 px-5 py-4 space-y-2">
-                <p className="text-[11px] text-white/50 uppercase tracking-wider">
+              <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem 1.25rem' }} className="space-y-2">
+                <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   Vote enregistré · {formatDateTime(currentVote.updatedAt)}
                 </p>
                 {currentVote.suggestModification && (
@@ -690,7 +677,7 @@ export default function JuryFilmDetail() {
                   </p>
                 )}
                 {internalComments.length > 0 && (
-                  <p className="text-[11px] text-white/40 uppercase tracking-wider">
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                     {internalComments.length} commentaire{internalComments.length > 1 ? "s" : ""}
                   </p>
                 )}
@@ -698,10 +685,8 @@ export default function JuryFilmDetail() {
             )}
 
             {/* Aide raccourcis clavier */}
-            <div className="bg-white/5 border border-white/15 px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">
-                Raccourcis
-              </p>
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem 1.25rem' }}>
+              <p className="label-overline" style={{ marginBottom: '1rem' }}>Raccourcis</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {[
                   ["L", "Like"],
@@ -711,12 +696,11 @@ export default function JuryFilmDetail() {
                   ["→", "Film suivant"],
                   ["Esc", "Retour"],
                 ].map(([key, label]) => (
-                  <div key={key} className="flex items-center gap-2">
-                    <kbd className="text-[10px] font-mono bg-white/8 border border-white/15
-                                    px-1.5 py-0.5 text-white/50 shrink-0">
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <kbd style={{ fontSize: '0.625rem', fontFamily: 'monospace', background: 'var(--color-surface-high)', border: '1px solid var(--color-border)', padding: '0.125rem 0.375rem', color: 'var(--color-text-muted)', flexShrink: 0 }}>
                       {key}
                     </kbd>
-                    <span className="text-xs text-white/40">{label}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{label}</span>
                   </div>
                 ))}
               </div>

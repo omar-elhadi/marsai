@@ -128,17 +128,20 @@ function FilmDetail() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-white/40">
-        <Loader2 size={24} className="animate-spin mr-3" /> Chargement...
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16rem', color: 'var(--color-text-faint)', fontFamily: 'var(--font-sans)' }}>
+        <Loader2 size={24} className="animate-spin" style={{ marginRight: '0.75rem' }} /> Chargement...
       </div>
     );
   }
 
   if (!film) {
     return (
-      <div className="text-center py-24 text-white/40">
+      <div style={{ textAlign: 'center', padding: '6rem 0', color: 'var(--color-text-muted)' }}>
         Film introuvable.
-        <button onClick={() => navigate(-1)} className="block mx-auto mt-4 text-white/50 hover:text-white underline text-sm">
+        <button
+          onClick={() => navigate(-1)}
+          style={{ display: 'block', margin: '1rem auto 0', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.875rem', textDecoration: 'underline' }}
+        >
           Retour
         </button>
       </div>
@@ -151,44 +154,56 @@ function FilmDetail() {
   const votes         = film.votes ?? [];
 
   return (
-    <div className="animate-fade-in max-w-5xl mx-auto">
+    <div className="animate-fade-in" style={{ maxWidth: '72rem', margin: '0 auto', fontFamily: 'var(--font-sans)', color: 'var(--color-text)' }}>
 
       {/* ── MODAL TO_MODIFY ─────────────────────────── */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="bg-[#111827] border border-orange-500/30 p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-sm font-black uppercase tracking-widest text-orange-400 mb-1">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-4"
+          style={{ background: 'rgba(0,0,0,0.85)' }}
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: 'var(--color-bg)', border: '1px solid rgba(249,115,22,0.3)', padding: 'clamp(1.5rem, 4vw, 2rem)', width: '100%', maxWidth: '28rem' }}
+          >
+            <h3 style={{ fontSize: '0.625rem', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#fb923c', marginBottom: '0.25rem' }}>
               Demander des modifications
             </h3>
-            <p className="text-xs text-white/50 mb-4">
+            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
               Ce message sera envoyé par email au réalisateur avec un lien valable 7 jours.
             </p>
 
             <textarea
-              className="w-full bg-black/40 border border-white/15 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-orange-500/50 resize-none transition-colors"
+              style={{ width: '100%', background: 'transparent', border: '1px solid var(--color-border)', padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--color-text)', outline: 'none', resize: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
               rows={5}
               placeholder="Décrivez précisément les modifications attendues…"
               value={modalMessage}
               onChange={e => setModalMessage(e.target.value)}
+              onFocus={e => e.target.style.borderColor = 'rgba(249,115,22,0.5)'}
+              onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
               autoFocus
             />
 
             {modalError && (
-              <p className="text-xs text-red-400 mt-2">{modalError}</p>
+              <p style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.5rem' }}>{modalError}</p>
             )}
 
-            <div className="flex gap-3 mt-4">
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
               <button
                 onClick={() => setShowModal(false)}
                 disabled={modalLoading}
-                className="flex-1 border border-white/15 py-2.5 text-xs text-white/60 hover:text-white hover:border-white/30 transition-colors disabled:opacity-40"
+                style={{ flex: 1, border: '1px solid var(--color-border)', padding: '0.625rem', fontSize: '0.75rem', color: 'var(--color-text-muted)', background: 'none', cursor: 'pointer', transition: 'border-color 0.2s, color 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-text)'; e.currentTarget.style.borderColor = 'var(--color-border-hover)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-muted)'; e.currentTarget.style.borderColor = 'var(--color-border)'; }}
               >
                 Annuler
               </button>
               <button
                 onClick={handleConfirmModification}
                 disabled={modalLoading || !modalMessage.trim()}
-                className="flex-1 bg-orange-500 py-2.5 text-xs font-black uppercase tracking-widest text-black hover:bg-orange-400 transition-colors disabled:opacity-40"
+                className="flex-1 bg-orange-500 hover:bg-orange-400 transition-colors disabled:opacity-40"
+                style={{ padding: '0.625rem', fontSize: '0.625rem', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#000', border: 'none', cursor: 'pointer' }}
               >
                 {modalLoading ? 'Envoi…' : 'Confirmer'}
               </button>
@@ -197,44 +212,55 @@ function FilmDetail() {
         </div>
       )}
 
-      {/* ── HEADER ─────────────────────────────────── */}
-      <div className="flex items-start gap-4 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-1 p-2 text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0"
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-3xl font-bold text-white truncate">{film.title}</h2>
-            <span className={`text-xs font-black uppercase px-2 py-1 border shrink-0 ${STATUS_STYLES[film.status] ?? ''}`}>
-              {film.status}
-            </span>
-          </div>
-          <p className="text-white/50 text-sm mt-1">
-            {film.country}{film.language ? ` · ${film.language}` : ''} · soumis le {new Date(film.submittedAt).toLocaleDateString('fr-FR')}
-          </p>
+      {/* ── HEADER éditorial ─────────────────────── */}
+      <header style={{ marginBottom: '2.5rem', paddingBottom: '2rem', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{ color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center', flexShrink: 0, transition: 'color 0.2s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <span style={{ width: 'clamp(2rem, 3vw, 3rem)', height: '1px', background: 'var(--color-accent)', flexShrink: 0 }} />
+          <span className="label-overline">Fiche film</span>
         </div>
 
-        {/* Changement de statut inline */}
-        <div className="flex-shrink-0 flex items-center gap-2">
-          {updating ? (
-            <Loader2 size={16} className="animate-spin text-white/40" />
-          ) : nextOptions.length > 0 ? (
-            <select
-              defaultValue=""
-              onChange={e => { if (e.target.value) handleStatusChange(e.target.value); }}
-              className="bg-white/8 border border-white/15 px-3 py-2 text-xs text-white/70 focus:outline-none focus:border-white/30"
-            >
-              <option value="" disabled>Changer statut...</option>
-              {nextOptions.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          ) : (
-            <span className="text-xs text-white/40 italic">Statut final</span>
-          )}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.03em', textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--color-text)', lineHeight: 1 }}>
+                {film.title}
+              </h1>
+              <span className={`text-xs font-black uppercase px-2 py-1 border shrink-0 ${STATUS_STYLES[film.status] ?? ''}`}>
+                {film.status}
+              </span>
+            </div>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+              {film.country}{film.language ? ` · ${film.language}` : ''} · soumis le {new Date(film.submittedAt).toLocaleDateString('fr-FR')}
+            </p>
+          </div>
+
+          {/* Changement de statut inline */}
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {updating ? (
+              <Loader2 size={16} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} />
+            ) : nextOptions.length > 0 ? (
+              <select
+                defaultValue=""
+                onChange={e => { if (e.target.value) handleStatusChange(e.target.value); }}
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '0.5rem 0.75rem', fontSize: '0.75rem', color: 'var(--color-text-muted)', outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="" disabled>Changer statut...</option>
+                {nextOptions.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            ) : (
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Statut final</span>
+            )}
+          </div>
         </div>
-      </div>
+      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -243,7 +269,7 @@ function FilmDetail() {
 
           {/* Vidéo YouTube */}
           {youtubeId && (
-            <div className="bg-white/5 border border-white/15 overflow-hidden">
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
               <div className="aspect-video">
                 <iframe
                   src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -257,39 +283,45 @@ function FilmDetail() {
           )}
 
           {/* Description */}
-          <div className="bg-white/5 border border-white/15 p-6">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-3">Description</h3>
-            <p className="text-white/80 text-sm leading-relaxed">{film.description}</p>
+          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }}>
+            <p className="label-overline" style={{ marginBottom: '0.75rem' }}>Description</p>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.75 }}>{film.description}</p>
 
-            <div className="mt-4 flex flex-wrap gap-4 text-xs text-white/50">
-              <span className="flex items-center gap-1.5"><Globe size={12} />{film.country}</span>
-              {film.language && <span>{film.language}</span>}
-              <span className="flex items-center gap-1.5"><Cpu size={12} />{film.aiToolsUsed}</span>
-              <span className="flex items-center gap-1.5"><Calendar size={12} />{new Date(film.submittedAt).toLocaleDateString('fr-FR')}</span>
+            <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>
+                <Globe size={12} />{film.country}
+              </span>
+              {film.language && <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{film.language}</span>}
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>
+                <Cpu size={12} />{film.aiToolsUsed}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>
+                <Calendar size={12} />{new Date(film.submittedAt).toLocaleDateString('fr-FR')}
+              </span>
             </div>
           </div>
 
           {/* Stats votes */}
           {film.totalVotes > 0 && (
-            <div className="bg-white/5 border border-white/15 p-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">Résultat jury</h3>
-              <div className="flex gap-6">
-                <div className="text-center">
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }}>
+              <p className="label-overline" style={{ marginBottom: '1rem' }}>Résultat jury</p>
+              <div style={{ display: 'flex', gap: '1.5rem' }}>
+                <div style={{ textAlign: 'center' }}>
                   <div className="text-2xl font-bold text-green-400">{film.totalLikes}</div>
-                  <div className="text-[11px] uppercase tracking-wider text-white/50 mt-1">LIKE</div>
+                  <div style={{ fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>LIKE</div>
                 </div>
-                <div className="text-center">
+                <div style={{ textAlign: 'center' }}>
                   <div className="text-2xl font-bold text-red-400">{film.totalDislikes}</div>
-                  <div className="text-[11px] uppercase tracking-wider text-white/50 mt-1">DISLIKE</div>
+                  <div style={{ fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>DISLIKE</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{film.totalVotes}</div>
-                  <div className="text-[11px] uppercase tracking-wider text-white/50 mt-1">TOTAL</div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text)' }}>{film.totalVotes}</div>
+                  <div style={{ fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>TOTAL</div>
                 </div>
                 {film.avgRating != null && (
-                  <div className="text-center">
+                  <div style={{ textAlign: 'center' }}>
                     <div className="text-2xl font-bold text-amber-400">{Number(film.avgRating).toFixed(1)}</div>
-                    <div className="text-[11px] uppercase tracking-wider text-white/50 mt-1">MOY.</div>
+                    <div style={{ fontSize: '0.6875rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>MOY.</div>
                   </div>
                 )}
               </div>
@@ -298,22 +330,22 @@ function FilmDetail() {
 
           {/* Votes détaillés */}
           {votes.length > 0 && (
-            <div className="bg-white/5 border border-white/15 p-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">
-                Votes jury <span className="ml-1 text-white/30">{votes.length}</span>
-              </h3>
+            <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)' }}>
+              <p className="label-overline" style={{ marginBottom: '1rem' }}>
+                Votes jury <span style={{ color: 'var(--color-text-faint)', fontStyle: 'normal' }}>{votes.length}</span>
+              </p>
               <div className="space-y-3">
                 {votes.map(vote => (
-                  <div key={vote.id} className="flex items-start gap-3 p-3 bg-white/8 border border-white/15">
+                  <div key={vote.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.75rem', background: 'var(--color-surface-high)', border: '1px solid var(--color-border)' }}>
 
                     {/* Sentiment */}
                     <div className={`flex-shrink-0 p-1.5 ${vote.sentiment === 'LIKE' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
                       {vote.sentiment === 'LIKE' ? <ThumbsUp size={14} /> : <ThumbsDown size={14} />}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-white">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-text)' }}>
                           {vote.user?.firstName} {vote.user?.lastName}
                         </span>
                         {/* Note 1-10 */}
@@ -327,14 +359,14 @@ function FilmDetail() {
                             <AlertTriangle size={9} /> Modification suggérée
                           </span>
                         )}
-                        <span className="text-[11px] text-white/40 font-mono ml-auto">
+                        <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)', fontFamily: 'monospace', marginLeft: 'auto' }}>
                           {new Date(vote.votedAt).toLocaleDateString('fr-FR')}
                         </span>
                       </div>
 
                       {/* Commentaires jury */}
                       {vote.comments?.length > 0 && (
-                        <div className="mt-3 space-y-2">
+                        <div style={{ marginTop: '0.75rem' }} className="space-y-2">
                           {[...vote.comments]
                             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                             .map(c => (
@@ -342,13 +374,13 @@ function FilmDetail() {
                                 ${c.isInternal
                                   ? 'bg-white/5 border-white/10'
                                   : 'bg-orange-500/5 border-orange-500/15'}`}>
-                                <div className="flex items-center justify-between mb-1">
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
                                   <span className={`text-xs font-bold uppercase tracking-wider
                                     ${c.isInternal ? 'text-white/50' : 'text-orange-400'}`}>
                                     {c.isInternal ? '● Commentaire' : '● Suggestion modification'}
                                   </span>
                                   {c.createdAt && (
-                                    <span className="text-[11px] font-mono text-white/40">
+                                    <span style={{ fontSize: '0.6875rem', fontFamily: 'monospace', color: 'var(--color-text-faint)' }}>
                                       {formatDateTime(c.createdAt)}
                                     </span>
                                   )}
@@ -373,40 +405,47 @@ function FilmDetail() {
         <div className="space-y-6">
 
           {/* Réalisateur */}
-          <div className="bg-white/5 border border-white/15 p-5">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">Réalisateur</h3>
-            <p className="text-white font-bold">{film.submitter?.firstName} {film.submitter?.lastName}</p>
-            <a href={`mailto:${film.submitter?.email}`} className="text-xs text-white/50 hover:text-white/80 transition-colors mt-0.5 block">
+          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.5rem)' }}>
+            <p className="label-overline" style={{ marginBottom: '1rem' }}>Réalisateur</p>
+            <p style={{ fontWeight: 700, color: 'var(--color-text)' }}>{film.submitter?.firstName} {film.submitter?.lastName}</p>
+            <a
+              href={`mailto:${film.submitter?.email}`}
+              style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', display: 'block', transition: 'color 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-muted)'}
+            >
               {film.submitter?.email}
             </a>
             {film.submitter?.instagram && (
-              <p className="text-xs text-white/50 mt-2">@{film.submitter.instagram}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', marginTop: '0.5rem' }}>@{film.submitter.instagram}</p>
             )}
             {film.submitter?.bio && (
-              <p className="text-xs text-white/50 mt-3 leading-relaxed border-t border-white/10 pt-3">{film.submitter.bio}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.75rem', lineHeight: 1.75, borderTop: '1px solid var(--color-border)', paddingTop: '0.75rem' }}>
+                {film.submitter.bio}
+              </p>
             )}
           </div>
 
           {/* Jurys assignés */}
-          <div className="bg-white/5 border border-white/15 p-5">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4 flex items-center gap-2">
+          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: 'clamp(1.25rem, 2.5vw, 1.5rem)' }}>
+            <p className="label-overline" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Users size={11} /> Jurys assignés
-            </h3>
+            </p>
             {assignedJurys.length === 0 ? (
-              <p className="text-xs text-white/40 italic">Aucun jury assigné.</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Aucun jury assigné.</p>
             ) : (
               <div className="space-y-2">
                 {assignedJurys.map(u => (
-                  <div key={u.id} className="flex flex-col">
-                    <span className="text-sm text-white">{u.firstName} {u.lastName}</span>
-                    <span className="text-xs text-white/50">{u.email}</span>
+                  <div key={u.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--color-text)' }}>{u.firstName} {u.lastName}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{u.email}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* TO_MODIFY — panneau de review complet */}
+          {/* TO_MODIFY — panneau de review complet (couleurs sémantiques conservées) */}
           {film.modificationRequest && (() => {
             const versions = film.versions ?? [];
             // La version la plus récente est celle créée par applyFilmEdit (snapshot avant edit du submitter)
@@ -427,25 +466,25 @@ function FilmDetail() {
               : [];
 
             return (
-              <div className="border border-orange-500/20 overflow-hidden">
+              <div style={{ border: '1px solid rgba(249,115,22,0.2)', overflow: 'hidden' }}>
 
                 {/* En-tête */}
-                <div className="bg-orange-500/8 px-5 pt-5 pb-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-orange-400 mb-3 flex items-center gap-2">
+                <div style={{ background: 'rgba(249,115,22,0.05)', padding: '1.25rem 1.25rem 0.75rem' }}>
+                  <p className="label-overline" style={{ color: '#fb923c', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                     <AlertTriangle size={11} /> Demande de modification
-                  </h3>
-                  <p className="text-sm text-orange-300 leading-relaxed whitespace-pre-wrap">
+                  </p>
+                  <p style={{ fontSize: '0.875rem', color: '#fdba74', lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>
                     {film.modificationRequest}
                   </p>
                   {film.modificationRequestedAt && (
-                    <p className="text-[11px] text-orange-400/70 mt-2">
+                    <p style={{ fontSize: '0.6875rem', color: 'rgba(251,146,60,0.7)', marginTop: '0.5rem' }}>
                       Envoyée le {new Date(film.modificationRequestedAt).toLocaleDateString('fr-FR')}
                     </p>
                   )}
                 </div>
 
                 {/* Statut de réponse */}
-                <div className={`px-5 py-3 flex items-center gap-2 border-t border-orange-500/15 ${submitterResponded ? 'bg-green-500/5' : 'bg-orange-500/5'}`}>
+                <div style={{ padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderTop: '1px solid rgba(249,115,22,0.15)', background: submitterResponded ? 'rgba(34,197,94,0.05)' : 'rgba(249,115,22,0.05)' }}>
                   {submitterResponded ? (
                     <>
                       <CheckCircle size={11} className="text-green-400 shrink-0" />
@@ -465,11 +504,11 @@ function FilmDetail() {
 
                 {/* Diff avant/après (si répondu) */}
                 {submitterResponded && changedFields.length > 0 && (
-                  <div className="border-t border-white/10 px-5 py-4 space-y-4 bg-black/20">
-                    <p className="text-xs font-bold uppercase tracking-wider text-white/50">Modifications apportées</p>
+                  <div style={{ borderTop: '1px solid var(--color-border)', padding: '1rem 1.25rem', background: 'rgba(0,0,0,0.2)' }} className="space-y-4">
+                    <p className="label-overline">Modifications apportées</p>
                     {changedFields.map(({ key, label }) => (
                       <div key={key}>
-                        <p className="text-xs font-bold uppercase tracking-wider text-white/50 mb-1.5">{label}</p>
+                        <p className="label-overline" style={{ marginBottom: '0.375rem' }}>{label}</p>
                         {/* Avant */}
                         <div className="bg-red-500/5 border border-red-500/15 px-2.5 py-2 mb-1">
                           <span className="text-xs font-bold text-red-400 uppercase block mb-0.5">Avant</span>
@@ -487,14 +526,14 @@ function FilmDetail() {
                       </div>
                     ))}
                     {changedFields.length === 0 && (
-                      <p className="text-xs text-white/40 italic">Aucun champ modifié.</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Aucun champ modifié.</p>
                     )}
                   </div>
                 )}
 
                 {/* Boutons de décision */}
-                <div className="border-t border-white/10 px-5 py-4 space-y-2 bg-black/10">
-                  <p className="text-xs font-bold uppercase tracking-wider text-white/50 mb-3">Décision</p>
+                <div style={{ borderTop: '1px solid var(--color-border)', padding: '1rem 1.25rem', background: 'rgba(0,0,0,0.1)' }} className="space-y-2">
+                  <p className="label-overline" style={{ marginBottom: '0.75rem' }}>Décision</p>
                   <button
                     onClick={() => handleStatusChange('APPROVED')}
                     disabled={updating}

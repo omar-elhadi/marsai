@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Play, Eye, Loader2, Users, X, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Couleurs des badges et chips par statut
+// Couleurs des badges et chips par statut — conservées (information visuelle métier)
 const STATUS_STYLES = {
   SUBMITTED:  'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
   IN_REVIEW:  'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -25,7 +25,6 @@ const STATUS_CHIP_ACTIVE = {
   AWARD:      'bg-amber-500/20 text-amber-300 border-amber-500/40',
 };
 
-// Transitions autorisées (miroir du backend)
 const NEXT_STATUSES = {
   SUBMITTED: ['IN_REVIEW', 'APPROVED', 'REJECTED', 'TO_MODIFY'],
   IN_REVIEW:  ['APPROVED', 'REJECTED', 'TO_MODIFY'],
@@ -37,25 +36,23 @@ const NEXT_STATUSES = {
   AWARD:      [],
 };
 
-// Ordre d'affichage dans la barre de filtres (suit le workflow)
 const FILTER_ORDER = ['SUBMITTED', 'IN_REVIEW', 'TO_MODIFY', 'APPROVED', 'REJECTED', 'SELECTION', 'FINALIST', 'AWARD'];
 
 function FilmsList() {
-  const [films, setFilms]             = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [stats, setStats]             = useState({ total: 0, byStatus: {}, suggestions: 0 });
-  const [statusFilter, setFilter]     = useState('');
-  const [hasSuggestions, setSuggestions] = useState(false);
-  const [search, setSearch]           = useState('');
-  const [updating, setUpdating]       = useState(null);
-  const [assigning, setAssigning]     = useState(null);
-  const [juryUsers, setJuryUsers]     = useState([]);
-  const [assignPopup, setAssignPopup] = useState(null);
+  const [films, setFilms]               = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [stats, setStats]               = useState({ total: 0, byStatus: {}, suggestions: 0 });
+  const [statusFilter, setFilter]       = useState('');
+  const [hasSuggestions, setSuggestions]= useState(false);
+  const [search, setSearch]             = useState('');
+  const [updating, setUpdating]         = useState(null);
+  const [assigning, setAssigning]       = useState(null);
+  const [juryUsers, setJuryUsers]       = useState([]);
+  const [assignPopup, setAssignPopup]   = useState(null);
 
   const token = localStorage.getItem('token');
   const API   = import.meta.env.VITE_API_URL;
 
-  // --- Chargement des stats (compteurs pour les chips) ---
   const fetchStats = useCallback(async () => {
     try {
       const res  = await fetch(`${API}/films/stats`, { headers: { Authorization: `Bearer ${token}` } });
@@ -64,7 +61,6 @@ function FilmsList() {
     } catch { /* silencieux */ }
   }, [token, API]);
 
-  // --- Chargement des films ---
   const fetchFilms = useCallback(async () => {
     setLoading(true);
     try {
@@ -85,7 +81,6 @@ function FilmsList() {
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchFilms(); }, [fetchFilms]);
 
-  // --- Chargement des jurys ---
   useEffect(() => {
     const fetchJury = async () => {
       try {
@@ -97,13 +92,11 @@ function FilmsList() {
     fetchJury();
   }, [token, API]);
 
-  // --- Sélection d'un filtre chip ---
   const selectFilter = (status) => {
     setSuggestions(false);
-    setFilter(status === statusFilter ? '' : status); // toggle
+    setFilter(status === statusFilter ? '' : status);
   };
 
-  // --- Changement de statut ---
   const handleStatusChange = async (film, newStatus) => {
     setUpdating(film.id);
     try {
@@ -118,7 +111,6 @@ function FilmsList() {
     }
   };
 
-  // --- Popup assignation ---
   const openAssignPopup = (film) => {
     setAssignPopup({ filmId: film.id, selectedIds: (film.assignedUsers ?? []).map(u => u.id) });
   };
@@ -151,33 +143,43 @@ function FilmsList() {
   return (
     <div className="animate-fade-in">
 
-      {/* En-tête */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-2">Films Soumis</h2>
-          <p className="text-white/50">Gérez les candidatures et la modération.</p>
+      {/* ── Header éditorial ── */}
+      <header style={{ marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1.5rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+              <span style={{ width: 'clamp(2rem, 3vw, 3rem)', height: '1px', background: 'var(--color-accent)', flexShrink: 0 }} />
+              <span className="label-overline">Modération</span>
+            </div>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.03em', textTransform: 'uppercase', color: 'var(--color-text)', lineHeight: 1, marginBottom: '0.5rem' }}>
+              Films reçus
+            </h1>
+            <p className="body-meta">Gérez les candidatures et la modération.</p>
+          </div>
+          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '0.5rem 1rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+            Total : <span style={{ color: 'var(--color-text)', fontWeight: 700 }}>{stats.total}</span>
+          </div>
         </div>
-        <div className="bg-white/8 px-4 py-2 text-sm text-white/60">
-          Total : <span className="text-white font-bold">{stats.total}</span>
-        </div>
-      </div>
+      </header>
 
-      {/* ── BARRE DE FILTRES CHIP ───────────────────────── */}
-      <div className="mb-2">
+      {/* ── Chips de filtre ── */}
+      <div style={{ marginBottom: '0.5rem' }}>
         <div className="flex flex-wrap gap-2 items-center">
 
           {/* ALL */}
           <button
             onClick={() => { setFilter(''); setSuggestions(false); }}
-            className={`px-3 py-1.5 text-xs font-black uppercase tracking-widest border transition-all
-              ${!statusFilter
-                ? 'bg-white/10 text-white border-white/30'
-                : 'bg-transparent text-white/40 border-white/10 hover:border-white/20 hover:text-white/60'}`}
+            className="px-3 py-1.5 text-xs font-black uppercase tracking-widest border transition-all"
+            style={{
+              background: !statusFilter ? 'var(--color-surface-high)' : 'transparent',
+              color:      !statusFilter ? 'var(--color-text)' : 'var(--color-text-muted)',
+              border:     `1px solid ${!statusFilter ? 'var(--color-border-hover)' : 'var(--color-border)'}`,
+            }}
           >
-            All <span className="ml-1 opacity-60">{stats.total}</span>
+            All <span style={{ opacity: 0.6, marginLeft: '0.25rem' }}>{stats.total}</span>
           </button>
 
-          {/* Chips par statut */}
+          {/* Chips par statut — gardent leurs couleurs Tailwind */}
           {FILTER_ORDER.map(status => {
             const count    = stats.byStatus?.[status] ?? 0;
             const isActive = statusFilter === status && !hasSuggestions;
@@ -196,10 +198,10 @@ function FilmsList() {
           })}
         </div>
 
-        {/* Sous-filtre Suggestions — visible uniquement quand IN_REVIEW actif */}
+        {/* Sous-filtre Suggestions */}
         {statusFilter === 'IN_REVIEW' && (
-          <div className="mt-2 ml-2 flex items-center gap-2">
-            <div className="w-3 h-px bg-white/20" />
+          <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '0.75rem', height: '1px', background: 'var(--color-border)' }} />
             <button
               onClick={() => setSuggestions(prev => !prev)}
               className={`flex items-center gap-1.5 px-3 py-1 text-[11px] font-black uppercase tracking-widest border transition-all
@@ -209,130 +211,153 @@ function FilmsList() {
             >
               <AlertTriangle size={10} />
               Suggestions jurys
-              <span className="opacity-60">{stats.suggestions ?? 0}</span>
+              <span style={{ opacity: 0.6 }}>{stats.suggestions ?? 0}</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* Recherche */}
-      <div className="mb-6 mt-4">
+      {/* ── Recherche ── */}
+      <div style={{ marginBottom: '1.5rem', marginTop: '1rem' }}>
         <input
           type="text"
           placeholder="Rechercher titre, pays, réalisateur..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full md:w-96 bg-white/5 border border-white/15 px-4 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+          className="w-full md:w-96 placeholder:text-text-faint"
+          style={{
+            background:  'var(--color-surface)',
+            border:      '1px solid var(--color-border)',
+            padding:     '0.5rem 1rem',
+            fontSize:    '0.875rem',
+            color:       'var(--color-text)',
+            outline:     'none',
+            transition:  'border-color 0.2s',
+          }}
+          onFocus={e => e.target.style.borderColor = 'var(--color-border-hover)'}
+          onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
         />
       </div>
 
-      {/* Tableau */}
-      <div className="bg-white/5 border border-white/15 overflow-hidden">
+      {/* ── Tableau ── */}
+      <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
         {loading ? (
-          <div className="flex items-center justify-center p-16 text-white/40">
-            <Loader2 size={24} className="animate-spin mr-3" />Chargement...
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem', color: 'var(--color-text-muted)' }}>
+            <Loader2 size={24} className="animate-spin" style={{ marginRight: '0.75rem' }} />Chargement...
           </div>
         ) : films.length === 0 ? (
-          <div className="p-16 text-center text-white/40">Aucun film trouvé.</div>
+          <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+            Aucun film trouvé.
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-262.5">
+            <table className="w-full text-left border-collapse" style={{ minWidth: '720px' }}>
               <thead>
-                <tr className="bg-white/8 text-white/50 text-[11px] uppercase tracking-wider border-b border-white/15">
-                  <th className="p-4 font-medium">Statut</th>
-                  <th className="p-4 font-medium">Film / Pays</th>
-                  <th className="p-4 font-medium">Réalisateur</th>
-                  <th className="p-4 font-medium">Date</th>
-                  <th className="p-4 font-medium">Jurys</th>
-                  <th className="p-4 font-medium">Changer statut</th>
-                  <th className="p-4 font-medium text-right">Actions</th>
+                <tr style={{ background: 'var(--color-surface-high)', borderBottom: '1px solid var(--color-border)' }}>
+                  {['Statut', 'Film / Pays', 'Réalisateur', 'Date', 'Jurys', 'Changer statut', 'Actions'].map((h, i) => (
+                    <th
+                      key={h}
+                      className="label-overline"
+                      style={{ padding: '1rem', textAlign: i === 6 ? 'right' : 'left' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10">
+              <tbody>
                 {films.map((film) => {
                   const nextOptions   = NEXT_STATUSES[film.status] ?? [];
                   const assignedJurys = film.assignedUsers ?? [];
 
                   return (
-                    <tr key={film.id} className="hover:bg-white/5 transition-colors group">
-
-                      <td className="p-4">
+                    <tr
+                      key={film.id}
+                      style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <td style={{ padding: '1rem' }}>
                         <span className={`text-xs font-bold uppercase px-2 py-1 border ${STATUS_STYLES[film.status] ?? ''}`}>
                           {film.status}
                         </span>
                       </td>
 
-                      <td className="p-4">
-                        <div className="font-bold text-white text-sm">{film.title}</div>
-                        <div className="text-xs text-white/50 mt-0.5">{film.country}</div>
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ fontWeight: 700, color: 'var(--color-text)', fontSize: '0.875rem' }}>{film.title}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem' }}>{film.country}</div>
                       </td>
 
-                      <td className="p-4 text-sm text-white/70">
+                      <td style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
                         <div>{film.submitter?.firstName} {film.submitter?.lastName}</div>
-                        <div className="text-xs text-white/50">{film.submitter?.email}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{film.submitter?.email}</div>
                       </td>
 
-                      <td className="p-4 text-xs text-white/40">
+                      <td style={{ padding: '1rem', fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>
                         {new Date(film.submittedAt).toLocaleDateString('fr-FR')}
                       </td>
 
-                      {/* Jurys assignés */}
-                      <td className="p-4">
-                        <div className="flex flex-wrap gap-1 items-center">
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', alignItems: 'center' }}>
                           {assignedJurys.length > 0 ? assignedJurys.map(u => (
                             <span key={u.id} className="text-[11px] uppercase tracking-wider bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-1.5 py-0.5">
                               {u.firstName}
                             </span>
                           )) : (
-                            <span className="text-white/40 text-xs italic">—</span>
+                            <span style={{ color: 'var(--color-text-faint)', fontSize: '0.75rem', fontStyle: 'italic' }}>—</span>
                           )}
                           <button
                             onClick={() => openAssignPopup(film)}
                             title="Gérer les jurys"
-                            className="ml-1 p-1 text-white/40 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                            className="ml-1 p-1 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                            style={{ color: 'var(--color-text-faint)' }}
                           >
                             <Users size={13} />
                           </button>
                         </div>
                       </td>
 
-                      {/* Changement de statut */}
-                      <td className="p-4">
+                      <td style={{ padding: '1rem' }}>
                         {updating === film.id ? (
-                          <Loader2 size={16} className="animate-spin text-white/40" />
+                          <Loader2 size={16} className="animate-spin" style={{ color: 'var(--color-text-muted)' }} />
                         ) : nextOptions.length > 0 ? (
                           <select
                             defaultValue=""
                             onChange={e => { if (e.target.value) handleStatusChange(film, e.target.value); }}
-                            className="bg-white/8 border border-white/15 px-2 py-1 text-xs text-white/70 focus:outline-none focus:border-white/30"
+                            style={{ background: 'var(--color-surface-high)', border: '1px solid var(--color-border)', padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: 'var(--color-text)', outline: 'none' }}
                           >
                             <option value="" disabled>Choisir...</option>
-                            {nextOptions.map(s => (
-                              <option key={s} value={s}>{s}</option>
-                            ))}
+                            {nextOptions.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         ) : (
-                          <span className="text-xs text-white/40 italic">Final</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Final</span>
                         )}
                       </td>
 
-                      {/* Actions */}
-                      <td className="p-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link to={`/admin/films/${film.id}`} title="Voir le détail"
-                            className="p-2 hover:bg-white/10 text-white/60 hover:text-white transition-colors inline-flex">
+                      <td style={{ padding: '1rem', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                          <Link
+                            to={`/admin/films/${film.id}`}
+                            title="Voir le détail"
+                            className="p-2 hover:bg-white/10 hover:text-white transition-colors inline-flex"
+                            style={{ color: 'var(--color-text-muted)' }}
+                          >
                             <Eye size={16} />
                           </Link>
                           {film.youtubeUrl && (
-                            <a href={film.youtubeUrl} target="_blank" rel="noopener noreferrer"
-                               title="Voir sur YouTube"
-                               className="p-2 hover:bg-indigo-500/20 text-white/60 hover:text-indigo-400 transition-colors">
+                            <a
+                              href={film.youtubeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Voir sur YouTube"
+                              className="p-2 hover:bg-indigo-500/20 hover:text-indigo-400 transition-colors"
+                              style={{ color: 'var(--color-text-muted)' }}
+                            >
                               <Play size={16} />
                             </a>
                           )}
                         </div>
                       </td>
-
                     </tr>
                   );
                 })}
@@ -342,29 +367,35 @@ function FilmsList() {
         )}
       </div>
 
-      {/* ── POPUP ASSIGNATION ─────────────────────────────── */}
+      {/* ── Popup assignation ── */}
       {assignPopup && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+          style={{ background: 'rgba(0,0,0,0.8)' }}
           onClick={() => setAssignPopup(null)}
         >
           <div
-            className="bg-[#111827] border border-white/15 p-6 w-full max-w-sm shadow-2xl"
+            style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', padding: '1.5rem', width: '100%', maxWidth: '24rem' }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="text-sm font-black uppercase tracking-widest text-white">Assigner des jurys</h3>
-              <button onClick={() => setAssignPopup(null)} className="text-white/40 hover:text-white transition-colors">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <p className="label-overline">Assigner des jurys</p>
+              <button onClick={() => setAssignPopup(null)} style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={16} />
               </button>
             </div>
 
             {juryUsers.length === 0 ? (
-              <p className="text-white/40 text-sm italic">Aucun jury disponible.</p>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', fontStyle: 'italic' }}>Aucun jury disponible.</p>
             ) : (
-              <div className="space-y-2 max-h-60 overflow-y-auto">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxHeight: '15rem', overflowY: 'auto' }}>
                 {juryUsers.map(user => (
-                  <label key={user.id} className="flex items-center gap-3 p-2 hover:bg-white/5 cursor-pointer transition-colors">
+                  <label
+                    key={user.id}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem', cursor: 'pointer', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
                     <input
                       type="checkbox"
                       checked={assignPopup.selectedIds.includes(user.id)}
@@ -372,25 +403,28 @@ function FilmsList() {
                       className="accent-indigo-500 w-4 h-4"
                     />
                     <div>
-                      <p className="text-sm text-white font-medium">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-white/50">{user.email}</p>
+                      <p style={{ fontSize: '0.875rem', color: 'var(--color-text)', fontWeight: 500 }}>{user.firstName} {user.lastName}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{user.email}</p>
                     </div>
                   </label>
                 ))}
               </div>
             )}
 
-            <div className="flex gap-3 mt-5">
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
               <button
                 onClick={() => setAssignPopup(null)}
-                className="flex-1 py-2 text-xs uppercase tracking-widest text-white/40 hover:text-white border border-white/15 hover:border-white/30 transition-colors"
+                style={{ flex: 1, padding: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', background: 'none', cursor: 'pointer', transition: 'border-color 0.2s, color 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--color-border-hover)'; e.currentTarget.style.color = 'var(--color-text)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
               >
                 Annuler
               </button>
               <button
                 onClick={handleAssign}
                 disabled={assigning === assignPopup?.filmId}
-                className="flex-1 py-2 text-xs uppercase tracking-widest font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                style={{ padding: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, background: '#6366f1', color: '#fff', border: 'none', cursor: 'pointer' }}
               >
                 {assigning === assignPopup?.filmId ? <Loader2 size={14} className="animate-spin" /> : 'Confirmer'}
               </button>
