@@ -28,7 +28,7 @@ const STATUS_BG = {
 
 function Badge({ status }) {
   return (
-    <span className={`text-[11px] px-2 py-0.5 border ${STATUS_BG[status] ?? 'text-white/50'}`}
+    <span className={`text-[11px] px-2 py-0.5 border ${STATUS_BG[status] ?? ''}`}
       style={!STATUS_BG[status] ? { background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' } : {}}
     >
       {status}

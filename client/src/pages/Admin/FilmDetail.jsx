@@ -369,13 +369,13 @@ function FilmDetail() {
                           {[...vote.comments]
                             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                             .map(c => (
-                              <div key={c.id} className={`px-3 py-2 border
-                                ${c.isInternal
-                                  ? 'bg-white/5 border-white/10'
-                                  : 'bg-orange-500/5 border-orange-500/15'}`}>
+                              <div key={c.id}
+                                className={`px-3 py-2 border ${!c.isInternal ? 'bg-orange-500/5 border-orange-500/15' : ''}`}
+                                style={c.isInternal ? { background: 'var(--color-surface)', borderColor: 'var(--color-border)' } : {}}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                  <span className={`text-xs font-bold uppercase tracking-wider
-                                    ${c.isInternal ? 'text-white/50' : 'text-orange-400'}`}>
+                                  <span
+                                    className={`text-xs font-bold uppercase tracking-wider ${!c.isInternal ? 'text-orange-400' : ''}`}
+                                    style={c.isInternal ? { color: 'var(--color-text-muted)' } : {}}>
                                     {c.isInternal ? '● Commentaire' : '● Suggestion modification'}
                                   </span>
                                   {c.createdAt && (
@@ -384,8 +384,9 @@ function FilmDetail() {
                                     </span>
                                   )}
                                 </div>
-                                <p className={`text-sm leading-relaxed
-                                  ${c.isInternal ? 'text-white/70' : 'text-orange-300'}`}>
+                                <p
+                                  className={`text-sm leading-relaxed ${!c.isInternal ? 'text-orange-300' : ''}`}
+                                  style={c.isInternal ? { color: 'var(--color-text)' } : {}}>
                                   {c.content}
                                 </p>
                               </div>

@@ -514,8 +514,8 @@ export default function JuryFilmDetail() {
                         }}
                         className="flex-1 bg-black/30 border border-orange-500/30
                                    focus:border-orange-500/50 focus:outline-none
-                                   px-3 py-2.5 text-sm text-white/70
-                                   placeholder:text-white/30 resize-none transition-colors"
+                                   px-3 py-2.5 text-sm text-text
+                                   placeholder:text-text-faint resize-none transition-colors"
                       />
                       <button
                         onClick={handleSendSuggestion}

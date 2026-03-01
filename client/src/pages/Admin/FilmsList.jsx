@@ -340,7 +340,7 @@ function FilmsList() {
                           <Link
                             to={`/admin/films/${film.id}`}
                             title="Voir le détail"
-                            className="p-2 hover:bg-white/10 hover:text-white transition-colors inline-flex"
+                            className="p-2 hover:bg-surface-high hover:text-text transition-colors inline-flex"
                             style={{ color: 'var(--color-text-muted)' }}
                           >
                             <Eye size={16} />
