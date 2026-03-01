@@ -1,4 +1,4 @@
-import prisma from "../config/prisma.js";
+import prisma from "../utils/prisma.js";
 import { loginAdmin } from "../services/auth.service.js";
 import jwt from "jsonwebtoken";
 
