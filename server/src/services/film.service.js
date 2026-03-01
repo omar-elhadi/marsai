@@ -331,7 +331,8 @@ export const getFilmByEditToken = async (token) => {
   }
 
   const film = await prisma.film.findFirst({
-    where: { submitterId: submitter.id, status: "TO_MODIFY" },
+    where:   { submitterId: submitter.id, status: "TO_MODIFY" },
+    include: { submitter: true },
   });
 
   if (!film) {
