@@ -22,6 +22,7 @@ import ReglesConditions          from './components/Ressources/regles-conditions
 import Events                    from '@/pages/Events/Events.jsx';
 import CompetitionRules          from '@/pages/CompetitionRules/CompetitionRules.jsx';
 import EditFilmPage              from '@/pages/Submission/EditFilmPage.jsx';
+import TrackingPage             from '@/pages/Submission/TrackingPage.jsx';
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -88,6 +89,7 @@ function AppInner() {
           <Route path="/news"                      element={<FestivalNews />} />
           <Route path="/events"                    element={<Events />} />
           <Route path="/edit-film/:token"          element={<EditFilmPage />} />
+          <Route path="/suivi"                     element={<TrackingPage />} />
         </Route>
 
         {/* ZONE JURY SÉCURISÉE */}
