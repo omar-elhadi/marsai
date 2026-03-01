@@ -257,20 +257,20 @@ export default function JuryFilmDetail() {
   // ── États de chargement / erreur ─────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0D0D0D] text-white flex items-center justify-center">
-        <Loader2 size={24} className="animate-spin text-white/25 mr-3" />
-        <span className="text-white/25 text-sm">Chargement...</span>
+      <div className="min-h-screen bg-[#111827] text-white flex items-center justify-center">
+        <Loader2 size={24} className="animate-spin text-white/40 mr-3" />
+        <span className="text-white/50 text-sm">Chargement...</span>
       </div>
     );
   }
 
   if (error || !film) {
     return (
-      <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center gap-4">
-        <p className="text-white/40 text-sm">{error || "Film introuvable."}</p>
+      <div className="min-h-screen bg-[#111827] text-white flex flex-col items-center justify-center gap-4">
+        <p className="text-white/60 text-sm">{error || "Film introuvable."}</p>
         <button
           onClick={() => navigate("/jury/dashboard")}
-          className="text-[10px] uppercase tracking-widest text-indigo-400 hover:text-indigo-300 transition-colors"
+          className="text-xs uppercase tracking-widest text-indigo-400 hover:text-indigo-300 transition-colors"
         >
           ← Retour au dashboard
         </button>
@@ -287,16 +287,16 @@ export default function JuryFilmDetail() {
     .reverse() ?? [];
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white font-sans">
+    <div className="min-h-screen bg-[#111827] text-white font-sans">
 
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-[#0D0D0D]/95 backdrop-blur border-b border-white/5 px-6 md:px-10 py-4">
+      <header className="sticky top-0 z-10 bg-[#111827]/95 backdrop-blur border-b border-white/10 px-6 md:px-8 py-5">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
 
           {/* Retour */}
           <button
             onClick={() => navigate("/jury/dashboard")}
-            className="text-white/30 hover:text-white transition-colors p-1 shrink-0"
+            className="text-white/50 hover:text-white transition-colors p-1 shrink-0"
             title="Retour (Esc)"
           >
             <ArrowLeft size={18} />
@@ -304,13 +304,13 @@ export default function JuryFilmDetail() {
 
           {/* Titre film */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-base font-black uppercase tracking-tight italic truncate">
+            <h1 className="text-lg font-black uppercase tracking-tight italic truncate">
               {film.title}
             </h1>
-            <p className="text-[10px] text-white/25 uppercase tracking-widest mt-0.5">
+            <p className="text-xs text-white/50 uppercase tracking-widest mt-0.5">
               {film.country}
               {film.submitter && (
-                <span className="text-white/15 ml-2">
+                <span className="text-white/40 ml-2">
                   · {film.submitter.firstName} {film.submitter.lastName}
                 </span>
               )}
@@ -319,14 +319,14 @@ export default function JuryFilmDetail() {
 
           {/* Badge vote courant */}
           {currentVote ? (
-            <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 shrink-0
+            <span className={`text-[11px] font-black uppercase tracking-widest px-3 py-2 shrink-0
               ${currentVote.sentiment === "LIKE"
-                ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
+                ? "bg-green-500/10 text-green-400 border border-green-500/30"
+                : "bg-red-500/10 text-red-400 border border-red-500/30"}`}>
               {currentVote.sentiment === "LIKE" ? "✓ Like" : "✕ Dislike"} · {currentVote.rating}/10
             </span>
           ) : (
-            <span className="text-[9px] text-white/20 border border-white/8 px-3 py-1.5 uppercase tracking-widest shrink-0">
+            <span className="text-[11px] text-white/50 border border-white/15 px-3 py-2 uppercase tracking-widest shrink-0">
               À évaluer
             </span>
           )}
@@ -336,10 +336,10 @@ export default function JuryFilmDetail() {
             <button
               onClick={() => navigate(`/jury/film/${nextFilm.id}`)}
               className="hidden sm:flex items-center gap-1.5 shrink-0
-                         text-[9px] uppercase tracking-widest
-                         text-white/25 hover:text-white/60
-                         border border-white/8 hover:border-white/20
-                         px-3 py-1.5 transition-all"
+                         text-xs uppercase tracking-widest
+                         text-white/50 hover:text-white
+                         border border-white/15 hover:border-white/30
+                         px-3 py-2 transition-all"
               title="Film suivant (→)"
             >
               <span className="max-w-28 truncate">{nextFilm.title}</span>
@@ -351,14 +351,14 @@ export default function JuryFilmDetail() {
       </header>
 
       {/* ── CONTENU ────────────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-6 md:px-10 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+      <main className="max-w-7xl mx-auto px-6 md:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
 
-          {/* ── COLONNE GAUCHE — Player + métadonnées + commentaires + suggestion ── */}
+          {/* ── COLONNE GAUCHE ─────────────────────────────── */}
           <div className="space-y-6">
 
             {/* Player YouTube */}
-            <div className="aspect-video bg-black border border-white/5 overflow-hidden">
+            <div className="aspect-video bg-black border border-white/10 overflow-hidden">
               {youtubeId ? (
                 <iframe
                   src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -368,51 +368,51 @@ export default function JuryFilmDetail() {
                   allowFullScreen
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white/15 text-sm">
+                <div className="w-full h-full flex items-center justify-center text-white/40 text-sm">
                   Vidéo non disponible
                 </div>
               )}
             </div>
 
             {/* Métadonnées */}
-            <div className="border border-white/5 p-5 space-y-4">
-              <p className="text-[9px] font-black uppercase tracking-widest text-white/20">À propos</p>
+            <div className="bg-white/5 border border-white/15 p-6 space-y-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-white/50">À propos</p>
               {film.description && (
-                <p className="text-sm text-white/60 leading-relaxed">{film.description}</p>
+                <p className="text-sm text-white/70 leading-relaxed">{film.description}</p>
               )}
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-2 gap-6 pt-1">
                 {film.country && (
                   <div>
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1">Pays</p>
-                    <p className="text-xs text-white/60">{film.country}</p>
+                    <p className="text-xs uppercase tracking-widest text-white/50 mb-1">Pays</p>
+                    <p className="text-sm text-white/70">{film.country}</p>
                   </div>
                 )}
                 {film.aiToolsUsed && (
                   <div>
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1">Outils IA</p>
-                    <p className="text-xs text-white/60">{film.aiToolsUsed}</p>
+                    <p className="text-xs uppercase tracking-widest text-white/50 mb-1">Outils IA</p>
+                    <p className="text-sm text-white/70">{film.aiToolsUsed}</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* ── COMMENTAIRES INTERNES ─────────────────────── */}
-            <div className="border border-white/5 p-5 space-y-4">
+            <div className="bg-white/5 border border-white/15 p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/20 flex items-center gap-2">
-                  <MessageSquare size={11} />
+                <p className="text-xs font-bold uppercase tracking-widest text-white/50 flex items-center gap-2">
+                  <MessageSquare size={12} />
                   Commentaires
                   {internalComments.length > 0 && (
-                    <span className="text-white/15">({internalComments.length})</span>
+                    <span className="text-white/40">({internalComments.length})</span>
                   )}
                 </p>
-                <span className="text-[9px] text-white/15 uppercase tracking-wider">
+                <span className="text-[11px] text-white/40 uppercase tracking-wider">
                   Admin uniquement
                 </span>
               </div>
 
               {currentVote ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex gap-2">
                     <textarea
                       rows={2}
@@ -422,17 +422,17 @@ export default function JuryFilmDetail() {
                       onKeyDown={e => {
                         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleAddComment();
                       }}
-                      className="flex-1 bg-black/30 border border-white/8
-                                 focus:border-white/20 focus:outline-none
-                                 px-3 py-2 text-[11px] text-white/70
-                                 placeholder:text-white/20 resize-none transition-colors"
+                      className="flex-1 bg-black/30 border border-white/15
+                                 focus:border-white/30 focus:outline-none
+                                 px-3 py-2.5 text-sm text-white/70
+                                 placeholder:text-white/30 resize-none transition-colors"
                     />
                     <button
                       onClick={handleAddComment}
                       disabled={!newComment.trim() || commenting}
-                      className="px-3 bg-white/5 border border-white/8
-                                 hover:bg-white/10 hover:border-white/20
-                                 text-white/40 hover:text-white/70
+                      className="px-4 bg-white/5 border border-white/15
+                                 hover:bg-white/10 hover:border-white/30
+                                 text-white/50 hover:text-white/80
                                  transition-all disabled:opacity-30"
                       title="Envoyer (Ctrl+Entrée)"
                     >
@@ -443,25 +443,25 @@ export default function JuryFilmDetail() {
                     </button>
                   </div>
                   {commentError && (
-                    <p className="text-[10px] text-red-400">{commentError}</p>
+                    <p className="text-xs text-red-400">{commentError}</p>
                   )}
-                  <p className="text-[9px] text-white/15">Ctrl + Entrée pour envoyer</p>
+                  <p className="text-[11px] text-white/40">Ctrl + Entrée pour envoyer</p>
                 </div>
               ) : (
-                <p className="text-[10px] text-white/20 italic">
+                <p className="text-sm text-white/50 italic">
                   Votez d&apos;abord pour pouvoir laisser un commentaire.
                 </p>
               )}
 
               {internalComments.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-white/5">
+                <div className="space-y-3 pt-2 border-t border-white/10">
                   {internalComments.map(c => (
-                    <div key={c.id} className="space-y-1">
-                      <p className="text-[9px] text-white/20 font-mono">
+                    <div key={c.id} className="space-y-1.5">
+                      <p className="text-[11px] text-white/40 font-mono">
                         {formatDateTime(c.createdAt)}
                       </p>
-                      <p className="text-xs text-white/60 bg-white/3 border border-white/5
-                                    px-3 py-2 leading-relaxed">
+                      <p className="text-sm text-white/70 bg-white/5 border border-white/10
+                                    px-4 py-3 leading-relaxed">
                         {c.content}
                       </p>
                     </div>
@@ -470,34 +470,34 @@ export default function JuryFilmDetail() {
               )}
 
               {currentVote && internalComments.length === 0 && (
-                <p className="text-[10px] text-white/15 italic">
+                <p className="text-sm text-white/40 italic">
                   Aucun commentaire pour l&apos;instant.
                 </p>
               )}
             </div>
 
             {/* ── SUGGESTION DE MODIFICATION ────────────────── */}
-            <div className="border border-white/5 p-5 space-y-4">
+            <div className="bg-white/5 border border-white/15 p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/20 flex items-center gap-2">
-                  <MessageSquare size={11} />
+                <p className="text-xs font-bold uppercase tracking-widest text-white/50 flex items-center gap-2">
+                  <MessageSquare size={12} />
                   Suggestion de modification
                 </p>
-                <span className="text-[9px] text-white/15 uppercase tracking-wider">
+                <span className="text-[11px] text-white/40 uppercase tracking-wider">
                   Transmis à l&apos;admin
                 </span>
               </div>
 
               {currentVote ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {currentVote.suggestModification && (
-                    <div className="flex items-center gap-2 text-[10px] text-orange-400/70">
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400/70 inline-block" />
+                    <div className="flex items-center gap-2 text-xs text-orange-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block shrink-0" />
                       Suggestion active — l&apos;admin a été notifié
                     </div>
                   )}
 
-                  <label className="flex items-center gap-2 cursor-pointer group">
+                  <label className="flex items-center gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={suggestion.checked}
@@ -508,8 +508,7 @@ export default function JuryFilmDetail() {
                       }))}
                       className="accent-orange-500"
                     />
-                    <span className="text-[10px] uppercase tracking-wider text-white/35
-                                     group-hover:text-white/55 transition-colors">
+                    <span className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
                       {suggestion.checked ? "Retirer la suggestion" : "Suggérer des modifications"}
                     </span>
                   </label>
@@ -528,17 +527,17 @@ export default function JuryFilmDetail() {
                         onKeyDown={e => {
                           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSendSuggestion();
                         }}
-                        className="flex-1 bg-black/30 border border-orange-500/20
-                                   focus:border-orange-500/40 focus:outline-none
-                                   px-3 py-2 text-[11px] text-white/70
-                                   placeholder:text-white/20 resize-none transition-colors"
+                        className="flex-1 bg-black/30 border border-orange-500/30
+                                   focus:border-orange-500/50 focus:outline-none
+                                   px-3 py-2.5 text-sm text-white/70
+                                   placeholder:text-white/30 resize-none transition-colors"
                       />
                       <button
                         onClick={handleSendSuggestion}
                         disabled={sendingSuggestion}
-                        className="px-3 bg-orange-500/10 border border-orange-500/20
-                                   hover:bg-orange-500/20 hover:border-orange-500/40
-                                   text-orange-400/70 hover:text-orange-400
+                        className="px-4 bg-orange-500/10 border border-orange-500/30
+                                   hover:bg-orange-500/20 hover:border-orange-500/50
+                                   text-orange-400 hover:text-orange-300
                                    transition-all disabled:opacity-30"
                         title="Envoyer (Ctrl+Entrée)"
                       >
@@ -554,7 +553,7 @@ export default function JuryFilmDetail() {
                     <button
                       onClick={handleSendSuggestion}
                       disabled={sendingSuggestion}
-                      className="text-[10px] text-white/20 hover:text-red-400/70
+                      className="text-xs text-white/40 hover:text-red-400
                                  uppercase tracking-wider transition-colors"
                     >
                       {sendingSuggestion
@@ -564,12 +563,12 @@ export default function JuryFilmDetail() {
                   )}
 
                   {suggestion.error && (
-                    <p className="text-[10px] text-red-400">{suggestion.error}</p>
+                    <p className="text-xs text-red-400">{suggestion.error}</p>
                   )}
-                  <p className="text-[9px] text-white/15">Ctrl + Entrée pour envoyer</p>
+                  <p className="text-[11px] text-white/40">Ctrl + Entrée pour envoyer</p>
                 </div>
               ) : (
-                <p className="text-[10px] text-white/20 italic">
+                <p className="text-sm text-white/50 italic">
                   Votez d&apos;abord pour pouvoir suggérer une modification.
                 </p>
               )}
@@ -578,48 +577,48 @@ export default function JuryFilmDetail() {
           </div> {/* fin colonne gauche */}
 
           {/* ── COLONNE DROITE — Panel évaluation ────────────── */}
-          <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
 
-            <div className="border border-white/10 bg-white/2 p-5 space-y-6">
+            <div className="bg-white/[0.07] border border-white/15 p-6 space-y-6">
 
-              {/* En-tête avec hint raccourcis */}
+              {/* En-tête */}
               <div className="flex items-center justify-between">
-                <p className="text-[9px] font-black uppercase tracking-widest text-white/25">
+                <p className="text-xs font-bold uppercase tracking-widest text-white/50">
                   Votre évaluation
                 </p>
-                <p className="text-[9px] text-white/15 font-mono tracking-widest">
+                <p className="text-[11px] text-white/40 font-mono tracking-widest">
                   L · D · ↑↓ · ↵
                 </p>
               </div>
 
               {/* LIKE / DISLIKE */}
-              <div className="space-y-2">
-                <p className="text-[9px] uppercase tracking-wider text-white/25">Sentiment</p>
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-widest text-white/50">Sentiment</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setSentiment(s => s === "LIKE" ? null : "LIKE")}
                     title="Like (L)"
-                    className={`flex items-center justify-center gap-2 py-3
-                                text-[10px] font-black uppercase tracking-widest
+                    className={`flex items-center justify-center gap-2 py-4
+                                text-xs font-black uppercase tracking-widest
                                 border transition-all
                                 ${sentiment === "LIKE"
                                   ? "bg-green-500/15 border-green-500/40 text-green-400"
-                                  : "bg-white/5 border-white/10 text-white/35 hover:border-white/20 hover:text-white/60"}`}
+                                  : "bg-white/5 border-white/15 text-white/50 hover:border-white/30 hover:text-white/80"}`}
                   >
-                    <ThumbsUp size={13} />
+                    <ThumbsUp size={14} />
                     Like
                   </button>
                   <button
                     onClick={() => setSentiment(s => s === "DISLIKE" ? null : "DISLIKE")}
                     title="Dislike (D)"
-                    className={`flex items-center justify-center gap-2 py-3
-                                text-[10px] font-black uppercase tracking-widest
+                    className={`flex items-center justify-center gap-2 py-4
+                                text-xs font-black uppercase tracking-widest
                                 border transition-all
                                 ${sentiment === "DISLIKE"
                                   ? "bg-red-500/15 border-red-500/40 text-red-400"
-                                  : "bg-white/5 border-white/10 text-white/35 hover:border-white/20 hover:text-white/60"}`}
+                                  : "bg-white/5 border-white/15 text-white/50 hover:border-white/30 hover:text-white/80"}`}
                   >
-                    <ThumbsDown size={13} />
+                    <ThumbsDown size={14} />
                     Dislike
                   </button>
                 </div>
@@ -628,10 +627,10 @@ export default function JuryFilmDetail() {
               {/* Slider Note 1-10 */}
               <div className="space-y-3">
                 <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] uppercase tracking-wider text-white/25">Note</p>
-                  <span className="text-indigo-400 font-mono font-bold text-lg leading-none">
+                  <p className="text-xs uppercase tracking-widest text-white/50">Note</p>
+                  <span className="text-indigo-400 font-mono font-bold text-xl leading-none">
                     {rating}
-                    <span className="text-white/20 text-xs">/10</span>
+                    <span className="text-white/40 text-sm">/10</span>
                   </span>
                 </div>
                 <input
@@ -643,7 +642,7 @@ export default function JuryFilmDetail() {
                   className="w-full cursor-pointer accent-indigo-500"
                   title="Note (↑ ↓ quand le slider n'est pas actif)"
                 />
-                <div className="flex justify-between text-[9px] text-white/15 font-mono">
+                <div className="flex justify-between text-[11px] text-white/40 font-mono">
                   <span>1</span>
                   <span>5</span>
                   <span>10</span>
@@ -655,12 +654,12 @@ export default function JuryFilmDetail() {
                 onClick={handleSubmit}
                 disabled={!sentiment || voting}
                 title="Soumettre (Entrée)"
-                className="w-full py-3 text-[10px] font-black uppercase tracking-widest
+                className="w-full py-4 text-sm font-black uppercase tracking-widest
                            bg-indigo-600 hover:bg-indigo-500 text-white
                            transition-colors disabled:opacity-30 flex items-center justify-center gap-2"
               >
                 {voting
-                  ? <Loader2 size={14} className="animate-spin" />
+                  ? <Loader2 size={15} className="animate-spin" />
                   : currentVote
                     ? "Modifier l'évaluation"
                     : "Soumettre l'évaluation"
@@ -671,7 +670,7 @@ export default function JuryFilmDetail() {
               {currentVote && !voting && (
                 <button
                   onClick={handleRemoveVote}
-                  className="w-full text-[10px] uppercase tracking-widest text-white/20
+                  className="w-full text-xs uppercase tracking-widest text-white/40
                              hover:text-red-400 transition-colors py-1"
                 >
                   Annuler mon vote
@@ -681,17 +680,17 @@ export default function JuryFilmDetail() {
 
             {/* Récapitulatif vote */}
             {currentVote && (
-              <div className="border border-white/5 px-4 py-3 space-y-1">
-                <p className="text-[9px] text-white/20 uppercase tracking-wider">
+              <div className="bg-white/5 border border-white/15 px-5 py-4 space-y-2">
+                <p className="text-[11px] text-white/50 uppercase tracking-wider">
                   Vote enregistré · {formatDateTime(currentVote.updatedAt)}
                 </p>
                 {currentVote.suggestModification && (
-                  <p className="text-[9px] text-orange-400/60 uppercase tracking-wider flex items-center gap-1">
-                    <MessageSquare size={8} /> Suggestion envoyée à l&apos;admin
+                  <p className="text-[11px] text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <MessageSquare size={9} /> Suggestion envoyée à l&apos;admin
                   </p>
                 )}
                 {internalComments.length > 0 && (
-                  <p className="text-[9px] text-white/15 uppercase tracking-wider">
+                  <p className="text-[11px] text-white/40 uppercase tracking-wider">
                     {internalComments.length} commentaire{internalComments.length > 1 ? "s" : ""}
                   </p>
                 )}
@@ -699,11 +698,11 @@ export default function JuryFilmDetail() {
             )}
 
             {/* Aide raccourcis clavier */}
-            <div className="border border-white/5 px-4 py-3">
-              <p className="text-[9px] font-black uppercase tracking-widest text-white/15 mb-3">
+            <div className="bg-white/5 border border-white/15 px-5 py-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">
                 Raccourcis
               </p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {[
                   ["L", "Like"],
                   ["D", "Dislike"],
@@ -713,11 +712,11 @@ export default function JuryFilmDetail() {
                   ["Esc", "Retour"],
                 ].map(([key, label]) => (
                   <div key={key} className="flex items-center gap-2">
-                    <kbd className="text-[8px] font-mono bg-white/5 border border-white/10
-                                    px-1.5 py-0.5 text-white/30 shrink-0">
+                    <kbd className="text-[10px] font-mono bg-white/8 border border-white/15
+                                    px-1.5 py-0.5 text-white/50 shrink-0">
                       {key}
                     </kbd>
-                    <span className="text-[9px] text-white/20">{label}</span>
+                    <span className="text-xs text-white/40">{label}</span>
                   </div>
                 ))}
               </div>

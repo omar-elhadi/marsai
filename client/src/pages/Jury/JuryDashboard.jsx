@@ -61,16 +61,16 @@ export default function JuryDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white font-sans">
+    <div className="min-h-screen bg-[#111827] text-white font-sans">
 
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-10 bg-[#0D0D0D]/95 backdrop-blur border-b border-white/5 px-6 md:px-10 py-4">
+      <header className="sticky top-0 z-10 bg-[#111827]/95 backdrop-blur border-b border-white/10 px-6 md:px-8 py-5">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <div>
             <h1 className="text-lg font-black uppercase tracking-tighter italic">
-              Espace <span className="text-indigo-500">Jury</span>
+              Espace <span className="text-indigo-400">Jury</span>
             </h1>
-            <p className="text-white/25 text-[10px] uppercase tracking-widest mt-0.5">
+            <p className="text-white/40 text-xs uppercase tracking-widest mt-0.5">
               MARSAI Festival · Session 2026
             </p>
           </div>
@@ -78,11 +78,12 @@ export default function JuryDashboard() {
           <div className="flex items-center gap-6">
             <div className="text-right">
               <p className="text-sm font-bold">{user.firstName} {user.lastName}</p>
-              <p className="text-[10px] text-white/30 uppercase tracking-widest">Jury</p>
+              <p className="text-xs text-white/40 uppercase tracking-widest">Jury</p>
             </div>
             <button
               onClick={handleLogout}
-              className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white border border-white/10 hover:border-white/30 px-3 py-2 transition-colors"
+              className="text-xs uppercase tracking-widest text-white/40 hover:text-white
+                         border border-white/15 hover:border-white/30 px-4 py-2 transition-colors"
             >
               Quitter
             </button>
@@ -91,14 +92,14 @@ export default function JuryDashboard() {
       </header>
 
       {/* ── CONTENU ────────────────────────────────────────── */}
-      <main className="max-w-5xl mx-auto px-6 md:px-10 py-10">
+      <main className="max-w-5xl mx-auto px-6 md:px-8 py-10">
 
         {/* Titre + progression */}
         <div className="mb-10">
-          <h2 className="text-2xl font-black uppercase tracking-tighter italic mb-1">
-            Films en <span className="text-indigo-500">évaluation</span>
+          <h2 className="text-2xl font-black uppercase tracking-tighter italic mb-2">
+            Films en <span className="text-indigo-400">évaluation</span>
           </h2>
-          <p className="text-white/25 text-sm mb-6">
+          <p className="text-white/50 text-sm mb-6">
             {voted} évalué{voted > 1 ? "s" : ""} · {remaining} restant{remaining > 1 ? "s" : ""}
           </p>
 
@@ -110,7 +111,7 @@ export default function JuryDashboard() {
                 style={{ flex: voted }}
               />
               <div
-                className="bg-white/10"
+                className="bg-white/15"
                 style={{ flex: remaining || 0.001 }}
               />
             </div>
@@ -118,14 +119,14 @@ export default function JuryDashboard() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64 text-white/25">
+          <div className="flex items-center justify-center h-64 text-white/40">
             <Loader2 size={20} className="animate-spin mr-3" />
-            Chargement des films...
+            <span className="text-sm">Chargement des films...</span>
           </div>
         ) : films.length === 0 ? (
-          <div className="border border-dashed border-white/8 p-20 text-center text-white/25">
-            <p className="text-base font-light">Aucun film à évaluer pour le moment.</p>
-            <p className="text-sm mt-2 text-white/15">
+          <div className="border border-white/15 p-20 text-center">
+            <p className="text-base text-white/60 font-light">Aucun film à évaluer pour le moment.</p>
+            <p className="text-sm mt-2 text-white/40">
               Revenez lorsque des films vous auront été assignés.
             </p>
           </div>
@@ -133,14 +134,14 @@ export default function JuryDashboard() {
           <>
             {/* En-tête colonnes */}
             <div className="grid grid-cols-[2rem_1fr_7rem_5rem_7rem] gap-6 items-center px-4 pb-3">
-              <span className="text-[9px] font-black uppercase tracking-widest text-white/20">#</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Film</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Pays</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Statut</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Vote</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">#</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Film</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Pays</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Statut</span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-white/40">Vote</span>
             </div>
 
-            <div className="border-t border-white/5">
+            <div className="border-t border-white/10">
               {sortedFilms.map((film, i) => {
                 const currentVote = film.votes?.[0];
 
@@ -149,11 +150,11 @@ export default function JuryDashboard() {
                     key={film.id}
                     onClick={() => navigate(`/jury/film/${film.id}`)}
                     className="grid grid-cols-[2rem_1fr_7rem_5rem_7rem] gap-6 items-center
-                               px-4 py-4 border-b border-white/5
-                               hover:bg-white/2.5 cursor-pointer transition-colors group"
+                               px-4 py-5 border-b border-white/10
+                               hover:bg-white/5 cursor-pointer transition-colors group"
                   >
                     {/* Numéro */}
-                    <span className="font-mono text-[11px] text-white/15 tabular-nums">
+                    <span className="font-mono text-xs text-white/40 tabular-nums">
                       {String(i + 1).padStart(2, "0")}
                     </span>
 
@@ -164,33 +165,33 @@ export default function JuryDashboard() {
                         {film.title}
                       </p>
                       {film.submitter && (
-                        <p className="text-[10px] text-white/25 mt-0.5 truncate">
+                        <p className="text-xs text-white/45 mt-0.5 truncate">
                           {film.submitter.firstName} {film.submitter.lastName}
                         </p>
                       )}
                     </div>
 
                     {/* Pays */}
-                    <span className="text-xs text-white/35 truncate">{film.country}</span>
+                    <span className="text-xs text-white/50 truncate">{film.country}</span>
 
                     {/* Statut film */}
-                    <span className="text-[9px] text-indigo-400/70 uppercase tracking-wider font-bold">
+                    <span className="text-[11px] text-indigo-400 uppercase tracking-wider font-bold">
                       {film.status}
                     </span>
 
                     {/* Badge vote */}
                     {currentVote ? (
-                      <span className={`inline-flex items-center text-[9px] font-black uppercase tracking-widest
-                                       px-2 py-0.5 w-fit
+                      <span className={`inline-flex items-center text-[11px] font-black uppercase tracking-widest
+                                       px-3 py-1 w-fit
                                        ${currentVote.sentiment === "LIKE"
-                                         ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                                         : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
+                                         ? "bg-green-500/10 text-green-400 border border-green-500/30"
+                                         : "bg-red-500/10 text-red-400 border border-red-500/30"}`}>
                         {currentVote.sentiment === "LIKE" ? "✓ Like" : "✕ Dislike"}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[9px] text-white/20
-                                       border border-white/8 px-2 py-0.5 w-fit
-                                       group-hover:border-white/20 group-hover:text-white/40 transition-colors">
+                      <span className="inline-flex items-center gap-1 text-[11px] text-white/40
+                                       border border-white/15 px-3 py-1 w-fit
+                                       group-hover:border-white/30 group-hover:text-white/60 transition-colors">
                         À évaluer
                         <ChevronRight size={9} />
                       </span>
