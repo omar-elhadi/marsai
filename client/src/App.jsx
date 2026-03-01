@@ -23,6 +23,7 @@ import Events                    from '@/pages/Events/Events.jsx';
 import CompetitionRules          from '@/pages/CompetitionRules/CompetitionRules.jsx';
 import EditFilmPage              from '@/pages/Submission/EditFilmPage.jsx';
 import TrackingPage             from '@/pages/Submission/TrackingPage.jsx';
+import PalmaresPage             from '@/pages/Palmares/PalmaresPage.jsx';
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -46,6 +47,7 @@ import FilmsList                 from './pages/Admin/FilmsList.jsx';
 import FilmDetail                from './pages/Admin/FilmDetail.jsx';
 import DashboardHome             from './pages/Admin/DashboardHome.jsx';
 import { AdminDashboard }        from './pages/Admin/AdminDashboard.jsx';
+import AwardsPage               from './pages/Admin/AwardsPage.jsx';
 
 /**
  * 5. PHASE 8 — Transitions cinématographiques
@@ -90,6 +92,7 @@ function AppInner() {
           <Route path="/events"                    element={<Events />} />
           <Route path="/edit-film/:token"          element={<EditFilmPage />} />
           <Route path="/suivi"                     element={<TrackingPage />} />
+          <Route path="/palmares"                  element={<PalmaresPage />} />
         </Route>
 
         {/* ZONE JURY SÉCURISÉE */}
@@ -105,7 +108,7 @@ function AppInner() {
             <Route path="films/:id" element={<FilmDetail />} />
             <Route path="films/*"   element={<FilmsList />} />
             <Route path="users" element={<AdminDashboard />} />
-            <Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
+            <Route path="awards" element={<AwardsPage />} />
           </Route>
         </Route>
       </Routes>
