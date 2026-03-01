@@ -1,13 +1,37 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import * as authController from "../controllers/auth.controller.js";
-// On garde les imports car on va les utiliser sur les vraies routes bientôt
 import { verifyToken, isAdmin } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+// Limiteur strict pour le login admin : 10 tentatives / 15 min / IP
+// Protège contre le brute force sur le seul endpoint de connexion admin
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // fenêtre glissante de 15 minutes
+  max: 10,
+  standardHeaders: true,    // renvoie les headers RateLimit-* standard (RFC 6585)
+  legacyHeaders: false,
+  message: {
+    error: "Trop de tentatives de connexion. Réessayez dans 15 minutes.",
+  },
+});
+
+// Limiteur pour les magic links jury : 20 vérifications / heure / IP
+// Un magic link est à usage unique — 20 est largement suffisant
+const verifyTokenLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 heure
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: "Trop de tentatives. Réessayez dans une heure.",
+  },
+});
+
 // Route publique pour se connecter
-router.post("/login", authController.login);
-router.get("/verify-token", authController.verifyToken);
+router.post("/login", loginLimiter, authController.login);
+router.get("/verify-token", verifyTokenLimiter, authController.verifyToken);
 
 // Les futures routes protégées viendront ici...
 

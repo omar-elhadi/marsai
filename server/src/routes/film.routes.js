@@ -1,12 +1,25 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import { submit, getFilms, getStats, getOne, updateStatus, assign, requestModification, getByEditToken, applyEdit, trackFilm } from "../controllers/film.controller.js";
 import { verifyToken, isAdminOrModerator } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+// Limiteur pour la soumission publique : 5 soumissions / heure / IP
+// Évite le spam du formulaire public (bot, abus)
+const submitLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 heure
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: "Vous avez atteint la limite de soumissions. Réessayez dans une heure.",
+  },
+});
+
 // --- ROUTES PUBLIQUES ---
 // Soumission d'un film par un réalisateur (pas d'auth requise)
-router.post("/submit", submit);
+router.post("/submit", submitLimiter, submit);
 
 // Récupérer le film à modifier via le token submitter — AVANT /:id pour éviter la capture
 router.get("/edit/:token", getByEditToken);
