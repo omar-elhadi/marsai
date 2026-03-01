@@ -9,10 +9,11 @@ import express from "express";
 import cors from "cors";
 
 // --- IMPORT DES ROUTES ---
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import filmRoutes from "./routes/film.routes.js";
-import juryRoutes from "./routes/vote.routes.js";
+import authRoutes  from "./routes/auth.routes.js";
+import userRoutes  from "./routes/user.routes.js";
+import filmRoutes  from "./routes/film.routes.js";
+import juryRoutes  from "./routes/vote.routes.js";
+import awardRoutes from "./routes/award.routes.js";
 
 // --- GARDE-FOU (FAIL-SAFE) ---
 // On vérifie que les variables critiques sont présentes avant de démarrer.
@@ -46,10 +47,11 @@ app.use(express.json());
 // --- ROUTES DE L'API ---
 
 // Routes d'authentification (Login, Profile, etc.)
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/films", filmRoutes);
-app.use("/api/jury", juryRoutes);
+app.use("/api/auth",   authRoutes);
+app.use("/api/users",  userRoutes);
+app.use("/api/films",  filmRoutes);
+app.use("/api/jury",   juryRoutes);
+app.use("/api/awards", awardRoutes);
 
 /**
  * Route de santé (Health Check)
