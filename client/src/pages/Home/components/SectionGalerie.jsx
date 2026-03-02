@@ -301,6 +301,16 @@ export default function SectionGalerie() {
               </span>
             </div>
           </div>
+
+          {/* Tagline accessible — parle au 22 ans sans exclure le 40+.
+              "Tous horizons" dit clairement : pas besoin d'être pro.
+              Placé dans le header, au même niveau que le titre —
+              lu naturellement après le titre, avant la grille. */}
+          <p className={styles.headerTagline}>
+            Films d'une minute créés avec l'I.A. —
+            par des passionnés de tous horizons.
+          </p>
+
         </div>
 
         {/* ── Grille asymétrique ───────────────────────────────── */}

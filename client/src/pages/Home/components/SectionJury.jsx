@@ -239,7 +239,7 @@ export default function SectionJury() {
 
           <div ref={overlineRef} className="flex items-center gap-4">
             <span className={styles.overlineLine} />
-            <span className="label-overline">Festival des Cinéastes I.A.</span>
+            <span className="label-overline">Festival du Cinéma I.A. · Tous niveaux</span>
           </div>
 
           <h2 ref={titleRef} className="title-section">

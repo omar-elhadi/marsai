@@ -60,10 +60,11 @@ const GRAND_PRIX = {
   titre:      'Grand Prix MARSAI',
   description:
     'Décerné au film qui incarne le mieux la vision du festival : ' +
-    'une émotion vraie portée par une IA maîtrisée. ' +
+    'une émotion vraie portée par une IA. ' +
+    'Ouvert à tous — premier film ou dixième, l\'émotion seule compte. ' +
     'Le jury vote à l\'unanimité.',
   conditions: [
-    { num: '01', label: 'Film de 60 secondes maximum' },
+    { num: '01', label: 'Film de 60 secondes' },
     { num: '02', label: 'Généré intégralement par IA' },
     { num: '03', label: 'Première mondiale obligatoire' },
   ],
@@ -83,16 +84,17 @@ const PRIX_SECONDAIRES = [
     titre:  'Prix Révélation',
     valeur: '$8 000',
     description:
-      'Réservé aux cinéastes présentant leur premier film en compétition. ' +
-      'La promesse d\'un talent qui vient d\'éclore.',
+      'Pour ceux qui soumettent leur tout premier film. ' +
+      'Pas de CV requis — juste une histoire à raconter. ' +
+      'Ce prix existe précisément pour toi.',
   },
   {
     index:     '04',
     titre:     'Certification MARSAI',
     valeur:    'Tous les finalistes',
     description:
-      'Label d\'excellence remis aux 50 films finalistes. ' +
-      'Reconnaissance internationale, réseau d\'élite, accès aux partenaires.',
+      'Remise aux 50 films finalistes, quelle que soit l\'expérience. ' +
+      'Reconnaissance internationale et accès à la communauté MARSAI.',
     isSpecial: true,
   },
 ];

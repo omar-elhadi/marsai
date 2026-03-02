@@ -60,6 +60,22 @@
   margin-bottom:  clamp(3.5rem, 7vw, 6rem);
 }
 
+/* Tagline sous le titre — communication en couche.
+   Le 40+ pro lit le titre "La Sélection Officielle" et est satisfait.
+   Le 22 ans novice lit cette ligne et comprend : c'est pour lui aussi.
+   Plus petite que le titre, plus chaude que le label-overline.
+   Max-width 52ch — respire, ne déborde pas sur desktop large. */
+.headerTagline {
+  font-family:    var(--font-sans);
+  font-weight:    300;
+  font-size:      clamp(0.82rem, 1.2vw, 0.95rem);
+  letter-spacing: 0.05em;
+  color:          var(--color-text-muted);
+  line-height:    1.65;
+  max-width:      52ch;
+  margin-top:     0.2rem;
+}
+
 .overlineLine {
   display:     block;
   width:       clamp(2rem, 3vw, 3rem);

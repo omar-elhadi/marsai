@@ -178,7 +178,7 @@ export default function SectionCTA() {
 
         {/* Sous-titre — poétique, centré, dense */}
         <p ref={subtitleRef} className={styles.ctaSubtitle}>
-          600 cinéastes. Une minute. L'éternité.
+          600 histoires. Une minute. L'éternité.
         </p>
 
         {/* Bloc bouton + deadline — animé ensemble */}
