@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 
+// Composant pour l'effet d'écriture rétro avec dégradé BLANC SABLE DORÉ
+const TypewriterHeader = ({ text }) => {
+  const [displayText, setDisplayText] = useState("");
+  
 const CookiesProtocol = () => {
   const particleContainerRef = useRef(null);
   const mainContentRef = useRef(null);
