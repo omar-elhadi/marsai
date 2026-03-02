@@ -87,7 +87,7 @@ function PolitiqueDeConfidentialite() {
           {sections.map((section, index) => (
             <div 
               key={index} 
-              className={`border transition-all duration-500 rounded-sm overflow-hidden ${
+              className={`border transition-all duration-1000 rounded-sm overflow-hidden ${
                 openIndex === index 
                 ? "breathe-effect bg-zinc-900/80 border-[#D4AF37] backdrop-blur-sm" 
                 : "border-white/5 bg-black/40 hover:border-white/20 backdrop-blur-sm"
@@ -95,13 +95,13 @@ function PolitiqueDeConfidentialite() {
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex justify-between items-center p-6 text-left"
+                className="w-full flex justify-between items-center p-8 md:p-10 text-left"
               >
                 <div>
                   <span className={`text-[10px] font-bold tracking-[0.3em] mb-1 block ${openIndex === index ? "text-[#E6D5AC]" : "text-gray-600"}`}>
                     MODULE_CONFIDENTIALITE_0{index + 1}
                   </span>
-                  <h2 className={`text-lg font-bold uppercase tracking-widest ${openIndex === index ? "text-white" : "text-gray-400"}`}>
+                  <h2 className={`text-xl md:text-2xl font-bold uppercase tracking-[0.15em] ${openIndex === index ? "text-white" : "text-gray-400"}`}>
                     {section.title}
                   </h2>
                 </div>
@@ -111,8 +111,8 @@ function PolitiqueDeConfidentialite() {
               </button>
 
               <div 
-                className={`transition-all duration-700 ease-in-out ${
-                  openIndex === index ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
+                className={`transition-all duration-1000 ease-in-out ${
+                  openIndex === index ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
                 <div className="px-6 pb-6 pt-2 text-gray-300 border-t border-white/5 mt-2 font-sans italic leading-relaxed">
