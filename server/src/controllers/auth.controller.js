@@ -1,36 +1,85 @@
-import { loginSchema } from "../validators/auth.validator.js";
+import prisma from "../config/prisma.js";
 import { loginAdmin } from "../services/auth.service.js";
+import jwt from "jsonwebtoken";
 
 /**
- * Gère la requête de connexion administrateur.
- * Reçoit email/password, valide, et renvoie le token.
+ * CONNEXION CLASSIQUE (Email + Password)
+ * Principalement pour l'ADMIN.
  */
 export const login = async (req, res) => {
   try {
-    // 1. Validation des données entrantes (Zod)
-    const parsed = loginSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        error: "Données invalides",
-        details: parsed.error.flatten(),
-      });
-    }
-
-    const { email, password } = parsed.data;
-
-    // 2. Appel au service métier (qui utilise Prisma maintenant)
+    const { email, password } = req.body;
     const result = await loginAdmin(email, password);
 
-    // 3. Gestion des erreurs métier
     if (!result) {
-      // On reste vague pour la sécurité (ne pas dire si c'est l'email ou le mdp qui est faux)
       return res.status(401).json({ error: "Identifiants incorrects" });
     }
 
-    // 4. Succès
+    // MISE À JOUR DU STATUT : On enregistre la date de connexion
+    // Cela fera passer le badge au VERT sur le dashboard.
+    await prisma.user.update({
+      where: { id: result.user.id },
+      data: { lastLogin: new Date() },
+    });
+
     return res.status(200).json(result);
   } catch (e) {
-    console.error("Erreur Login Controller:", e);
-    return res.status(500).json({ error: "Erreur serveur interne" });
+    console.error("❌ Erreur Login Controller:", e);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+/**
+ * VÉRIFICATION DU TOKEN (Magic Link)
+ * Pour les JURYS.
+ */
+export const verifyToken = async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token manquant" });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { loginToken: token },
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: "Lien invalide ou expiré." });
+    }
+
+    // MISE À JOUR ET SÉCURISATION :
+    // 1. On enregistre la date (Badge VERT)
+    // 2. On vide le token pour qu'il ne soit plus réutilisable (Sécurité)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        lastLogin: new Date(),
+        loginToken: null,
+        tokenExpires: null,
+      },
+    });
+
+    const sessionToken = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" },
+    );
+
+    return res.status(200).json({
+      token: sessionToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Erreur VerifyToken:", error);
+    return res
+      .status(500)
+      .json({ error: "Erreur lors de la vérification du lien" });
   }
 };

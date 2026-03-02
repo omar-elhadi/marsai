@@ -1,67 +1,252 @@
-import SubmissionForm from './SubmissionForm';
+/**
+ * SubmissionPage.jsx — MARSAI Festival · Phase 9
+ * "La candidature comme un acte solennel"
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * DIRECTION VISUELLE
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Zéro bg-midnight, zéro text-indigo-400, zéro text-slate.
+ * 100% design system MARSAI.
+ *
+ * Hero : thème + 3 règles éditoriales en colonnes
+ * Formulaire : SubmissionForm conservé intact — wrapper redesigné
+ * Animations GSAP : rideau 2 lignes + stagger règles
+ * ═══════════════════════════════════════════════════════════════
+ */
 
-function SubmissionPage() {
+import { useRef }        from 'react';
+import gsap              from 'gsap';
+import { useGSAP }       from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import SubmissionForm    from './SubmissionForm';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const REGLES = [
+  { index: '01', titre: 'Ouvert à tous',  corps: 'Amateurs ou professionnels, sans distinction.' },
+  { index: '02', titre: '60 Secondes',   corps: 'Générique inclus. Pas une de plus. La contrainte est la forme.' },
+  { index: '03', titre: '100% IA',        corps: 'Génération visuelle et sonore intégralement par intelligence artificielle.' },
+];
+
+export default function SubmissionPage() {
+  const pageRef     = useRef(null);
+  const overlineRef = useRef(null);
+  const line1Ref    = useRef(null);
+  const line2Ref    = useRef(null);
+  const themeRef    = useRef(null);
+  const rulesRef    = useRef(null);
+  const formRef     = useRef(null);
+
+  useGSAP(() => {
+    gsap.set(overlineRef.current,                { opacity: 0, y: 14 });
+    gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110 });
+    gsap.set(themeRef.current,                   { opacity: 0, y: 20 });
+    const rules = rulesRef.current ? Array.from(rulesRef.current.children) : [];
+    gsap.set(rules, { opacity: 0, y: 24 });
+
+    // Séquence héro
+    const tl = gsap.timeline({ delay: 0.10 });
+    tl.to(overlineRef.current,
+      { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' });
+    tl.to([line1Ref.current, line2Ref.current],
+      { yPercent: 0, duration: 0.85, stagger: 0.11, ease: 'power3.out' }, 0.15);
+    tl.to(themeRef.current,
+      { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.52);
+    tl.to(rules,
+      { opacity: 1, y: 0, duration: 0.55, stagger: 0.09, ease: 'power2.out' }, 0.68);
+
+    // Formulaire — révélation douce
+    if (formRef.current) {
+      gsap.set(formRef.current, { opacity: 0 });
+      ScrollTrigger.create({
+        trigger: formRef.current,
+        start:   'top 82%',
+        once:    true,
+        onEnter: () => gsap.to(formRef.current, { opacity: 1, duration: 0.85, ease: 'power2.out' }),
+      });
+    }
+  }, { scope: pageRef });
+
   return (
-    // On garde le fond midnight (qui est maintenant NOIR grâce au changement précédent dans le CSS)
-    <div className="min-h-screen bg-midnight text-white font-sans selection:bg-indigo-500/30 pt-24 pb-20">
-      
-      {/* --- BLOC HAUT : TITRE + BRIEF COMPACT --- */}
-      <div className="max-w-4xl mx-auto px-6 text-center mb-16">
-        
-        {/* L'ancien "Appel à projet" devient le titre principal en petit, tout en haut */}
-        <h1 className="text-indigo-400 uppercase tracking-[0.3em] text-sm md:text-base font-bold mb-8">
-          Soumettre votre film
-        </h1>
+    <div
+      ref={pageRef}
+      style={{
+        background: 'var(--color-bg-pure)',
+        minHeight:  '100vh',
+        paddingTop: 'clamp(6rem,10vw,8rem)',
+      }}
+    >
 
-        {/* Le texte explicatif remonte ici */}
-        <p className="text-xl md:text-2xl leading-relaxed text-slate-200 font-light mb-6">
-          Nous recherchons des courts-métrages d'<strong className="text-white font-bold">1 minute</strong>, 
-          créés entièrement via l'IA, sur le thème :
-        </p>
-        
-        {/* Le Thème */}
-        <p className="font-serif italic text-3xl md:text-4xl text-white">
-          "Imaginer des futurs souhaitables"
-        </p>
-
-      </div>
-
-      {/* --- LES RÈGLES (Remontées et chiffres en BLANC) --- */}
-      <div className="max-w-5xl mx-auto px-6 mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 border-t border-white/20 pt-10">
-          
-            {/* Règle 1 */}
-            <div className="text-center">
-              <span className="text-5xl font-serif text-white block mb-4">01</span>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">Ouvert à tous</h3>
-              <p className="text-slate-400 text-sm">Amateurs ou pros, sans distinction.</p>
-            </div>
-
-            {/* Règle 2 */}
-            <div className="text-center">
-              <span className="text-5xl font-serif text-white block mb-4">02</span>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">60 Secondes</h3>
-              <p className="text-slate-400 text-sm">Générique inclus. Pas une de plus.</p>
-            </div>
-
-            {/* Règle 3 */}
-            <div className="text-center">
-              <span className="text-5xl font-serif text-white block mb-4">03</span>
-              <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">100% IA</h3>
-              <p className="text-slate-400 text-sm">Génération visuelle et sonore.</p>
-            </div>
-
+      {/* ── Section héro ─────────────────────────────── */}
+      <section
+        aria-label="Appel à candidatures"
+        style={{
+          padding:      'clamp(3rem,6vw,5rem) clamp(1.5rem,5vw,6rem)',
+          borderBottom: '1px solid var(--color-border)',
+          maxWidth:     '1200px',
+          margin:       '0 auto',
+        }}
+      >
+        {/* Overline */}
+        <div
+          ref={overlineRef}
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}
+        >
+          <span style={{
+            display:    'block',
+            width:      'clamp(2rem,3vw,3rem)',
+            height:     '1px',
+            background: 'var(--color-accent)',
+            flexShrink: 0,
+          }} />
+          <span className="label-overline">Appel à candidatures · 2026</span>
         </div>
-      </div>
 
-      {/* --- LE FORMULAIRE --- */}
-      <div className="px-4">
-        {/* Le conteneur du formulaire est géré dans le composant lui-même maintenant */}
+        {/* Titre rideau 2 lignes */}
+        <div style={{ marginBottom: 'clamp(1.5rem,3vw,2.5rem)' }}>
+          <div style={{ overflow: 'hidden', lineHeight: 1 }}>
+            <span ref={line1Ref} style={{
+              display:       'block',
+              fontFamily:    'var(--font-display)',
+              fontWeight:    900,
+              fontSize:      'clamp(2.8rem,7vw,6.5rem)',
+              letterSpacing: '-0.035em',
+              textTransform: 'uppercase',
+              color:         'var(--color-text)',
+              paddingBottom: '0.06em',
+            }}>
+              Soumettre
+            </span>
+          </div>
+          <div style={{ overflow: 'hidden', lineHeight: 1 }}>
+            <span ref={line2Ref} style={{
+              display:       'block',
+              fontFamily:    'var(--font-display)',
+              fontWeight:    900,
+              fontSize:      'clamp(2.8rem,7vw,6.5rem)',
+              letterSpacing: '-0.035em',
+              textTransform: 'uppercase',
+              color:         'var(--color-accent)',
+              paddingBottom: '0.06em',
+            }}>
+              votre film
+            </span>
+          </div>
+        </div>
+
+        {/* Thème */}
+        <div ref={themeRef} style={{ marginBottom: 'clamp(3rem,6vw,5rem)' }}>
+          <p className="body-meta" style={{ marginBottom: '0.4rem' }}>
+            Thème de l'édition 2026
+          </p>
+          <p style={{
+            fontFamily:    'var(--font-sans)',
+            fontWeight:    300,
+            fontSize:      'clamp(1.1rem,2.2vw,1.5rem)',
+            fontStyle:     'italic',
+            color:         'var(--color-text)',
+            lineHeight:    1.4,
+          }}>
+            "Imaginer des futurs souhaitables"
+          </p>
+        </div>
+
+        {/* 3 Règles */}
+        <div
+          ref={rulesRef}
+          className="submission-rules-grid"
+          style={{
+            display:     'grid',
+            borderTop:   '1px solid var(--color-border)',
+            paddingTop:  'clamp(2rem,4vw,3rem)',
+          }}
+        >
+          {REGLES.map(({ index, titre, corps }, i) => (
+            <div
+              key={index}
+              style={{
+                padding:    'clamp(1.2rem,2.5vw,2rem) clamp(1rem,2vw,1.8rem)',
+                borderLeft: i > 0 ? '1px solid var(--color-border)' : 'none',
+              }}
+            >
+              <span style={{
+                display:       'block',
+                fontFamily:    'var(--font-display)',
+                fontWeight:    900,
+                fontSize:      'clamp(2.2rem,4.5vw,3.5rem)',
+                letterSpacing: '-0.04em',
+                color:         'var(--color-accent)',
+                lineHeight:    1,
+                marginBottom:  '0.6rem',
+                opacity:       0.55,
+              }}>
+                {index}
+              </span>
+              <h3 style={{
+                fontFamily:    'var(--font-sans)',
+                fontWeight:    800,
+                fontSize:      'clamp(0.8rem,1.2vw,0.92rem)',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color:         'var(--color-text)',
+                marginBottom:  '0.45rem',
+              }}>
+                {titre}
+              </h3>
+              <p className="body-meta">{corps}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Section formulaire ───────────────────────── */}
+      <section
+        ref={formRef}
+        aria-label="Formulaire de soumission"
+        style={{
+          padding:  'clamp(4rem,8vw,7rem) clamp(1.5rem,5vw,6rem)',
+          maxWidth: '1200px',
+          margin:   '0 auto',
+        }}
+      >
+        <div style={{
+          display:       'flex',
+          alignItems:    'center',
+          gap:           '1rem',
+          marginBottom:  'clamp(2.5rem,5vw,4rem)',
+        }}>
+          <span style={{
+            display:    'block',
+            width:      'clamp(2rem,3vw,3rem)',
+            height:     '1px',
+            background: 'var(--color-accent)',
+            flexShrink: 0,
+          }} />
+          <span className="label-overline">Formulaire de soumission</span>
+        </div>
+
         <SubmissionForm />
-      </div>
+      </section>
 
+      {/* Responsive */}
+      <style>{`
+        .submission-rules-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        @media (max-width: 660px) {
+          .submission-rules-grid {
+            grid-template-columns: 1fr;
+          }
+          .submission-rules-grid > div {
+            border-left: none !important;
+            border-top: 1px solid var(--color-border);
+          }
+          .submission-rules-grid > div:first-child {
+            border-top: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
-
-export default SubmissionPage;

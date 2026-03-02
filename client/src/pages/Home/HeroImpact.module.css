@@ -1,0 +1,286 @@
+/**
+ * HeroImpact.module.css — MARSAI Festival
+ * Refactoring Étape 4.1 + Révision responsive & lisibilité
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * PHILOSOPHIE DES CORRECTIONS — Kodawari
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * PROBLÈME MOBILE (justify-end + 100dvh) :
+ *   dvh = Dynamic Viewport Height = inclut la chrome du navigateur.
+ *   Sur iOS/Android, ça donne height = écran complet + barre d'adresse.
+ *   Le content (justify-end) finit sous la barre. Fix : 100svh sur
+ *   mobile (Small = viewport sans la chrome) + padding-bottom généreux.
+ *
+ * PROBLÈME LISIBILITÉ :
+ *   L'overlay est animé par GSAP (opacity 1→0.55). Sur images
+ *   lumineuses, 0.55 est insuffisant. Solution à deux couches :
+ *     • .heroOverlay     → couche GSAP (cinematic reveal)
+ *     • .heroReadability → couche statique, JAMAIS animée, toujours
+ *                          présente quelle que soit l'image de fond.
+ *   + text-shadow sur titre, accroche, date pour la résistance locale.
+ *
+ * PROBLÈME TYPOGRAPHIE DESKTOP :
+ *   letter-spacing: -0.04em = lettres comprimées, trop dense.
+ *   Un festival de cinéma à 13rem mérite de l'air, de la prestance.
+ *   Passage à 0.08em — ouvert, éditorial, cinématographique.
+ *
+ * CTA SUPPRIMÉ :
+ *   Le bouton "Soumettre mon film" est redondant — présent dans la
+ *   navbar (LuminousButton) et dans la SectionCTA plus bas.
+ *   Le héros doit être épuré. Supprimé du JSX et du CSS (styles
+ *   conservés en commentaire pour usage éventuel ailleurs).
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   §1.1 — HÉROS PLEIN ÉCRAN
+   ───────────────────────────────────────────────────────────── */
+
+.heroSection {
+  /* dvh sur desktop : full viewport, propre */
+  height:     100dvh;
+  min-height: 580px;
+}
+
+/* Mobile : 100svh — exclut la chrome du navigateur (barre
+   d'adresse, bottom bar iOS). Le contenu ne finit plus sous
+   les barres de navigation du système. */
+@media (max-width: 767px) {
+  .heroSection {
+    height:     100svh;
+    min-height: 520px;
+  }
+}
+
+
+/* ── Overlay cinématographique — animé par GSAP ──────────────
+   Démarre à opacity:1 (noir total pour la révélation de l'image).
+   GSAP l'amène à opacity:0.68 — valeur renforcée vs l'original
+   (0.55) pour une meilleure protection de base. */
+.heroOverlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.97) 0%,
+    rgba(0, 0, 0, 0.80) 28%,
+    rgba(0, 0, 0, 0.40) 60%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+}
+
+
+/* ── Couche de lisibilité — STATIQUE, jamais animée par GSAP ──
+   Protège la zone texte (tiers inférieur) en permanence.
+   Garantit la lisibilité sur n'importe quelle image de fond,
+   claire ou sombre, sans compromettre l'esthétique cinéma. */
+.heroReadability {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65) 0%,
+    rgba(0, 0, 0, 0.35) 30%,
+    rgba(0, 0, 0, 0.05) 56%,
+    transparent          72%
+  );
+  pointer-events: none;
+  z-index:        3;
+}
+
+
+/* ── Fondu bas — transition héros → stats ────────────────────
+   Mobile uniquement. Dissout le bas du héros dans la couleur
+   de fond de la section stats (--color-bg-pure).
+   Le vide entre le contenu centré et le bord bas devient
+   invisible — transition fluide, pas de coupure noire. */
+.heroBottomFade {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .heroBottomFade {
+    display:    block;
+    position:   absolute;
+    bottom:     0;
+    left:       0;
+    right:      0;
+    height:     42%;
+    background: linear-gradient(
+      to bottom,
+      transparent          0%,
+      var(--color-bg-pure) 100%
+    );
+    pointer-events: none;
+    z-index:    4;
+  }
+}
+
+
+/* ── Grain — texture pellicule cinéma ───────────────────────── */
+.heroGrain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity:         0.04;
+  mix-blend-mode:  overlay;
+  z-index:         2;
+}
+
+
+/* ── Conteneur du contenu principal ─────────────────────────── */
+.heroContent {
+  padding: clamp(2rem, 5vw, 5rem);
+  z-index: 10;
+}
+
+/* Mobile : le contenu est centré verticalement au lieu d'être
+   ancré en bas (justify-end). Le flex container .heroContent
+   utilise justify-end via Tailwind dans le JSX — on override
+   ici avec justify-content: center pour les petits écrans.
+   padding symétrique pour que le bloc respire dans le cadre. */
+@media (max-width: 767px) {
+  .heroContent {
+    justify-content: center;
+    padding:         clamp(1.5rem, 6vw, 3rem);
+    padding-top:     max(5rem, calc(env(safe-area-inset-top, 0px) + 4rem));
+    padding-bottom:  max(3rem, calc(env(safe-area-inset-bottom, 0px) + 2rem));
+  }
+}
+
+
+/* ── Surtitre (overline) ─────────────────────────────────────── */
+
+.overlineAccent {
+  color:       var(--color-accent);
+  opacity:     0.9;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.8);
+}
+
+.overlineSeparator {
+  width:       2rem;
+  height:      1px;
+  background:  var(--color-accent);
+  opacity:     0.5;
+  flex-shrink: 0;
+}
+
+
+/* ── Titre principal — MARSAI ────────────────────────────────── */
+
+/* willChange reste en style={{}} dans le JSX — GSAP anime
+   filter + opacity sur cet élément. Voir HeroImpact.jsx. */
+.heroTitle {
+  font-family:    var(--font-display);
+  font-weight:    900;
+  font-size:      clamp(4.5rem, 14vw, 13rem);
+  line-height:    0.88;
+  /* Passage de -0.04em (comprimé, dense) à 0.08em (aéré, éditorial).
+     Un titre festival à cette taille exige de la respiration — c'est
+     ce qui sépare le prestige du banal. */
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color:          var(--color-text);
+  margin-bottom:  clamp(1rem, 2vw, 1.8rem);
+  /* text-shadow double couche : profondeur + netteté sur
+     n'importe quelle image de fond */
+  text-shadow:
+    0 2px 48px rgba(0, 0, 0, 0.65),
+    0 1px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* Mobile : espacement légèrement réduit pour tenir sur une
+   ligne sans débordement sur petits écrans */
+@media (max-width: 480px) {
+  .heroTitle {
+    letter-spacing: 0.03em;
+  }
+}
+
+
+/* ── Accroche ───────────────────────────────────────────────── */
+
+.heroSubtitle {
+  font-family:    var(--font-sans);
+  font-weight:    300;
+  font-size:      clamp(1rem, 2vw, 1.35rem);
+  letter-spacing: 0.05em;
+  /* Opacité renforcée : 0.75 → 0.95 — le texte doit s'imposer */
+  color:          rgba(241, 245, 249, 0.95);
+  margin-bottom:  clamp(1.5rem, 3vw, 2.5rem);
+  max-width:      36ch;
+  text-shadow:    0 1px 22px rgba(0, 0, 0, 0.85);
+}
+
+
+/* ── Ligne date ──────────────────────────────────────────────── */
+
+.dateLineSeparator {
+  display:     block;
+  width:       clamp(2rem, 4vw, 4rem);
+  height:      1px;
+  background:  var(--color-accent);
+  flex-shrink: 0;
+}
+
+.dateLineText {
+  font-family:    var(--font-sans);
+  font-weight:    600;
+  font-size:      clamp(0.75rem, 1.2vw, 0.9rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color:          var(--color-accent);
+  text-shadow:    0 1px 14px rgba(0, 0, 0, 0.8);
+}
+
+
+/* ── Indicateur de scroll ───────────────────────────────────── */
+
+.scrollIndicator {
+  bottom:  clamp(1.5rem, 3vw, 2.5rem);
+  right:   clamp(2rem, 5vw, 5rem);
+  z-index: 10;
+}
+
+/* Masqué sur mobile — pas la place, pas nécessaire */
+@media (max-width: 767px) {
+  .scrollIndicator {
+    display: none;
+  }
+}
+
+.scrollIndicatorLabel {
+  font-family:    var(--font-sans);
+  font-weight:    500;
+  font-size:      0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color:          rgba(241, 245, 249, 0.35);
+  writing-mode:   vertical-rl;
+  margin-bottom:  0.5rem;
+}
+
+.scrollIndicatorSvg {
+  opacity: 0.4;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   §1.2 — BANDE DE STATISTIQUES
+   ───────────────────────────────────────────────────────────── */
+
+.statsSection {
+  background:  var(--color-bg-pure);
+  border-top:  1px solid var(--color-border);
+}
+
+/* Bordures stat : calculées depuis l'index i dans le JSX.
+   Non extractibles. Voir HeroImpact.jsx. */
+
+.statValue {
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      clamp(2.5rem, 5vw, 4rem);
+  line-height:    1;
+  letter-spacing: -0.04em;
+  color:          var(--color-text);
+  margin-bottom:  0.5rem;
+  display:        block;
+}

@@ -10,6 +10,7 @@ import cors from "cors";
 
 // --- IMPORT DES ROUTES ---
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 // Importez vos futures routes ici :
 // import movieRoutes from "./routes/movie.routes.js";
 
@@ -46,9 +47,7 @@ app.use(express.json());
 
 // Routes d'authentification (Login, Profile, etc.)
 app.use("/api/auth", authRoutes);
-
-// Futures routes à implémenter :
-// app.use("/api/movies", movieRoutes);
+app.use("/api/users", userRoutes);
 
 /**
  * Route de santé (Health Check)
