@@ -202,11 +202,24 @@
   font-weight:    300;
   font-size:      clamp(1rem, 2vw, 1.35rem);
   letter-spacing: 0.05em;
-  /* Opacité renforcée : 0.75 → 0.95 — le texte doit s'imposer */
   color:          rgba(241, 245, 249, 0.95);
   margin-bottom:  clamp(1.5rem, 3vw, 2.5rem);
-  max-width:      36ch;
+  max-width:      44ch;
   text-shadow:    0 1px 22px rgba(0, 0, 0, 0.85);
+  line-height:    1.5;
+}
+
+/* Deuxième ligne du subtitle — s'adresse au 22 ans.
+   Plus petite, plus douce. Le 40+ pro la remarque à peine.
+   Le novice de 22 ans la lit et comprend : c'est pour moi aussi.
+   Block — passe à la ligne naturellement après la ligne principale. */
+.heroSubtitleSub {
+  display:        block;
+  font-size:      clamp(0.8rem, 1.3vw, 1rem);
+  font-weight:    300;
+  letter-spacing: 0.06em;
+  color:          rgba(226, 209, 195, 0.70);
+  margin-top:     0.4rem;
 }
 
 

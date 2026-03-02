@@ -166,7 +166,7 @@ export default function HeroImpact() {
         {/* ── Image cinématographique ──────────────────────── */}
         <img
           ref={imageRef}
-          src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1450&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=90&w=2400&auto=format&fit=crop"
           alt="Cinéma génératif — MARSAI Festival"
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ willChange: 'transform, opacity' }}
@@ -211,7 +211,7 @@ export default function HeroImpact() {
           {/* Surtitre */}
           <div ref={overlineRef} className="flex items-center gap-4 mb-6">
             <span className={`label-overline ${styles.overlineAccent}`}>
-              Festival des Cinéastes I.A.
+              Festival du Cinéma I.A. · Tous niveaux
             </span>
             <span className={`hidden sm:block ${styles.overlineSeparator}`} />
             <span className="label-overline hidden sm:block">Édition 2026</span>
@@ -227,8 +227,15 @@ export default function HeroImpact() {
           </h1>
 
           {/* Accroche */}
+          {/* Subtitle — deux lignes superposées :
+              Ligne 1 : prestige pour le 40+ pro ("cinéma génératif")
+              Ligne 2 : invitation pour le 22 ans ("quelque chose à dire")
+              Lecture à deux niveaux — aucun des deux n'est exclu. */}
           <p ref={subtitleRef} className={styles.heroSubtitle}>
-            L'apogée du cinéma génératif.
+            Un festival pour ceux qui ont quelque chose à dire —
+            <span className={styles.heroSubtitleSub}>
+              {' '}Débutants, passionnés et professionnels bienvenus.
+            </span>
           </p>
 
           {/* Date + filet */}
