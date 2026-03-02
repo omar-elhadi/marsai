@@ -15,7 +15,7 @@ const RATING_BY_SENTIMENT = { LIKE: 7, DISLIKE: 3 };
  */
 export const getFilmsForJury = async (userId) => {
   return prisma.film.findMany({
-    where: { status: "IN_REVIEW", assignedUsers: { some: { id: userId } } },
+    where: { assignedUsers: { some: { id: userId } } },
     include: {
       submitter: { select: { firstName: true, lastName: true } },
       votes: {
@@ -73,6 +73,15 @@ export const castVote = async (filmId, userId, sentiment, options = {}) => {
   } else if (!suggestModification) {
     // Le jury a retiré sa suggestion → supprime uniquement le commentaire suggestion
     await prisma.reviewComment.deleteMany({ where: { voteId: vote.id, isInternal: false } });
+  }
+
+  // Transition automatique : demande de modification jury → film passe en TO_MODIFY
+  // Uniquement si le film est en IN_REVIEW (évite d'écraser un statut admin ultérieur)
+  if (suggestModification && film.status === "IN_REVIEW") {
+    await prisma.film.update({
+      where: { id: filmId },
+      data:  { status: "TO_MODIFY" },
+    });
   }
 
   await recalcFilmStats(filmId);
