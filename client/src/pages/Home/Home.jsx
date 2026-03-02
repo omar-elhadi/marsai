@@ -22,7 +22,7 @@ import SectionProgramme from '@/components/SectionProgramme';
 import SectionJury      from '@/pages/Home/components/SectionJury';
 import SectionRecompenses from '@/pages/Home/components/SectionRecompenses';
 import SectionGalerie      from '@/pages/Home/components/SectionGalerie';
-import SectionAlliances   from '@/components/SectionAlliances';
+import SectionAlliances   from '@/pages/Home/components/SectionAlliances';
 import SectionCTA         from '@/pages/Home/components/SectionCTA';
 
 function Home() {
