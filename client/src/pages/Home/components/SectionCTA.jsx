@@ -62,8 +62,8 @@ gsap.registerPlugin(ScrollTrigger);
 // Le dernier reçoit la classe .ctaWordAccent (var(--color-accent)).
 const MOTS = [
   { text: "C'est",  accent: false },
-  { text: 'ton',    accent: false },
-  { text: 'heure.', accent: true  },
+  { text: 'ta',    accent: false },
+  { text: 'minute.', accent: true  },
 ];
 
 // ─────────────────────────────────────────────────────────────
