@@ -46,10 +46,43 @@
 
 .hero {
   position:   relative;
-  background: var(--color-bg-pure);
-  padding:    clamp(7rem, 14vw, 12rem) clamp(1.5rem, 5vw, 6rem) clamp(4rem, 7vw, 6rem);
+  /* Fond image — salle de cinéma dans l'obscurité, public présent.
+     Ce choix est délibéré : pas du matériel de tournage, pas un
+     réalisateur — des gens qui regardent. Le festival est fait
+     pour ceux qui voient des films, pas seulement pour ceux qui
+     les font. Message visuel immédiat, universel, inclusif. */
+  background:    #0a0a0a;
+  padding:       clamp(7rem, 14vw, 12rem) clamp(1.5rem, 5vw, 6rem) clamp(4rem, 7vw, 6rem);
   border-bottom: 1px solid var(--color-border);
-  overflow:   hidden;
+  overflow:      hidden;
+}
+
+/* Image de fond — audience dans une salle obscure.
+   Unsplash photo-1489599849927-2ee91cede3ba — libre de droits.
+   Opacité 0.28 : présente, ressentie, jamais distrayante. */
+.heroBgImage {
+  position:            absolute;
+  inset:               0;
+  background-image:    url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=85&w=2400&auto=format&fit=crop');
+  background-size:     cover;
+  background-position: center 35%;
+  opacity:             0.28;
+  z-index:             0;
+}
+
+/* Overlay double couche — lisibilité + atmosphère.
+   Gradient vers le bas plus dense : le texte en bas est
+   toujours parfaitement lisible quelle que soit l'image. */
+.heroOverlay {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.30) 40%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  z-index: 1;
 }
 
 /* Grain pellicule — cohérence avec le reste du site */
@@ -58,10 +91,10 @@
   inset:            0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size:  200px 200px;
-  opacity:          0.04;
+  opacity:          0.035;
   mix-blend-mode:   overlay;
   pointer-events:   none;
-  z-index:          0;
+  z-index:          2;
 }
 
 .heroContainer {
@@ -140,13 +173,87 @@
 .heroMetaDivider {
   width:  1px;
   height: 3rem;
-  background: var(--color-border);
+  background: rgba(226, 209, 195, 0.2);
   flex-shrink: 0;
+}
+
+/* Sous-titre — ligne d'invitation inclusive.
+   "Toutes les histoires méritent d'être racontées."
+   Warm, ouvert, non technique. Le 22 ans se reconnaît.
+   Le 45 ans acquiesce. Universel. */
+.heroSubtitle {
+  font-family:    var(--font-sans);
+  font-weight:    300;
+  font-size:      clamp(0.95rem, 1.6vw, 1.15rem);
+  letter-spacing: 0.04em;
+  color:          rgba(226, 209, 195, 0.65);
+  margin-bottom:  clamp(2rem, 4vw, 3.5rem);
+  max-width:      48ch;
+  line-height:    1.6;
+  /* Placé entre le titre et les métas — respire sans surcharger */
 }
 
 
 /* ─────────────────────────────────────────────────────────────
-   §B — FILTRES
+   §B — BANDE D'INVITATION
+   Passerelle entre la galerie et l'appel à soumissions.
+   Visible mais discrète — plante l'idée sans forcer la main.
+   ───────────────────────────────────────────────────────────── */
+
+.inviteStrip {
+  background:    var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding:       0.85rem clamp(1.5rem, 5vw, 6rem);
+}
+
+.inviteStripInner {
+  max-width:   1440px;
+  margin:      0 auto;
+  display:     flex;
+  align-items: center;
+  gap:         1.2rem;
+  flex-wrap:   wrap;
+}
+
+.inviteStripText {
+  font-family:    var(--font-sans);
+  font-weight:    400;
+  font-size:      0.72rem;
+  letter-spacing: 0.06em;
+  color:          var(--color-text-muted);
+  flex:           1;
+}
+
+.inviteStripLink {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.5rem;
+  font-family:     var(--font-sans);
+  font-weight:     700;
+  font-size:       0.65rem;
+  letter-spacing:  0.18em;
+  text-transform:  uppercase;
+  color:           var(--color-accent);
+  text-decoration: none;
+  white-space:     nowrap;
+  transition:      opacity 250ms var(--ease-out);
+}
+
+.inviteStripLink:hover {
+  opacity: 0.72;
+}
+
+.inviteStripArrow {
+  transition: transform 250ms var(--ease-out);
+}
+
+.inviteStripLink:hover .inviteStripArrow {
+  transform: translateX(3px);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   §C — FILTRES
    ───────────────────────────────────────────────────────────── */
 
 .filtersSection {

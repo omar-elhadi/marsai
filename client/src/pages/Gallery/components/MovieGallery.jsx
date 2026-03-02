@@ -38,6 +38,8 @@ import { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import gsap                          from 'gsap';
 import { useGSAP }                   from '@gsap/react';
 import { ScrollTrigger }             from 'gsap/ScrollTrigger';
+import { Link }                      from 'react-router-dom';
+import { ROUTES }                    from '@/constants/routes';
 import MovieCard                     from './MovieCard';
 import styles                        from './MovieGallery.module.css';
 
@@ -487,8 +489,11 @@ export default function MovieGallery() {
   const [activeFilter, setActiveFilter] = useState(ALL_LABEL);
   const [currentPage, setCurrentPage]   = useState(1);
 
-  const heroRef    = useRef(null);
+  const heroRef       = useRef(null);
   const galleryTopRef = useRef(null);  // Ancre pour le scroll en haut au changement de page
+  // Refs pour l'animation de comptage des métas
+  const countFilmsRef = useRef(null);
+  const countYearRef  = useRef(null);
   const titleRef   = useRef(null);
   const metaRef    = useRef(null);
   const gridRef    = useRef(null);
@@ -576,6 +581,32 @@ export default function MovieGallery() {
       clearProps: 'opacity,y',
     }, 0.35);
 
+    // Compteur animé — les chiffres montent depuis 0.
+    // Effet plaisant pour les 18-30, impressionnant pour les 40+.
+    // Le chiffre final est lu depuis data-target pour rester
+    // synchronisé avec les données réelles.
+    [countFilmsRef, countYearRef].forEach((ref) => {
+      if (!ref.current) return;
+      const target = parseInt(ref.current.dataset.target, 10);
+      gsap.fromTo(
+        ref.current,
+        { innerText: 0 },
+        {
+          innerText: target,
+          duration:  1.4,
+          delay:     0.5,
+          ease:      'power2.out',
+          snap:      { innerText: 1 },  // Nombres entiers uniquement
+          onUpdate() {
+            // Formatage pendant le comptage
+            ref.current.innerText = Math.round(
+              parseFloat(ref.current.innerText)
+            ).toLocaleString('fr-FR');
+          },
+        }
+      );
+    });
+
   }, { scope: heroRef });
 
   // ── GSAP — Révélation des cartes au scroll ───────────────
@@ -626,7 +657,12 @@ export default function MovieGallery() {
         aria-label="Galerie de la sélection officielle MARSAI 2026"
         className={styles.hero}
       >
-        <div className={styles.heroGrain} aria-hidden="true" />
+        {/* Image de fond — audience dans une salle obscure.
+            Des gens qui regardent, pas des techniciens.
+            Message visuel : ce festival est pour tout le monde. */}
+        <div className={styles.heroBgImage} aria-hidden="true" />
+        <div className={styles.heroOverlay} aria-hidden="true" />
+        <div className={styles.heroGrain}   aria-hidden="true" />
 
         <div className={styles.heroContainer}>
 
@@ -642,11 +678,25 @@ export default function MovieGallery() {
             <span className={styles.heroTitleAccent}>des Œuvres</span>
           </h1>
 
-          {/* Métas — compteur + année */}
+          {/* Sous-titre — ligne d'invitation inclusive.
+              "Toutes les histoires méritent d'être racontées."
+              Le 22 ans se reconnaît. Le 45 ans acquiesce. */}
+          <p className={styles.heroSubtitle}>
+            Toutes les histoires méritent d'être racontées.
+          </p>
+
+          {/* Métas — comptage animé au montage */}
           <div ref={metaRef} className={styles.heroMeta}>
+
             <div className={styles.heroMetaItem}>
-              <span className={styles.heroMetaValue}>
-                {galleryMovies.length}
+              {/* data-target : valeur cible pour GSAP countTo */}
+              <span
+                ref={countFilmsRef}
+                className={styles.heroMetaValue}
+                data-target={galleryMovies.length}
+                aria-label={`${galleryMovies.length} films sélectionnés`}
+              >
+                0
               </span>
               <span className={styles.heroMetaLabel}>Films sélectionnés</span>
             </div>
@@ -654,23 +704,54 @@ export default function MovieGallery() {
             <div className={styles.heroMetaDivider} aria-hidden="true" />
 
             <div className={styles.heroMetaItem}>
-              <span className={styles.heroMetaValue}>2026</span>
+              <span
+                ref={countYearRef}
+                className={styles.heroMetaValue}
+                data-target={2026}
+                aria-label="Édition 2026"
+              >
+                0
+              </span>
               <span className={styles.heroMetaLabel}>Édition</span>
             </div>
 
             <div className={styles.heroMetaDivider} aria-hidden="true" />
 
             <div className={styles.heroMetaItem}>
+              {/* Durée — statique, pas de comptage (unité mixte) */}
               <span className={styles.heroMetaValue}>1 min</span>
               <span className={styles.heroMetaLabel}>Format imposé</span>
             </div>
+
           </div>
 
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════════
-          §B — FILTRES
+          §B — BANDE D'INVITATION
+          Passerelle discrète vers la soumission.
+          Parle directement au cinéaste en devenir.
+          ════════════════════════════════════════════════ */}
+      <div className={styles.inviteStrip} role="complementary">
+        <div className={styles.inviteStripInner}>
+          <p className={styles.inviteStripText}>
+            Tu as réalisé un court-métrage d'une minute avec l'I.A. ?
+            Cette galerie peut être la tienne.
+          </p>
+          <Link
+            to={ROUTES.SOUMETTRE}
+            className={styles.inviteStripLink}
+            aria-label="Soumettre votre film au festival MARSAI"
+          >
+            Soumettre mon film
+            <span className={styles.inviteStripArrow} aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════════
+          §C — FILTRES
           ════════════════════════════════════════════════ */}
       <nav
         className={styles.filtersSection}
