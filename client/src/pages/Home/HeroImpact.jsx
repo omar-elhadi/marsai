@@ -166,7 +166,7 @@ export default function HeroImpact() {
         {/* ── Image cinématographique ──────────────────────── */}
         <img
           ref={imageRef}
-          src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1450&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Cinéma génératif — MARSAI Festival"
           className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ willChange: 'transform, opacity' }}
