@@ -12,10 +12,10 @@ export const galleryMovies = [
   { id: 2, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
   { id: 3, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
   { id: 4, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
-  { id: 1, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
-  { id: 2, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
-  { id: 3, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
-  { id: 4, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
+  { id: 5, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
+  { id: 6, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
+  { id: 7, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
+  { id: 8, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
 ];
 
 // keep local alias for component

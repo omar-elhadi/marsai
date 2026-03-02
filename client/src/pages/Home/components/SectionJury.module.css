@@ -1,0 +1,254 @@
+/**
+ * SectionJury.module.css — MARSAI Festival
+ * Refactoring Étape 4.2
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * NOTES D'ARCHITECTURE — Kodawari
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * 1. Tous les états hover (translateY, grayscale, opacity, color)
+ *    sont désormais gérés en CSS pur via :hover descendant.
+ *    Les handlers onMouseEnter/onMouseLeave ont été supprimés
+ *    dans SectionJury.jsx — aucune logique de style ne subsiste
+ *    dans le JS pour ces interactions.
+ *
+ * 2. CSS Modules génère des noms de classe uniques à la compilation.
+ *    Les classes globales (.jury-card, .jury-photo, .jury-nom)
+ *    qui existaient dans l'ancien <style> tag JSX sont remplacées
+ *    par des classes locales (.juryCard, .juryPhoto, .juryNom).
+ *
+ * 3. Le conflit GSAP/CSS hover est résolu par clearProps: 'all'
+ *    à la fin de chaque animation d'entrée (voir SectionJury.jsx).
+ *    GSAP nettoie ses styles inline → CSS prend le contrôle.
+ *
+ * 4. willChange sur .juryCard et .juryPhoto : transitions CSS pures,
+ *    pas GSAP. Posées en CSS ici — comportement correct car lié
+ *    aux transitions hover définies dans ce même fichier.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION WRAPPER
+   ───────────────────────────────────────────────────────────── */
+
+.sectionJury {
+  background:  var(--color-bg-pure);
+  border-top:  1px solid var(--color-border);
+  padding:     clamp(5rem, 10vw, 9rem) clamp(1.5rem, 5vw, 6rem);
+}
+
+.container {
+  max-width: 1200px;
+  margin:    0 auto;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   EN-TÊTE
+   ───────────────────────────────────────────────────────────── */
+
+.header {
+  display:       flex;
+  flex-direction: column;
+  gap:           clamp(1.2rem, 2vw, 1.8rem);
+  margin-bottom: clamp(3.5rem, 7vw, 6rem);
+}
+
+.overlineLine {
+  display:     block;
+  width:       clamp(2rem, 3vw, 3rem);
+  height:      1px;
+  background:  var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* Mot accentué "International" dans le titre */
+.titleAccent {
+  color: var(--color-accent);
+}
+
+.introText {
+  max-width: 52ch;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   GRILLE DES CARTES
+   ───────────────────────────────────────────────────────────── */
+
+.juryGrid {
+  display:               grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:                   clamp(0.8rem, 1.5vw, 1.4rem);
+}
+
+@media (max-width: 1024px) {
+  .juryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .juryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sur mobile, ratio paysage — l'image est moins haute */
+  .juryCard {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   CARTE JURÉ
+   ───────────────────────────────────────────────────────────── */
+
+.juryCard {
+  position:     relative;
+  overflow:     hidden;
+  cursor:       default;
+  border-radius: var(--radius-sm);
+  aspect-ratio: 3 / 4;
+  background:   var(--color-surface);
+  will-change:  transform;
+  box-shadow:   0 8px 32px rgba(0, 0, 0, 0.35);
+  transition:
+    transform   0.4s var(--ease-out),
+    box-shadow  0.4s var(--ease-out);
+}
+
+/* Hover carte — élévation + ombre profonde */
+.juryCard:hover {
+  transform:  translateY(-6px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   PHOTO PORTRAIT
+   N&B par défaut — couleur révélée au hover
+   ───────────────────────────────────────────────────────────── */
+
+.juryPhoto {
+  position:        absolute;
+  inset:           0;
+  width:           100%;
+  height:          100%;
+  object-fit:      cover;
+  object-position: center 20%;
+  filter:          grayscale(100%);
+  transform:       scale(1);
+  will-change:     filter, transform;
+  transition:
+    filter    0.55s var(--ease-out),
+    transform 0.55s var(--ease-out);
+}
+
+/* Hover photo — couleur + léger zoom */
+.juryCard:hover .juryPhoto {
+  filter:    grayscale(0%);
+  transform: scale(1.04);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   OVERLAY GRADIENT — lisibilité du texte bas
+   ───────────────────────────────────────────────────────────── */
+
+.juryOverlay {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.40) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  opacity:    0.72;
+  transition: opacity 0.55s var(--ease-out);
+}
+
+/* Hover overlay — s'allège pour révéler la photo */
+.juryCard:hover .juryOverlay {
+  opacity: 0.55;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   TEXTE — ancré en bas gauche
+   ───────────────────────────────────────────────────────────── */
+
+.juryTextContent {
+  position: absolute;
+  bottom:   0;
+  left:     0;
+  right:    0;
+  padding:  clamp(1.2rem, 2.5vw, 2rem);
+  z-index:  2;
+}
+
+.juryPays {
+  display:       block;
+  margin-bottom: 0.4rem;
+  opacity:       0.65;
+}
+
+.juryNom {
+  font-family:    var(--font-sans);
+  font-weight:    800;
+  font-size:      clamp(1.05rem, 2vw, 1.45rem);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  line-height:    1.1;
+  color:          var(--color-text);
+  margin-bottom:  0.35rem;
+  transition:     color 0.4s var(--ease-out);
+}
+
+/* Hover nom — vire à l'accent sable */
+.juryCard:hover .juryNom {
+  color: var(--color-accent);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   NUMÉRO DISCRET — haut droite
+   ───────────────────────────────────────────────────────────── */
+
+.juryNumber {
+  position:       absolute;
+  top:            clamp(0.8rem, 1.5vw, 1.2rem);
+  right:          clamp(0.8rem, 1.5vw, 1.2rem);
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      0.6rem;
+  letter-spacing: 0.18em;
+  /* Pas de token pour cette opacité fine — valeur intentionnelle */
+  color:          rgba(226, 209, 195, 0.45);
+  z-index:        2;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   NOTE DE BAS DE SECTION
+   ───────────────────────────────────────────────────────────── */
+
+.bottomNote {
+  margin-top:  clamp(2.5rem, 4vw, 3.5rem);
+  display:     flex;
+  align-items: center;
+  gap:         1rem;
+}
+
+.bottomNoteHr {
+  flex:        1;
+  border:      none;
+  border-top:  1px solid var(--color-border);
+}
+
+.bottomNoteLabel {
+  flex-shrink: 0;
+  opacity:     0.5;
+}

@@ -15,15 +15,15 @@
  *   §8  Alliances                 existant
  *   §9  CTA final                 existant
  */
-import HeroImpact       from '../../components/animations/HeroImpact';
+import HeroImpact from '@/pages/Home/HeroImpact';
 import SectionManifeste from '@/components/SectionManifeste';
 import SectionTheme     from '@/components/SectionTheme';
 import SectionProgramme from '@/components/SectionProgramme';
-import SectionJury      from '@/components/SectionJury';
-import SectionRecompenses from '@/components/SectionRecompenses';
-import SectionGalerie      from '@/components/SectionGalerie';
+import SectionJury      from '@/pages/Home/components/SectionJury';
+import SectionRecompenses from '@/pages/Home/components/SectionRecompenses';
+import SectionGalerie      from '@/pages/Home/components/SectionGalerie';
 import SectionAlliances   from '@/components/SectionAlliances';
-import SectionCTA         from '@/components/SectionCTA';
+import SectionCTA         from '@/pages/Home/components/SectionCTA';
 
 function Home() {
   return (
