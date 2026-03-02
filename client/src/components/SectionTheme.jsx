@@ -118,7 +118,7 @@ export default function SectionTheme() {
       >
         <img
           ref={imageRef}
-          src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=90&w=2800&auto=format&fit=crop"
+          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixid=eyJhcHBfaWQiOjEyMDd9&ixlib=rb-1.2.1&q=80&w=1000"
           alt="Terre vue de l'espace — futurs souhaitables"
           style={{
             width:      '100%',
