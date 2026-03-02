@@ -24,7 +24,7 @@ export const updateStatusSchema = z.object({
 });
 
 export const assignSchema = z.object({
-  juryIds: z.array(z.number().int().positive()).min(1, "Au moins un juré requis"),
+  userIds: z.array(z.number().int().positive()),
 });
 
 export const requestModificationSchema = z.object({

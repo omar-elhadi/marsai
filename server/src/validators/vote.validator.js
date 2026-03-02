@@ -12,5 +12,5 @@ export const castVoteSchema = z.object({
 );
 
 export const addCommentSchema = z.object({
-  comment: z.string().min(1, "Commentaire requis"),
+  content: z.string().min(1, "Commentaire requis"),
 });
