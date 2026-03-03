@@ -52,6 +52,12 @@ const SECTIONS_RIGHT = [
       { type: 'paragraph', text: 'Les décisions du jury international sont souveraines. Les critères incluent l\u2019esthétique, l\u2019innovation technique et la narration.' },
     ],
   },
+  {
+    id: '06', slug: 'prix', title: 'Prix',
+    content: [
+      { type: 'paragraph', text: 'Les lauréats recevront un prix lors de la cérémonie de clôture du festival.' },
+    ],
+  },
 ];
 
 function RuleSection({ section, isLast }) {
