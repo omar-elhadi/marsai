@@ -6,9 +6,10 @@
 
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-export default function CategoryHeader({ title, subtitle, image }) {
+export default function CategoryHeader({ title, subtitle, image, date }) {
   return (
-    <div style={{
+    <>
+      <div style={{
       position:     'relative',
       overflow:     'hidden',
       borderRadius: 'var(--radius-sm)',
@@ -70,5 +71,16 @@ export default function CategoryHeader({ title, subtitle, image }) {
         )}
       </div>
     </div>
+    
+    {/* Date sous l'image */}
+    {date && (
+      <div className="mt-3 flex items-center gap-2">
+        <span className="h-px w-8 bg-[var(--color-accent)]" aria-hidden="true" />
+        <span className="label-overline tracking-[0.18em] text-[var(--color-accent)]">
+          {date}
+        </span>
+      </div>
+    )}
+    </>
   );
 }
