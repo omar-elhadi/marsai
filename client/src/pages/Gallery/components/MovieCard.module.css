@@ -1,160 +1,94 @@
 /**
  * MovieCard.module.css — MARSAI Festival
- * Galerie · Carte film individuelle
+ * Galerie · Carte film — défilement horizontal
  *
  * ═══════════════════════════════════════════════════════════════
- * CONCEPT : La pellicule avant la projection
+ * CONCEPT : La fiche de programme d'un festival de cinéma
  * ═══════════════════════════════════════════════════════════════
  *
- * Au repos : image en N&B désaturé — comme une pellicule avant
- * développement. Le film existe mais n'a pas encore été révélé.
+ * Architecture verticale :
+ *   .cardImageWrap  image pleine hauteur, N&B → couleur au hover
+ *   .cardPanel      encart éditorial — fond crème chaud sur trait accent
  *
- * Au hover : couleur qui émerge — la projection commence.
- * L'overlay sombre s'éclaircit, le titre monte, le numéro
- * décoratif s'intensifie légèrement.
+ * Le panel reprend le "cadre blanc" demandé mais l'élève :
+ *   - fond crème chaud (#EDE8E3) avec transition subtile
+ *   - numéro watermark en display géant, semi-transparent
+ *   - badge catégorie avec trait couleur accent
+ *   - titre en font display, taille imposante
+ *   - trait séparateur pleine largeur avant le réalisateur
+ *   - rangée bas : réalisateur italic + flèche cerclée animée
  *
- * Cohérence absolue avec SectionJury — même logique N&B→couleur,
- * même durée 500ms, même ease.
- *
- * ═══════════════════════════════════════════════════════════════
- * DÉCISIONS D'ARCHITECTURE — Kodawari
- * ═══════════════════════════════════════════════════════════════
- *
- * 1. .card — position:relative, overflow:hidden.
- *    L'image déborde légèrement (scale:1.04 au hover) mais reste
- *    contenue dans le cadre. Pas de border-radius — cinéma, pas app.
- *
- * 2. .cardImage — filter grayscale(0.85) → grayscale(0).
- *    Pas grayscale(1) complet : une légère teinte persiste au repos,
- *    la révélation au hover est plus douce, moins brutale.
- *
- * 3. .cardOverlay — gradient to-top opacity 0.72 → 0.55 au hover.
- *    Toujours présent pour la lisibilité — jamais transparent.
- *
- * 4. .cardInfo — translateY(8px) → translateY(0) au hover.
- *    Micro-déplacement ascendant — suggère l'animation sans
- *    perturber la lecture.
- *
- * 5. Numéro décoratif — opacity 0.06 → 0.10 au hover.
- *    Cohérent avec SectionAlliances et SectionJury.
+ * Résultat visuel : programme de festival haut de gamme,
+ * pas une simple caption d'image.
  * ═══════════════════════════════════════════════════════════════
  */
 
-
-/* ─────────────────────────────────────────────────────────────
-   CARTE — wrapper principal
-   ───────────────────────────────────────────────────────────── */
+/* ── Carte — conteneur racine ────────────────────────────── */
 
 .card {
-  position:        relative;
-  display:         block;
-  overflow:        hidden;
-  text-decoration: none;
-  cursor:          pointer;
-  /* Hauteur variable selon la position dans la grille —
-     définie par la grille parente via CSS custom property */
-  height:          var(--card-height, 420px);
-  background:      var(--color-surface);
+  position:         relative;
+  flex-shrink:      0;
+  display:          flex;
+  flex-direction:   column;
+  cursor:           pointer;
+  height:           var(--card-height, 72vh);
+  width:            var(--card-width, 42vw);
+  transform-origin: center bottom;
+  text-decoration:  none;
+  /* Empêche le débordement du panel en dehors de la carte */
+  overflow:         hidden;
 }
 
-/* Révélation au scroll — état initial défini par GSAP.
-   clearProps: 'clipPath' dans MovieGallery restitue le contrôle ici. */
+@media (max-width: 768px) {
+  .card { width: 84vw !important; height: 70vh; }
+}
 
-/* ─────────────────────────────────────────────────────────────
-   IMAGE — N&B désaturé → couleur au hover
-   ───────────────────────────────────────────────────────────── */
+
+/* ── Zone image — flex:1, absorbe tout l'espace restant ───── */
+
+.cardImageWrap {
+  position:   relative;
+  flex:       1;
+  min-height: 0;
+  overflow:   hidden;
+}
 
 .cardImage {
-  position:   absolute;
-  inset:      0;
-  width:      100%;
-  height:     100%;
-  object-fit: cover;
-  /* N&B partiel au repos — pellicule non développée */
-  filter:     grayscale(0.85) brightness(0.88);
-  transform:  scale(1.00);
-  transition:
-    filter    520ms var(--ease-out),
-    transform 520ms var(--ease-out);
-  will-change: filter, transform;
+  position:    absolute;
+  inset:       0;
+  width:       100%;
+  height:      100%;
+  object-fit:  cover;
+  /* scale:1.12 absorbe le déplacement parallaxe ±11% GSAP */
+  scale:       1.12;
+  filter:      grayscale(0.72) brightness(0.88);
+  transition:  filter 580ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform, filter;
 }
 
 .card:hover .cardImage {
-  /* Couleur révélée — la projection commence */
-  filter:    grayscale(0) brightness(1);
-  transform: scale(1.04);
+  filter: grayscale(0) brightness(1.02);
 }
 
-
-/* ─────────────────────────────────────────────────────────────
-   OVERLAY — gradient permanent pour la lisibilité du texte
-   Jamais entièrement transparent — le texte doit toujours lire.
-   ───────────────────────────────────────────────────────────── */
-
-.cardOverlay {
-  position:   absolute;
-  inset:      0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.88) 0%,
-    rgba(0, 0, 0, 0.52) 40%,
-    rgba(0, 0, 0, 0.18) 70%,
-    transparent         100%
-  );
-  opacity:    1;
-  transition: opacity 520ms var(--ease-out);
-}
-
-.card:hover .cardOverlay {
-  /* S'éclaircit légèrement — l'image peut respirer davantage */
-  opacity: 0.85;
-}
-
-
-/* ─────────────────────────────────────────────────────────────
-   NUMÉRO DÉCORATIF — arrière-plan profond
-   Cohérent avec SectionAlliances et SectionJury.
-   ───────────────────────────────────────────────────────────── */
-
-.cardNum {
-  position:      absolute;
-  top:           clamp(0.8rem, 1.5vw, 1.2rem);
-  right:         clamp(0.8rem, 1.5vw, 1.2rem);
-  font-family:   var(--font-display);
-  font-weight:   900;
-  font-size:     clamp(3.5rem, 7vw, 6rem);
-  line-height:   1;
-  letter-spacing: 0.04em;
-  color:         var(--color-text);
-  opacity:       0.07;
-  user-select:   none;
-  pointer-events: none;
-  transition:    opacity 520ms var(--ease-out);
-  z-index:       2;
-}
-
-.card:hover .cardNum {
-  opacity: 0.12;
-}
-
-
-/* ─────────────────────────────────────────────────────────────
-   BADGE CATÉGORIE — coin supérieur gauche
-   ───────────────────────────────────────────────────────────── */
-
+/* Badge catégorie — coin supérieur gauche de l'image */
 .cardBadge {
-  position:    absolute;
-  top:         clamp(1rem, 1.8vw, 1.4rem);
-  left:        clamp(1rem, 1.8vw, 1.4rem);
-  z-index:     3;
-  display:     flex;
-  align-items: center;
-  gap:         0.5rem;
+  position:        absolute;
+  top:             clamp(0.9rem, 1.5vw, 1.2rem);
+  left:            clamp(0.9rem, 1.5vw, 1.2rem);
+  z-index:         2;
+  display:         flex;
+  align-items:     center;
+  gap:             0.45rem;
+  background:      rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding:         0.3rem 0.7rem 0.3rem 0.55rem;
+  border-radius:   2px;
 }
 
 .cardBadgeDot {
-  width:         5px;
-  height:        5px;
+  width:         4px;
+  height:        4px;
   border-radius: 50%;
   background:    var(--color-accent);
   flex-shrink:   0;
@@ -162,97 +96,149 @@
 
 .cardBadgeLabel {
   font-family:    var(--font-sans);
-  font-weight:    600;
-  font-size:      0.6rem;
+  font-weight:    700;
+  font-size:      0.55rem;
   letter-spacing: 0.20em;
   text-transform: uppercase;
   color:          var(--color-accent);
-  opacity:        0.85;
+  line-height:    1;
 }
 
 
-/* ─────────────────────────────────────────────────────────────
-   INFOS — titre + réalisateur, ancrés en bas
-   Micro-déplacement ascendant au hover.
-   ───────────────────────────────────────────────────────────── */
+/* ── Panel éditorial ─────────────────────────────────────── */
 
-.cardInfo {
-  position:   absolute;
-  bottom:     0;
-  left:       0;
-  right:      0;
-  padding:    clamp(1.2rem, 2vw, 1.8rem) clamp(1.2rem, 2vw, 1.8rem);
-  z-index:    3;
-  transform:  translateY(5px);
-  transition: transform 520ms var(--ease-out);
+.cardPanel {
+  position:       relative;    /* pour le numéro watermark absolu */
+  flex-shrink:    0;
+  overflow:       hidden;
+  background:     #EDE8E3;
+  /* Trait accent pleine largeur en haut du panel — signature */
+  border-top:     2px solid var(--color-accent);
+  padding:        clamp(0.7rem, 1.2vw, 1rem)
+                  clamp(1rem, 1.8vw, 1.4rem)
+                  clamp(0.75rem, 1.3vw, 1rem);
+  display:        flex;
+  flex-direction: column;
+  gap:            0;
+  transition:     background 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.card:hover .cardInfo {
-  transform: translateY(0);
+.card:hover .cardPanel {
+  background: #E4DDD5;
 }
 
-/* Filet accent — s'étire sous le titre */
-.cardInfoLine {
-  display:      block;
-  width:        2rem;
-  height:       1px;
-  background:   var(--color-accent);
-  opacity:      0.6;
-  margin-bottom: 0.7rem;
-  transition:   width 520ms var(--ease-out);
+/* Numéro watermark — derrière tout le contenu du panel */
+.cardPanelNum {
+  position:       absolute;
+  bottom:         -0.35rem;
+  right:          clamp(0.6rem, 1.2vw, 1rem);
+  font-family:    var(--font-display);
+  font-weight:    900;
+  /* Grand, présent, jamais dominant */
+  font-size:      clamp(3.2rem, 5.5vw, 5rem);
+  line-height:    1;
+  letter-spacing: 0.06em;
+  color:          #1A1310;
+  opacity:        0.07;
+  user-select:    none;
+  pointer-events: none;
+  z-index:        0;
+  transition:     opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.card:hover .cardInfoLine {
-  width: 3.5rem;
+.card:hover .cardPanelNum {
+  opacity: 0.12;
 }
 
+/* Titre — élément central du panel, doit imposer */
 .cardTitle {
-  font-family:    var(--font-sans);
-  font-weight:    800;
-  font-size:      clamp(1rem, 1.8vw, 1.4rem);
-  letter-spacing: -0.01em;
+  position:       relative;
+  z-index:        1;
+  font-family:    var(--font-display);
+  font-weight:    900;
+  font-size:      clamp(0.95rem, 1.8vw, 1.55rem);
+  letter-spacing: 0.025em;
   text-transform: uppercase;
-  color:          var(--color-text);
-  line-height:    1.1;
-  margin-bottom:  0.4rem;
+  color:          #1A1310;
+  line-height:    1.05;
+  margin-bottom:  clamp(0.45rem, 0.8vw, 0.65rem);
+  /* Tronque à 2 lignes — jamais de débordement */
+  display:        -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow:       hidden;
+  transition:     color 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card:hover .cardTitle {
+  color: #3D1F0A;
+}
+
+/* Séparateur — trait pleine largeur avant le réalisateur */
+.cardDivider {
+  display:      block;
+  width:        100%;
+  height:       1px;
+  background:   #C8BDB5;
+  margin-bottom: clamp(0.4rem, 0.7vw, 0.55rem);
+  position:     relative;
+  z-index:      1;
+  transition:   background 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card:hover .cardDivider {
+  background: var(--color-accent);
+  opacity:    0.45;
+}
+
+/* Rangée bas — réalisateur + flèche */
+.cardBottom {
+  position:        relative;
+  z-index:         1;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
 }
 
 .cardDirector {
   font-family:    var(--font-sans);
-  font-weight:    300;
-  font-size:      clamp(0.75rem, 1.1vw, 0.88rem);
-  letter-spacing: 0.08em;
-  color:          var(--color-text);
-  opacity:        0.6;
+  font-weight:    400;
+  font-style:     italic;
+  font-size:      clamp(0.68rem, 0.9vw, 0.8rem);
+  letter-spacing: 0.04em;
+  color:          #7A6E68;
+  line-height:    1;
+  transition:     color 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Flèche de navigation — apparaît au hover */
+.card:hover .cardDirector {
+  color: #5A4A40;
+}
+
 .cardArrow {
-  position:   absolute;
-  bottom:     clamp(1.2rem, 2vw, 1.8rem);
-  right:      clamp(1.2rem, 2vw, 1.8rem);
-  z-index:    3;
-  display:    flex;
-  align-items: center;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
-  width:      2.2rem;
-  height:     2.2rem;
-  border:     1px solid rgba(226, 209, 195, 0.3);
-  border-radius: 50%;
-  opacity:    0;
-  transform:  scale(0.8);
+  width:           1.65rem;
+  height:          1.65rem;
+  border-radius:   50%;
+  border:          1px solid rgba(90, 75, 65, 0.28);
+  color:           #6B5B52;
+  font-size:       0.75rem;
+  flex-shrink:     0;
+  opacity:         0;
+  transform:       translateX(-10px);
   transition:
-    opacity   520ms var(--ease-out),
-    transform 520ms var(--ease-out);
+    opacity   380ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    color     380ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .card:hover .cardArrow {
-  opacity:   1;
-  transform: scale(1);
-}
-
-.cardArrowIcon {
-  color:     var(--color-accent);
-  font-size: 0.85rem;
-  line-height: 1;
+  opacity:    1;
+  transform:  translateX(0);
+  background: var(--color-accent);
+  color:      #1A1310;
+  border-color: var(--color-accent);
 }

@@ -1,262 +1,53 @@
 /**
  * MovieGallery.module.css — MARSAI Festival
- * Galerie · Page complète
+ * Galerie · Page complete — defilement horizontal
  *
- * ═══════════════════════════════════════════════════════════════
- * CONCEPT : Le programme du festival
- * ═══════════════════════════════════════════════════════════════
+ * ARCHITECTURE STICKY — sans pin:true GSAP
  *
- * Architecture en deux blocs :
+ * Le bug d ecran noir et de decalage monstreux etait cause par
+ * pin:true qui manipule padding-bottom du body. Au changement
+ * de page, l ancien ScrollTrigger n etait pas completement
+ * nettoye avant que le nouveau mesure les dimensions — resultant
+ * en une hauteur corompue et un espace de scroll errone.
  *
- * §A — HERO DE PAGE
- *   Même DNA que HeroImpact mais sans image plein écran.
- *   Fond noir pur, titre SÉLECTION OFFICIELLE massif,
- *   animation blur→net au montage (cohérence héros).
- *   Compteur de films en overline.
+ * SOLUTION : position sticky CSS native
  *
- * §B — GRILLE ÉDITORIALE ASYMÉTRIQUE
- *   Layout alterné : grande carte (2/3) + petite (1/3).
- *   Pattern inversé ligne suivante : petite (1/3) + grande (2/3).
- *   Hauteurs différentes par position — rythme éditorial.
- *   Chaque carte révélée au scroll par clip-path (GSAP).
+ *   .trackOuter  reserve l espace de scroll dans le flux normal
+ *                hauteur fixee dynamiquement par JS
+ *   .section     position:sticky, reste visible pendant le scroll
+ *                GSAP anime uniquement translateX du wrapper
+ *                Zero manipulation du padding-bottom
+ *                Zero conflit Lenis
  *
- * ═══════════════════════════════════════════════════════════════
- * DÉCISIONS D'ARCHITECTURE — Kodawari
- * ═══════════════════════════════════════════════════════════════
- *
- * 1. pin: true supprimé — incompatible avec Lenis.
- *    Le scroll horizontal pincé réintroduirait le bug de hauteur
- *    qu'on vient de corriger dans PublicLayout. Décision non
- *    négociable pour la stabilité de l'expérience.
- *
- * 2. Grille asymétrique via CSS Grid named areas.
- *    grid-template-areas permet un layout éditorial précis
- *    sans dépendre de l'ordre DOM.
- *
- * 3. Filtres : état actif via .filterActive — CSS pur,
- *    zéro style inline JS. La logique de filtrage reste
- *    dans le JSX (état React), la présentation dans le CSS.
- * ═══════════════════════════════════════════════════════════════
+ * DOM ORDER
+ *   nav.filtersSection   (filtres, flux normal)
+ *   div.trackOuter       (espace de scroll)
+ *     section.section    (sticky — contient les cartes)
+ *       div.wrapper      (translateX anime par GSAP)
+ *         MovieCard x N
+ *   nav.pagination       (suit apres le track)
  */
 
 
-/* ─────────────────────────────────────────────────────────────
-   §A — HERO DE PAGE
-   ───────────────────────────────────────────────────────────── */
+/* GALLERY ROOT — padding-top = headerH.
+ * Seul point de compensation du header fixe.
+ * filtersSection et section ne compensent plus eux-memes.
+ */
 
-.hero {
-  position:   relative;
-  /* Fond image — salle de cinéma dans l'obscurité, public présent.
-     Ce choix est délibéré : pas du matériel de tournage, pas un
-     réalisateur — des gens qui regardent. Le festival est fait
-     pour ceux qui voient des films, pas seulement pour ceux qui
-     les font. Message visuel immédiat, universel, inclusif. */
-  background:    #0a0a0a;
-  padding:       clamp(7rem, 14vw, 12rem) clamp(1.5rem, 5vw, 6rem) clamp(4rem, 7vw, 6rem);
-  border-bottom: 1px solid var(--color-border);
-  overflow:      hidden;
-}
-
-/* Image de fond — audience dans une salle obscure.
-   Unsplash photo-1489599849927-2ee91cede3ba — libre de droits.
-   Opacité 0.28 : présente, ressentie, jamais distrayante. */
-.heroBgImage {
-  position:            absolute;
-  inset:               0;
-  background-image:    url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=85&w=2400&auto=format&fit=crop');
-  background-size:     cover;
-  background-position: center 35%;
-  opacity:             0.28;
-  z-index:             0;
-}
-
-/* Overlay double couche — lisibilité + atmosphère.
-   Gradient vers le bas plus dense : le texte en bas est
-   toujours parfaitement lisible quelle que soit l'image. */
-.heroOverlay {
-  position:   absolute;
-  inset:      0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.30) 40%,
-    rgba(0, 0, 0, 0.65) 100%
-  );
-  z-index: 1;
-}
-
-/* Grain pellicule — cohérence avec le reste du site */
-.heroGrain {
-  position:         absolute;
-  inset:            0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size:  200px 200px;
-  opacity:          0.035;
-  mix-blend-mode:   overlay;
-  pointer-events:   none;
-  z-index:          2;
-}
-
-.heroContainer {
-  position:  relative;
-  z-index:   1;
-  max-width: 1440px;
-  margin:    0 auto;
-}
-
-.heroOverline {
-  display:       flex;
-  align-items:   center;
-  gap:           1rem;
-  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
-}
-
-.heroOverlineLine {
-  display:    block;
-  width:      clamp(2rem, 3vw, 3rem);
-  height:     1px;
-  background: var(--color-accent);
-  flex-shrink: 0;
-}
-
-/* Titre principal — même anatomie que le héros */
-.heroTitle {
-  font-family:    var(--font-display);
-  font-weight:    900;
-  font-size:      clamp(3rem, 9vw, 8.5rem);
-  line-height:    0.90;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color:          var(--color-text);
-  margin-bottom:  clamp(2rem, 4vw, 3.5rem);
-  text-shadow:
-    0 2px 40px rgba(0, 0, 0, 0.4),
-    0 1px 12px rgba(0, 0, 0, 0.2);
-}
-
-.heroTitleAccent {
-  color: var(--color-accent);
-}
-
-/* Barre inférieure du hero — compteur + année */
-.heroMeta {
-  display:     flex;
-  align-items: center;
-  gap:         clamp(2rem, 4vw, 4rem);
-  flex-wrap:   wrap;
-}
-
-.heroMetaItem {
-  display:        flex;
-  flex-direction: column;
-  gap:            0.3rem;
-}
-
-.heroMetaValue {
-  font-family:    var(--font-display);
-  font-weight:    900;
-  font-size:      clamp(1.8rem, 3.5vw, 3rem);
-  letter-spacing: 0.04em;
-  color:          var(--color-text);
-  line-height:    1;
-}
-
-.heroMetaLabel {
-  font-family:    var(--font-sans);
-  font-weight:    500;
-  font-size:      0.62rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color:          var(--color-text-muted);
-}
-
-.heroMetaDivider {
-  width:  1px;
-  height: 3rem;
-  background: rgba(226, 209, 195, 0.2);
-  flex-shrink: 0;
-}
-
-/* Sous-titre — ligne d'invitation inclusive.
-   "Toutes les histoires méritent d'être racontées."
-   Warm, ouvert, non technique. Le 22 ans se reconnaît.
-   Le 45 ans acquiesce. Universel. */
-.heroSubtitle {
-  font-family:    var(--font-sans);
-  font-weight:    300;
-  font-size:      clamp(0.95rem, 1.6vw, 1.15rem);
-  letter-spacing: 0.04em;
-  color:          rgba(226, 209, 195, 0.65);
-  margin-bottom:  clamp(2rem, 4vw, 3.5rem);
-  max-width:      48ch;
-  line-height:    1.6;
-  /* Placé entre le titre et les métas — respire sans surcharger */
+.galleryRoot {
+  padding-top: clamp(3.5rem, 5vw, 4.5rem);
 }
 
 
-/* ─────────────────────────────────────────────────────────────
-   §B — BANDE D'INVITATION
-   Passerelle entre la galerie et l'appel à soumissions.
-   Visible mais discrète — plante l'idée sans forcer la main.
-   ───────────────────────────────────────────────────────────── */
-
-.inviteStrip {
-  background:    var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  padding:       0.85rem clamp(1.5rem, 5vw, 6rem);
-}
-
-.inviteStripInner {
-  max-width:   1440px;
-  margin:      0 auto;
-  display:     flex;
-  align-items: center;
-  gap:         1.2rem;
-  flex-wrap:   wrap;
-}
-
-.inviteStripText {
-  font-family:    var(--font-sans);
-  font-weight:    400;
-  font-size:      0.72rem;
-  letter-spacing: 0.06em;
-  color:          var(--color-text-muted);
-  flex:           1;
-}
-
-.inviteStripLink {
-  display:         inline-flex;
-  align-items:     center;
-  gap:             0.5rem;
-  font-family:     var(--font-sans);
-  font-weight:     700;
-  font-size:       0.65rem;
-  letter-spacing:  0.18em;
-  text-transform:  uppercase;
-  color:           var(--color-accent);
-  text-decoration: none;
-  white-space:     nowrap;
-  transition:      opacity 250ms var(--ease-out);
-}
-
-.inviteStripLink:hover {
-  opacity: 0.72;
-}
-
-.inviteStripArrow {
-  transition: transform 250ms var(--ease-out);
-}
-
-.inviteStripLink:hover .inviteStripArrow {
-  transform: translateX(3px);
-}
-
-
-/* ─────────────────────────────────────────────────────────────
-   §C — FILTRES
-   ───────────────────────────────────────────────────────────── */
+/* FILTRES — sticky sous la navbar.
+ * top = headerH : reste visible pendant tout le scroll.
+ * z-index:50 — dessus des cartes, dessous du header (z:100).
+ */
 
 .filtersSection {
+  position:      sticky;
+  top:           clamp(3.5rem, 5vw, 4.5rem);
+  z-index:       50;
   background:    var(--color-bg-pure);
   border-bottom: 1px solid var(--color-border);
   padding:       0 clamp(1.5rem, 5vw, 6rem);
@@ -267,117 +58,136 @@
   margin:      0 auto;
   display:     flex;
   align-items: center;
-  gap:         0;
   overflow-x:  auto;
   scrollbar-width: none;
 }
-
-.filtersContainer::-webkit-scrollbar {
-  display: none;
-}
+.filtersContainer::-webkit-scrollbar { display: none; }
 
 .filterBtn {
-  position:    relative;
-  padding:     1.2rem clamp(1rem, 2vw, 1.8rem);
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size:   0.68rem;
+  position:       relative;
+  padding:        1.2rem clamp(1rem, 2vw, 1.8rem);
+  font-family:    var(--font-sans);
+  font-weight:    600;
+  font-size:      0.68rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color:       var(--color-text-muted);
-  background:  transparent;
-  border:      none;
-  cursor:      pointer;
-  white-space: nowrap;
-  transition:  color 280ms var(--ease-out);
+  color:          var(--color-text-muted);
+  background:     transparent;
+  border:         none;
+  cursor:         pointer;
+  white-space:    nowrap;
+  transition:     color 280ms var(--ease-out);
 }
 
 .filterBtn::after {
-  content:    '';
-  position:   absolute;
-  bottom:     0;
-  left:       clamp(1rem, 2vw, 1.8rem);
-  right:      clamp(1rem, 2vw, 1.8rem);
-  height:     2px;
-  background: var(--color-accent);
-  transform:  scaleX(0);
+  content:          "";
+  position:         absolute;
+  bottom:           0;
+  left:             clamp(1rem, 2vw, 1.8rem);
+  right:            clamp(1rem, 2vw, 1.8rem);
+  height:           2px;
+  background:       var(--color-accent);
+  transform:        scaleX(0);
   transform-origin: left;
-  transition: transform 280ms var(--ease-out);
+  transition:       transform 280ms var(--ease-out);
 }
 
-.filterBtn:hover {
-  color: var(--color-text);
-}
-
-/* État actif — classe ajoutée par React */
-.filterActive {
-  color: var(--color-text) !important;
-}
-
-.filterActive::after {
-  transform: scaleX(1) !important;
-}
+.filterBtn:hover      { color: var(--color-text); }
+.filterActive         { color: var(--color-text) !important; }
+.filterActive::after  { transform: scaleX(1) !important; }
 
 
-/* ─────────────────────────────────────────────────────────────
-   §C — GRILLE ÉDITORIALE
-   Layout asymétrique — grande + petite, pattern inversé.
-   ───────────────────────────────────────────────────────────── */
+/* SECTION — cible de pin:true GSAP
+ *
+ * Aucun trackOuter. GSAP gère tout :
+ *   • pin:true rend la section position:fixed pendant le scroll
+ *   • un spacer div maintient la place dans le flux
+ *   • start "top top+=headerH" — le pin déclenche quand le haut
+ *     de la section atteint le bas du header fixe
+ *   • La section couvre exactement le viewport sous le header
+ *   • Zéro fond parasite, zéro zone noire
+ *
+ * La hauteur calc(100vh - headerH) garantit que la section
+ * remplit exactement le viewport sous le header fixe quand pinned.
+ */
 
-.gallerySection {
-  background: var(--color-bg-pure);
-  padding:    clamp(3rem, 5vw, 5rem) clamp(1.5rem, 5vw, 6rem);
-}
-
-.galleryContainer {
-  max-width: 1440px;
-  margin:    0 auto;
-  display:   flex;
-  flex-direction: column;
-  gap:       clamp(0.8rem, 1.5vw, 1.2rem);
-}
-
-/* Une rangée = paire de cartes (grande + petite) */
-.galleryRow {
-  display:             grid;
-  gap:                 clamp(0.8rem, 1.5vw, 1.2rem);
-}
-
-/* Pattern A : grande (2/3) + petite (1/3) */
-.galleryRowA {
-  grid-template-columns: 2fr 1fr;
-}
-
-/* Pattern B : petite (1/3) + grande (2/3) — alternance */
-.galleryRowB {
-  grid-template-columns: 1fr 2fr;
-}
-
-@media (max-width: 768px) {
-  .galleryRowA,
-  .galleryRowB {
-    /* Mobile : une colonne, toutes les cartes empilées */
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Hauteurs par position — rythme éditorial
-   Définies comme custom properties passées au MovieCard */
-.gallerySection {
-  --height-large: clamp(380px, 55vw, 560px);
-  --height-small: clamp(280px, 38vw, 400px);
+.section {
+  position:    relative;
+  /* Hauteur fallback — JS écrase immédiatement (double RAF) avec :
+     sectionRef.current.style.height = (vh - headerH - filterH)px
+     Cette valeur ici est uniquement un guard de sécurité au premier
+     rendu, avant que JS ait mesuré les dimensions réelles.
+     ~85vh : suffisamment petit pour ne jamais dépasser le footer,
+     suffisamment grand pour être visible. */
+  height:      85vh;
+  overflow:    hidden;
+  background:  var(--color-bg-pure);
+  display:     flex;
+  align-items: center;
 }
 
 
-/* ─────────────────────────────────────────────────────────────
-   §D — ÉTAT VIDE (aucun film ne correspond au filtre)
-   ───────────────────────────────────────────────────────────── */
+/* Barre de progression — scaleX 0 -> 1 anime par GSAP onUpdate */
+.progressBar {
+  position:         absolute;
+  bottom:           0;
+  left:             0;
+  right:            0;
+  height:           2px;
+  background:       var(--color-accent);
+  transform:        scaleX(0);
+  transform-origin: left center;
+  z-index:          10;
+  opacity:          0.65;
+}
 
+/* Indicateur scroll initial */
+.scrollHint {
+  position:       absolute;
+  bottom:         clamp(1.5rem, 3vw, 2.5rem);
+  left:           50%;
+  transform:      translateX(-50%);
+  z-index:        10;
+  display:        flex;
+  align-items:    center;
+  gap:            0.6rem;
+  pointer-events: none;
+}
+.scrollHintText {
+  font-family:    var(--font-sans);
+  font-weight:    500;
+  font-size:      0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+  opacity:        0.4;
+}
+.scrollHintArrow {
+  color:    var(--color-accent);
+  opacity:  0.5;
+  font-size: 0.85rem;
+}
+
+/* Wrapper — translateX anime par GSAP scrub */
+.wrapper {
+  display:       flex;
+  height:        100%;
+  align-items:   center;
+  padding-left:  clamp(5rem, 8vw, 10rem);
+  padding-right: clamp(8rem, 14vw, 18rem);
+  gap:           clamp(1.5rem, 2.5vw, 3rem);
+  width:         max-content;
+  will-change:   transform;
+}
+
+/* Etat vide */
 .emptyState {
-  padding:    clamp(4rem, 8vw, 7rem) 0;
-  text-align: center;
+  position: absolute;
+  inset:    0;
+  display:  flex;
+  align-items:     center;
+  justify-content: center;
 }
-
 .emptyStateText {
   font-family:    var(--font-sans);
   font-weight:    300;
@@ -387,37 +197,33 @@
 }
 
 
-/* ─────────────────────────────────────────────────────────────
-   §E — PAGINATION
-   Navigation entre pages — dynamique selon le nombre de films.
-   ───────────────────────────────────────────────────────────── */
+/* PAGINATION */
 
 .pagination {
   display:         flex;
   align-items:     center;
   justify-content: center;
   gap:             0.5rem;
-  padding:         clamp(3rem, 5vw, 5rem) clamp(1.5rem, 5vw, 6rem);
+  padding:         clamp(2.5rem, 4vw, 4rem) clamp(1.5rem, 5vw, 6rem);
+  background:      var(--color-bg-pure);
   border-top:      1px solid var(--color-border);
 }
 
-/* Bouton numéroté */
 .pageBtn {
-  position:       relative;
-  display:        flex;
-  align-items:    center;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
-  width:          2.6rem;
-  height:         2.6rem;
-  font-family:    var(--font-sans);
-  font-weight:    600;
-  font-size:      0.72rem;
-  letter-spacing: 0.12em;
-  color:          var(--color-text-muted);
-  background:     transparent;
-  border:         1px solid transparent;
-  border-radius:  var(--radius-pill);
-  cursor:         pointer;
+  width:           2.6rem;
+  height:          2.6rem;
+  font-family:     var(--font-sans);
+  font-weight:     600;
+  font-size:       0.72rem;
+  letter-spacing:  0.12em;
+  color:           var(--color-text-muted);
+  background:      transparent;
+  border:          1px solid transparent;
+  border-radius:   var(--radius-pill, 999px);
+  cursor:          pointer;
   transition:
     color        280ms var(--ease-out),
     border-color 280ms var(--ease-out),
@@ -429,30 +235,27 @@
   border-color: var(--color-border);
 }
 
-/* Page active */
 .pageBtnActive {
-  color:        var(--color-bg-pure) !important;
-  background:   var(--color-text) !important;
-  border-color: var(--color-text) !important;
+  color:        var(--color-bg-pure)  !important;
+  background:   var(--color-text)     !important;
+  border-color: var(--color-text)     !important;
 }
 
-/* Boutons précédent / suivant */
 .pageNav {
-  display:        flex;
-  align-items:    center;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
-  width:          2.6rem;
-  height:         2.6rem;
-  font-size:      1rem;
-  color:          var(--color-text-muted);
-  background:     transparent;
-  border:         1px solid var(--color-border);
-  border-radius:  var(--radius-pill);
-  cursor:         pointer;
+  width:           2.6rem;
+  height:          2.6rem;
+  font-size:       1rem;
+  color:           var(--color-text-muted);
+  background:      transparent;
+  border:          1px solid var(--color-border);
+  border-radius:   var(--radius-pill, 999px);
+  cursor:          pointer;
   transition:
     color        280ms var(--ease-out),
-    border-color 280ms var(--ease-out),
-    background   280ms var(--ease-out);
+    border-color 280ms var(--ease-out);
 }
 
 .pageNav:hover:not(:disabled) {
@@ -465,17 +268,15 @@
   cursor:  not-allowed;
 }
 
-/* Ellipse "…" entre groupes de pages */
 .pageEllipsis {
-  font-family:  var(--font-sans);
-  font-size:    0.72rem;
-  color:        var(--color-text-muted);
-  padding:      0 0.3rem;
-  user-select:  none;
+  font-family:    var(--font-sans);
+  font-size:      0.72rem;
+  color:          var(--color-text-muted);
+  padding:        0 0.3rem;
+  user-select:    none;
   pointer-events: none;
 }
 
-/* Compteur textuel — "Page 2 sur 5" — discret, informatif */
 .pageCount {
   font-family:    var(--font-sans);
   font-weight:    400;
