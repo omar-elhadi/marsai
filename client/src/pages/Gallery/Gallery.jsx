@@ -1,10 +1,9 @@
 /**
  * Gallery.jsx — MARSAI Festival
- * Page Galerie — wrapper
- * Refactoring Étape 4
+ * Page Galerie — wrapper minimal
  *
- * Wrapper minimal — MovieGallery contient toute la logique.
- * La div inutile est supprimée.
+ * Toute la logique (GSAP, données, layout) est dans MovieGallery.
+ * Ce fichier n'a qu'un seul rôle : monter la page dans le routeur.
  */
 
 import MovieGallery from '@/pages/Gallery/components/MovieGallery';

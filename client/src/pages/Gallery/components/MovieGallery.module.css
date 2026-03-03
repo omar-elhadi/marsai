@@ -1,133 +1,44 @@
 /**
  * MovieGallery.module.css — MARSAI Festival
- * Galerie · Page complete — defilement horizontal
+ * Galerie · Page complète — défilement horizontal
  *
- * ARCHITECTURE STICKY — sans pin:true GSAP
+ * ═══════════════════════════════════════════════════════════════
+ * NOMENCLATURE
+ * ═══════════════════════════════════════════════════════════════
  *
- * Le bug d ecran noir et de decalage monstreux etait cause par
- * pin:true qui manipule padding-bottom du body. Au changement
- * de page, l ancien ScrollTrigger n etait pas completement
- * nettoye avant que le nouveau mesure les dimensions — resultant
- * en une hauteur corompue et un espace de scroll errone.
- *
- * SOLUTION : position sticky CSS native
- *
- *   .trackOuter  reserve l espace de scroll dans le flux normal
- *                hauteur fixee dynamiquement par JS
- *   .section     position:sticky, reste visible pendant le scroll
- *                GSAP anime uniquement translateX du wrapper
- *                Zero manipulation du padding-bottom
- *                Zero conflit Lenis
- *
- * DOM ORDER
- *   nav.filtersSection   (filtres, flux normal)
- *   div.trackOuter       (espace de scroll)
- *     section.section    (sticky — contient les cartes)
- *       div.wrapper      (translateX anime par GSAP)
- *         MovieCard x N
- *   nav.pagination       (suit apres le track)
+ *   .galleryRoot   Racine — paddingTop = headerH (JS).
+ *   .section       Cible pin:true GSAP. position:relative → GSAP
+ *                  applique position:fixed pendant le pin.
+ *                  height = vh − headerH (JS). overflow:hidden.
+ *   .progressBar   Barre accent, scaleX 0→1 (GSAP onUpdate).
+ *   .wrapper       Rangée H de cartes, width:max-content.
+ *                  translateX animé par la timeline.
+ *   .scrollHint    Indicateur "Défiler →", disparaît après 3%.
  */
 
 
-/* GALLERY ROOT — padding-top = headerH.
- * Seul point de compensation du header fixe.
- * filtersSection et section ne compensent plus eux-memes.
- */
+/* ── Racine ──────────────────────────────────────────────── */
 
 .galleryRoot {
+  /* Fallback CSS avant que JS pose paddingTop = headerH exact */
   padding-top: clamp(3.5rem, 5vw, 4.5rem);
 }
 
 
-/* FILTRES — sticky sous la navbar.
- * top = headerH : reste visible pendant tout le scroll.
- * z-index:50 — dessus des cartes, dessous du header (z:100).
- */
-
-.filtersSection {
-  position:      sticky;
-  top:           clamp(3.5rem, 5vw, 4.5rem);
-  z-index:       50;
-  background:    var(--color-bg-pure);
-  border-bottom: 1px solid var(--color-border);
-  padding:       0 clamp(1.5rem, 5vw, 6rem);
-}
-
-.filtersContainer {
-  max-width:   1440px;
-  margin:      0 auto;
-  display:     flex;
-  align-items: center;
-  overflow-x:  auto;
-  scrollbar-width: none;
-}
-.filtersContainer::-webkit-scrollbar { display: none; }
-
-.filterBtn {
-  position:       relative;
-  padding:        1.2rem clamp(1rem, 2vw, 1.8rem);
-  font-family:    var(--font-sans);
-  font-weight:    600;
-  font-size:      0.68rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color:          var(--color-text-muted);
-  background:     transparent;
-  border:         none;
-  cursor:         pointer;
-  white-space:    nowrap;
-  transition:     color 280ms var(--ease-out);
-}
-
-.filterBtn::after {
-  content:          "";
-  position:         absolute;
-  bottom:           0;
-  left:             clamp(1rem, 2vw, 1.8rem);
-  right:            clamp(1rem, 2vw, 1.8rem);
-  height:           2px;
-  background:       var(--color-accent);
-  transform:        scaleX(0);
-  transform-origin: left;
-  transition:       transform 280ms var(--ease-out);
-}
-
-.filterBtn:hover      { color: var(--color-text); }
-.filterActive         { color: var(--color-text) !important; }
-.filterActive::after  { transform: scaleX(1) !important; }
-
-
-/* SECTION — cible de pin:true GSAP
- *
- * Aucun trackOuter. GSAP gère tout :
- *   • pin:true rend la section position:fixed pendant le scroll
- *   • un spacer div maintient la place dans le flux
- *   • start "top top+=headerH" — le pin déclenche quand le haut
- *     de la section atteint le bas du header fixe
- *   • La section couvre exactement le viewport sous le header
- *   • Zéro fond parasite, zéro zone noire
- *
- * La hauteur calc(100vh - headerH) garantit que la section
- * remplit exactement le viewport sous le header fixe quand pinned.
- */
+/* ── Section — cible pin:true GSAP ──────────────────────── */
 
 .section {
   position:    relative;
-  /* Hauteur fallback — JS écrase immédiatement (double RAF) avec :
-     sectionRef.current.style.height = (vh - headerH - filterH)px
-     Cette valeur ici est uniquement un guard de sécurité au premier
-     rendu, avant que JS ait mesuré les dimensions réelles.
-     ~85vh : suffisamment petit pour ne jamais dépasser le footer,
-     suffisamment grand pour être visible. */
-  height:      85vh;
+  width:       100%;
+  /* Fallback avant que JS pose (vh − headerH) */
+  height:      90vh;
   overflow:    hidden;
   background:  var(--color-bg-pure);
-  display:     flex;
-  align-items: center;
 }
 
 
-/* Barre de progression — scaleX 0 -> 1 anime par GSAP onUpdate */
+/* ── Barre de progression ────────────────────────────────── */
+
 .progressBar {
   position:         absolute;
   bottom:           0;
@@ -137,22 +48,40 @@
   background:       var(--color-accent);
   transform:        scaleX(0);
   transform-origin: left center;
-  z-index:          10;
-  opacity:          0.65;
+  z-index:          30;
+  opacity:          0.7;
 }
 
-/* Indicateur scroll initial */
+
+/* ── Wrapper — translateX scrub ──────────────────────────── */
+
+.wrapper {
+  display:     flex;
+  height:      100%;
+  width:       max-content;
+  align-items: center;
+  /* Décalage gauche = espace éditorial cohérent avec le sectionLabel */
+  padding-left:  clamp(5rem, 10vw, 12rem);
+  /* Espace de sortie — dernière carte lisible avant la fin du scroll */
+  padding-right: clamp(10rem, 20vw, 24rem);
+  gap:           clamp(3rem, 5vw, 5rem);
+  will-change:   transform;
+}
+
+
+/* ── Indicateur scroll ───────────────────────────────────── */
+
 .scrollHint {
   position:       absolute;
   bottom:         clamp(1.5rem, 3vw, 2.5rem);
-  left:           50%;
-  transform:      translateX(-50%);
-  z-index:        10;
+  right:          clamp(2rem, 5vw, 5rem);
+  z-index:        20;
   display:        flex;
   align-items:    center;
   gap:            0.6rem;
   pointer-events: none;
 }
+
 .scrollHintText {
   font-family:    var(--font-sans);
   font-weight:    500;
@@ -160,129 +89,11 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color:          var(--color-text-muted);
-  opacity:        0.4;
+  opacity:        0.45;
 }
+
 .scrollHintArrow {
-  color:    var(--color-accent);
-  opacity:  0.5;
+  color:     var(--color-accent);
+  opacity:   0.6;
   font-size: 0.85rem;
-}
-
-/* Wrapper — translateX anime par GSAP scrub */
-.wrapper {
-  display:       flex;
-  height:        100%;
-  align-items:   center;
-  padding-left:  clamp(5rem, 8vw, 10rem);
-  padding-right: clamp(8rem, 14vw, 18rem);
-  gap:           clamp(1.5rem, 2.5vw, 3rem);
-  width:         max-content;
-  will-change:   transform;
-}
-
-/* Etat vide */
-.emptyState {
-  position: absolute;
-  inset:    0;
-  display:  flex;
-  align-items:     center;
-  justify-content: center;
-}
-.emptyStateText {
-  font-family:    var(--font-sans);
-  font-weight:    300;
-  font-size:      clamp(0.9rem, 1.5vw, 1.1rem);
-  letter-spacing: 0.06em;
-  color:          var(--color-text-muted);
-}
-
-
-/* PAGINATION */
-
-.pagination {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  gap:             0.5rem;
-  padding:         clamp(2.5rem, 4vw, 4rem) clamp(1.5rem, 5vw, 6rem);
-  background:      var(--color-bg-pure);
-  border-top:      1px solid var(--color-border);
-}
-
-.pageBtn {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  width:           2.6rem;
-  height:          2.6rem;
-  font-family:     var(--font-sans);
-  font-weight:     600;
-  font-size:       0.72rem;
-  letter-spacing:  0.12em;
-  color:           var(--color-text-muted);
-  background:      transparent;
-  border:          1px solid transparent;
-  border-radius:   var(--radius-pill, 999px);
-  cursor:          pointer;
-  transition:
-    color        280ms var(--ease-out),
-    border-color 280ms var(--ease-out),
-    background   280ms var(--ease-out);
-}
-
-.pageBtn:hover {
-  color:        var(--color-text);
-  border-color: var(--color-border);
-}
-
-.pageBtnActive {
-  color:        var(--color-bg-pure)  !important;
-  background:   var(--color-text)     !important;
-  border-color: var(--color-text)     !important;
-}
-
-.pageNav {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  width:           2.6rem;
-  height:          2.6rem;
-  font-size:       1rem;
-  color:           var(--color-text-muted);
-  background:      transparent;
-  border:          1px solid var(--color-border);
-  border-radius:   var(--radius-pill, 999px);
-  cursor:          pointer;
-  transition:
-    color        280ms var(--ease-out),
-    border-color 280ms var(--ease-out);
-}
-
-.pageNav:hover:not(:disabled) {
-  color:        var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-.pageNav:disabled {
-  opacity: 0.25;
-  cursor:  not-allowed;
-}
-
-.pageEllipsis {
-  font-family:    var(--font-sans);
-  font-size:      0.72rem;
-  color:          var(--color-text-muted);
-  padding:        0 0.3rem;
-  user-select:    none;
-  pointer-events: none;
-}
-
-.pageCount {
-  font-family:    var(--font-sans);
-  font-weight:    400;
-  font-size:      0.62rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color:          var(--color-text-faint);
-  margin-left:    1rem;
 }

@@ -3,54 +3,62 @@
  * Galerie · Carte film — défilement horizontal
  *
  * ═══════════════════════════════════════════════════════════════
- * CONCEPT : La fiche de programme d'un festival de cinéma
+ * CONCEPT : Éditorial — panneau asymétrique en débordement
  * ═══════════════════════════════════════════════════════════════
  *
- * Architecture verticale :
- *   .cardImageWrap  image pleine hauteur, N&B → couleur au hover
- *   .cardPanel      encart éditorial — fond crème chaud sur trait accent
+ * Chaque carte est une composition typographique de festival :
+ *   - Image pleine hauteur en couleur naturelle
+ *   - Panneau crème qui déborde en bas-droite (signature éditoriale)
+ *   - Numéro grand format + catégorie + titre + réalisateur
  *
- * Le panel reprend le "cadre blanc" demandé mais l'élève :
- *   - fond crème chaud (#EDE8E3) avec transition subtile
- *   - numéro watermark en display géant, semi-transparent
- *   - badge catégorie avec trait couleur accent
- *   - titre en font display, taille imposante
- *   - trait séparateur pleine largeur avant le réalisateur
- *   - rangée bas : réalisateur italic + flèche cerclée animée
+ * Parallaxe GSAP :
+ *   L'image est animée x: 15vw → -15vw par MovieGallery.
+ *   scale:1.3 (30% d'agrandissement) absorbe le déplacement total
+ *   de 30vw (15vw × 2) sans jamais exposer un bord dans le masque.
+ *   Le scale est en CSS (pas dans GSAP fromTo) → context.revert()
+ *   le laisse intact entre les cycles. Zéro flash.
  *
- * Résultat visuel : programme de festival haut de gamme,
- * pas une simple caption d'image.
+ * Classes globales GSAP (aucun style ici) :
+ *   .movie-card   → gsap.utils.toArray('.movie-card')
+ *   .movie-image  → card.querySelector('.movie-image')
  * ═══════════════════════════════════════════════════════════════
  */
+
 
 /* ── Carte — conteneur racine ────────────────────────────── */
 
 .card {
-  position:         relative;
-  flex-shrink:      0;
-  display:          flex;
-  flex-direction:   column;
-  cursor:           pointer;
-  height:           var(--card-height, 72vh);
-  width:            var(--card-width, 42vw);
-  transform-origin: center bottom;
-  text-decoration:  none;
-  /* Empêche le débordement du panel en dehors de la carte */
-  overflow:         hidden;
+  position:        relative;
+  flex-shrink:     0;
+  display:         block;
+  width:           clamp(68vw, 72vw, 75vw);
+  height:          65vh;
+  text-decoration: none;
+  /*
+   * Pas d'overflow:hidden ici — le panneau asymétrique déborde
+   * volontairement de la carte (voir .cardPanel).
+   * Le masque (.cardMask) a overflow:hidden pour l'image uniquement.
+   */
 }
 
-@media (max-width: 768px) {
-  .card { width: 84vw !important; height: 70vh; }
+@media (min-width: 768px) {
+  .card {
+    width: clamp(40vw, 45vw, 50vw);
+  }
 }
 
 
-/* ── Zone image — flex:1, absorbe tout l'espace restant ───── */
+/* ── Masque image ─────────────────────────────────────────── */
 
-.cardImageWrap {
-  position:   relative;
-  flex:       1;
-  min-height: 0;
-  overflow:   hidden;
+.cardMask {
+  position:      relative;
+  width:         100%;
+  height:        100%;
+  overflow:      hidden;
+  border-radius: 2px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0  8px 16px -8px rgba(0, 0, 0, 0.4);
 }
 
 .cardImage {
@@ -59,186 +67,136 @@
   width:       100%;
   height:      100%;
   object-fit:  cover;
-  /* scale:1.12 absorbe le déplacement parallaxe ±11% GSAP */
-  scale:       1.12;
-  filter:      grayscale(0.72) brightness(0.88);
-  transition:  filter 580ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform, filter;
-}
-
-.card:hover .cardImage {
-  filter: grayscale(0) brightness(1.02);
-}
-
-/* Badge catégorie — coin supérieur gauche de l'image */
-.cardBadge {
-  position:        absolute;
-  top:             clamp(0.9rem, 1.5vw, 1.2rem);
-  left:            clamp(0.9rem, 1.5vw, 1.2rem);
-  z-index:         2;
-  display:         flex;
-  align-items:     center;
-  gap:             0.45rem;
-  background:      rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding:         0.3rem 0.7rem 0.3rem 0.55rem;
-  border-radius:   2px;
-}
-
-.cardBadgeDot {
-  width:         4px;
-  height:        4px;
-  border-radius: 50%;
-  background:    var(--color-accent);
-  flex-shrink:   0;
-}
-
-.cardBadgeLabel {
-  font-family:    var(--font-sans);
-  font-weight:    700;
-  font-size:      0.55rem;
-  letter-spacing: 0.20em;
-  text-transform: uppercase;
-  color:          var(--color-accent);
-  line-height:    1;
+  /*
+   * scale:1.3 — nécessaire pour la parallaxe GSAP ±15vw.
+   * 30% d'agrandissement = 15% de marge par côté.
+   * Le GSAP fromTo anime uniquement x (pas scale) →
+   * context.revert() ne touche pas scale → zéro flash au cleanup.
+   * Aucun filtre, aucun effet hover sur la couleur.
+   */
+  scale:       1.3;
+  will-change: transform;
 }
 
 
-/* ── Panel éditorial ─────────────────────────────────────── */
+/* ── Voile d'obscurité ────────────────────────────────────── */
+
+.cardVeil {
+  position:   absolute;
+  inset:      0;
+  background: rgba(10, 9, 8, 0.20);
+  transition: background 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card:hover .cardVeil {
+  background: transparent;
+}
+
+
+/* ── Panneau éditorial asymétrique ───────────────────────── */
+/*
+ * Le panneau déborde de la carte :
+ *   bottom: -3rem → il descend sous le bas de la carte.
+ *   right : -3rem → il sort à droite.
+ * Sur desktop (md+) : right : -6rem, width > 100% → chevauche
+ * la carte suivante. C'est la signature visuelle du design.
+ * L'article n'a pas overflow:hidden → le panneau reste visible.
+ * z-index:10 → au-dessus du wrapper translateX.
+ */
 
 .cardPanel {
-  position:       relative;    /* pour le numéro watermark absolu */
-  flex-shrink:    0;
-  overflow:       hidden;
-  background:     #EDE8E3;
-  /* Trait accent pleine largeur en haut du panel — signature */
-  border-top:     2px solid var(--color-accent);
-  padding:        clamp(0.7rem, 1.2vw, 1rem)
-                  clamp(1rem, 1.8vw, 1.4rem)
-                  clamp(0.75rem, 1.3vw, 1rem);
-  display:        flex;
-  flex-direction: column;
-  gap:            0;
-  transition:     background 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position:   absolute;
+  bottom:     -3rem;
+  right:      -3rem;
+  z-index:    10;
+  width:      90%;
+  padding:    clamp(1.2rem, 2vw, 2rem);
+  background: #F5F0EB;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0  8px 16px -8px rgba(0, 0, 0, 0.3);
+  transition: transform 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@media (min-width: 768px) {
+  .cardPanel {
+    right: -6rem;
+    width: 120%;
+  }
 }
 
 .card:hover .cardPanel {
-  background: #E4DDD5;
+  transform: translateY(-1rem);
 }
 
-/* Numéro watermark — derrière tout le contenu du panel */
-.cardPanelNum {
-  position:       absolute;
-  bottom:         -0.35rem;
-  right:          clamp(0.6rem, 1.2vw, 1rem);
+
+/* ── En-tête du panneau ───────────────────────────────────── */
+
+.cardPanelHeader {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     flex-end;
+  border-bottom:   1px solid rgba(26, 19, 16, 0.15);
+  padding-bottom:  clamp(0.6rem, 1vw, 1rem);
+  margin-bottom:   clamp(0.6rem, 1vw, 1rem);
+}
+
+.cardNum {
   font-family:    var(--font-display);
   font-weight:    900;
-  /* Grand, présent, jamais dominant */
-  font-size:      clamp(3.2rem, 5.5vw, 5rem);
+  font-size:      clamp(2.5rem, 5vw, 4rem);
   line-height:    1;
-  letter-spacing: 0.06em;
+  letter-spacing: -0.04em;
   color:          #1A1310;
-  opacity:        0.07;
-  user-select:    none;
-  pointer-events: none;
-  z-index:        0;
-  transition:     opacity 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.card:hover .cardPanelNum {
-  opacity: 0.12;
-}
-
-/* Titre — élément central du panel, doit imposer */
-.cardTitle {
-  position:       relative;
-  z-index:        1;
-  font-family:    var(--font-display);
-  font-weight:    900;
-  font-size:      clamp(0.95rem, 1.8vw, 1.55rem);
-  letter-spacing: 0.025em;
+.cardCategory {
+  font-family:    var(--font-sans);
+  font-weight:    700;
+  font-size:      0.58rem;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
-  color:          #1A1310;
-  line-height:    1.05;
-  margin-bottom:  clamp(0.45rem, 0.8vw, 0.65rem);
-  /* Tronque à 2 lignes — jamais de débordement */
-  display:        -webkit-box;
+  color:          var(--color-accent);
+  opacity:        0.85;
+  line-height:    1;
+}
+
+
+/* ── Titre ────────────────────────────────────────────────── */
+
+.cardTitle {
+  font-family:        var(--font-display);
+  font-weight:        900;
+  font-size:          clamp(1.4rem, 3vw, 2.8rem);
+  line-height:        1;
+  letter-spacing:     -0.02em;
+  text-transform:     uppercase;
+  color:              #1A1310;
+  margin-bottom:      clamp(0.4rem, 0.8vw, 0.6rem);
+  display:            -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow:       hidden;
-  transition:     color 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow:           hidden;
+  transition:         color 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .card:hover .cardTitle {
   color: #3D1F0A;
 }
 
-/* Séparateur — trait pleine largeur avant le réalisateur */
-.cardDivider {
-  display:      block;
-  width:        100%;
-  height:       1px;
-  background:   #C8BDB5;
-  margin-bottom: clamp(0.4rem, 0.7vw, 0.55rem);
-  position:     relative;
-  z-index:      1;
-  transition:   background 400ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
 
-.card:hover .cardDivider {
-  background: var(--color-accent);
-  opacity:    0.45;
-}
-
-/* Rangée bas — réalisateur + flèche */
-.cardBottom {
-  position:        relative;
-  z-index:         1;
-  display:         flex;
-  align-items:     center;
-  justify-content: space-between;
-}
+/* ── Réalisateur ──────────────────────────────────────────── */
 
 .cardDirector {
   font-family:    var(--font-sans);
-  font-weight:    400;
+  font-weight:    300;
   font-style:     italic;
-  font-size:      clamp(0.68rem, 0.9vw, 0.8rem);
-  letter-spacing: 0.04em;
-  color:          #7A6E68;
-  line-height:    1;
+  font-size:      clamp(0.8rem, 1.2vw, 1.1rem);
+  color:          #7A6A60;
+  line-height:    1.3;
   transition:     color 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .card:hover .cardDirector {
   color: #5A4A40;
-}
-
-.cardArrow {
-  display:         flex;
-  align-items:     center;
-  justify-content: center;
-  width:           1.65rem;
-  height:          1.65rem;
-  border-radius:   50%;
-  border:          1px solid rgba(90, 75, 65, 0.28);
-  color:           #6B5B52;
-  font-size:       0.75rem;
-  flex-shrink:     0;
-  opacity:         0;
-  transform:       translateX(-10px);
-  transition:
-    opacity   380ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    background 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    color     380ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.card:hover .cardArrow {
-  opacity:    1;
-  transform:  translateX(0);
-  background: var(--color-accent);
-  color:      #1A1310;
-  border-color: var(--color-accent);
 }

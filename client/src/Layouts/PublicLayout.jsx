@@ -1,42 +1,37 @@
 import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Header        from '@/components/layouts/Header';
-import Footer        from '@/components/layouts/Footer';
-import Lenis         from 'lenis';
-import gsap          from 'gsap';
+import Header           from '@/components/layouts/Header';
+import Footer           from '@/components/layouts/Footer';
+import Lenis            from 'lenis';
+import gsap             from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// TODO: Etape 3 Kodawari — importer ScrollProgressBar ici
+// TODO: Étape 3 Kodawari — importer ScrollProgressBar ici
 
 function PublicLayout() {
   const lenisRef     = useRef(null);
   const { pathname } = useLocation();
 
-  // Integration officielle Lenis + GSAP ScrollTrigger
+  // ── Intégration officielle Lenis + GSAP ScrollTrigger ────
   //
-  // CAUSE RACINE ECRAN NOIR :
-  // L ancienne version utilisait requestAnimationFrame manuel.
-  // GSAP ScrollTrigger ecoute les evenements scroll natifs.
-  // Lenis intercepte le scroll natif et applique son easing —
-  // GSAP ne recevait jamais les vraies positions Lenis.
-  // Les deux etaient desynchronises : pin:true se declenchait
-  // au mauvais moment, creant flashes noirs et positions incorrectes.
-  //
-  // SOLUTION — integration officielle Lenis + GSAP :
+  // L'ancienne version pilotait Lenis via requestAnimationFrame
+  // manuel. GSAP ScrollTrigger écoutait les événements scroll
+  // natifs — que Lenis intercepte et remplace par son propre
+  // easing. GSAP recevait donc les positions natives incorrectes,
+  // pas les positions réelles de Lenis. Désynchronisation totale.
   //
   //   gsap.ticker.add(lenisRaf)
-  //     Le ticker GSAP pilote Lenis. Un seul rAF au lieu de deux.
+  //     Le ticker GSAP pilote Lenis. Un seul RAF, une seule horloge.
   //
   //   lenis.on('scroll', ScrollTrigger.update)
-  //     Chaque deplacement Lenis -> ScrollTrigger recalcule
-  //     immediatement. Synchronisation frame-par-frame.
+  //     Chaque déplacement Lenis notifie ScrollTrigger immédiatement.
+  //     Synchronisation frame-par-frame garantie.
   //
   //   gsap.ticker.lagSmoothing(0)
-  //     Desactive la compensation de lag GSAP. Sans ca, GSAP
-  //     peut sauter des frames lors de pics CPU — discontinuites
-  //     visuelles dans le scroll scrub.
+  //     Désactive la compensation de lag. Sans ça, GSAP peut sauter
+  //     des frames lors de pics CPU — discontinuités dans le scrub.
   useEffect(() => {
     const lenis = new Lenis({
       duration:        1.2,
@@ -61,18 +56,20 @@ function PublicLayout() {
     };
   }, []);
 
-  // Bridge lenis:resize
-  // GSAP pin:true cree un spacer qui agrandit le document.
-  // Lenis ne detecte pas ce changement seul.
-  // MovieGallery dispatche lenis:resize depuis onRefresh().
+  // ── Bridge lenis:resize ───────────────────────────────────
+  // MovieGallery dispatche 'lenis:resize' depuis init() après
+  // que trackOuter.height est posé. Lenis recalcule la hauteur
+  // scrollable du document avec les nouvelles dimensions.
   //
-  // Bridge lenis:scrollTo
-  // goToPage dispatche lenis:scrollTo AVANT tout changement d etat.
-  // Lenis saute instantanement (immediate:true) vers la cible.
+  // ── Bridge lenis:scrollTo ─────────────────────────────────
+  // goToPage et handleFilterChange dispatchent 'lenis:scrollTo'
+  // AVANT tout changement d'état React. Lenis saute instantanément
+  // en haut (immediate:true) avant que GSAP re-mesure.
   useEffect(() => {
     const onResize = () => {
       requestAnimationFrame(() => lenisRef.current?.resize());
     };
+
     const onScrollTo = (e) => {
       const target = e.detail?.target;
       if (!target || !lenisRef.current) return;
@@ -81,13 +78,16 @@ function PublicLayout() {
 
     window.addEventListener('lenis:resize',   onResize);
     window.addEventListener('lenis:scrollTo', onScrollTo);
+
     return () => {
       window.removeEventListener('lenis:resize',   onResize);
       window.removeEventListener('lenis:scrollTo', onScrollTo);
     };
   }, []);
 
-  // Resize Lenis a chaque navigation (PublicLayout ne se demonte jamais)
+  // ── Resize Lenis à chaque navigation ─────────────────────
+  // PublicLayout ne se démonte jamais entre les pages.
+  // Lenis conserve la hauteur de la page précédente sans ce reset.
   useEffect(() => {
     if (!lenisRef.current) return;
     const raf = requestAnimationFrame(() => lenisRef.current?.resize());
