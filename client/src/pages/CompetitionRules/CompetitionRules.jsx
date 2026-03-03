@@ -1,127 +1,117 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { REGLEMENT } from "./components/reglementData";
-import Header from "./components/Header";
-import SearchBar from "./components/SearchBar";
-import ChaptersList from "./components/ChaptersList";
-import AccessibilityInfo from "./components/AccessibilityInfo";
-import ChapterView from "./components/ChapterView";
-import ContinuousView from "./components/ContinuousView";
+import React from 'react';
 
-
-export default function ReglementDVDPage() {
-  const [mode, setMode] = useState("cine"); // "cine" | "classic"
-  const [view, setView] = useState("chapters"); // "chapters" | "continuous"
-  const [query, setQuery] = useState("");
-  const [activeId, setActiveId] = useState(REGLEMENT[0].id);
-
-  const contentTopRef = useRef(null);
-  const activeHeadingRef = useRef(null);
-  const liveRef = useRef(null);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return REGLEMENT;
-    return REGLEMENT.filter((a) => {
-      const text = `${a.title} ${a.tags.join(" ")} ${a.id}`.toLowerCase();
-      return text.includes(q);
-    });
-  }, [query]);
-
-  const active = useMemo(() => {
-    return REGLEMENT.find((a) => a.id === activeId) ?? REGLEMENT[0];
-  }, [activeId]);
-
-  // Hash -> article
-  useEffect(() => {
-    const hash = window.location.hash?.replace("#", "");
-    if (hash && REGLEMENT.some((a) => a.id === hash)) {
-      setActiveId(hash);
-    }
-  }, []);
-
-  // Update URL hash on activeId
-  useEffect(() => {
-    window.history.replaceState(null, "", `#${activeId}`);
-  }, [activeId]);
-
-  // Focus management (lecteurs d'écran + clavier)
-  useEffect(() => {
-    if (view !== "chapters") return;
-    activeHeadingRef.current?.focus();
-    if (liveRef.current) {
-      liveRef.current.textContent = `${active.title} affiché`;
-    }
-  }, [activeId, view, active.title]);
-
-  const goTo = (id) => {
-    setView("chapters");
-    setActiveId(id);
-    requestAnimationFrame(() => {
-      contentTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  };
-
+const CompetitionRules = () => {
   return (
-    <div className="min-h-screen bg-neutral-950 text-white">
-      {/* Skip link (clavier) */}
-      <a
-        href="#reglement-main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-black"
-      >
-        Aller au contenu principal
-      </a>
+    <div className="relative min-h-screen bg-[#0a0a0a] text-[#f5f5f5] selection:bg-[#d1c7a3] selection:text-black">
+      {/* Overlay de grain subtil */}
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-      {/* Ambiance projecteur (visuel uniquement) */}
-      <div className="pointer-events-none fixed inset-0 opacity-40 motion-reduce:opacity-25">
-        <div className="absolute -top-24 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+      {/* pt-40 pour passer sous la navbar fixed (~80px) + marge supplémentaire */}
+      <div className="relative z-10 mx-auto max-w-7xl px-6 pt-40 pb-40 lg:px-8">
+        
+        {/* Header de la page - mt-32 supprimé, le pt-40 du parent suffit */}
+        <header className="mb-32 border-b border-white/10 pb-16">
+          <h1 className="text-6xl font-black uppercase tracking-tighter sm:text-8xl lg:text-9xl leading-[0.9]">
+            Règlement <br />
+            <span className="text-[#d1c7a3]">Général</span>
+          </h1>
+          <div className="mt-12 flex items-center gap-6 text-xs uppercase tracking-[0.4em] text-white/40">
+            <span>Marsai Festival</span>
+            <span className="h-px w-12 bg-[#d1c7a3]/40" />
+            <span>Édition 2026</span>
+          </div>
+        </header>
+
+        <main className="space-y-0">
+          
+          {/* Section 01 - Admissibilité */}
+          <section className="grid grid-cols-1 gap-12 border-b border-white/10 py-24 lg:grid-cols-3">
+            <div className="flex flex-col gap-3">
+              <span className="font-serif text-3xl italic text-[#d1c7a3] opacity-60">01</span>
+              <h2 className="text-xl uppercase tracking-widest font-bold">Admissibilité</h2>
+            </div>
+            <div className="lg:col-span-2 max-w-2xl space-y-8 text-xl text-white/70 font-light leading-relaxed">
+              <p>
+                Le concours est ouvert aux créateurs explorant les frontières entre l'intelligence artificielle et la narration cinématographique.
+              </p>
+              <ul className="space-y-6 text-lg">
+                <li className="flex gap-4 items-start">
+                  <span className="text-[#d1c7a3] mt-1">—</span>
+                  <span>Les œuvres doivent intégrer des outils d'IA générative dans au moins une étape de production (image, son, ou montage).</span>
+                </li>
+                <li className="flex gap-4 items-start">
+                  <span className="text-[#d1c7a3] mt-1">—</span>
+                  <span>Durée maximale : 15 minutes, générique compris.</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          {/* Section 02 - Éthique */}
+          <section className="grid grid-cols-1 gap-12 border-b border-white/10 py-24 lg:grid-cols-3">
+            <div className="flex flex-col gap-3">
+              <span className="font-serif text-3xl italic text-[#d1c7a3] opacity-60">02</span>
+              <h2 className="text-xl uppercase tracking-widest font-bold">Éthique</h2>
+            </div>
+            <div className="lg:col-span-2 max-w-2xl space-y-8 text-xl text-white/70 font-light leading-relaxed">
+              <p>
+                Chaque soumission doit être accompagnée d'une note détaillant les outils utilisés. Le festival valorise la transparence et le respect des droits d'auteur.
+              </p>
+            </div>
+          </section>
+
+          {/* Section 03 - Propriété */}
+          <section className="grid grid-cols-1 gap-12 border-b border-white/10 py-24 lg:grid-cols-3">
+            <div className="flex flex-col gap-3">
+              <span className="font-serif text-3xl italic text-[#d1c7a3] opacity-60">03</span>
+              <h2 className="text-xl uppercase tracking-widest font-bold">Propriété</h2>
+            </div>
+            <div className="lg:col-span-2 max-w-2xl text-xl text-white/70 font-light leading-relaxed space-y-6">
+              <p>
+                Les participants garantissent être titulaires des droits d'auteur pour les éléments non générés par l'IA.
+              </p>
+              <p className="text-base text-white/40 italic uppercase tracking-[0.2em]">
+                MARSAI se réserve le droit de diffuser les extraits à des fins de promotion.
+              </p>
+            </div>
+          </section>
+
+          {/* Section 04 - Soumission */}
+          <section className="grid grid-cols-1 gap-12 border-b border-white/10 py-24 lg:grid-cols-3">
+            <div className="flex flex-col gap-3">
+              <span className="font-serif text-3xl italic text-[#d1c7a3] opacity-60">04</span>
+              <h2 className="text-xl uppercase tracking-widest font-bold">Soumission</h2>
+            </div>
+            <div className="lg:col-span-2 max-w-2xl text-xl text-white/70 font-light leading-relaxed">
+              <p>
+                Date limite : <span className="text-[#d1c7a3] font-bold">30 juin 2026</span>. Format requis : .MP4 ou .MOV, résolution minimale 1080p.
+              </p>
+            </div>
+          </section>
+
+          {/* Section 05 - Jury */}
+          <section className="grid grid-cols-1 gap-12 py-24 lg:grid-cols-3">
+            <div className="flex flex-col gap-3">
+              <span className="font-serif text-3xl italic text-[#d1c7a3] opacity-60">05</span>
+              <h2 className="text-xl uppercase tracking-widest font-bold">Sélection</h2>
+            </div>
+            <div className="lg:col-span-2 max-w-2xl text-xl text-white/70 font-light leading-relaxed">
+              <p>
+                Les décisions du jury international sont souveraines. Les critères incluent l'esthétique, l'innovation technique et la narration.
+              </p>
+            </div>
+          </section>
+
+        </main>
+
+        <footer className="mt-40 pt-12 border-t border-white/5 text-center">
+          <p className="text-[10px] uppercase tracking-[0.5em] text-white/20 italic font-sans">
+            MARSAI Festival — Marseille MMXXVI. Tous droits réservés.
+          </p>
+        </footer>
       </div>
-
-      {/* Live region (lecteurs d'écran) */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true" ref={liveRef} />
-
-      <Header mode={mode} setMode={setMode} view={view} setView={setView} />
-
-      <SearchBar query={query} setQuery={setQuery} filteredCount={filtered.length} />
-
-      <main
-        id="reglement-main"
-        className="relative mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 pb-16 md:grid-cols-12"
-      >
-        {/* NAV / Sommaire */}
-        <aside className="md:col-span-4">
-          <ChaptersList 
-            filtered={filtered} 
-            activeId={activeId} 
-            view={view} 
-            mode={mode} 
-            onGoTo={goTo} 
-          />
-          <AccessibilityInfo />
-        </aside>
-
-        {/* CONTENU */}
-        <section ref={contentTopRef} className="md:col-span-8">
-          {view === "chapters" ? (
-            <ChapterView 
-              active={active} 
-              mode={mode} 
-              activeHeadingRef={activeHeadingRef} 
-              setView={setView} 
-            />
-          ) : (
-            <ContinuousView mode={mode} setView={setView} goTo={goTo} />
-          )}
-        </section>
-
-        {/* Keyframes (fade) */}
-        <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
-      </main>
     </div>
   );
-}
+};
+
+export default CompetitionRules;

@@ -45,7 +45,6 @@ import JuryDashboard              from '@/pages/Jury/JuryDashboard.jsx';
  * de lancer le serveur de développement.
  */
 import FestivalNews               from '@/pages/News/News.jsx';
-import AdminLayout                from '@/layouts/AdminLayout.jsx';
 import PublicLayout               from '@/layouts/PublicLayout.jsx';
 
 /**
@@ -55,7 +54,7 @@ import ProtectedRoute             from '@/components/ProtectedRoute.jsx';
 import FilmsList                  from '@/pages/Admin/FilmsList.jsx';
 import DashboardHome              from '@/pages/Admin/DashboardHome.jsx';
 import { AdminDashboard }         from '@/pages/Admin/AdminDashboard.jsx';
-
+import AdminLayout                from '@/layouts/AdminLayout.jsx';
 /**
  * 5. PHASE 8 — Transitions cinématographiques
  */
