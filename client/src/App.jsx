@@ -45,6 +45,7 @@ import FilmDetail                from './pages/Admin/FilmDetail.jsx';
 import DashboardHome             from './pages/Admin/DashboardHome.jsx';
 import { AdminDashboard }        from './pages/Admin/AdminDashboard.jsx';
 import AwardsPage               from './pages/Admin/AwardsPage.jsx';
+import SelectionPage            from './pages/Admin/SelectionPage.jsx';
 
 /**
  * 5. PHASE 8 — Transitions cinématographiques (désactivées)
@@ -100,9 +101,10 @@ function AppInner() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index           element={<DashboardHome />} />
             <Route path="films/:id" element={<FilmDetail />} />
-            <Route path="films/*"   element={<FilmsList />} />
-            <Route path="users" element={<AdminDashboard />} />
-            <Route path="awards" element={<AwardsPage />} />
+            <Route path="films/*"     element={<FilmsList />} />
+            <Route path="selection"   element={<SelectionPage />} />
+            <Route path="users"       element={<AdminDashboard />} />
+            <Route path="awards"      element={<AwardsPage />} />
           </Route>
         </Route>
       </Routes>

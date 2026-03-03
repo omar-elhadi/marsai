@@ -157,9 +157,16 @@ export const assignUsersToFilm = async (filmId, userIds) => {
     );
   }
 
-  // Transition automatique SUBMITTED → IN_REVIEW dès qu'un jury est assigné
-  const newStatus =
-    film.status === "SUBMITTED" && userIds.length > 0 ? "IN_REVIEW" : film.status;
+  // Transitions automatiques liées à l'assignation de jurys :
+  // - SUBMITTED + ≥1 jury assigné → IN_REVIEW
+  // - IN_REVIEW + 0 jury restant  → SUBMITTED (remis en file d'attente)
+  // - Tout autre statut           → inchangé (APPROVED, REJECTED, etc.)
+  let newStatus = film.status;
+  if (film.status === "SUBMITTED" && userIds.length > 0) {
+    newStatus = "IN_REVIEW";
+  } else if (film.status === "IN_REVIEW" && userIds.length === 0) {
+    newStatus = "SUBMITTED";
+  }
 
   return prisma.film.update({
     where: { id: filmId },

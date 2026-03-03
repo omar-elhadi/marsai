@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Film, Users, LogOut, Menu, X, ChevronLeft, ChevronRight, Trophy, Settings } from 'lucide-react';
+import { LayoutDashboard, Film, Users, LogOut, Menu, X, ChevronLeft, ChevronRight, Trophy, Settings, Star } from 'lucide-react';
 
 function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -115,11 +115,12 @@ function AdminLayout() {
           style={{ padding: isCollapsed && !isMobileMenuOpen ? '0 0.5rem' : '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}
         >
           {[
-            { to: '/admin',          end: true,  icon: LayoutDashboard, label: 'Dashboard' },
-            { to: '/admin/users',    end: false, icon: Users,           label: 'Jury' },
-            { to: '/admin/films',    end: false, icon: Film,            label: 'Films' },
-            { to: '/admin/awards',   end: false, icon: Trophy,          label: 'Awards' },
-            { to: '/admin/settings', end: false, icon: Settings,        label: 'Paramètres' },
+            { to: '/admin',            end: true,  icon: LayoutDashboard, label: 'Dashboard' },
+            { to: '/admin/users',      end: false, icon: Users,           label: 'Jury' },
+            { to: '/admin/films',      end: false, icon: Film,            label: 'Évaluation' },
+            { to: '/admin/selection',  end: false, icon: Star,            label: 'Sélection' },
+            { to: '/admin/awards',     end: false, icon: Trophy,          label: 'Palmarès' },
+            { to: '/admin/settings',   end: false, icon: Settings,        label: 'Paramètres' },
           ].map(({ to, end, icon: Icon, label }) => (
             <NavLink
               key={to}

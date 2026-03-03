@@ -21,7 +21,8 @@ export const getSelectionCandidates = async () => {
       totalVotes:   true,
       totalLikes:   true,
       totalDislikes:true,
-      submitter:    { select: { firstName: true, lastName: true } },
+      youtubeUrl:   true,
+      submitter:    { select: { firstName: true, lastName: true, email: true } },
       nominations:  { select: { id: true, categoryId: true, isWinner: true } },
     },
     orderBy: [

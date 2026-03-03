@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Trophy, Star, Film, Plus, Trash2, Crown, X, ChevronDown, Loader2, RotateCcw } from 'lucide-react';
+import { Trophy, Star, Plus, Trash2, Crown, X, ChevronDown, Loader2, Film } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -47,130 +47,7 @@ function Rating({ avg, total }) {
 
 const spinnerStyle = { display: 'flex', justifyContent: 'center', padding: '4rem 0' };
 
-// ── Onglet 1 — Sélection ─────────────────────────────────────────────────────
-
-function TabSelection({ onStatusChange }) {
-  const [films, setFilms]     = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res  = await fetch(`${API}/awards/selection`, { headers: JSON_HEADERS, credentials: 'include' });
-      const data = await res.json();
-      setFilms(Array.isArray(data) ? data : []);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const changeStatus = async (filmId, newStatus) => {
-    setUpdating(filmId);
-    try {
-      await fetch(`${API}/films/${filmId}/status`, {
-        method:  'PUT',
-        headers: JSON_HEADERS,
-        credentials: 'include',
-        body:    JSON.stringify({ status: newStatus }),
-      });
-      await load();
-      onStatusChange?.();
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  const approved    = films.filter(f => f.status === 'APPROVED');
-  const inSelection = films.filter(f => ['SELECTION','FINALIST','AWARD'].includes(f.status));
-
-  if (loading) return <div style={spinnerStyle}><Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} /></div>;
-
-  return (
-    <div className="space-y-6">
-      {/* Compteurs */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: 'Approuvés (à sélectionner)', count: approved.length, color: 'text-green-400' },
-          { label: 'En sélection',               count: inSelection.filter(f=>f.status==='SELECTION').length, color: 'text-indigo-400' },
-          { label: 'Finalistes + Primés',        count: inSelection.filter(f=>['FINALIST','AWARD'].includes(f.status)).length, color: 'text-purple-400' },
-        ].map(({ label, count, color }) => (
-          <div key={label} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem' }}>
-            <p className={`text-2xl font-black ${color}`}>{count}</p>
-            <p className="label-overline" style={{ marginTop: '0.25rem' }}>{label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-200">
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-high)' }}>
-                {['Film', 'Réalisateur', 'Pays', 'Note moy.', 'Statut', 'Action'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left label-overline">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {films.map(film => (
-                <tr
-                  key={film.id}
-                  style={{ borderTop: '1px solid var(--color-border)', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.875rem', color: 'var(--color-text)', fontWeight: 500, maxWidth: '12rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{film.title}</td>
-                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                    {film.submitter?.firstName} {film.submitter?.lastName}
-                  </td>
-                  <td style={{ padding: '0.75rem 1rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{film.country}</td>
-                  <td style={{ padding: '0.75rem 1rem' }}><Rating avg={film.avgRating} total={film.totalVotes} /></td>
-                  <td style={{ padding: '0.75rem 1rem' }}><Badge status={film.status} /></td>
-                  <td style={{ padding: '0.75rem 1rem' }}>
-                    {updating === film.id ? (
-                      <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} />
-                    ) : film.status === 'APPROVED' ? (
-                      <button
-                        onClick={() => changeStatus(film.id, 'SELECTION')}
-                        className="text-[11px] px-3 py-1 bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition-colors"
-                      >
-                        → Sélectionner
-                      </button>
-                    ) : film.status === 'SELECTION' ? (
-                      <button
-                        onClick={() => changeStatus(film.id, 'APPROVED')}
-                        style={{ fontSize: '0.6875rem', padding: '0.25rem 0.75rem', background: 'var(--color-surface-high)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer', transition: 'background 0.2s' }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
-                      >
-                        <RotateCcw size={10} /> Retirer
-                      </button>
-                    ) : (
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>Nominé/Primé</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {films.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ padding: '2.5rem 1rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-text-faint)' }}>
-                    Aucun film approuvé
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Onglet 2 — Catégories ────────────────────────────────────────────────────
+// ── Onglet 1 — Catégories ────────────────────────────────────────────────────
 
 function TabCategories({ edition, userRole }) {
   const [categories, setCategories] = useState([]);
@@ -216,7 +93,7 @@ function TabCategories({ edition, userRole }) {
 
   const remove = async (id) => {
     if (!confirm('Supprimer cette catégorie ?')) return;
-    await fetch(`${API}/awards/categories/${id}`, { method: 'DELETE', headers: authHeader() });
+    await fetch(`${API}/awards/categories/${id}`, { method: 'DELETE', credentials: 'include' });
     await load();
   };
 
@@ -240,35 +117,34 @@ function TabCategories({ edition, userRole }) {
   if (loading) return <div style={spinnerStyle}><Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} /></div>;
 
   return (
-    <div className="space-y-6">
-      {/* Formulaire ajout/édition — ADMIN uniquement */}
+    <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? '18rem 1fr' : '1fr', gap: '2rem', alignItems: 'start' }}>
+
+      {/* ── Colonne gauche — Formulaire (ADMIN uniquement) ── */}
       {isAdmin && (
-        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem' }} className="space-y-4">
+        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem', position: 'sticky', top: '1rem' }} className="space-y-4">
           <p className="label-overline">{editId ? 'Modifier la catégorie' : 'Nouvelle catégorie'}</p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <input
-              placeholder="Nom de la catégorie *"
-              value={form.name}
-              onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-              style={inputStyle}
-              onFocus={e => e.target.style.borderColor = '#6366f1'}
-              onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
-            />
-            <input
-              type="number"
-              placeholder="Ordre d'affichage (0, 1, 2…)"
-              value={form.displayOrder}
-              onChange={e => setForm(p => ({ ...p, displayOrder: parseInt(e.target.value) || 0 }))}
-              style={inputStyle}
-              onFocus={e => e.target.style.borderColor = '#6366f1'}
-              onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
-            />
-          </div>
+          <input
+            placeholder="Nom de la catégorie *"
+            value={form.name}
+            onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+            style={inputStyle}
+            onFocus={e => e.target.style.borderColor = '#6366f1'}
+            onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
+          />
+          <input
+            type="number"
+            placeholder="Ordre d'affichage (0, 1, 2…)"
+            value={form.displayOrder}
+            onChange={e => setForm(p => ({ ...p, displayOrder: parseInt(e.target.value) || 0 }))}
+            style={inputStyle}
+            onFocus={e => e.target.style.borderColor = '#6366f1'}
+            onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
+          />
           <textarea
             placeholder="Description (optionnelle)"
             value={form.description}
             onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-            rows={2}
+            rows={3}
             style={{ ...inputStyle, resize: 'none' }}
             onFocus={e => e.target.style.borderColor = '#6366f1'}
             onBlur={e => e.target.style.borderColor = 'var(--color-border)'}
@@ -299,42 +175,69 @@ function TabCategories({ edition, userRole }) {
         </div>
       )}
 
-      {/* Liste des catégories */}
-      <div className="space-y-2">
-        {categories.map(cat => (
-          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
-                <Star size={14} className="text-amber-400 shrink-0" />
-                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>{cat.name}</p>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>{cat.nominations.length} nominé(s)</span>
-              </div>
-              {cat.description && <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: '1.375rem' }}>{cat.description}</p>}
-            </div>
-            {isAdmin && (
-              <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                <button
-                  onClick={() => startEdit(cat)}
-                  style={{ fontSize: '0.6875rem', padding: '0.25rem 0.75rem', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)', background: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                >
-                  Modifier
-                </button>
-                <button
-                  onClick={() => remove(cat.id)}
-                  className="text-[11px] px-2 py-1 border border-red-500/20 text-red-400/70 hover:bg-red-500/10"
-                >
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
-        {categories.length === 0 && (
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', padding: '2rem 0', textAlign: 'center' }}>
-            Aucune catégorie pour l'édition {edition}. {isAdmin ? 'Créez-en une ci-dessus.' : ''}
+      {/* ── Colonne droite — Liste en tableau ── */}
+      <div>
+        {categories.length === 0 ? (
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-text-faint)', padding: '3rem 0', textAlign: 'center' }}>
+            Aucune catégorie pour l'édition {edition}. {isAdmin ? 'Créez-en une ci-contre.' : ''}
           </p>
+        ) : (
+          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr style={{ background: 'var(--color-surface-high)', borderBottom: '1px solid var(--color-border)' }}>
+                  {['Catégorie', 'Nominés', isAdmin ? 'Actions' : ''].map((h, i) => (
+                    <th key={i} className="label-overline" style={{ padding: '0.875rem 1rem', textAlign: i === 2 ? 'right' : 'left' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {categories.map(cat => (
+                  <tr
+                    key={cat.id}
+                    style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <td style={{ padding: '0.875rem 1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Star size={13} className="text-amber-400 shrink-0" />
+                        <span style={{ fontWeight: 700, color: 'var(--color-text)', fontSize: '0.875rem' }}>{cat.name}</span>
+                      </div>
+                      {cat.description && (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.25rem', paddingLeft: '1.375rem' }}>{cat.description}</p>
+                      )}
+                    </td>
+                    <td style={{ padding: '0.875rem 1rem' }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: cat.nominations.length > 0 ? 'var(--color-text)' : 'var(--color-text-faint)' }}>
+                        {cat.nominations.length}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.875rem 1rem', textAlign: 'right' }}>
+                      {isAdmin && (
+                        <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => startEdit(cat)}
+                            style={{ fontSize: '0.6875rem', padding: '0.25rem 0.75rem', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)', background: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                          >
+                            Modifier
+                          </button>
+                          <button
+                            onClick={() => remove(cat.id)}
+                            className="text-[11px] px-2 py-1 border border-red-500/20 text-red-400/70 hover:bg-red-500/10"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -387,7 +290,7 @@ function TabNominations({ edition }) {
   };
 
   const removeNom = async (nominationId) => {
-    await fetch(`${API}/awards/nominations/${nominationId}`, { method: 'DELETE', headers: authHeader() });
+    await fetch(`${API}/awards/nominations/${nominationId}`, { method: 'DELETE', credentials: 'include' });
     await load();
   };
 
@@ -405,70 +308,88 @@ function TabNominations({ edition }) {
         const available = selection.filter(f => !nominatedFilmIds.has(f.id));
 
         return (
-          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <Star size={14} className="text-amber-400" />
-              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.name}</p>
-            </div>
+          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
 
-            {/* Ajouter un nominé */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-              <select
-                value={selectedFilm[cat.id] ?? ''}
-                onChange={e => setSelectedFilm(p => ({ ...p, [cat.id]: e.target.value }))}
-                style={{ flex: 1, background: 'var(--color-surface-high)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.5rem 0.75rem', outline: 'none' }}
-              >
-                <option value="">— Choisir un film en SELECTION —</option>
-                {available.map(f => (
-                  <option key={f.id} value={f.id}>
-                    {f.title} ({f.country}) — {f.avgRating?.toFixed(1) ?? '?'}/10
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={() => nominate(cat.id)}
-                disabled={!selectedFilm[cat.id] || nominating === cat.id}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', padding: '0.5rem 1rem', background: 'var(--color-surface-high)', color: 'var(--color-text)', border: '1px solid var(--color-border)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s' }}
-                className="disabled:opacity-40"
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-border)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'var(--color-surface-high)'}
-              >
-                {nominating === cat.id ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
-                Nominer
-              </button>
-            </div>
-
-            {/* Liste des nominés */}
-            {cat.nominations.length > 0 ? (
-              <div className="space-y-1">
-                {cat.nominations.map(nom => (
-                  <div
-                    key={nom.id}
-                    className={`flex items-center justify-between px-3 py-2 text-xs ${nom.isWinner ? 'bg-amber-500/10 border border-amber-500/20' : ''}`}
-                    style={!nom.isWinner ? { background: 'var(--color-surface-high)', border: '1px solid var(--color-border)' } : {}}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {nom.isWinner && <Crown size={11} className="text-amber-400" />}
-                      <span className={nom.isWinner ? 'text-amber-300 font-semibold' : ''} style={!nom.isWinner ? { color: 'var(--color-text-muted)' } : {}}>
-                        {nom.film.title}
-                      </span>
-                      <span style={{ color: 'var(--color-text-faint)' }}>{nom.film.country}</span>
-                    </div>
-                    {!nom.isWinner && (
-                      <button
-                        onClick={() => removeNom(nom.id)}
-                        style={{ color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
-                        onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
-                        onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
-                      >
-                        <X size={12} />
-                      </button>
-                    )}
-                  </div>
-                ))}
+            {/* En-tête catégorie + sélecteur */}
+            <div style={{ padding: '1rem', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-high)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <Star size={13} className="text-amber-400 shrink-0" />
+                <p className="label-overline">{cat.name}</p>
               </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <select
+                  value={selectedFilm[cat.id] ?? ''}
+                  onChange={e => setSelectedFilm(p => ({ ...p, [cat.id]: e.target.value }))}
+                  style={{ flex: 1, background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.75rem', padding: '0.5rem 0.75rem', outline: 'none' }}
+                >
+                  <option value="">— Choisir un film en SELECTION ({available.length} dispo.) —</option>
+                  {available.map(f => (
+                    <option key={f.id} value={f.id}>
+                      {f.title} · {f.country} — {f.avgRating?.toFixed(1) ?? '?'}/10
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => nominate(cat.id)}
+                  disabled={!selectedFilm[cat.id] || nominating === cat.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.5rem 1rem', background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)', cursor: 'pointer', flexShrink: 0, transition: 'background 0.15s', whiteSpace: 'nowrap' }}
+                  className="disabled:opacity-40"
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}
+                >
+                  {nominating === cat.id ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                  Nominer
+                </button>
+              </div>
+            </div>
+
+            {/* Tableau des nominés */}
+            {cat.nominations.length === 0 ? (
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', textAlign: 'center', padding: '1.5rem 1rem' }}>Aucun nominé pour cette catégorie.</p>
             ) : (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', textAlign: 'center', padding: '0.5rem 0' }}>Aucun nominé</p>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                    {['Film · Pays', 'Statut', ''].map((h, i) => (
+                      <th key={i} className="label-overline" style={{ padding: '0.625rem 1rem', textAlign: i === 2 ? 'right' : 'left' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.nominations.map(nom => (
+                    <tr
+                      key={nom.id}
+                      style={{ borderBottom: '1px solid var(--color-border)', background: nom.isWinner ? 'rgba(251,191,36,0.04)' : 'transparent', transition: 'background 0.15s' }}
+                      onMouseEnter={e => { if (!nom.isWinner) e.currentTarget.style.background = 'var(--color-surface-high)'; }}
+                      onMouseLeave={e => { if (!nom.isWinner) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {nom.isWinner && <Crown size={11} className="text-amber-400 shrink-0" />}
+                          <span style={{ fontWeight: 700, color: nom.isWinner ? '#fcd34d' : 'var(--color-text)', fontSize: '0.875rem' }}>{nom.film.title}</span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem', paddingLeft: nom.isWinner ? '1.375rem' : '0' }}>{nom.film.country}</div>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <Badge status={nom.film.status} />
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                        {!nom.isWinner && (
+                          <button
+                            onClick={() => removeNom(nom.id)}
+                            title="Retirer la nomination"
+                            style={{ color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', transition: 'color 0.15s', display: 'inline-flex', alignItems: 'center' }}
+                            onMouseEnter={e => e.currentTarget.style.color = '#f87171'}
+                            onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-faint)'}
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         );
@@ -500,7 +421,7 @@ function TabWinners({ edition }) {
   const setWinner = async (nominationId) => {
     setProcessing(nominationId);
     try {
-      await fetch(`${API}/awards/nominations/${nominationId}/winner`, { method: 'PUT', headers: authHeader() });
+      await fetch(`${API}/awards/nominations/${nominationId}/winner`, { method: 'PUT', credentials: 'include' });
       await load();
     } finally {
       setProcessing(null);
@@ -510,7 +431,7 @@ function TabWinners({ edition }) {
   const clearWinner = async (nominationId) => {
     setProcessing(nominationId);
     try {
-      await fetch(`${API}/awards/nominations/${nominationId}/winner`, { method: 'DELETE', headers: authHeader() });
+      await fetch(`${API}/awards/nominations/${nominationId}/winner`, { method: 'DELETE', credentials: 'include' });
       await load();
     } finally {
       setProcessing(null);
@@ -525,58 +446,78 @@ function TabWinners({ edition }) {
         const winner = cat.nominations.find(n => n.isWinner);
 
         return (
-          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-              <Trophy size={14} className="text-amber-400" />
-              <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{cat.name}</p>
-              {winner && <span className="text-[11px] px-2 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/25">PRIMÉ</span>}
+          <div key={cat.id} style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
+
+            {/* En-tête catégorie */}
+            <div style={{ padding: '0.875rem 1rem', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-high)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <Trophy size={13} className="text-amber-400 shrink-0" />
+              <p className="label-overline" style={{ flex: 1 }}>{cat.name}</p>
+              {winner
+                ? <span className="text-[11px] px-2 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/25 font-bold uppercase tracking-wider">Primé</span>
+                : <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-faint)' }}>{cat.nominations.length} nominé{cat.nominations.length !== 1 ? 's' : ''}</span>
+              }
             </div>
 
+            {/* Tableau des nominés + actions gagnant */}
             {cat.nominations.length === 0 ? (
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', textAlign: 'center', padding: '0.5rem 0' }}>Aucun nominé</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)', textAlign: 'center', padding: '1.5rem 1rem' }}>Aucun nominé pour cette catégorie.</p>
             ) : (
-              <div className="space-y-2">
-                {cat.nominations.map(nom => (
-                  <div
-                    key={nom.id}
-                    className={`flex items-center justify-between px-4 py-3 border ${nom.isWinner ? 'bg-amber-500/10 border-amber-500/25' : ''}`}
-                    style={!nom.isWinner ? { background: 'var(--color-surface-high)', border: '1px solid var(--color-border)' } : {}}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      {nom.isWinner
-                        ? <Crown size={14} className="text-amber-400" />
-                        : <Film  size={14} style={{ color: 'var(--color-text-faint)' }} />
-                      }
-                      <div>
-                        <p className={`text-sm font-medium ${nom.isWinner ? 'text-amber-300' : ''}`}
-                          style={!nom.isWinner ? { color: 'var(--color-text)' } : {}}>
-                          {nom.film.title}
-                        </p>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-faint)' }}>{nom.film.country}</p>
-                      </div>
-                    </div>
-                    <div>
-                      {processing === nom.id ? (
-                        <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} />
-                      ) : nom.isWinner ? (
-                        <button
-                          onClick={() => clearWinner(nom.id)}
-                          className="text-[11px] px-3 py-1 border border-amber-500/25 text-amber-400/70 hover:bg-amber-500/10 flex items-center gap-1"
-                        >
-                          <X size={10} /> Retirer
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => setWinner(nom.id)}
-                          className="text-[11px] px-3 py-1 bg-amber-500/15 text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 flex items-center gap-1"
-                        >
-                          <Crown size={10} /> Désigner gagnant
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
+                    {['Film · Pays', 'Statut', 'Action'].map((h, i) => (
+                      <th key={i} className="label-overline" style={{ padding: '0.625rem 1rem', textAlign: i === 2 ? 'right' : 'left' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.nominations.map(nom => (
+                    <tr
+                      key={nom.id}
+                      style={{ borderBottom: '1px solid var(--color-border)', background: nom.isWinner ? 'rgba(251,191,36,0.06)' : 'transparent', transition: 'background 0.15s' }}
+                      onMouseEnter={e => { if (!nom.isWinner) e.currentTarget.style.background = 'var(--color-surface-high)'; }}
+                      onMouseLeave={e => { if (!nom.isWinner) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          {nom.isWinner
+                            ? <Crown size={11} className="text-amber-400 shrink-0" />
+                            : <Film  size={11} style={{ color: 'var(--color-text-faint)', flexShrink: 0 }} />
+                          }
+                          <span style={{ fontWeight: 700, color: nom.isWinner ? '#fcd34d' : 'var(--color-text)', fontSize: '0.875rem' }}>{nom.film.title}</span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.125rem', paddingLeft: '1.375rem' }}>{nom.film.country}</div>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <Badge status={nom.film.status} />
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                        {processing === nom.id ? (
+                          <Loader2 size={13} className="animate-spin" style={{ color: 'var(--color-text-faint)' }} />
+                        ) : nom.isWinner ? (
+                          <button
+                            onClick={() => clearWinner(nom.id)}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.3rem 0.75rem', border: '1px solid rgba(251,191,36,0.25)', color: 'rgba(251,191,36,0.7)', background: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(251,191,36,0.08)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                          >
+                            <X size={10} /> Retirer
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setWinner(nom.id)}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.3rem 0.75rem', background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', cursor: 'pointer', transition: 'background 0.15s', whiteSpace: 'nowrap' }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(251,191,36,0.22)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(251,191,36,0.12)'}
+                          >
+                            <Crown size={10} /> Désigner
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         );
@@ -592,20 +533,44 @@ function TabWinners({ edition }) {
 
 // ── Page principale ───────────────────────────────────────────────────────────
 
-const TABS = [
-  { id: 'selection',   label: 'Sélection',   icon: Film   },
-  { id: 'categories',  label: 'Catégories',  icon: Star   },
-  { id: 'nominations', label: 'Nominations', icon: Trophy },
-  { id: 'winners',     label: 'Gagnants',    icon: Crown  },
-];
-
 export default function AwardsPage() {
-  const [tab, setTab]         = useState('selection');
+  const [tab, setTab]         = useState('categories');
   const [edition, setEdition] = useState(CURRENT_EDITION);
+  const [summary, setSummary] = useState({ categories: 0, nominations: 0, winners: 0 });
 
   // Récupérer le rôle depuis le localStorage
   const user     = JSON.parse(localStorage.getItem('marsai_user') || '{}');
   const userRole = user.role ?? 'MODERATOR';
+
+  // Chargement des stats globales (comptes pour KPIs et onglets)
+  const loadSummary = useCallback(async () => {
+    try {
+      const res  = await fetch(`${API}/awards/categories?edition=${edition}`, { credentials: 'include' });
+      const cats = await res.json();
+      if (Array.isArray(cats)) {
+        const allNoms = cats.flatMap(c => c.nominations ?? []);
+        setSummary({
+          categories:  cats.length,
+          nominations: allNoms.length,
+          winners:     allNoms.filter(n => n.isWinner).length,
+        });
+      }
+    } catch { /* silencieux */ }
+  }, [edition]);
+
+  useEffect(() => { loadSummary(); }, [loadSummary]);
+
+  // Changement d'onglet + refresh des counts
+  const handleTabChange = (id) => {
+    setTab(id);
+    loadSummary();
+  };
+
+  const tabs = [
+    { id: 'categories',  label: 'Catégories',  icon: Star,   count: summary.categories  },
+    { id: 'nominations', label: 'Nominations', icon: Film,   count: summary.nominations },
+    { id: 'winners',     label: 'Gagnants',    icon: Crown,  count: summary.winners     },
+  ];
 
   return (
     <div className="animate-fade-in" style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text)' }}>
@@ -619,8 +584,22 @@ export default function AwardsPage() {
 
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '1rem' }}>
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.03em', textTransform: 'uppercase', fontStyle: 'italic', color: 'var(--color-text)', lineHeight: 1 }}>
-            Palmarès <span style={{ color: '#6366f1' }}>Awards</span>
+            Palmarès
           </h1>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          {/* Lien contextuel → Gagnants quand des nominations sont sans primé */}
+          {summary.nominations > summary.winners && summary.nominations > 0 && (
+            <button
+              onClick={() => handleTabChange('winners')}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fbbf24', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', padding: '0.5rem 0.875rem', transition: 'background 0.15s, border-color 0.15s', cursor: 'pointer' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.15)'; e.currentTarget.style.borderColor = 'rgba(251,191,36,0.35)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.08)'; e.currentTarget.style.borderColor = 'rgba(251,191,36,0.2)'; }}
+            >
+              <Crown size={12} />
+              {summary.nominations - summary.winners} nomination{summary.nominations - summary.winners > 1 ? 's' : ''} sans primé → Gagnants
+            </button>
+          )}
 
           {/* Sélecteur d'édition */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -638,29 +617,49 @@ export default function AwardsPage() {
               <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-faint)', pointerEvents: 'none' }} />
             </div>
           </div>
+          </div>{/* fin wrapper lien + édition */}
         </div>
       </header>
 
+      {/* ── KPIs ── */}
+      <div className="grid grid-cols-3 gap-4" style={{ marginBottom: '1.5rem' }}>
+        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem' }}>
+          <p className="text-2xl font-black" style={{ color: '#818cf8' }}>{summary.categories}</p>
+          <p className="label-overline" style={{ marginTop: '0.25rem' }}>Catégories</p>
+        </div>
+        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem' }}>
+          <p className="text-2xl font-black" style={{ color: '#a78bfa' }}>{summary.nominations}</p>
+          <p className="label-overline" style={{ marginTop: '0.25rem' }}>Nominations</p>
+        </div>
+        <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', padding: '1rem' }}>
+          <p className="text-2xl font-black text-amber-400">{summary.winners}</p>
+          <p className="label-overline" style={{ marginTop: '0.25rem' }}>Primés</p>
+        </div>
+      </div>
+
       {/* ── Onglets ── */}
       <div style={{ display: 'flex', gap: '0.25rem', borderBottom: '1px solid var(--color-border)', marginBottom: '2rem' }}>
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {tabs.map(({ id, label, icon: Icon, count }) => (
           <button
             key={id}
-            onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-3 border-b-2 -mb-px transition-colors
-              ${tab === id ? 'border-indigo-600' : 'border-transparent'}`}
-            style={{ fontSize: '0.625rem', fontWeight: 900, letterSpacing: '0.2em', textTransform: 'uppercase', color: tab === id ? 'var(--color-text)' : 'var(--color-text-muted)', background: 'none', cursor: 'pointer' }}
-            onMouseEnter={e => { if (tab !== id) e.currentTarget.style.color = 'var(--color-text)'; }}
-            onMouseLeave={e => { if (tab !== id) e.currentTarget.style.color = 'var(--color-text-muted)'; }}
+            onClick={() => handleTabChange(id)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.5rem 1rem', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
+              background: 'none', border: 'none',
+              borderBottom: tab === id ? '2px solid #6366f1' : '2px solid transparent',
+              color: tab === id ? '#818cf8' : 'var(--color-text-muted)',
+              cursor: 'pointer', transition: 'color 0.15s, border-color 0.15s', marginBottom: '-1px',
+            }}
           >
             <Icon size={13} />
             {label}
+            <span style={{ opacity: 0.6 }}>({count})</span>
           </button>
         ))}
       </div>
 
       {/* ── Contenu ── */}
-      {tab === 'selection'   && <TabSelection onStatusChange={() => {}} />}
       {tab === 'categories'  && <TabCategories edition={edition} userRole={userRole} />}
       {tab === 'nominations' && <TabNominations edition={edition} />}
       {tab === 'winners'     && <TabWinners edition={edition} />}
