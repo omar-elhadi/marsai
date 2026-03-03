@@ -71,10 +71,10 @@ const NAV_COLUMNS = [
     num:   '03',
     title: 'Légal',
     links: [
-      { label: 'Mentions légales',  to: '/mentions-legales'           },
-      { label: 'Confidentialité',   to: '/politique-de-confidentialite' },
-      { label: 'CGU',               to: '/conditions-generales'        },
-      { label: 'Cookies',           to: '/cookies'                     },
+      { label: 'Mentions légales',  to: ROUTES.MENTION                   },
+      { label: 'Confidentialité',   to: ROUTES.POLITIQUE_CONFIDENTIALITE },
+      { label: 'CGU',               to: ROUTES.CONDITIONS_UTILISATIONS   },
+      { label: 'Cookies',           to: ROUTES.COOKIES                   },
     ],
   },
 ];
