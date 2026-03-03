@@ -20,10 +20,11 @@
  *     div.cardMask                   Masque overflow:hidden
  *       img.cardImage.movie-image    Image — scale:1.3 absorbe parallaxe ±15vw
  *       div.cardVeil                 Voile d'obscurité hover
+ *       div.cardBadge                Badge catégorie — overlay bas-gauche sur image
+ *         span.cardBadgeDot          Punkt accent
+ *         span.cardBadgeLabel        Texte catégorie uppercase
  *     div.cardPanel                  Panneau asymétrique éditorial
- *       div.cardPanelHeader          Numéro + catégorie
- *         span.cardNum               Numéro de la carte
- *         span.cardCategory          Catégorie du film
+ *       span.cardNum                 Numéro de la carte
  *       h3.cardTitle                 Titre du film
  *       p.cardDirector               Réalisateur
  *
@@ -33,9 +34,12 @@
  *
  * Le panneau est en position absolute avec bottom et right négatifs.
  * Il déborde volontairement de la carte — signature éditoriale.
- * width > 100% sur desktop → le panneau chevauche la carte suivante.
+ * width > 100% sur desktop → le panneau chevauche légèrement la suivante.
  * L'article n'a pas overflow:hidden → le panneau reste visible.
  * Le masque (cardMask) a overflow:hidden → l'image reste clippée.
+ *
+ * La catégorie est un badge overlay sur l'image (cardBadge dans
+ * cardMask) — toujours visible, indépendant de la taille du panneau.
  *
  * ═══════════════════════════════════════════════════════════════
  * PROPS
@@ -76,21 +80,24 @@ export default function MovieCard({ movie, index }) {
           draggable="false"
         />
 
-        {/* Voile d'obscurité — assure le contraste du panneau */}
+        {/* Voile d'obscurité — assure le contraste du badge */}
         <div className={styles.cardVeil} aria-hidden="true" />
+
+        {/* Badge catégorie — overlay bas-gauche sur l'image.
+            Toujours visible, indépendant de la taille du panneau. */}
+        {movie.category && (
+          <div className={styles.cardBadge}>
+            <span className={styles.cardBadgeDot} aria-hidden="true" />
+            <span className={styles.cardBadgeLabel}>{movie.category}</span>
+          </div>
+        )}
 
       </div>
 
       {/* ── Panneau éditorial asymétrique ─────────────────── */}
-      {/* Position absolute avec overflow négatif — cf. design notes */}
       <div className={styles.cardPanel}>
 
-        <div className={styles.cardPanelHeader}>
-          <span className={styles.cardNum}>{num}</span>
-          {movie.category && (
-            <span className={styles.cardCategory}>{movie.category}</span>
-          )}
-        </div>
+        <span className={styles.cardNum} aria-hidden="true">{num}</span>
 
         <h3 className={styles.cardTitle}>{movie.title}</h3>
 

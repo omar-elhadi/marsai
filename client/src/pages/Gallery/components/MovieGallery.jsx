@@ -238,7 +238,9 @@ export const galleryMovies = [
   },
 ];
 
-// Films par page — 8 cartes = environ 3 viewports de defilement H.
+// FILMS_PER_PAGE sera réintroduit lors de la connexion backend.
+// L'API recevra : GET /api/films?page=1&limit=8
+// Voir bloc CONTRAT D'INTERFACE BACKEND ci-dessus.
 
 // ─────────────────────────────────────────────────────────────
 // STRUCTURE API — prête à activer quand le backend est connecté
@@ -399,7 +401,8 @@ export const galleryMovies = [
 
 
 
-const FILMS_PER_PAGE = 8;
+// const FILMS_PER_PAGE = 8; Cette constante sera réintroduite lors de la connexion backend. L'API recevra : GET /api/films?page=1&limit=8
+// Voir bloc CONTRAT D'INTERFACE BACKEND ci-dessus.
 
 
 
