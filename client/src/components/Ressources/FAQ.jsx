@@ -1,162 +1,121 @@
-import React, { useState, useEffect, useRef } from "react";
-import { gsap } from 'gsap';
+import { useState } from 'react';
+
+const FaqItem = ({ question, answer }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="border-b border-white/10 group">
+      <button
+        className="w-full flex justify-between items-center py-8 text-left transition-all"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h3 className={`text-xl md:text-2xl font-medium tracking-tight transition-colors duration-300 ${isOpen ? 'text-[#E6D5AC]' : 'text-white/90 group-hover:text-white'}`}>
+          {question}
+        </h3>
+        <span
+          className={`ml-6 transform transition-transform duration-500 ${
+            isOpen ? 'rotate-180 text-[#D4AF37]' : 'rotate-0 text-white/40'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
+        </span>
+      </button>
+
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <p className="pb-8 text-lg text-white/60 leading-relaxed font-light italic border-l border-[#D4AF37]/30 pl-6 ml-1">
+          {answer}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState(null);
-  const particleContainerRef = useRef(null);
-  const titleRef = useRef(null);
-  const frameRef = useRef(null);
+  const currentYear = 2026;
 
-  useEffect(() => {
-    // --- 1. ANIMATION DU TITRE (GLITCH CINÉMA 70s) ---
-    const titleTimeline = gsap.timeline({ repeat: -1, repeatDelay: 4 });
-    
-    titleTimeline
-      .to(titleRef.current, { skewX: 20, duration: 0.1, ease: "power4.inOut" })
-      .to(titleRef.current, { skewX: 0, duration: 0.1 })
-      .to(titleRef.current, { opacity: 0.5, x: -5, duration: 0.05 })
-      .to(titleRef.current, { opacity: 1, x: 0, duration: 0.05 })
-      .to(titleRef.current, { 
-        textShadow: "0 0 30px rgba(168,85,247,1), 5px 0px 0px rgba(236,72,153,0.5)", 
-        duration: 0.1 
-      })
-      .to(titleRef.current, { textShadow: "0 0 10px rgba(168,85,247,0.5)", duration: 0.5 });
-
-    // --- 2. PARTICULES 3D PROFONDEUR (GSAP) ---
-    const container = particleContainerRef.current;
-    const particleCount = 100;
-
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      const depth = Math.random(); // 0 = fond, 1 = premier plan
-      const size = depth * 8 + 1; // De 1px à 9px
-      const blur = (1 - depth) * 2; // Les plus lointaines sont un peu floues
-
-      particle.className = "absolute rounded-full pointer-events-none";
-      particle.style.width = `${size}px`;
-      particle.style.height = `${size}px`;
-      particle.style.filter = `blur(${blur}px)`;
-      particle.style.background = depth > 0.8 ? '#fff' : '#fbbf24'; // Éclats blancs au 1er plan
-      particle.style.boxShadow = `0 0 ${size * 2}px ${depth > 0.8 ? '#fff' : '#f59e0b'}`;
-      
-      container.appendChild(particle);
-
-      // Positionnement initial 3D
-      gsap.set(particle, {
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        z: depth * 100,
-        opacity: Math.random() * 0.5 + 0.2
-      });
-
-      // Animation de "Voyage dans l'espace"
-      gsap.to(particle, {
-        duration: (1 - depth) * 10 + 5, // Les proches bougent plus vite
-        y: "-=300",
-        x: `+=${(Math.random() - 0.5) * 200}`,
-        repeat: -1,
-        ease: "none",
-        opacity: 0,
-        delay: Math.random() * 10
-      });
+  const faqData = [
+    {
+      question: "Comment puis-je soumettre mon film ?",
+      answer: "Les soumissions sont ouvertes via notre plateforme dédiée. Vous trouverez un lien 'SOUMETTRE' dans le menu principal qui vous guidera tout au long du processus."
+    },
+    {
+      question: "Quels sont les critères de sélection ?",
+      answer: "Nous recherchons des œuvres narratives qui explorent l'utilisation créative et éthique de l'IA générative dans leur processus de production."
+    },
+    {
+      question: "Le festival est-il ouvert au public ?",
+      answer: "Certaines projections et conférences seront ouvertes au public sur billetterie. Les détails seront annoncés prochainement."
     }
-
-    // --- 3. PULSATION DU CADRE NÉON ---
-    gsap.to(frameRef.current, {
-      boxShadow: "0 0 60px rgba(168,85,247,0.8), inset 0 0 30px rgba(168,85,247,0.4)",
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-
-    return () => { if(container) container.innerHTML = ""; };
-  }, []);
-
-  const faqs = [
-    { question: "Qu’est-ce que le Festival Mars AI ?", answer: "Une immersion totale dans le futur, mêlant IA et créativité humaine." },
-    { question: "Quand et où ?", answer: "Mars 2026, Marseille. Le point de convergence technologique." },
-    { question: "Accès au système ?", answer: "Billetterie ouverte. Pass prioritaires disponibles via le terminal Mars AI." },
-    { question: "Protocole PMR ?", answer: "Accessibilité universelle garantie sur tous les secteurs de l'exposition." },
   ];
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-serif p-4 flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden">
       
-      {/* 1. FOND DE PARTICULES 3D PROFONDEUR */}
-      <div ref={particleContainerRef} className="absolute inset-0 z-0 overflow-hidden" />
-
-      {/* 2. OVERLAY VINTAGE CRT */}
-      <div className="absolute inset-0 z-10 pointer-events-none opacity-30 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-40" />
-      <div className="absolute inset-0 z-10 pointer-events-none opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-[pulse_0.1s_infinite]" />
-
-      {/* 3. CADRE NÉON ULTRA-LUMINEUX */}
-      <div 
-        ref={frameRef}
-        className="relative z-20 w-full max-w-5xl border-[5px] border-purple-500 rounded-[3rem] p-8 md:p-16 shadow-[0_0_40px_rgba(168,85,247,0.5)] bg-black/20 backdrop-blur-[6px]"
-      >
-        
-        {/* Titre Glitch Futuriste */}
-        <div className="text-center mb-16 relative">
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-4">
-             <div className="h-[1px] w-12 bg-purple-500 shadow-[0_0_10px_#a855f7]"></div>
-             <span className="text-[10px] font-black uppercase tracking-[0.8em] text-purple-400">MARS AI ARCHIVE</span>
-             <div className="h-[1px] w-12 bg-purple-500 shadow-[0_0_10px_#a855f7]"></div>
-          </div>
-
-          <h1 
-            ref={titleRef}
-            className="text-5xl md:text-8xl font-black italic tracking-tighter text-yellow-50 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
-          >
-            F.A.Q SYSTEM
-          </h1>
-          
-          <div className="mt-6 inline-block bg-purple-500 text-black font-black text-[10px] px-3 py-1 skew-x-[-20deg] uppercase tracking-widest">
-            Protocol v.77.26
-          </div>
-        </div>
-
-        {/* Grille FAQ interactive */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-30">
-          {faqs.map((faq, index) => (
-            <div 
-              key={index} 
-              className={`border-2 rounded-2xl transition-all duration-500 ${openIndex === index ? 'border-yellow-400 bg-yellow-400/5 shadow-[0_0_20px_rgba(250,204,21,0.2)]' : 'border-purple-500/30 bg-black/40 hover:border-purple-500'}`}
-            >
-              <button
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex justify-between items-center p-6 text-left"
-              >
-                <span className={`font-black italic text-lg ${openIndex === index ? 'text-yellow-400' : 'text-purple-100'}`}>
-                   {faq.question}
-                </span>
-                <div className={`w-6 h-6 flex items-center justify-center border-2 rounded-full transition-transform duration-500 ${openIndex === index ? 'rotate-180 border-yellow-400' : 'border-purple-500'}`}>
-                   <svg className={`w-3 h-3 ${openIndex === index ? 'text-yellow-400' : 'text-purple-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M19 9l-7 7-7-7" /></svg>
-                </div>
-              </button>
-              
-              {openIndex === index && (
-                <div className="px-6 pb-6 animate-in slide-in-from-top-2 duration-300">
-                  <p className="text-gray-300 italic border-l-2 border-yellow-400 pl-4 py-2 bg-yellow-400/5">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Footer Mars Protocol */}
-        <div className="mt-16 text-center">
-            <div className="inline-flex items-center gap-3 border border-purple-500/50 rounded-full px-6 py-2 bg-black/60 shadow-[0_0_20px_rgba(168,85,247,0.2)]">
-                <div className="w-2 h-2 rounded-full bg-yellow-400 animate-ping" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white">Transmission stable // Ready for Mars</span>
-            </div>
-        </div>
+      {/* ── BACKGROUND AVEC IMAGE ET OVERLAY ── */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2000&auto=format&fit=crop" 
+          alt="Cinema Background" 
+          className="w-full h-full object-cover opacity-40"
+        />
+        {/* Gradient radial pour l'effet de profondeur cinéma */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,rgba(5,5,5,1)_90%)]" />
       </div>
 
-      {/* Effet Vignette Master */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_300px_rgba(0,0,0,1)] z-50" />
+      {/* ── CONTENU PRINCIPAL ── */}
+      <main className="relative z-10 max-w-[1400px] mx-auto px-6 pt-[20vh] pb-40">
+        
+        {/* Petit label en haut */}
+        <div className="mb-8 flex items-center gap-4">
+          <div className="h-[1px] w-12 bg-[#D4AF37]/50"></div>
+          <p className="text-[10px] uppercase tracking-[0.5em] text-[#E6D5AC] opacity-70">
+            Protocol Assistance // FAQ
+          </p>
+        </div>
+
+        {/* TITRE GÉANT MARSAI STYLE (Blanc Sable Doré) */}
+        <h1 className="text-[15vw] md:text-[200px] font-black leading-none tracking-tighter mb-24 select-none italic uppercase">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FAF0E6] via-[#E6D5AC] to-[#D4AF37] drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
+            MARSAI
+          </span>
+          <span className="text-[#D4AF37] animate-pulse">.</span>
+        </h1>
+
+        {/* SECTION DES QUESTIONS (Centrée ou décalée) */}
+        <div className="w-full max-w-4xl ml-auto md:mr-20">
+          <div className="mb-12">
+            <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-white/40 mb-2">Questions Fréquentes</h2>
+            <div className="h-1 w-20 bg-[#D4AF37]"></div>
+          </div>
+          
+          <div className="space-y-2">
+            {faqData.map((item, index) => (
+              <FaqItem key={index} question={item.question} answer={item.answer} />
+            ))}
+          </div>
+        </div>
+      </main>
+
+      {/* ── FOOTER STYLE GÉNÉRIQUE ── */}
+      <footer className="relative z-10 w-full px-10 py-16 mt-20 border-t border-white/5 bg-black/20 backdrop-blur-md">
+        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-white/40 text-[10px] tracking-[0.4em] uppercase">
+          <div className="flex items-center gap-6 font-bold">
+            <span className="text-[#D4AF37]">Marseille</span>
+            <span className="w-2 h-2 rounded-full bg-white/10"></span>
+            <span>Station 01 — {currentYear}</span>
+          </div>
+          <p className="text-center">© {currentYear} Marsai. L'apogée du cinéma génératif.</p>
+        </div>
+      </footer>
+
+      {/* Effet de vignettage cinéma final */}
+      <div className="fixed inset-0 pointer-events-none shadow-[inset_0_0_15vw_rgba(0,0,0,1)] z-20" />
     </div>
   );
 };
