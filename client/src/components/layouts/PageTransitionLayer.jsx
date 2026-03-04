@@ -16,12 +16,15 @@
  *   Jamais dans l'arbre React → immunisé contre tout stacking
  *   context, transform parent, ou z-index concurrent.
  *
- * 5 transitions par route :
- *   '/'          → LAMES DU PROJECTEUR (12 bandes stagger)
- *   '/galerie'   → IRIS PORTAIL (clip-path circulaire)
- *   '/soumettre' → GRAIN DISSOLVE (bruit argentique)
- *   '/contact'   → SPLIT ÉCRAN (haut/bas s'écartent)
- *   default      → SWEEP CINÉMA (balayage latéral)
+ * 7 transitions par route :
+ *   ROUTES.HOME      → FLASH ARGENTIQUE (obturateur qui s'ouvre)
+ *   ROUTES.NEWS      → LAMES DU PROJECTEUR (12 bandes stagger)
+ *   ROUTES.EVENTS    → LAMES DU PROJECTEUR (12 bandes stagger)
+ *   ROUTES.GALERIE   → IRIS PORTAIL (clip-path circulaire)
+ *   ROUTES.FILM_BASE → IRIS PORTAIL (film/:id — startsWith)
+ *   ROUTES.SOUMETTRE → GRAIN DISSOLVE (bruit argentique)
+ *   ROUTES.CONTACT   → VOILE DÉCHIQUETÉ (3 pans qui s'ouvrent)
+ *   default          → SWEEP CINÉMA (balayage latéral)
  *
  * Grain SVG injecté sur chaque transition — cohérence filmic.
  * ═══════════════════════════════════════════════════════════════
@@ -30,6 +33,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation }       from 'react-router-dom';
 import gsap                  from 'gsap';
+import { ROUTES }            from '@/constants/routes';
 
 // ─────────────────────────────────────────────────────────────
 // CONSTANTES
@@ -104,10 +108,8 @@ function transitionLames(onDone) {
 
   const tl = gsap.timeline({ onComplete: onDone });
 
-  // Apparition instantanée de l'overlay (masque la nouvelle page)
   gsap.set(strips, { scaleY: 1 });
 
-  // Révélation stagger depuis le centre
   order.forEach((idx, rank) => {
     const origin = idx % 2 === 0 ? 'center top' : 'center bottom';
     gsap.set(strips[idx], { transformOrigin: origin });
@@ -119,7 +121,6 @@ function transitionLames(onDone) {
   });
 
   tl.add(() => {
-    // Nettoyage léger décalé
     setTimeout(() => wrapper.remove(), 200);
   }, '+=0.05');
 }
@@ -128,13 +129,11 @@ function transitionLames(onDone) {
  * T2 — IRIS PORTAIL
  * clip-path circulaire qui s'ouvre depuis le centre.
  * Évoque l'iris d'une caméra qui s'ouvre sur le monde.
- * Référence directe : portal effect de Slider Revolution.
  */
 function transitionIris(onDone) {
   const ov = mkDiv(`background:${BG};`);
   mkGrain(ov, 0.038);
 
-  // Halo central — impression d'une source lumineuse derrière l'iris
   const halo = document.createElement('div');
   halo.style.cssText = [
     'position:absolute',
@@ -148,19 +147,16 @@ function transitionIris(onDone) {
   ].join(';');
   ov.appendChild(halo);
 
-  // L'iris est fermé sur la nouvelle page (masque plein)
   gsap.set(ov, { clipPath: 'circle(150% at 50% 50%)' });
 
   const tl = gsap.timeline({ onComplete: onDone });
 
-  // Phase 1 : contraction légère d'abord → suspense
   tl.to(ov, {
     clipPath:  'circle(55% at 50% 50%)',
     duration:  0.30,
     ease:      'power2.in',
   });
 
-  // Phase 2 : ouverture explosive depuis le centre
   tl.to(ov, {
     clipPath:  'circle(0% at 50% 50%)',
     duration:  0.52,
@@ -168,7 +164,6 @@ function transitionIris(onDone) {
     onComplete() { ov.remove(); },
   });
 
-  // Halo pulse au moment de l'ouverture
   tl.to(halo, {
     opacity: 0,
     duration: 0.3,
@@ -180,16 +175,13 @@ function transitionIris(onDone) {
  * T3 — GRAIN DISSOLVE
  * Overlay noir avec grain SVG qui se dissout.
  * Évoque la fin de bobine argentique — granuleux, organique, poétique.
- * Référence : fondu fin de séquence dans un film 16mm.
  */
 function transitionGrainDissolve(onDone) {
   const ov = mkDiv(`background:${BG};`);
 
-  // Couche de grain dynamique — plus dense
   const grain1 = mkGrain(ov, 0.18);
   const grain2 = mkGrain(ov, 0.09);
 
-  // Bandes horizontales de scan — artefact pellicule
   const scan = document.createElement('div');
   scan.style.cssText = [
     'position:absolute', 'inset:0', 'pointer-events:none',
@@ -204,7 +196,6 @@ function transitionGrainDissolve(onDone) {
 
   const tl = gsap.timeline({ onComplete: onDone });
 
-  // Scintillement grain avant dissolution
   tl.to([grain1, grain2], {
     opacity:  '+=0.06',
     duration: 0.12,
@@ -213,7 +204,6 @@ function transitionGrainDissolve(onDone) {
     ease:     'none',
   });
 
-  // Dissolution finale — l'image émerge du grain
   tl.to(ov, {
     opacity:  0,
     duration: 0.65,
@@ -230,8 +220,6 @@ function transitionGrainDissolve(onDone) {
 /**
  * T4 — SPLIT ÉCRAN
  * Deux demi-écrans s'écartent en sens inverse, révélant la page.
- * Haut part vers le haut, bas vers le bas. Léger décalage temporel.
- * Référence : ouverture de rideau de scène — théâtral et cinématographique.
  */
 function transitionSplit(onDone) {
   const top = mkDiv(`
@@ -248,7 +236,6 @@ function transitionSplit(onDone) {
   mkGrain(top, 0.05);
   mkGrain(bot, 0.05);
 
-  // Filet central — ligne de rupture
   const line = mkDiv(`
     height:1px;
     background:rgba(226,209,195,0.15);
@@ -258,11 +245,9 @@ function transitionSplit(onDone) {
 
   const tl = gsap.timeline({ onComplete: onDone });
 
-  // Léger rapprochement avant l'écartement — tension dramatique
   tl.to(top, { y:  4, duration: 0.12, ease: 'power1.in' })
     .to(bot, { y: -4, duration: 0.12, ease: 'power1.in' }, 0);
 
-  // Écartement — le haut part d'abord
   tl.to(top, {
     y:        '-102%',
     duration:  0.62,
@@ -273,13 +258,12 @@ function transitionSplit(onDone) {
     duration:  0.62,
     ease:      'power3.inOut',
     onComplete() { top.remove(); bot.remove(); line.remove(); },
-  }, 0.08 + 0.035); // 35ms de décalage
+  }, 0.08 + 0.035);
 }
 
 /**
  * T5 — SWEEP CINÉMA
- * Un sweep latéral avec léger trail — évoque l'avancement d'une pellicule.
- * Dégradé de densité gauche/droite pour l'effet de vitesse.
+ * Sweep latéral avec léger trail — évoque l'avancement d'une pellicule.
  * Transition par défaut — élégante, rapide, directionnelle.
  */
 function transitionSweep(onDone) {
@@ -289,7 +273,6 @@ function transitionSweep(onDone) {
   `);
   mkGrain(ov, 0.048);
 
-  // Filet lumineux au bord droit — bord de pellicule
   const edge = document.createElement('div');
   edge.style.cssText = [
     'position:absolute', 'top:0', 'right:0', 'bottom:0',
@@ -305,7 +288,6 @@ function transitionSweep(onDone) {
 
   const tl = gsap.timeline({ onComplete: onDone });
 
-  // L'overlay quitte vers la gauche — révélation droite→gauche
   tl.to(ov, {
     x:        '-105%',
     duration:  0.62,
@@ -315,22 +297,13 @@ function transitionSweep(onDone) {
 }
 
 /**
- * T6 — FLASH ARGENTIQUE  →  route '/'
- * Un éclat de lumière sable explose depuis le centre,
- * comme l'ouverture soudaine d'un obturateur de caméra.
- * Noir absolu → halo sable se dilate → obscurité → page révélée.
- *
- * Trois temps :
- *   Phase 1 : le noir arrive instantanément (présent dès le départ)
- *   Phase 2 : un halo sable grandit depuis le centre (0.28s)
- *   Phase 3 : le halo s'éteint et l'overlay part vers le haut (0.38s)
- * Effet total : 0.66s — vif, organique, mémorable.
+ * T6 — FLASH ARGENTIQUE  →  ROUTES.HOME
+ * Un éclat de lumière sable explose depuis le centre.
  */
 function transitionFlashArgentique(onDone) {
   const ov = mkDiv(`background:${BG_WARM};`);
   mkGrain(ov, 0.055);
 
-  // Halo sable — le cœur lumineux qui s'embrase
   const halo = document.createElement('div');
   halo.style.cssText = [
     'position:absolute',
@@ -348,7 +321,6 @@ function transitionFlashArgentique(onDone) {
   ].join(';');
   ov.appendChild(halo);
 
-  // Filet de bords de pellicule (horizontal haut + bas)
   ['top:0;height:2px', 'bottom:0;height:2px'].forEach(pos => {
     const r = document.createElement('div');
     r.style.cssText = [
@@ -364,7 +336,6 @@ function transitionFlashArgentique(onDone) {
 
   const tl = gsap.timeline({ onComplete: onDone });
 
-  // Phase 2 — embrasement du halo
   tl.to(halo, {
     width:   '180vmax',
     height:  '180vmax',
@@ -373,7 +344,6 @@ function transitionFlashArgentique(onDone) {
     ease:    'power2.out',
   });
 
-  // Phase 3 — extinction + montée de l'overlay
   tl.to(halo, {
     opacity:  0,
     duration: 0.18,
@@ -389,17 +359,8 @@ function transitionFlashArgentique(onDone) {
 }
 
 /**
- * T7 — VOILE DÉCHIQUETÉ  →  route '/contact'
- * Trois bandes horizontales inégales partent dans
- * des directions différentes — comme un rideau de scène
- * déchiré en trois pans qui s'ouvrent de façon organique.
- *
- *   Bande haute  (40% de l'écran) → monte  vers le haut
- *   Bande milieu (32% de l'écran) → glisse vers la droite
- *   Bande basse  (28% de l'écran) → descend vers le bas
- *
- * Stagger 55ms — pas simultané, pas mécanique.
- * Grain plus dense sur la bande du milieu — texture vivante.
+ * T7 — VOILE DÉCHIQUETÉ  →  ROUTES.CONTACT
+ * Trois bandes horizontales inégales partent dans des directions différentes.
  */
 function transitionVoileDechiquete(onDone) {
   const BANDS = [
@@ -417,7 +378,6 @@ function transitionVoileDechiquete(onDone) {
     `);
     mkGrain(band, grain);
 
-    // Filet lumineux sable sur le bord bas de chaque bande
     const edge = document.createElement('div');
     edge.style.cssText = [
       'position:absolute', 'bottom:0', 'left:0', 'right:0',
@@ -446,6 +406,7 @@ function transitionVoileDechiquete(onDone) {
 
 // ─────────────────────────────────────────────────────────────
 // ROUTEUR DE TRANSITIONS — sélection par pathname
+// Toutes les comparaisons référencent ROUTES — zéro string brute.
 // ─────────────────────────────────────────────────────────────
 function runTransition(pathname, onDone) {
   // Scroll to top instantané — la nouvelle page part du sommet
@@ -453,26 +414,28 @@ function runTransition(pathname, onDone) {
 
   const p = pathname.replace(/\/$/, '') || '/';
 
-  // '/' — Flash argentique : obturateur qui s'ouvre
-  if (p === '/') {
+  // ROUTES.HOME — Flash argentique : obturateur qui s'ouvre
+  if (p === ROUTES.HOME) {
     return transitionFlashArgentique(onDone);
   }
-  // '/news' '/events' — Lames du projecteur
-  if (p === '/news' || p === '/events') {
+  // ROUTES.NEWS / ROUTES.EVENTS — Lames du projecteur
+  if (p === ROUTES.NEWS || p === ROUTES.EVENTS) {
     return transitionLames(onDone);
   }
-  // '/galerie' '/film/:id' — Iris portail
-  if (p === '/galerie' || p.startsWith('/film')) {
+  // ROUTES.GALERIE / ROUTES.FILM_BASE — Iris portail
+  // FILM_BASE ('/film') utilisé avec startsWith pour couvrir /film/:id
+  if (p === ROUTES.GALERIE || p.startsWith(ROUTES.FILM_BASE)) {
     return transitionIris(onDone);
   }
-  // '/soumettre' — Grain dissolve argentique
-  if (p === '/soumettre') {
+  // ROUTES.SOUMETTRE — Grain dissolve argentique
+  if (p === ROUTES.SOUMETTRE) {
     return transitionGrainDissolve(onDone);
   }
-  // '/contact' — Voile déchiqueté : 3 pans qui s'ouvrent
-  if (p === '/contact') {
+  // ROUTES.CONTACT — Voile déchiqueté : 3 pans qui s'ouvrent
+  if (p === ROUTES.CONTACT) {
     return transitionVoileDechiquete(onDone);
   }
+  // Défaut — Sweep cinéma : balayage latéral
   return transitionSweep(onDone);
 }
 

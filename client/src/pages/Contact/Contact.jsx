@@ -16,7 +16,7 @@
 import { useRef, useState } from 'react';
 import gsap              from 'gsap';
 import { useGSAP }       from '@gsap/react';
-import LuminousButton    from '@/components/LuminousButton';
+import LuminousButton    from '@/components/common/LuminousButton/LuminousButton';
 
 // ─────────────────────────────────────────────────────────────
 // STYLES PARTAGÉS CHAMPS
