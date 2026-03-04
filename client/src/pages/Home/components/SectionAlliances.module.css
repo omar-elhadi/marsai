@@ -339,3 +339,143 @@
 .cardDesc {
   line-height: 1.65;
 }
+
+/* ═════════════════════════════════════════════════════════════
+   ADDITIONS — session image/interactivité
+   ═════════════════════════════════════════════════════════════
+   Toutes les règles ci-dessous sont des ajouts purs.
+   Aucune règle existante n'a été modifiée.
+   ═════════════════════════════════════════════════════════════ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   §A — LOGO dans le slider
+   ───────────────────────────────────────────────────────────── */
+
+/* Wrapper du SVG logo dans chaque sliderItem.
+   color: var(--color-text) → hérité par stroke="currentColor".
+   opacity: 0.55 — présence subtile, le nom reste la lecture
+   primaire dans le slider.
+   line-height: 0 supprime l'espace réservé sous le SVG inline. */
+.sliderLogo {
+  display:       block;
+  color:         var(--color-text);
+  opacity:       0.55;
+  margin-bottom: 0.55rem;
+  line-height:   0;
+  flex-shrink:   0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   §B — CARTES : expand block
+   ───────────────────────────────────────────────────────────── */
+
+/* Wrapper bouton + panel — collé en bas de carte.
+   margin-top: auto dans un flex column pousse le bloc
+   vers le bas quelle que soit la hauteur du contenu au-dessus.
+   Un seul flex-gap est appliqué, pas deux séparément. */
+.cardExpand {
+  margin-top:     auto;
+  display:        flex;
+  flex-direction: column;
+  gap:            0;
+}
+
+
+/* ── Bouton Découvrir / Fermer ───────────────────────────────── */
+
+/* Pill minimaliste, cohérent avec l'esthétique des cartes.
+   align-self: flex-start — ne s'étire pas à pleine largeur.
+   color et border-color transitionnent vers accent au hover
+   et en état ouvert (.cardBtnOpen). */
+.cardBtn {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            0.45rem;
+  align-self:     flex-start;
+  margin-top:     clamp(1rem, 1.8vw, 1.4rem);
+  background:     transparent;
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-pill);
+  padding:        0.38em 0.95em;
+  font-family:    var(--font-sans);
+  font-weight:    600;
+  font-size:      0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+  cursor:         pointer;
+  transition:
+    color        250ms var(--ease-out),
+    border-color 250ms var(--ease-out);
+}
+
+.cardBtn:hover,
+.cardBtnOpen {
+  color:        var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Chevron — CSS transform, pas d'animation GSAP.
+   Tourne 180° quand le panel est ouvert. */
+.cardBtnChevron {
+  transition: transform 280ms var(--ease-out);
+  flex-shrink: 0;
+}
+
+.cardBtnChevronOpen {
+  transform: rotate(180deg);
+}
+
+
+/* ── Panel description étendue ───────────────────────────────── */
+
+/* max-height: 0 + overflow:hidden = fermé sans saut.
+   CSS ne peut pas animer vers height:auto.
+   max-height: 20rem est suffisant pour toutes les descLongue.
+   La transition sur opacity précède légèrement max-height —
+   le contenu apparaît proprement pendant l'ouverture. */
+.cardDescPanel {
+  overflow:    hidden;
+  max-height:  0;
+  opacity:     0;
+  transition:
+    max-height 400ms var(--ease-out),
+    opacity    260ms var(--ease-out);
+}
+
+.cardDescPanelOpen {
+  max-height: 20rem;
+  opacity:    1;
+}
+
+/* Description longue — filet top, ton muted, espacement */
+.cardDescLongue {
+  margin-top:  clamp(0.9rem, 1.6vw, 1.2rem);
+  padding-top: clamp(0.9rem, 1.6vw, 1.2rem);
+  border-top:  1px solid var(--color-border);
+  color:       var(--color-text-muted);
+  line-height: 1.72;
+}
+
+/* Lien "Visiter le site" — sable, flèche, discret mais cliquable */
+.cardDescLink {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.4rem;
+  margin-top:      clamp(0.7rem, 1.2vw, 0.9rem);
+  font-family:     var(--font-sans);
+  font-weight:     600;
+  font-size:       0.6rem;
+  letter-spacing:  0.16em;
+  text-transform:  uppercase;
+  color:           var(--color-accent);
+  text-decoration: none;
+  opacity:         0.75;
+  transition:      opacity 250ms var(--ease-out);
+}
+
+.cardDescLink:hover {
+  opacity: 1;
+}
