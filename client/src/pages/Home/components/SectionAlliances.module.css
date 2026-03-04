@@ -226,7 +226,8 @@
   gap:            clamp(0.8rem, 1.5vw, 1.2rem);
   padding:        clamp(1.8rem, 3vw, 2.8rem) clamp(1.5rem, 2.5vw, 2.2rem);
   text-decoration: none;
-  overflow:       hidden;
+  /* overflow:hidden retiré — clippait le panel expandé.
+     Le numéro décoratif est corrigé (bottom:0) et ne déborde plus. */
   /* borderTop accent au hover — état initial transparent */
   border-top:     2px solid transparent;
   background:     transparent;
@@ -278,7 +279,9 @@
 
 .cardIndex {
   position:      absolute;
-  bottom:        -0.5rem;
+  /* bottom:-0.5rem retiré — nécessitait overflow:hidden sur .card.
+     bottom:0 ancre le numéro au bas. opacity:0.04 — imperceptible. */
+  bottom:        0;
   right:         clamp(0.5rem, 1.5vw, 1rem);
   font-family:   var(--font-display);
   font-weight:   900;
@@ -344,7 +347,6 @@
    ADDITIONS — session image/interactivité
    ═════════════════════════════════════════════════════════════
    Toutes les règles ci-dessous sont des ajouts purs.
-   Aucune règle existante n'a été modifiée.
    ═════════════════════════════════════════════════════════════ */
 
 
@@ -352,10 +354,8 @@
    §A — LOGO dans le slider
    ───────────────────────────────────────────────────────────── */
 
-/* Wrapper du SVG logo dans chaque sliderItem.
-   color: var(--color-text) → hérité par stroke="currentColor".
-   opacity: 0.55 — présence subtile, le nom reste la lecture
-   primaire dans le slider.
+/* Wrapper SVG dans chaque sliderItem.
+   color hérite de --color-text → stroke="currentColor".
    line-height: 0 supprime l'espace réservé sous le SVG inline. */
 .sliderLogo {
   display:       block;
@@ -371,10 +371,8 @@
    §B — CARTES : expand block
    ───────────────────────────────────────────────────────────── */
 
-/* Wrapper bouton + panel — collé en bas de carte.
-   margin-top: auto dans un flex column pousse le bloc
-   vers le bas quelle que soit la hauteur du contenu au-dessus.
-   Un seul flex-gap est appliqué, pas deux séparément. */
+/* margin-top: auto dans un flex column → colle le bloc
+   bouton+panel en bas de carte quelle que soit la hauteur. */
 .cardExpand {
   margin-top:     auto;
   display:        flex;
@@ -385,10 +383,6 @@
 
 /* ── Bouton Découvrir / Fermer ───────────────────────────────── */
 
-/* Pill minimaliste, cohérent avec l'esthétique des cartes.
-   align-self: flex-start — ne s'étire pas à pleine largeur.
-   color et border-color transitionnent vers accent au hover
-   et en état ouvert (.cardBtnOpen). */
 .cardBtn {
   display:        inline-flex;
   align-items:    center;
@@ -417,10 +411,9 @@
   border-color: var(--color-accent);
 }
 
-/* Chevron — CSS transform, pas d'animation GSAP.
-   Tourne 180° quand le panel est ouvert. */
+/* Chevron — pivote 180° à l'ouverture, CSS pur */
 .cardBtnChevron {
-  transition: transform 280ms var(--ease-out);
+  transition:  transform 280ms var(--ease-out);
   flex-shrink: 0;
 }
 
@@ -431,26 +424,28 @@
 
 /* ── Panel description étendue ───────────────────────────────── */
 
-/* max-height: 0 + overflow:hidden = fermé sans saut.
-   CSS ne peut pas animer vers height:auto.
-   max-height: 20rem est suffisant pour toutes les descLongue.
-   La transition sur opacity précède légèrement max-height —
-   le contenu apparaît proprement pendant l'ouverture. */
+/* max-height: 60rem — CSS ne peut pas animer vers height:auto.
+   60rem (≈ 960px) absorbe n'importe quelle hauteur de contenu.
+   Fix session précédente : 20rem trop court + overflow:hidden
+   sur .card clippait le panel. Les deux sont maintenant résolus :
+   overflow:hidden retiré du .card, max-height étendu à 60rem.
+   transition opacity précède légèrement max-height — le contenu
+   apparaît proprement pendant l'ouverture. */
 .cardDescPanel {
   overflow:    hidden;
   max-height:  0;
   opacity:     0;
   transition:
-    max-height 400ms var(--ease-out),
-    opacity    260ms var(--ease-out);
+    max-height 420ms var(--ease-out),
+    opacity    280ms var(--ease-out);
 }
 
 .cardDescPanelOpen {
-  max-height: 20rem;
+  max-height: 60rem;
   opacity:    1;
 }
 
-/* Description longue — filet top, ton muted, espacement */
+/* Description longue — filet top, ton muted */
 .cardDescLongue {
   margin-top:  clamp(0.9rem, 1.6vw, 1.2rem);
   padding-top: clamp(0.9rem, 1.6vw, 1.2rem);
@@ -459,7 +454,7 @@
   line-height: 1.72;
 }
 
-/* Lien "Visiter le site" — sable, flèche, discret mais cliquable */
+/* Lien "Visiter le site" */
 .cardDescLink {
   display:         inline-flex;
   align-items:     center;
