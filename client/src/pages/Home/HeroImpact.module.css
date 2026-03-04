@@ -321,9 +321,6 @@
  * Positionnement retiré — géré par .scrollArea (parent absolu).
  * flex-col + items-center restent dans le JSX via Tailwind.
  */
-.scrollIndicator {
-  /* layout via Tailwind dans le JSX : flex flex-col items-center gap-2 */
-}
 
 .scrollIndicatorLabel {
   font-family:    var(--font-sans);
