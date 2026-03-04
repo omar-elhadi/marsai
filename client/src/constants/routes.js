@@ -38,6 +38,9 @@ export const ROUTES = {
   // FILM_BASE   : chemin sans paramètre — usage dans startsWith() (PageTransitionLayer)
   FILM_DETAIL:               '/film/:id',
   FILM_BASE:                 '/film',
+  EDIT_FILM:                 '/edit-film/:token',
+  TRACKING:                  '/suivi',
+  PALMARES:                  '/palmares',
 
   // ── Pages secondaires ────────────────────────────────────────
   NEWSLETTERS:               '/Newsletters',
@@ -59,6 +62,7 @@ export const ROUTES = {
   // ── Jury ─────────────────────────────────────────────────────
   VOTES_JURY:                '/VotesJury',
   JURY_DASHBOARD:            '/jury/dashboard',
+  JURY_FILM_DETAIL:          '/jury/film/:id',
 
   // ── Admin — chemins RELATIFS (imbriqués sous /admin) ─────────
   ADMIN:                     '/admin',
