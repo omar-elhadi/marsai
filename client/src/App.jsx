@@ -151,22 +151,6 @@ function AppInner() {
 					<Route path={ROUTES.REGLES_CONDITIONS} element={<ReglesConditions />} />
 					<Route path={ROUTES.NEWS} element={<FestivalNews />} />
 					<Route path={ROUTES.EVENTS} element={<Events />} />
-					<Route path="/" element={<Home />} />
-					<Route path="/Newsletters" element={<Newsletters />} />
-					<Route path="/galerie" element={<Gallery />} />
-					<Route path="/soumettre" element={<SubmissionPage />} />
-					<Route path="/login" element={<LoginAdmin />} />
-					<Route path="/contact" element={<Contact />} />
-					<Route path="/Mention" element={<Mention />} />
-					<Route path="/cookies" element={<Cookies />} />
-					<Route path="/PolitiqueDeConfidentialite" element={<PolitiqueDeConfidentialite />} />
-					<Route path="/conditions-utilisations" element={<ConditionsUtilisations />} />
-					<Route path="/FAQ" element={<FAQ />} />
-					<Route path="/calendrier" element={<Calendrier />} />
-					<Route path="/login/verify" element={<VerifyToken />} />
-					<Route path="/regles-conditions" element={<ReglesConditions />} />
-					<Route path="/news" element={<FestivalNews />} />
-					<Route path="/events" element={<Events />} />
 					<Route path="/edit-film/:token" element={<EditFilmPage />} />
 					<Route path="/suivi" element={<TrackingPage />} />
 					<Route path="/palmares" element={<PalmaresPage />} />
