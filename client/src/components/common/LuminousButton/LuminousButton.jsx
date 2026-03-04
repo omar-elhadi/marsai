@@ -52,10 +52,14 @@ function injectKF() {
 }
 
 export default function LuminousButton({
-  label   = 'Soumettre',
-  to      = ROUTES.SOUMETTRE, // ← Référence la source de vérité. Jamais de string brute.
-  variant = 'dark',           // 'dark' | 'light'
-  size    = 'sm',             // 'sm' | 'lg'
+  label    = 'Soumettre',
+  to       = ROUTES.SOUMETTRE, // ← Référence la source de vérité. Jamais de string brute.
+  variant  = 'dark',           // 'dark' | 'light'
+  size     = 'sm',             // 'sm' | 'lg'
+  noBreath = false,            // true → désactive lb-btn-breathe + lb-bar-breathe en idle
+                               //        Utile quand le bouton est posé sur un fond déjà animé
+                               //        (ex: HeroImpact) — le halo disputerait l'attention
+                               //        avec la vidéo/image de fond. Hover reste inchangé.
 }) {
   const [hovered,  setHovered]  = useState(false);
   const [clicking, setClicking] = useState(false);
@@ -153,7 +157,7 @@ export default function LuminousButton({
         border:                  `1px solid ${hovered ? bdHov : bdIdle}`,
         background:              hovered ? bgHov : 'transparent',
         color:                   hovered ? textHov : textIdle,
-        animation:               hovered ? 'none' : 'lb-btn-breathe 3s ease-in-out alternate infinite',
+        animation:               hovered ? 'none' : (noBreath ? 'none' : 'lb-btn-breathe 3s ease-in-out alternate infinite'),
         boxShadow:               hovered
           ? `0 0 ${isLg?'28px':'20px'} rgba(226,209,195,.22),
              0 0 ${isLg?'10px':'6px'}  rgba(226,209,195,.10)`
@@ -181,7 +185,7 @@ export default function LuminousButton({
           background:   hovered ? textHov : accentColor, // suit textHov — noir sur fond ivoire (dark), blanc sur fond sombre (light)
           flexShrink:   0,
           transform:    hovered ? 'scaleY(1.15)' : 'scaleY(1)',
-          animation:    hovered ? 'none' : 'lb-bar-breathe 3s ease-in-out alternate infinite',
+          animation:    hovered ? 'none' : (noBreath ? 'none' : 'lb-bar-breathe 3s ease-in-out alternate infinite'),
           boxShadow:    hovered ? barShadowHover : undefined,
           transition:   'transform 350ms var(--ease-out), box-shadow 350ms var(--ease-out)',
         }}

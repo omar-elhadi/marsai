@@ -244,19 +244,85 @@
 }
 
 
-/* ── Indicateur de scroll ───────────────────────────────────── */
-
-.scrollIndicator {
-  bottom:  clamp(1.5rem, 3vw, 2.5rem);
-  right:   clamp(2rem, 5vw, 5rem);
-  z-index: 10;
+/* ── Zone bas-droite : bouton + indicateur scroll ────────── */
+/*
+ * Conteneur absolu commun pour le LuminousButton et le scroll
+ * indicator. Les deux apparaissent à t=2.4 via leurs refs GSAP
+ * respectifs — heroBtnRef (fade simple) et scrollIndRef (fade + bounce).
+ * align-items:flex-end — le bouton et l'indicateur s'alignent par
+ * leur bas, cohérent visuellement malgré des hauteurs différentes.
+ * Masqué sur mobile : le bouton est dans la navbar, l'indicateur
+ * n'est pas nécessaire sur petit écran.
+ *
+ * right augmenté (vs bord droit) — décale l'ensemble vers la gauche,
+ * évite l'écrasement contre la chrome du navigateur et le "DÉFILER".
+ */
+.scrollArea {
+  bottom:      clamp(1.8rem, 3.5vw, 3rem);
+  right:       clamp(5rem, 8vw, 9rem);
+  z-index:     10;
+  display:     flex;
+  align-items: flex-end;
+  gap:         clamp(1.4rem, 2.2vw, 2rem);
 }
 
-/* Masqué sur mobile — pas la place, pas nécessaire */
 @media (max-width: 767px) {
-  .scrollIndicator {
+  .scrollArea {
     display: none;
   }
+}
+
+
+/* ── Écrin du bouton — backdrop + halo statique ──────────── */
+/*
+ * Sur fond d'image cinéma complexe, un bouton transparent se
+ * noie dans les détails visuels. L'écrin résout ça sans animation :
+ *
+ *   backdrop-filter: blur(14px)
+ *     Assombrit et floute la zone derrière le bouton.
+ *     Le bouton flotte au-dessus de l'image — ancré, lisible.
+ *
+ *   background: rgba(0,0,0,0.22)
+ *     Couche sombre très légère — renforce la séparation
+ *     fond/bouton sans masquer l'image.
+ *
+ *   box-shadow (2 couches) :
+ *     Anneau interne 1px sable très tenu → délimite le bouton
+ *     sur les zones claires de l'image.
+ *     Halo externe sable diffus → présence lumineuse statique.
+ *     Aucune animation — noBreath est maintenu.
+ *
+ *   border-radius: 100px
+ *     Suit le border-radius pill du LuminousButton.
+ *     L'écrin épouse exactement la forme du bouton.
+ *
+ *   padding: 4px
+ *     Laisse respirer le bouton dans l'écrin — l'anneau 1px
+ *     n'est pas collé au bord du LuminousButton.
+ *
+ * Résultat : présence noble et lumineuse, pas de clignotement,
+ * pas de distraction — le shokunin n'anime que ce qui doit l'être.
+ */
+.heroBtnWrapper {
+  display:                 inline-block;
+  border-radius:           100px;
+  padding:                 4px;
+  background:              rgba(0, 0, 0, 0.22);
+  backdrop-filter:         blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 0 0 1px rgba(226, 209, 195, 0.14),
+    0 0 28px rgba(226, 209, 195, 0.10);
+}
+
+
+/* ── Indicateur de scroll ───────────────────────────────────── */
+/*
+ * Positionnement retiré — géré par .scrollArea (parent absolu).
+ * flex-col + items-center restent dans le JSX via Tailwind.
+ */
+.scrollIndicator {
+  /* layout via Tailwind dans le JSX : flex flex-col items-center gap-2 */
 }
 
 .scrollIndicatorLabel {

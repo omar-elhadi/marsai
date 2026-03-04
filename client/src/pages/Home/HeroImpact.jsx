@@ -35,6 +35,8 @@ import { useRef }        from 'react';
 import gsap              from 'gsap';
 import { useGSAP }       from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import LuminousButton    from '@/components/common/LuminousButton';
+import { ROUTES }        from '@/constants/routes';
 import styles            from './HeroImpact.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -54,7 +56,8 @@ export default function HeroImpact() {
   const titleRef     = useRef(null);
   const subtitleRef  = useRef(null);
   const dateLineRef  = useRef(null);
-  const scrollIndRef = useRef(null);
+  const scrollIndRef = useRef(null); // scroll indicator (bounce GSAP)
+  const heroBtnRef   = useRef(null); // bouton Soumettre (fade-in seul, pas de bounce)
   const statsRef     = useRef(null);
 
   useGSAP(() => {
@@ -66,6 +69,7 @@ export default function HeroImpact() {
     gsap.set(subtitleRef.current, { opacity: 0, y: 22 });
     gsap.set(dateLineRef.current, { opacity: 0, y: 16 });
     gsap.set(scrollIndRef.current,{ opacity: 0 });
+    gsap.set(heroBtnRef.current,  { opacity: 0 });
 
     // ── Timeline principale ────────────────────────────────────
     const tl = gsap.timeline({ delay: 0.2 });
@@ -117,6 +121,13 @@ export default function HeroImpact() {
           duration: 1.2, repeat: -1, yoyo: true, ease: 'sine.inOut',
         });
       },
+    }, 2.4);
+
+    // Bouton Soumettre — apparition synchronisée avec le scroll indicator.
+    // Fade simple, pas de bounce — le bouton est interactif, pas décoratif.
+    tl.to(heroBtnRef.current, {
+      opacity: 1,
+      duration: 0.5, ease: 'power1.out',
     }, 2.4);
 
     // ── Statistiques — ScrollTrigger stagger ──────────────────
@@ -253,22 +264,52 @@ export default function HeroImpact() {
 
         </div>
 
-        {/* ── Indicateur de scroll (masqué sur mobile) ─────── */}
-        <div
-          ref={scrollIndRef}
-          className={`absolute flex flex-col items-center gap-2 ${styles.scrollIndicator}`}
-          aria-hidden="true"
-        >
-          <span className={styles.scrollIndicatorLabel}>Défiler</span>
-          <svg width="16" height="24" viewBox="0 0 16 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={styles.scrollIndicatorSvg}
+        {/* ── Zone bas-droite : bouton + indicateur scroll ──── */}
+        {/*
+          Architecture à deux refs distincts — critique :
+          • heroBtnRef  → fade-in seul (pas de bounce). LuminousButton
+                          est un lien interactif — l'animer en bounce
+                          continu nuirait à l'UX et à l'accessibilité.
+          • scrollIndRef → fade-in puis bounce loop (décoratif).
+                          aria-hidden="true" — purement indicatif.
+          Les deux apparaissent à t=2.4 (même position timeline).
+          scrollArea masqué sur mobile (redondant avec la navbar).
+        */}
+        <div className={`absolute ${styles.scrollArea}`}>
+
+          {/* Bouton Soumettre — noBreath : pas de halo respirant en idle.
+              Sur fond de héros animé (image cinéma), le halo idle
+              disputerait l'attention visuelle. Hover reste complet.
+              heroBtnWrapper : écrin backdrop blur + halo statique sable —
+              le bouton s'ancre sur l'image sans animation. */}
+          <div ref={heroBtnRef} className={styles.heroBtnWrapper}>
+            <LuminousButton
+              label="Soumettre"
+              to={ROUTES.SOUMETTRE}
+              variant="dark"
+              size="lg"
+              noBreath
+            />
+          </div>
+
+          {/* Indicateur scroll — décoratif, bounce loop GSAP */}
+          <div
+            ref={scrollIndRef}
+            className={`flex flex-col items-center gap-2 ${styles.scrollIndicator}`}
+            aria-hidden="true"
           >
-            <rect x="6.5" y="0.5" width="3" height="5" rx="1.5"
-              fill="rgba(241,245,249,0.8)" />
-            <rect x="0.5" y="0.5" width="15" height="23" rx="7.5"
-              stroke="rgba(241,245,249,0.3)" strokeWidth="1" />
-          </svg>
+            <span className={styles.scrollIndicatorLabel}>Défiler</span>
+            <svg width="16" height="24" viewBox="0 0 16 24" fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className={styles.scrollIndicatorSvg}
+            >
+              <rect x="6.5" y="0.5" width="3" height="5" rx="1.5"
+                fill="rgba(241,245,249,0.8)" />
+              <rect x="0.5" y="0.5" width="15" height="23" rx="7.5"
+                stroke="rgba(241,245,249,0.3)" strokeWidth="1" />
+            </svg>
+          </div>
+
         </div>
 
       </section>
