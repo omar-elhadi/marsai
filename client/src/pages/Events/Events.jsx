@@ -37,6 +37,7 @@ const EVENT_CATEGORIES = [
     title:    'Projections',
     subtitle: 'Festival du film réalisé en IA',
     image:    projectionsImg,
+    date:     '20 Juin 2026',
     items: [
       { id: 'p1', title: 'Film IA — Génération narrative',  time: '18:00', place: 'Salle 1' },
       { id: 'p2', title: 'Sélection Courts Métrages IA',   time: '19:30', place: 'Salle 2' },
@@ -47,6 +48,7 @@ const EVENT_CATEGORIES = [
     title:    'Conférences',
     subtitle: 'Rencontres et talks autour de l\'IA et du cinéma',
     image:    conferencesImg,
+    date:     '21 Juin 2026',
     items: [
       { id: 'c1', title: 'L\'IA dans le cinéma de demain',      time: '14:00', place: 'Auditorium' },
       { id: 'c2', title: 'Créer un film avec l\'IA : workflow', time: '16:00', place: 'Auditorium' },
@@ -57,6 +59,7 @@ const EVENT_CATEGORIES = [
     title:    'Remises de prix',
     subtitle: 'Célébration des meilleures créations IA',
     image:    awardsImg,
+    date:     '22 Juin 2026',
     items: [
       { id: 'a1', title: 'Prix du Meilleur Film IA', time: '21:30', place: 'Grande Salle' },
       { id: 'a2', title: 'Prix Innovation IA',       time: '22:00', place: 'Grande Salle' },

@@ -213,13 +213,14 @@ function SubmissionForm() {
     description: "",
     country: "",
     language: "",
-    aiStack: "",
+    aiToolsUsed: "",   // renommé depuis aiStack (cohérence avec le schéma DB)
     youtubeUrl: "",
     acceptTerms: false,
     acceptPrivacy: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionToken, setSubmissionToken] = useState(null); // token reçu après succès
 
   /**
    * Gestion des changements de champs du formulaire
@@ -250,17 +251,64 @@ function SubmissionForm() {
     }
 
     setIsSubmitting(true);
-    console.log("📦 Données soumises:", formData);
 
-    // Simulation d'envoi
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/films/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName:   formData.firstName,
+          lastName:    formData.lastName,
+          email:       formData.email,
+          bio:         formData.bio,
+          instagram:   formData.instagram,
+          title:       formData.title,
+          description: formData.description,
+          country:     formData.country,
+          language:    formData.language,
+          aiToolsUsed: formData.aiToolsUsed,
+          youtubeUrl:  formData.youtubeUrl,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Une erreur est survenue lors de la soumission.");
+      }
+
+      // Succès — affiche le token de suivi
+      setSubmissionToken(data.submissionToken);
+
+    } catch (err) {
+      alert(err.message);
+    } finally {
       setIsSubmitting(false);
-      alert("Candidature envoyée avec succès!");
-    }, 1500);
+    }
   };
 
   const inputClass = "marsai-input";
   const labelClass = "marsai-label";
+
+  // Écran de succès après soumission
+  if (submissionToken) {
+    return (
+      <div className="marsai-form-wrapper">
+        <div aria-hidden="true" className="marsai-form-top-line"></div>
+        <div className="marsai-success-block">
+          <p className="marsai-success-title">Candidature reçue ✓</p>
+          <div className="marsai-success-body">
+            <p>Votre film a été soumis avec succès. Un email de confirmation vous a été envoyé.</p>
+            <p style={{ marginTop: "0.75rem" }}>Référence de suivi :</p>
+            <p><span className="marsai-token-code">{submissionToken}</span></p>
+            <p style={{ marginTop: "0.75rem", fontSize: "0.75rem", opacity: 0.7 }}>
+              Conservez cette référence. Vous serez contacté(e) pour toute décision ou demande de modification.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="marsai-form-wrapper">
@@ -423,18 +471,18 @@ function SubmissionForm() {
       </div>
 
       <div>
-        <label htmlFor="aiStack" className={labelClass}>
+        <label htmlFor="aiToolsUsed" className={labelClass}>
           Outils IA utilisés (Stack)
         </label>
         <textarea
-          id="aiStack"
-          name="aiStack"
+          id="aiToolsUsed"
+          name="aiToolsUsed"
           rows="3"
           maxLength="500"
           required
           placeholder="Listez les outils IA utilisés (ex: Midjourney, RunwayML, 11Labs...)..."
           className={inputClass}
-          value={formData.aiStack}
+          value={formData.aiToolsUsed}
           onChange={handleChange}
         />
         <p className="marsai-finePrint">MAX 500 CARACTÈRES</p>

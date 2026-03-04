@@ -1,127 +1,213 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { REGLEMENT } from "./components/reglementData";
-import Header from "./components/Header";
-import SearchBar from "./components/SearchBar";
-import ChaptersList from "./components/ChaptersList";
-import AccessibilityInfo from "./components/AccessibilityInfo";
-import ChapterView from "./components/ChapterView";
-import ContinuousView from "./components/ContinuousView";
+import { useRef } from 'react';
+import gsap        from 'gsap';
+import { useGSAP } from '@gsap/react';
 
+const SECTIONS_LEFT = [
+  {
+    id: '01',
+    slug: 'admissibilite',
+    title: 'Admissibilité',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Le concours est ouvert aux créateurs explorant les frontières entre l\u2019intelligence artificielle et la narration cinématographique en une minute exacte.',
+      },
+      {
+        type: 'list',
+        items: [
+          'Les œuvres doivent intégrer des outils d\u2019IA générative dans au moins une étape de production (image, son, ou montage).',
+          'Durée stricte\u00a0: 60 secondes, générique compris.',
+        ],
+      },
+    ],
+  },
+  {
+    id: '02',
+    slug: 'ethique',
+    title: 'Éthique',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Chaque soumission doit être accompagnée d\u2019une note détaillant les outils utilisés. Le festival valorise la transparence et le respect des droits d\u2019auteur.',
+      },
+    ],
+  },
+  {
+    id: '03',
+    slug: 'propriete',
+    title: 'Propriété',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Les participants garantissent être titulaires des droits d\u2019auteur pour les éléments non générés par l\u2019IA.',
+      },
+      {
+        type: 'note',
+        text: 'MARSAI se réserve le droit de diffuser les extraits à des fins de promotion.',
+      },
+    ],
+  },
+];
 
-export default function ReglementDVDPage() {
-  const [mode, setMode] = useState("cine"); // "cine" | "classic"
-  const [view, setView] = useState("chapters"); // "chapters" | "continuous"
-  const [query, setQuery] = useState("");
-  const [activeId, setActiveId] = useState(REGLEMENT[0].id);
+const SECTIONS_RIGHT = [
+  {
+    id: '04',
+    slug: 'soumission',
+    title: 'Soumission',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Format requis\u00a0: .MP4 ou .MOV, résolution minimale 1080p.',
+      },
+      {
+        type: 'deadline',
+        label: 'Date limite',
+        value: '30 avril 2026',
+      },
+    ],
+  },
+  {
+    id: '05',
+    slug: 'selection',
+    title: 'Sélection',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Les décisions du jury international sont souveraines. Les critères incluent l\u2019esthétique, l\u2019innovation technique et la narration.',
+      },
+    ],
+  },
+  {
+    id: '06',
+    slug: 'prix',
+    title: 'Prix',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Les lauréats recevront un prix lors de la cérémonie de clôture du festival.',
+      },
+    ],
+  },
+];
 
-  const contentTopRef = useRef(null);
-  const activeHeadingRef = useRef(null);
-  const liveRef = useRef(null);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return REGLEMENT;
-    return REGLEMENT.filter((a) => {
-      const text = `${a.title} ${a.tags.join(" ")} ${a.id}`.toLowerCase();
-      return text.includes(q);
-    });
-  }, [query]);
-
-  const active = useMemo(() => {
-    return REGLEMENT.find((a) => a.id === activeId) ?? REGLEMENT[0];
-  }, [activeId]);
-
-  // Hash -> article
-  useEffect(() => {
-    const hash = window.location.hash?.replace("#", "");
-    if (hash && REGLEMENT.some((a) => a.id === hash)) {
-      setActiveId(hash);
-    }
-  }, []);
-
-  // Update URL hash on activeId
-  useEffect(() => {
-    window.history.replaceState(null, "", `#${activeId}`);
-  }, [activeId]);
-
-  // Focus management (lecteurs d'écran + clavier)
-  useEffect(() => {
-    if (view !== "chapters") return;
-    activeHeadingRef.current?.focus();
-    if (liveRef.current) {
-      liveRef.current.textContent = `${active.title} affiché`;
-    }
-  }, [activeId, view, active.title]);
-
-  const goTo = (id) => {
-    setView("chapters");
-    setActiveId(id);
-    requestAnimationFrame(() => {
-      contentTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  };
+function RuleSection({ section, isLast }) {
+  const { id, title, content } = section;
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white">
-      {/* Skip link (clavier) */}
-      <a
-        href="#reglement-main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:text-black"
-      >
-        Aller au contenu principal
-      </a>
-
-      {/* Ambiance projecteur (visuel uniquement) */}
-      <div className="pointer-events-none fixed inset-0 opacity-40 motion-reduce:opacity-25">
-        <div className="absolute -top-24 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_55%)]" />
+    <article
+      id={section.slug}
+      style={{
+        paddingBottom: isLast ? 0 : '3.5rem',
+        marginBottom:  isLast ? 0 : '3.5rem',
+        borderBottom:  isLast ? 'none' : '1px solid rgba(255,255,255,0.10)',
+      }}
+    >
+      <div className="flex items-baseline gap-3" style={{ marginBottom: '1.2rem' }}>
+        <span className="font-black italic text-xl text-[#d1c7a3] leading-none shrink-0" style={{ opacity: 0.55 }}>
+          {id}
+        </span>
+        <h2 className="font-bold uppercase text-white/80 m-0" style={{ fontSize: '0.60rem', letterSpacing: '0.22em' }}>
+          {title}
+        </h2>
       </div>
 
-      {/* Live region (lecteurs d'écran) */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true" ref={liveRef} />
+      <div className="flex flex-col" style={{ gap: '1rem' }}>
+        {content.map((block, i) => {
+          if (block.type === 'paragraph') return (
+            <p key={i} className="text-white/60 font-light leading-relaxed m-0" style={{ fontSize: '1rem' }}>
+              {block.text}
+            </p>
+          );
+          if (block.type === 'list') return (
+            <ul key={i} className="m-0 p-0 list-none flex flex-col" style={{ gap: '0.75rem' }}>
+              {block.items.map((item, j) => (
+                <li key={j} className="flex items-start" style={{ gap: '0.75rem' }}>
+                  <span className="text-[#d1c7a3] shrink-0 leading-none" style={{ marginTop: '0.15em' }}>—</span>
+                  <span className="text-white/60 font-light leading-relaxed" style={{ fontSize: '1rem' }}>{item}</span>
+                </li>
+              ))}
+            </ul>
+          );
+          if (block.type === 'note') return (
+            <p key={i} className="text-white/30 italic uppercase m-0" style={{ fontSize: '0.72rem', letterSpacing: '0.15em' }}>
+              {block.text}
+            </p>
+          );
+          if (block.type === 'deadline') return (
+            <div key={i} className="inline-flex flex-col self-start rounded-sm" style={{
+              gap:        '0.3rem',
+              padding:    '0.85rem 1.2rem',
+              border:     '1px solid rgba(255,255,255,0.10)',
+              borderLeft: '2px solid #d1c7a3',
+            }}>
+              <span className="font-semibold uppercase text-white/40" style={{ fontSize: '0.56rem', letterSpacing: '0.22em', marginBottom: '0.2rem' }}>
+                {block.label}
+              </span>
+              <span className="font-black uppercase text-[#d1c7a3] leading-none" style={{ fontSize: '1.6rem', letterSpacing: '-0.02em' }}>
+                {block.value}
+              </span>
+            </div>
+          );
+          return null;
+        })}
+      </div>
+    </article>
+  );
+}
 
-      <Header mode={mode} setMode={setMode} view={view} setView={setView} />
+export default function CompetitionRules() {
+  const pageRef  = useRef(null);
+  const topRef   = useRef(null);
+  const leftRef  = useRef(null);
+  const rightRef = useRef(null);
 
-      <SearchBar query={query} setQuery={setQuery} filteredCount={filtered.length} />
+  useGSAP(() => {
+    gsap.set(topRef.current,   { opacity: 0, y: -20 });
+    gsap.set(leftRef.current,  { opacity: 0, x: -22 });
+    gsap.set(rightRef.current, { opacity: 0, x:  22 });
 
-      <main
-        id="reglement-main"
-        className="relative mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 pb-16 md:grid-cols-12"
-      >
-        {/* NAV / Sommaire */}
-        <aside className="md:col-span-4">
-          <ChaptersList 
-            filtered={filtered} 
-            activeId={activeId} 
-            view={view} 
-            mode={mode} 
-            onGoTo={goTo} 
-          />
-          <AccessibilityInfo />
-        </aside>
+    const tl = gsap.timeline({ delay: 0.1 });
+    tl.to(topRef.current,   { opacity: 1, y: 0, duration: 0.70, ease: 'power2.out' }, 0.00);
+    tl.to(leftRef.current,  { opacity: 1, x: 0, duration: 0.80, ease: 'power3.out' }, 0.25);
+    tl.to(rightRef.current, { opacity: 1, x: 0, duration: 0.80, ease: 'power3.out' }, 0.35);
+  }, { scope: pageRef });
 
-        {/* CONTENU */}
-        <section ref={contentTopRef} className="md:col-span-8">
-          {view === "chapters" ? (
-            <ChapterView 
-              active={active} 
-              mode={mode} 
-              activeHeadingRef={activeHeadingRef} 
-              setView={setView} 
-            />
-          ) : (
-            <ContinuousView mode={mode} setView={setView} goTo={goTo} />
-          )}
-        </section>
+  return (
+    <div
+      ref={pageRef}
+      className="bg-[#0a0a0a] min-h-screen flex flex-col"
+      style={{ paddingTop: 'clamp(4rem,6vw,5rem)' }}
+    >
+      <div ref={topRef} style={{ padding: 'clamp(2rem,3.5vw,3rem) clamp(2rem,5vw,5rem)' }}>
+        <div className="flex items-center gap-4" style={{ marginBottom: '1.2rem' }}>
+          <span className="block h-px bg-[#d1c7a3] shrink-0" style={{ width: 'clamp(2rem,3vw,3rem)' }} />
+          <span className="font-semibold uppercase text-white/40" style={{ fontSize: '0.60rem', letterSpacing: '0.22em' }}>
+            Marsai Festival — Édition 2026
+          </span>
+        </div>
+        <h1 className="text-center font-black uppercase text-white mx-auto leading-none" style={{ fontSize: 'clamp(3rem,8vw,6rem)', letterSpacing: '-0.03em' }}>
+          Règlement
+        </h1>
+      </div>
 
-        {/* Keyframes (fade) */}
-        <style>{`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
-      </main>
+      <div className="grid grid-cols-1 md:grid-cols-2 flex-1">
+        <div ref={leftRef} className="border-b md:border-b-0 md:border-r border-white/10" style={{ padding: 'clamp(3rem,5vw,5rem) clamp(2rem,4vw,4rem)' }}>
+          <div className="w-full bg-gradient-to-r from-[#d1c7a3] to-transparent" style={{ height: '1px', marginBottom: '3rem' }} />
+          {SECTIONS_LEFT.map((section, i) => (
+            <RuleSection key={section.id} section={section} isLast={i === SECTIONS_LEFT.length - 1} />
+          ))}
+        </div>
+
+        <div ref={rightRef} className="flex flex-col" style={{ padding: 'clamp(3rem,5vw,5rem) clamp(2rem,4vw,4rem)' }}>
+          <div className="w-full bg-gradient-to-r from-[#d1c7a3] to-transparent" style={{ height: '1px', marginBottom: '3rem' }} />
+          {SECTIONS_RIGHT.map((section, i) => (
+            <RuleSection key={section.id} section={section} isLast={i === SECTIONS_RIGHT.length - 1} />
+          ))}
+          <p className="mt-auto uppercase italic text-white/20" style={{ paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.55rem', letterSpacing: '0.4em' }}>
+            MARSAI Festival — Marseille MMXXVI. Tous droits réservés.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

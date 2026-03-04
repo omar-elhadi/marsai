@@ -8,112 +8,182 @@ datasource db {
 }
 
 // -----------------------------------------------------------------------------
-// --- UTILISATEURS (ADMIN & JURY) ---
+// ENUMS
 // -----------------------------------------------------------------------------
-model User {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
-  password      String?   
-  firstName     String
-  lastName      String
-  
-  /// Bio du juré pour présentation officielle sur la plateforme
-  bio           String?   @db.Text
-  
-  role          Role      @default(JURY)
-  
-  loginToken    String?   @unique
-  tokenExpires  DateTime?
-  lastLogin     DateTime? 
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+/// Rôles utilisateurs — hiérarchie : ADMIN > MODERATOR > JURY
+enum Role {
+  ADMIN      // Contrôle total (Bruno, Jules)
+  MODERATOR  // Gestion films uniquement, pas les jurys
+  JURY       // Vote sur films assignés uniquement
+}
+
+/// Workflow statuts films — machine d'états stricte (voir CLAUDE.md §8)
+enum FilmStatus {
+  SUBMITTED  // Film reçu (anciennement PENDING)
+  IN_REVIEW  // Jurys assignés, évaluation en cours
+  APPROVED   // Validé par admin/moderator
+  REJECTED   // Refusé — statut final
+  TO_MODIFY  // Modifications demandées au réalisateur
+  SELECTION  // Sélection officielle top 50-70
+  FINALIST   // Nominé dans une catégorie Award
+  AWARD      // Gagnant d'une catégorie — statut final
+}
+
+/// Sentiment du jury — jury = conseiller, admin = décideur final
+enum VoteSentiment {
+  LIKE
+  DISLIKE
+}
+
+/// Statut pipeline upload YouTube (Phase 4)
+enum YoutubeStatus {
+  PENDING
+  UPLOADING
+  PROCESSING
+  APPROVED
+  REJECTED
+  EXPLICIT_CONTENT
+  VIOLENCE
+  FAILED
+}
+
+// -----------------------------------------------------------------------------
+// UTILISATEURS (ADMIN, MODERATOR, JURY)
+// -----------------------------------------------------------------------------
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  password     String?   // Nullable — jurys se connectent via magic link uniquement
+  firstName    String
+  lastName     String
+  bio          String?   @db.Text
+  photoUrl     String?
+
+  role         Role      @default(JURY)
+
+  /// Token magic link (usage unique, invalidé après connexion)
+  loginToken   String?   @unique
+  tokenExpires DateTime?
+  lastLogin    DateTime?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   votes         Vote[]
+  /// Films assignés à ce jury (many-to-many via table pivot _FilmAssignments)
+  assignedFilms Film[]   @relation("FilmAssignments")
 
   @@map("users")
 }
 
-enum Role {
-  ADMIN
-  JURY
-}
+// -----------------------------------------------------------------------------
+// RÉALISATEURS (SUBMITTERS)
+// -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// --- ARTISTES (SUBMITTERS) ---
-// -----------------------------------------------------------------------------
 model Submitter {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
-  firstName     String?
-  lastName      String?
-  
-  /// Bio de l'artiste (Text long)
-  bio           String?   @db.Text
-  website       String?
-  instagram     String?
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  firstName    String?
+  lastName     String?
+  bio          String?   @db.Text
+  website      String?
+  instagram    String?
 
-  /// Système Passwordless pour modification de la fiche et des films
-  loginToken    String?   @unique
-  tokenExpires  DateTime?
+  /// Token passwordless pour édition film en cas de TO_MODIFY (7 jours)
+  loginToken   String?   @unique
+  tokenExpires DateTime?
 
-  films         Film[]
+  films        Film[]
 
   @@map("submitters")
 }
 
 // -----------------------------------------------------------------------------
-// --- FILMS (L'ŒUVRE & SES VERSIONS) ---
+// FILMS
 // -----------------------------------------------------------------------------
+
 model Film {
-  id               Int           @id @default(autoincrement())
-  submitterId      Int
-  submissionToken  String        @unique @default(uuid())
+  id              Int        @id @default(autoincrement())
+  submitterId     Int
+  submissionToken String     @unique @default(uuid())
 
-  title            String
-  description      String        @db.Text
-  country          String
-  language         String?       
-  youtubeUrl  String?
-  
-  /// Transparence IA : Liste des outils
-  aiStack          String        @db.Text
-  aiMethodologyUrl String?       @db.Text
+  // --- Informations de base ---
+  title           String
+  description     String     @db.Text
+  country         String
+  language        String?
+  posterUrl       String?
+  subtitleUrl     String?
 
+  // --- Transparence IA ---
+  aiToolsUsed      String    @db.Text
+  aiMethodologyUrl String?   @db.Text
 
-  // --- WORKFLOW & SELECTION ---
-  status           FilmStatus @default(PENDING)
-  
-  averageRating    Float?
-  totalVotes       Int        @default(0)
+  // --- Vidéo (YouTube URL manuelle Phase 1-3, upload S3+YouTube Phase 4) ---
+  youtubeUrl        String?
+  youtubeVideoId    String?
+  youtubeStatus     YoutubeStatus?
+  youtubeUploadedAt DateTime?
+  s3VideoKey        String?
+  videoDuration     Float?
+  videoFormat       String?
+  videoSize         Int?
+  videoWidth        Int?
+  videoHeight       Int?
+  videoCodec        String?
 
-  submittedAt      DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  // --- Workflow & statut ---
+  status            FilmStatus @default(SUBMITTED)
 
-  // Relations
-  submitter        Submitter     @relation(fields: [submitterId], references: [id])
-  votes            Vote[]
-  awards           Award[]
-  
-  /// Historique des modifications apportées par l'artiste
-  versions         FilmVersion[]
+  // --- Stats votes (dénormalisées pour performance dashboard) ---
+  avgRating         Float?    // Recalculé après chaque vote
+  totalVotes        Int       @default(0)
+  totalLikes        Int       @default(0)
+  totalDislikes     Int       @default(0)
+
+  // --- Workflow TO_MODIFY ---
+  /// Message de l'admin expliquant les modifications demandées
+  modificationRequest     String?   @db.Text
+  modificationRequestedAt DateTime?
+  /// ID de l'admin/moderator qui a fait la demande
+  modificationRequestedBy Int?
+
+  submittedAt DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // --- Relations ---
+  submitter     Submitter     @relation(fields: [submitterId], references: [id])
+  /// Jurys assignés à ce film (many-to-many — bloqué si votes déjà commencés)
+  assignedUsers User[]        @relation("FilmAssignments")
+  votes         Vote[]
+  versions      FilmVersion[]
+  nominations   FilmNomination[]
 
   @@index([status])
   @@index([country])
-  @@index([averageRating])
+  @@index([avgRating])
+  @@index([youtubeStatus])
   @@map("films")
 }
+
+// -----------------------------------------------------------------------------
+// HISTORIQUE MODIFICATIONS (TO_MODIFY)
+// -----------------------------------------------------------------------------
 
 model FilmVersion {
   id          Int      @id @default(autoincrement())
   filmId      Int
-  
-  /// Snapshot des données avant modification
+
+  /// Snapshot du film avant modification — permet comparaison versions
   title       String
   description String   @db.Text
-  aiStack     String   @db.Text
+  aiToolsUsed String   @db.Text
+  posterUrl   String?
+  youtubeUrl  String?
   s3VideoKey  String?
-  
+
   archivedAt  DateTime @default(now())
 
   film        Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
@@ -122,82 +192,140 @@ model FilmVersion {
   @@map("film_versions")
 }
 
-enum FilmStatus {
-  PENDING
-  APPROVED
-  SELECTION
-  FINALIST
-  REJECTED
-  TO_MODIFY
-}
-
-
 // -----------------------------------------------------------------------------
-// --- VOTES & DIALOGUE CRITIQUE ---
+// VOTES JURYS
 // -----------------------------------------------------------------------------
+
 model Vote {
-  id          Int             @id @default(autoincrement())
-  filmId      Int
-  userId      Int
+  id     Int  @id @default(autoincrement())
+  filmId Int
+  userId Int
 
-  decision    VoteDecision
-  rating      Int             // Note quantitative 0-10
-  
-  votedAt     DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  /// Avis du jury — LIKE ou DISLIKE (jury = conseiller, pas décideur)
+  sentiment           VoteSentiment
+  /// Note qualitative 0-10
+  rating              Int
+  /// Si true, le jury suggère des modifications (commentaire obligatoire)
+  suggestModification Boolean       @default(false)
 
-  film        Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  votedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  /// Fil de discussion critique (multiples commentaires datés)
-  comments    ReviewComment[]
+  film     Film            @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments ReviewComment[]
 
+  /// Contrainte : 1 jury = 1 vote par film (upsert pour modification)
   @@unique([filmId, userId])
+  @@index([filmId])
+  @@index([userId])
   @@map("votes")
 }
 
-model ReviewComment {
-  id          Int      @id @default(autoincrement())
-  voteId      Int
-  
-  content     String   @db.Text
-  
-  /// Si true : visible uniquement par Admin/Jury. Si false : transmis à l'artiste.
-  isInternal  Boolean  @default(true)
-  
-  createdAt   DateTime @default(now())
+// -----------------------------------------------------------------------------
+// COMMENTAIRES CRITIQUES
+// -----------------------------------------------------------------------------
 
-  vote        Vote     @relation(fields: [voteId], references: [id], onDelete: Cascade)
+model ReviewComment {
+  id        Int      @id @default(autoincrement())
+  voteId    Int
+  content   String   @db.Text
+  /// true = visible admin+jury uniquement / false = transmis au réalisateur
+  isInternal Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  vote Vote @relation(fields: [voteId], references: [id], onDelete: Cascade)
 
   @@index([voteId])
   @@map("review_comments")
 }
 
-enum VoteDecision {
-  APPROVE
-  REJECT
-  TO_MODIFY
+// -----------------------------------------------------------------------------
+// PALMARÈS — Catégories + Nominations multi-éditions
+// -----------------------------------------------------------------------------
+
+/// Catégorie de prix par édition — créée librement par l'admin
+model AwardCategory {
+  id           Int              @id @default(autoincrement())
+  /// Année de l'édition (2026, 2027…)
+  edition      Int
+  /// Nom libre : "Meilleur film IA", "Coup de cœur", etc.
+  name         String
+  description  String?          @db.Text
+  /// Ordre d'affichage sur la page palmarès
+  displayOrder Int              @default(0)
+
+  nominations  FilmNomination[]
+
+  @@index([edition])
+  @@map("award_categories")
+}
+
+/// Nomination d'un film dans une catégorie — isWinner=true pour le gagnant
+model FilmNomination {
+  id         Int           @id @default(autoincrement())
+  filmId     Int
+  categoryId Int
+  /// true = gagnant de la catégorie (un seul par catégorie)
+  isWinner   Boolean       @default(false)
+
+  film     Film          @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  category AwardCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  /// Un film ne peut être nominé qu'une seule fois par catégorie
+  @@unique([filmId, categoryId])
+  @@index([filmId])
+  @@index([categoryId])
+  @@map("film_nominations")
 }
 
 // -----------------------------------------------------------------------------
-// --- PALMARÈS & NEWSLETTER ---
+// PAGE JURY PUBLIQUE (affichage statique — pas lié à User)
 // -----------------------------------------------------------------------------
-model Award {
-  id          Int      @id @default(autoincrement())
-  name        String   
-  description String?  @db.Text
-  
-  filmId      Int?     
-  film        Film?    @relation(fields: [filmId], references: [id])
 
-  @@map("awards")
+model JuryMember {
+  id           Int     @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  /// Titre/fonction (ex: "Réalisatrice", "Directrice artistique")
+  title        String
+  bio          String  @db.Text
+  photoUrl     String?
+  displayOrder Int     @default(0)
+  website      String?
+  instagram    String?
+  twitter      String?
+
+  @@map("jury_members")
 }
+
+// -----------------------------------------------------------------------------
+// SETTINGS SITE (admin)
+// -----------------------------------------------------------------------------
+
+model SiteSettings {
+  id            Int      @id @default(autoincrement())
+  currentYear   Int      @default(2026)
+  festivalTheme String?
+  festivalDates String?
+  trailerUrl    String?
+  heroImageUrl  String?
+  aboutText     String?  @db.Text
+  rulesText     String?  @db.Text
+  updatedAt     DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// -----------------------------------------------------------------------------
+// NEWSLETTER
+// -----------------------------------------------------------------------------
 
 model NewsletterSubscriber {
-  id                Int      @id @default(autoincrement())
-  email             String   @unique
-  unsubscribeToken  String   @unique @default(uuid())
-  subscribedAt      DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  unsubscribeToken String   @unique @default(uuid())
+  subscribedAt     DateTime @default(now())
 
   @@map("newsletter_subscribers")
 }

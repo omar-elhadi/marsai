@@ -30,9 +30,8 @@ export default function LoginAdmin() {
       // Car VITE_API_URL contient déjà le "/api"
       const response = await fetch(`${apiBaseUrl}/auth/login`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json" 
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Le cookie httpOnly est posé automatiquement
         body: JSON.stringify({ email, password }),
       });
 
@@ -42,13 +41,8 @@ export default function LoginAdmin() {
         throw new Error(data?.error || data?.message || "Identifiants incorrects.");
       }
 
-      // ✅ HARMONISATION DES TOKENS
-      // 1. Pour ton ProtectedRoute (le gardien de la route)
-      localStorage.setItem("marsai_token", data.token);
+      // Le token est dans un cookie httpOnly (inaccessible JS) — on stocke uniquement les infos utilisateur
       localStorage.setItem("marsai_user", JSON.stringify(data.user));
-      
-      // 2. Pour ton AdminDashboard (le tableau de données)
-      localStorage.setItem("token", data.token);
 
       setSuccess("Connexion réussie !");
       
