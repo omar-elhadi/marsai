@@ -1,4 +1,4 @@
-import prisma from "../config/prisma.js";
+import prisma from "../utils/prisma.js";
 import { loginAdmin } from "../services/auth.service.js";
 import jwt from "jsonwebtoken";
 
@@ -22,7 +22,16 @@ export const login = async (req, res) => {
       data: { lastLogin: new Date() },
     });
 
-    return res.status(200).json(result);
+    // Pose le JWT dans un cookie httpOnly — inaccessible depuis JS (protection XSS)
+    res.cookie("marsai_token", result.token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure:   process.env.NODE_ENV === "production",
+      maxAge:   24 * 60 * 60 * 1000, // 24h en ms
+    });
+
+    // Retourne uniquement les données utilisateur (jamais le token en clair)
+    return res.status(200).json({ user: result.user });
   } catch (e) {
     console.error("❌ Erreur Login Controller:", e);
     return res.status(500).json({ error: "Erreur serveur" });
@@ -49,16 +58,21 @@ export const verifyToken = async (req, res) => {
       return res.status(401).json({ error: "Lien invalide ou expiré." });
     }
 
-    // MISE À JOUR ET SÉCURISATION :
-    // 1. On enregistre la date (Badge VERT)
-    // 2. On vide le token pour qu'il ne soit plus réutilisable (Sécurité)
+    // Vérification de l'expiration du token
+    if (user.tokenExpires && new Date() > new Date(user.tokenExpires)) {
+      // Token expiré : on le nettoie en base pour éviter des tentatives futures
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { loginToken: null, tokenExpires: null },
+      });
+      return res.status(401).json({ error: "Ce lien a expiré. Demandez un nouvel accès à l'administrateur." });
+    }
+
+    // On enregistre uniquement la date de connexion (badge VERT dashboard)
+    // Le token est conservé en base — réutilisable jusqu'à tokenExpires (fin festival)
     await prisma.user.update({
       where: { id: user.id },
-      data: {
-        lastLogin: new Date(),
-        loginToken: null,
-        tokenExpires: null,
-      },
+      data: { lastLogin: new Date() },
     });
 
     const sessionToken = jwt.sign(
@@ -67,8 +81,15 @@ export const verifyToken = async (req, res) => {
       { expiresIn: "24h" },
     );
 
+    // Pose le JWT dans un cookie httpOnly (même logique que le login admin)
+    res.cookie("marsai_token", sessionToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure:   process.env.NODE_ENV === "production",
+      maxAge:   24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({
-      token: sessionToken,
       user: {
         id: user.id,
         email: user.email,
