@@ -16,7 +16,6 @@ import { ROUTES } from '@/constants/routes';
 import Home from '@/pages/Home/Home.jsx';
 import SubmissionPage from '@/pages/Submission/SubmissionPage.jsx';
 import LoginAdmin from '@/pages/LoginAdmin.jsx';
-import ConnectionPage from '@/pages/Jury/ConnectionPage.jsx';
 import Newsletters from '@/pages/Newsletters.jsx';
 import Gallery from '@/pages/Gallery/Gallery.jsx';
 import Contact from '@/pages/Contact/Contact.jsx';
@@ -135,7 +134,6 @@ function AppInner() {
 				<Route element={<PublicLayout />}>
 					<Route path={ROUTES.HOME} element={<Home />} />
 					<Route path={ROUTES.NEWSLETTERS} element={<Newsletters />} />
-					<Route path={ROUTES.CONNECTION_PAGE} element={<ConnectionPage />} />
 					<Route path={ROUTES.GALERIE} element={<Gallery />} />
 					<Route path={ROUTES.SOUMETTRE} element={<SubmissionPage />} />
 					<Route path={ROUTES.LOGIN} element={<LoginAdmin />} />
