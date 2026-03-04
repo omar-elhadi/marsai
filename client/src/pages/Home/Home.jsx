@@ -22,7 +22,7 @@ import SectionProgramme from '@/components/SectionProgramme';
 import SectionJury      from '@/pages/Home/components/SectionJury';
 import SectionRecompenses from '@/pages/Home/components/SectionRecompenses';
 import SectionGalerie      from '@/pages/Home/components/SectionGalerie';
-import SectionAlliances   from '@/components/SectionAlliances';
+import SectionAlliances   from '@/pages/Home/components/SectionAlliances';
 import SectionCTA         from '@/pages/Home/components/SectionCTA';
 
 function Home() {
@@ -38,20 +38,17 @@ function Home() {
       {/* ── §3 THÈME ─────────────────────────────────────────────── */}
       <SectionTheme />
 
-            {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
-      <SectionRecompenses />
+      {/* ── §10 CTA FINAL ──────────────────────────────────────────── */}
+      <SectionCTA />
 
-      {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
-      <SectionProgramme />
+      {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
+      <SectionRecompenses />
 
       {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
       <SectionJury />
 
-      {/* ── §8 GALERIE ──────────────────────────────────────────── */}
-      <SectionGalerie />
-
-      {/* ── §10 CTA FINAL ──────────────────────────────────────────── */}
-      <SectionCTA />
+      {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
+      <SectionProgramme />
 
       {/* ── §9 ALLIANCES ────────────────────────────────────────── */}
       <SectionAlliances />

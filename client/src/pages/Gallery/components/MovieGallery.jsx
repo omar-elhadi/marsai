@@ -1,133 +1,535 @@
-import { useRef } from 'react';
-import gsap from 'gsap';
+/**
+ * MovieGallery.jsx — MARSAI Festival
+ * Galerie · Page complète — défilement horizontal
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * ARCHITECTURE GSAP
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Une seule timeline ScrollTrigger (scrub 1.2) gère tout :
+ *
+ *   tl @ 0 : wrapperRef.translateX(0 → -scrollDistance)
+ *     Translation horizontale de l'ensemble des cartes.
+ *     Pilotée par le scroll vertical via pin:true.
+ *
+ *   tl @ 0 : chaque img.movie-image.translateX(15vw → -15vw)
+ *     Parallaxe interne — l'image glisse dans son cadre opaque.
+ *     Même horloge que la translation → synchronisation parfaite.
+ *     scale:1.3 en CSS absorbe le déplacement (30% de marge = 15% par côté).
+ *
+ * DOM (src/pages/Gallery/components/) :
+ *   div.galleryRoot   paddingTop = headerH (DOM direct, hors context GSAP)
+ *     section         pin:true, height = vh − headerH (DOM direct)
+ *       div.progress  barre de progression accent
+ *       div.wrapper   translateX scrub
+ *         MovieCard × N  .movie-card (global GSAP) / .movie-image (global GSAP)
+ *       div.scrollHint
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * ZÉRO ÉCRAN NOIR — EXPLICATION
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * useGSAP({ scope: sectionRef }) crée un gsap.context() en interne.
+ * La cleanup React appelle automatiquement context.revert() :
+ *   - Tous les tweens et ScrollTriggers sont détruits.
+ *   - Tous les styles inline posés par GSAP (x du wrapper, x des images,
+ *     position:fixed du pin, pin-spacer) sont restaurés à leur valeur CSS.
+ *   - paddingTop et section.height sont posés via DOM direct (hors context)
+ *     → non revertés → layout stable entre démontage et remontage (HMR).
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * CONNEXION BACKEND — voir bloc CONTRAT ci-dessous
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+import { useRef }       from 'react';
+import gsap              from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-import Reveal from '@/components/animations/Reveal';
+import { useGSAP }       from '@gsap/react';
+import MovieCard         from './MovieCard';
+import styles            from './MovieGallery.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Données de test (Exigez des images haute résolution)
+// CONTRAT D'INTERFACE BACKEND — À lire avant toute intégration
+// ─────────────────────────────────────────────────────────────
+//
+// Stack backend : Node.js + Prisma + S3 + YouTube API
+//
+// Quand le backend sera connecté, remplacer les données statiques
+// ci-dessous par un appel API. Le frontend n'a PAS besoin d'être
+// restructuré — seule la source de données change.
+//
+// ═══════════════════════════════════════════════════════════════
+// MODÈLE PRISMA ATTENDU (schema.prisma)
+// ═══════════════════════════════════════════════════════════════
+//
+//   model Film {
+//     id           Int      @id @default(autoincrement())
+//     title        String
+//     director     String
+//     category     String   // 'Fiction' | 'Documentaire' | 'Expérimental'
+//     status       String   @default("pending")
+//                           // 'pending' | 'selected' | 'rejected'
+//     thumbnailUrl String   // URL S3 — image de couverture
+//     videoUrl     String   // URL S3 (raw) OU YouTube embed ID
+//     videoSource  String   @default("s3")
+//                           // 's3' | 'youtube'
+//     duration     Int      // en secondes — imposé 60s max
+//     createdAt    DateTime @default(now())
+//     updatedAt    DateTime @updatedAt
+//   }
+//
+// ═══════════════════════════════════════════════════════════════
+// ENDPOINT BACKEND ATTENDU
+// ═══════════════════════════════════════════════════════════════
+//
+//   GET /api/films
+//   Query params :
+//     page     : number  (défaut 1)
+//     limit    : number  (défaut 12 — FILMS_PER_PAGE)
+//     category : string  (optionnel — filtre côté serveur)
+//     status   : string  (défaut 'selected' — ne jamais exposer 'pending')
+//
+//   Réponse attendue :
+//   {
+//     films: [
+//       {
+//         id:           number,
+//         title:        string,
+//         director:     string,
+//         category:     string,
+//         img:          string,  // thumbnailUrl S3
+//         videoUrl:     string,  // URL S3 ou ID YouTube
+//         videoSource:  string,  // 's3' | 'youtube'
+//       }
+//     ],
+//     total:       number,  // total films (pour calculer totalPages)
+//     page:        number,
+//     totalPages:  number,
+//   }
+//
+// ═══════════════════════════════════════════════════════════════
+// ACTIVATION — remplacer galleryMovies + pagination par :
+// ═══════════════════════════════════════════════════════════════
+//
+//   // Dans le composant :
+//   const [films, setFilms]           = useState([]);
+//   const [totalPages, setTotalPages] = useState(1);
+//   const [loading, setLoading]       = useState(false);
+//
+//   useEffect(() => {
+//     setLoading(true);
+//     const params = new URLSearchParams({
+//       page:     currentPage,
+//       limit:    FILMS_PER_PAGE,
+//       status:   'selected',
+//       ...(activeFilter !== 'Tous' && { category: activeFilter }),
+//     });
+//
+//     fetch(`/api/films?${params}`)
+//       .then(r => r.json())
+//       .then(data => {
+//         setFilms(data.films);
+//         setTotalPages(data.totalPages);
+//       })
+//       .finally(() => setLoading(false));
+//
+//   }, [currentPage, activeFilter]);
+//
+//   // La pagination reste identique — elle lit totalPages
+//   // qui vient maintenant du backend au lieu du calcul local.
+//
+// ═══════════════════════════════════════════════════════════════
+// NOTE S3 vs YOUTUBE
+// ═══════════════════════════════════════════════════════════════
+//
+//   S3 : stocker la vidéo brute + générer une thumbnailUrl avec
+//   Sharp ou ffmpeg côté Node. Player : <video src={videoUrl} />.
+//   Avantage : contrôle total, pas de dépendance externe.
+//   Inconvénient : coût de bande passante S3 à grande échelle.
+//
+//   YouTube API : upload via googleapis/youtube_v3, stocker
+//   l'ID YouTube (ex: "dQw4w9WgXcQ"). Embed frontend :
+//   <iframe src={`https://youtube.com/embed/${videoUrl}`} />
+//   Avantage : CDN mondial gratuit, player universel.
+//   Inconvénient : dépendance Google, risque de suppression.
+//
+//   Recommandation : S3 pour la vidéo source (archive pérenne) +
+//   YouTube pour la diffusion publique (performance + accessibilité).
+//   Les deux URLs stockées dans Prisma — le frontend choisit
+//   selon videoSource.
+//
+// ─────────────────────────────────────────────────────────────
+// DONNÉES STATIQUES — actives jusqu'à connexion backend
+// ─────────────────────────────────────────────────────────────
 export const galleryMovies = [
-  { id: 1, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
-  { id: 2, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
-  { id: 3, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
-  { id: 4, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
-  { id: 5, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
-  { id: 6, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
-  { id: 7, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
-  { id: 8, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
+  {
+    id:          1,
+    title:       "L'Aube Synthétique",
+    director:    'Elena Rostova',
+    category:    'Fiction',
+    img:         'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,   // À remplacer par URL S3 ou ID YouTube
+    videoSource: 's3',
+  },
+  {
+    id:          2,
+    title:       'Mémoire Latente',
+    director:    'Kaelen & I.A. Core',
+    category:    'Expérimental',
+    img:         'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 's3',
+  },
+  {
+    id:          3,
+    title:       'Racines de Silicium',
+    director:    'Studio Horizon',
+    category:    'Documentaire',
+    img:         'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 's3',
+  },
+  {
+    id:          4,
+    title:       'Écho Humain',
+    director:    'Collectif 2026',
+    category:    'Fiction',
+    img:         'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 's3',
+  },
+  {
+    id:          5,
+    title:       'Fragments du Futur',
+    director:    'Nadia Volkov',
+    category:    'Expérimental',
+    img:         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 'youtube',
+  },
+  {
+    id:          6,
+    title:       'La Dernière Image',
+    director:    'Marc Tessier',
+    category:    'Documentaire',
+    img:         'https://images.unsplash.com/photo-1519608425089-7f3bfa6f6bb8?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 's3',
+  },
+  {
+    id:          7,
+    title:       'Protocole Lumière',
+    director:    'Amara Diallo',
+    category:    'Fiction',
+    img:         'https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 'youtube',
+  },
+  {
+    id:          8,
+    title:       'Signal Perdu',
+    director:    'Yuki Tanaka',
+    category:    'Expérimental',
+    img:         'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop',
+    videoUrl:    null,
+    videoSource: 's3',
+  },
 ];
 
-// keep local alias for component
-const movies = galleryMovies;
+// FILMS_PER_PAGE sera réintroduit lors de la connexion backend.
+// L'API recevra : GET /api/films?page=1&limit=8
+// Voir bloc CONTRAT D'INTERFACE BACKEND ci-dessus.
+
+// ─────────────────────────────────────────────────────────────
+// STRUCTURE API — prête à activer quand le backend est connecté
+// ─────────────────────────────────────────────────────────────
+//
+// ÉTAPE 1 — Remplacer le tableau statique par un appel API.
+//
+// Actuellement : galleryMovies est hardcodé dans ce fichier.
+// À terme : les films viennent de la base de données via l'API.
+//
+// Quand le backend est prêt, voici la migration exacte :
+//
+// ┌─────────────────────────────────────────────────────────┐
+// │ AVANT (actuel) :                                        │
+// │   const filtered = galleryMovies.filter(...)            │
+// │   → données statiques, ne grandit pas automatiquement   │
+// │                                                         │
+// │ APRÈS (production) :                                    │
+// │   const [films, setFilms] = useState([]);               │
+// │   const [loading, setLoading] = useState(true);         │
+// │   const [error, setError] = useState(null);             │
+// │                                                         │
+// │   useEffect(() => {                                     │
+// │     fetch(`/api/films?page=${currentPage}               │
+// │            &limit=${FILMS_PER_PAGE}                     │
+// │            &category=${activeFilter}`)                  │
+// │       .then(r => r.json())                              │
+// │       .then(data => {                                   │
+// │         setFilms(data.films);       // tableau films     │
+// │         setTotalFilms(data.total);  // total pour pages  │
+// │         setLoading(false);                              │
+// │       })                                                │
+// │       .catch(err => {                                   │
+// │         setError(err);                                  │
+// │         setLoading(false);                              │
+// │       });                                               │
+// │   }, [currentPage, activeFilter]);                      │
+// │                                                         │
+// │ La pagination côté serveur est plus performante :       │
+// │ au lieu de charger 300 films d'un coup, l'API ne        │
+// │ renvoie que les 12 films de la page demandée.           │
+// └─────────────────────────────────────────────────────────┘
+//
+// ÉTAPE 2 — Adapter totalPages.
+//
+// Actuellement :
+//   const totalPages = Math.ceil(filtered.length / FILMS_PER_PAGE);
+//   → basé sur les données locales filtrées
+//
+// Après migration API :
+//   const [totalFilms, setTotalFilms] = useState(0);
+//   const totalPages = Math.ceil(totalFilms / FILMS_PER_PAGE);
+//   → basé sur le total renvoyé par le backend (ex: { total: 347 })
+//
+// ÉTAPE 3 — Supprimer le filtrage et la pagination frontend.
+//
+// Le filtrage et la tranche (slice) actuels deviennent inutiles
+// car l'API s'en charge côté serveur :
+//   GET /api/films?page=2&limit=12&category=Fiction
+//   → { films: [...], total: 87, page: 2, totalPages: 8 }
+//
+// Les states React (currentPage, activeFilter) restent identiques
+// — seule la source de données change. Le JSX de pagination et
+// de filtres n'a pas à être retouché.
+//
+// ÉTAPE 4 — Format attendu de l'API (à communiquer au backend).
+//
+//   Requête  : GET /api/films?page=1&limit=12&category=Fiction
+//   Réponse  : {
+//     films: [
+//       {
+//         id:       "uuid-ou-entier",
+//         title:    "Titre du film",
+//         director: "Nom du réalisateur",
+//         category: "Fiction | Expérimental | Documentaire",
+//         img:      "https://cdn.marsai.fr/films/affiche-id.jpg",
+//       },
+//       ...
+//     ],
+//     total:      87,   // total de films pour ce filtre
+//     page:        1,
+//     totalPages:  8,
+//   }
+//
+// ─────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────
+// STRUCTURE API — PRÊTE À ACTIVER (Prisma + Node + JS)
+// ─────────────────────────────────────────────────────────────
+//
+// Quand le backend sera connecté, remplacer galleryMovies par
+// un appel fetch() vers votre route Node. Voici la structure
+// exacte à implémenter — frontend et backend séparément.
+//
+// ── CÔTÉ BACKEND (Node + Express + Prisma) ─────────────────
+//
+//   // routes/films.js
+//   router.get('/api/films', async (req, res) => {
+//     const page     = parseInt(req.query.page)     || 1;
+//     const limit    = parseInt(req.query.limit)    || 12;
+//     const category = req.query.category           || undefined;
+//     const skip     = (page - 1) * limit;
+//
+//     // Prisma pagine nativement avec skip/take —
+//     // jamais besoin de charger tous les films pour paginer.
+//     const [films, total] = await Promise.all([
+//       prisma.film.findMany({
+//         where:   category ? { category } : undefined,
+//         skip,
+//         take:    limit,
+//         orderBy: { createdAt: 'desc' },
+//         select: {
+//           id:       true,
+//           title:    true,
+//           director: true,
+//           category: true,
+//           imageUrl: true,   // ← adapter au nom du champ Prisma
+//         },
+//       }),
+//       prisma.film.count({
+//         where: category ? { category } : undefined,
+//       }),
+//     ]);
+//
+//     res.json({ films, total, page, totalPages: Math.ceil(total / limit) });
+//   });
+//
+// ── CÔTÉ FRONTEND — remplacer la logique statique par : ─────
+//
+//   // Dans MovieGallery.jsx, remplacer :
+//   //   const [activeFilter, setActiveFilter] = useState(ALL_LABEL);
+//   //   const [currentPage, setCurrentPage]   = useState(1);
+//   //
+//   // Ajouter :
+//   //   const [films, setFilms]           = useState([]);
+//   //   const [totalPages, setTotalPages] = useState(1);
+//   //   const [loading, setLoading]       = useState(false);
+//   //
+//   // Remplacer le useMemo filtered/paginated par :
+//   //
+//   //   useEffect(() => {
+//   //     const cat = activeFilter === ALL_LABEL ? '' : activeFilter;
+//   //     setLoading(true);
+//   //     fetch(`/api/films?page=${currentPage}&limit=${FILMS_PER_PAGE}&category=${cat}`)
+//   //       .then(r => r.json())
+//   //       .then(data => {
+//   //         setFilms(data.films);
+//   //         setTotalPages(data.totalPages);
+//   //         setLoading(false);
+//   //       });
+//   //   }, [currentPage, activeFilter]);
+//   //
+//   // La pagination, les filtres, le layout asymétrique, les
+//   // animations GSAP — RIEN d'autre ne change.
+//   // Seule la source de données est remplacée.
+//
+// ─────────────────────────────────────────────────────────────
+
+
+
+// const FILMS_PER_PAGE = 8; Cette constante sera réintroduite lors de la connexion backend. L'API recevra : GET /api/films?page=1&limit=8
+// Voir bloc CONTRAT D'INTERFACE BACKEND ci-dessus.
+
+
 
 export default function MovieGallery() {
-  const sectionRef = useRef(null);
-  const wrapperRef = useRef(null);
+
+  // galleryRootRef : paddingTop = headerH (DOM direct, hors context GSAP).
+  //   Non revert au cleanup → section toujours sous le header.
+  const galleryRootRef = useRef(null);
+
+  // sectionRef : cible du pin:true. height = vh − headerH (DOM direct).
+  //   scope de useGSAP → toutes les queries GSAP sont scoped ici.
+  const sectionRef    = useRef(null);
+
+  // wrapperRef  : translateX animé par la timeline.
+  // progressRef : scaleX animé par onUpdate (0 → 1).
+  // scrollHintRef : disparaît après 3% de progression.
+  const wrapperRef    = useRef(null);
+  const progressRef   = useRef(null);
+  const scrollHintRef = useRef(null);
 
   useGSAP(() => {
-    // 1. Calcul de l'espace de défilement (rigoureux et dynamique)
-    const cards = gsap.utils.toArray('.movie-card');
-    const totalWidth = wrapperRef.current.scrollWidth;
-    const scrollDistance = totalWidth - window.innerWidth;
+    if (!galleryRootRef.current || !sectionRef.current || !wrapperRef.current) return;
 
-    // Création d'une timeline pour synchroniser le déplacement et le parallaxe
+    // ── Mesures dynamiques ──────────────────────────────────────
+    // Posées via DOM direct, hors du context GSAP.
+    // context.revert() ne les touche pas → layout stable après cleanup.
+    const headerEl = document.querySelector('header');
+    const headerH  = headerEl ? headerEl.offsetHeight : 64;
+    const sectionH = window.innerHeight - headerH;
+
+    galleryRootRef.current.style.paddingTop = headerH  + 'px';
+    sectionRef.current.style.height        = sectionH + 'px';
+
+    const scrollDistance = wrapperRef.current.scrollWidth - window.innerWidth;
+    if (scrollDistance <= 0) return;
+
+    if (scrollHintRef.current) {
+      gsap.set(scrollHintRef.current, { opacity: 1, display: '' });
+    }
+
+    // ── Timeline unifiée ────────────────────────────────────────
+    //
+    // pin:true + pinSpacing:true :
+    //   GSAP applique position:fixed à la section pendant le scroll.
+    //   Le scroll vertical est entièrement consommé par la translation H.
+    //   Aucun axe parasite. Le pin-spacer maintient la place dans le flux.
+    //
+    // scrub:1.2 : inertie légère pour une sensation luxueuse.
+    // invalidateOnRefresh:true : recalcule scrollDistance au resize.
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: sectionRef.current,
-        pin: true,
-        scrub: 1.2, // Inertie lourde pour une sensation luxueuse
-        end: () => `+=${scrollDistance}`, // La hauteur du scroll équivaut à la largeur à parcourir
-        invalidateOnRefresh: true, // Recalcule les dimensions si l'utilisateur redimensionne la fenêtre
-      }
+        trigger:             sectionRef.current,
+        pin:                 true,
+        pinSpacing:          true,
+        scrub:               1.2,
+        start:               'top top+=' + headerH,
+        end:                 () => '+=' + (wrapperRef.current.scrollWidth - window.innerWidth),
+        invalidateOnRefresh: true,
+
+        onRefresh() {
+          if (!galleryRootRef.current || !sectionRef.current) return;
+          const hEl  = document.querySelector('header');
+          const hH   = hEl ? hEl.offsetHeight : 64;
+          const sH   = window.innerHeight - hH;
+          galleryRootRef.current.style.paddingTop = hH + 'px';
+          sectionRef.current.style.height        = sH + 'px';
+          window.dispatchEvent(new CustomEvent('lenis:resize'));
+        },
+
+        onUpdate(self) {
+          if (progressRef.current) {
+            gsap.set(progressRef.current, { scaleX: self.progress });
+          }
+          if (scrollHintRef.current && self.progress > 0.03) {
+            gsap.to(scrollHintRef.current, {
+              opacity: 0, y: 6, duration: 0.4, ease: 'power2.out',
+              onComplete() {
+                if (scrollHintRef.current) scrollHintRef.current.style.display = 'none';
+              },
+            });
+          }
+        },
+      },
     });
 
-    // 2. Le Mouvement Principal (Translation du conteneur)
-    tl.to(wrapperRef.current, {
-      x: -scrollDistance,
-      ease: "none"
-    }, 0);
+    // Position 0 : translation du wrapper
+    tl.to(wrapperRef.current, { x: -scrollDistance, ease: 'none' }, 0);
 
-    // 3. Le Parallaxe Interne (Le secret des sites d'excellence)
-    cards.forEach((card) => {
-      const image = card.querySelector('.movie-image');
-      
-      // L'image commence décalée vers la droite, et glisse vers la gauche à l'intérieur de son propre cadre
-      tl.fromTo(image, {
-        x: "15vw", 
-        scale: 1.2 // On agrandit l'image pour qu'elle puisse bouger sans laisser de vide
-      }, {
-        x: "-15vw",
-        ease: "none"
-      }, 0);
+    // Position 0 : parallaxe interne par image
+    //
+    // x : 15vw → -15vw — l'image glisse dans son cadre opaque pendant
+    //   que la carte traverse le viewport.
+    //   scale:1.3 en CSS (hors context) absorbe le déplacement :
+    //   30% d'agrandissement = 15% de marge par côté → jamais de bord visible.
+    //   Le scale étant en CSS et non dans le fromTo, revert() le laisse intact.
+    gsap.utils.toArray('.movie-card').forEach((card) => {
+      const img = card.querySelector('.movie-image');
+      if (img) tl.fromTo(img, { x: '15vw' }, { x: '-15vw', ease: 'none' }, 0);
+    });
+
+    // Lenis recalcule la hauteur du document (pin-spacer vient d'être créé)
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new CustomEvent('lenis:resize'));
     });
 
   }, { scope: sectionRef });
 
-return (
-    <section ref={sectionRef} className="h-screen w-full bg-stone-900 text-stone-100 overflow-hidden relative">
-      
-      {/* LE NOUVEAU TITRE : Architecture Typographique
-        1. top-28 md:top-36 : On esquive l'attraction de la nouvelle Navbar.
-        2. mix-blend-difference : Le texte s'inversera optiquement si une image passe derrière lui.
-        3. z-30 : Il règne en maître sur les images qui défilent.
-      */}
-      <div className="absolute top-28 md:top-36 left-6 md:left-12 z-30 pointer-events-none mix-blend-difference">
-        <Reveal>
-          {/* Typographie fluide : text-5xl (mobile) -> text-[8vw] (desktop) */}
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7vw] font-black uppercase tracking-tighter leading-none text-white drop-shadow-2xl">
-            Sélection<br />Officielle
-          </h1>
-        </Reveal>
-        
-        <Reveal delay={0.2}>
-          <div className="flex items-center gap-4 mt-6">
-            <span className="w-12 h-[2px] bg-amber-500"></span>
-            <span className="text-sm md:text-base font-bold tracking-widest uppercase text-amber-500">
-              Galerie des Œuvres — 2026
-            </span>
-          </div>
-        </Reveal>
-      </div>
-
-      {/* Le conteneur en mouvement */}
-      <div 
-        ref={wrapperRef} 
-        className="flex h-full w-max items-center pl-[10vw] pr-[20vw] gap-12 md:gap-20 pt-20 md:pt-0" 
+  return (
+    <div ref={galleryRootRef} className={styles.galleryRoot}>
+      <section
+        ref={sectionRef}
+        className={styles.section}
+        aria-label="Galerie des films — défilement horizontal"
       >
-        {movies.map((movie, index) => (
-          <article 
-            key={movie.id} 
-            className="movie-card relative h-[65vh] w-[75vw] md:w-[45vw] shrink-0 group perspective-1000"
-          >
-            {/* Le masque (Le cadre physique) */}
-            <div className="w-full h-full overflow-hidden rounded-sm shadow-2xl relative">
-              {/* L'image animée indépendamment par GSAP */}
-              <img 
-                src={movie.img} 
-                alt={movie.title} 
-                className="movie-image absolute top-0 left-0 w-full h-full object-cover origin-center"
-              />
-              {/* Le voile d'obscurité pour préserver le contraste */}
-              <div className="absolute inset-0 bg-stone-900/20 group-hover:bg-transparent transition-colors duration-700"></div>
-            </div>
+        <div ref={progressRef} className={styles.progressBar} aria-hidden="true" />
 
-            {/* Informations textuelles : Placement asymétrique inspiré de l'éditorial */}
-            <div className="absolute -bottom-12 -right-12 md:-right-24 z-10 p-8 w-[90%] md:w-[120%] bg-stone-100 text-stone-950 shadow-2xl origin-bottom-left transition-transform duration-700 hover:-translate-y-4">
-              <div className="flex justify-between items-end border-b border-stone-300 pb-4 mb-4">
-                <span className="text-5xl font-black tracking-tighter">0{index + 1}</span>
-                <span className="text-sm font-bold uppercase tracking-widest opacity-50">I.A. Core</span>
-              </div>
-              <h3 className="text-3xl md:text-5xl font-bold mb-2 uppercase leading-none">
-                {movie.title}
-              </h3>
-              <p className="text-stone-600 text-lg md:text-xl font-light">
-                Dirigé par {movie.director}
-              </p>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
+        <div ref={wrapperRef} className={styles.wrapper}>
+          {galleryMovies.map((movie, i) => (
+            <MovieCard key={movie.id + '-' + i} movie={movie} index={i} />
+          ))}
+        </div>
+
+        <div ref={scrollHintRef} className={styles.scrollHint} aria-hidden="true">
+          <span className={styles.scrollHintText}>Défiler</span>
+          <span className={styles.scrollHintArrow}>→</span>
+        </div>
+      </section>
+    </div>
   );
 }

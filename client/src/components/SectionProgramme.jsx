@@ -44,6 +44,14 @@ gsap.registerPlugin(ScrollTrigger);
 // DONNÉES — Les événements du festival
 // Remplacer par un appel API en production
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Champs image ajoutés — Kodawari :
+//   img         → URL Unsplash q=88, w=1200 (ratio 16/7 en CSS)
+//   imgAlt      → description accessible précise
+//   imgPosition → object-position fine-tunée par image
+// Chaque image choisie pour sa correspondance sémantique
+// avec le contenu de l'événement, pas son esthétique seule.
+// ─────────────────────────────────────────────────────────────
 const EVENTS = [
   {
     index:       '01',
@@ -53,6 +61,10 @@ const EVENTS = [
     heure:       '10h00 — 13h00',
     description: 'Exploration approfondie de Sora et des modèles de génération vidéo de nouvelle génération. Techniques avancées de prompting cinématographique.',
     lien:        '/events#masterclass-sora',
+    // Salle d'atelier, participants autour d'écrans — création collective
+    img:         'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=88&w=1200&auto=format&fit=crop',
+    imgAlt:      'Participants en atelier Masterclass Sora — MARSAI Festival',
+    imgPosition: 'center 40%',
   },
   {
     index:       '02',
@@ -62,6 +74,10 @@ const EVENTS = [
     heure:       '15h00 — 17h30',
     description: 'Démonstration en direct des meilleures pratiques de prompt engineering appliquées à la narration visuelle et à la direction artistique IA.',
     lien:        '/events#prompt-engineering',
+    // Laptop ouvert dans l'obscurité, lumière d'écran — précision technique et intimité créative
+    img:         'https://images.unsplash.com/photo-1487017159836-4e23ece2e4cf?q=88&w=1200&auto=format&fit=crop',
+    imgAlt:      'Interface créative sur écran — démonstration Prompt Engineering MARSAI',
+    imgPosition: 'center 50%',
   },
   {
     index:       '03',
@@ -71,6 +87,10 @@ const EVENTS = [
     heure:       'Accès libre — 9h00 à 20h00',
     description: 'Parcours immersif à travers les 50 films finalistes. Chaque œuvre est présentée avec la chaîne de prompts ayant conduit à sa création.',
     lien:        '/galerie',
+    // Couloir de musée/galerie avec éclairage d'accrochage — espace contemplatif
+    img:         'https://images.unsplash.com/photo-1518998053901-5348d3961a04?q=88&w=1200&auto=format&fit=crop',
+    imgAlt:      'Espace d\'exposition immersif — Galerie des Émotions MARSAI',
+    imgPosition: 'center 35%',
   },
   {
     index:       '04',
@@ -80,6 +100,10 @@ const EVENTS = [
     heure:       '21h00 — 23h30',
     description: 'Clôture du festival par une performance musicale entièrement composée et arrangée par intelligence artificielle. Une expérience sensorielle inédite.',
     lien:        '/events#concert-suno',
+    // Scène de concert, lumières dramatiques, foule dans le noir — émotion collective
+    img:         'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?q=88&w=1200&auto=format&fit=crop',
+    imgAlt:      'Performance musicale IA sous les lumières — Concert Suno AI MARSAI',
+    imgPosition: 'center 45%',
   },
 ];
 
@@ -182,7 +206,7 @@ export default function SectionProgramme() {
           className="grid grid-cols-1 md:grid-cols-2"
           style={{ gap: 'clamp(1px, 0.2vw, 2px)' }}
         >
-          {EVENTS.map(({ index, categorie, titre, date, heure, description, lien }) => (
+          {EVENTS.map(({ index, categorie, titre, date, heure, description, lien, img, imgAlt, imgPosition }) => (
             <a
               key={index}
               href={lien}
@@ -190,7 +214,8 @@ export default function SectionProgramme() {
               style={{
                 display:        'block',
                 position:       'relative',
-                padding:        'clamp(2rem, 3.5vw, 3rem)',
+                /* padding retiré du <a> — l'image est pleine largeur en tête
+                   de carte. Le padding vit sur .eventCardContent ci-dessous. */
                 background:     'var(--color-surface)',
                 border:         '1px solid var(--color-border)',
                 overflow:       'hidden',
@@ -204,7 +229,8 @@ export default function SectionProgramme() {
                 e.currentTarget.style.background = 'var(--color-surface)';
               }}
             >
-              {/* Bord gauche accent — révélé au hover via CSS transform */}
+              {/* Bord gauche accent — révélé au hover via CSS transform.
+                  Position absolute sur la <a> entière — couvre l'image et le contenu. */}
               <span
                 aria-hidden="true"
                 style={{
@@ -217,9 +243,60 @@ export default function SectionProgramme() {
                   transform:       'scaleY(0)',
                   transformOrigin: 'bottom center',
                   transition:      'transform 0.25s var(--ease-out)',
+                  zIndex:          10,
                 }}
                 className="card-border-left"
               />
+
+              {/* ── Image de l'événement ─────────────────────────────
+                  Ratio 16/7 — présence visuelle sans dominer le texte.
+                  object-fit:cover + objectPosition fine-tunée par image.
+                  Gradient de fondu bas — l'image se dissout doucement
+                  dans la couleur de fond de la carte, sans coupure.
+                  scale + transition : zoom subtil au hover de la carte.
+                  overflow:hidden sur le wrapper capture ce zoom.       */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position:     'relative',
+                  width:        '100%',
+                  aspectRatio:  '16 / 7',
+                  overflow:     'hidden',
+                }}
+              >
+                <img
+                  src={img}
+                  alt={imgAlt}
+                  style={{
+                    width:          '100%',
+                    height:         '100%',
+                    objectFit:      'cover',
+                    objectPosition: imgPosition,
+                    display:        'block',
+                    transition:     'transform 700ms var(--ease-out)',
+                  }}
+                  className="event-card-img"
+                />
+                {/* Fondu bas — dissout l'image dans la surface de la carte */}
+                <div
+                  style={{
+                    position:   'absolute',
+                    bottom:     0,
+                    left:       0,
+                    right:      0,
+                    height:     '55%',
+                    /* Gradient vers --color-bg-pure (fond absolu) plutôt que --color-surface :
+                       sur hover, la carte passe à --color-surface-high. Pointer le gradient vers
+                       le fond de la page garantit une transition imperceptible quelle que soit
+                       la couleur de la carte. L'image se dissout toujours proprement. */
+                    background: 'linear-gradient(to bottom, transparent 0%, var(--color-bg-pure) 100%)',
+                    pointerEvents: 'none',
+                  }}
+                />
+              </div>
+
+              {/* ── Contenu textuel — padded, sous l'image ──────── */}
+              <div style={{ padding: 'clamp(1.5rem, 2.8vw, 2.5rem)' }}>
 
               {/* En-tête : index + catégorie ─────────────── */}
               <div
@@ -343,6 +420,7 @@ export default function SectionProgramme() {
                 </svg>
               </div>
 
+              </div>{/* fin .eventCardContent */}
             </a>
           ))}
         </div>
@@ -362,6 +440,12 @@ export default function SectionProgramme() {
         }
         .event-card:hover h3 {
           color: var(--color-accent);
+        }
+        /* Zoom subtil sur l'image au hover de la carte.
+           Capturé par overflow:hidden du wrapper image.
+           700ms ease-out — même timing que les autres transitions. */
+        .event-card:hover .event-card-img {
+          transform: scale(1.04);
         }
       `}</style>
 

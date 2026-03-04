@@ -59,7 +59,7 @@ const FILMS = [
     genre:       'Drame / Mémoire',
     mention:     'Sélection Officielle',
     isFeatured:  true,
-    img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=88&w=900&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1518893883800-45cd0a9d3101?q=88&w=900&auto=format&fit=crop',
     alt: 'Mémoire Synthétique — film IA en sélection officielle MARSAI',
   },
   {
@@ -70,7 +70,7 @@ const FILMS = [
     genre:       'Poésie Visuelle',
     mention:     'Mention Spéciale',
     isFeatured:  false,
-    img: 'https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?q=88&w=900&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=88&w=900&auto=format&fit=crop',
     alt: 'Éclat de Rien — poésie visuelle IA MARSAI',
   },
   {
@@ -81,7 +81,7 @@ const FILMS = [
     genre:       'Science-fiction',
     mention:     'Compétition',
     isFeatured:  false,
-    img: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=88&w=900&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=88&w=900&auto=format&fit=crop',
     alt: 'La Dernière Fréquence — science-fiction IA MARSAI',
   },
 ];
@@ -301,6 +301,16 @@ export default function SectionGalerie() {
               </span>
             </div>
           </div>
+
+          {/* Tagline accessible — parle au 22 ans sans exclure le 40+.
+              "Tous horizons" dit clairement : pas besoin d'être pro.
+              Placé dans le header, au même niveau que le titre —
+              lu naturellement après le titre, avant la grille. */}
+          <p className={styles.headerTagline}>
+            Films d'une minute créés avec l'I.A. —
+            par des passionnés de tous horizons.
+          </p>
+
         </div>
 
         {/* ── Grille asymétrique ───────────────────────────────── */}

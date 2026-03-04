@@ -118,8 +118,8 @@ export default function SectionTheme() {
       >
         <img
           ref={imageRef}
-          src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=90&w=2800&auto=format&fit=crop"
-          alt="Terre vue de l'espace — futurs souhaitables"
+          src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=88&w=2400&auto=format&fit=crop"
+          alt="Un cinéaste face à l'horizon — futurs souhaitables"
           style={{
             width:      '100%',
             height:     '100%',

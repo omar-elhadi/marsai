@@ -62,8 +62,8 @@ gsap.registerPlugin(ScrollTrigger);
 // Le dernier reçoit la classe .ctaWordAccent (var(--color-accent)).
 const MOTS = [
   { text: "C'est",  accent: false },
-  { text: 'ton',    accent: false },
-  { text: 'heure.', accent: true  },
+  { text: 'ta',    accent: false },
+  { text: 'minute.', accent: true  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -178,7 +178,7 @@ export default function SectionCTA() {
 
         {/* Sous-titre — poétique, centré, dense */}
         <p ref={subtitleRef} className={styles.ctaSubtitle}>
-          600 cinéastes. Une minute. L'éternité.
+          600 histoires. Une minute. L'éternité.
         </p>
 
         {/* Bloc bouton + deadline — animé ensemble */}
