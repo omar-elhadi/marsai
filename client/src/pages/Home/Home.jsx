@@ -47,9 +47,6 @@ function Home() {
       {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
       <SectionJury />
 
-      {/* ── §8 GALERIE ──────────────────────────────────────────── */}
-      <SectionGalerie />
-
       {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
       <SectionProgramme />
 
