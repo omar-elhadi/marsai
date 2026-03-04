@@ -56,7 +56,7 @@ const JURY = [
     role:   'Directrice Artistique',
     pays:   'Italie',
     bio:    'Pionnière du cinéma génératif européen. Fondatrice du studio Chromatic AI, primée à la Mostra de Venise.',
-    img:    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=85&w=800&auto=format&fit=crop&crop=face',
+    img:    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=88&w=800&auto=format&fit=crop&crop=face',
     alt:    'Portrait de Sofia Spalliero, Directrice Artistique',
   },
   {
@@ -66,7 +66,7 @@ const JURY = [
     role:   'Réalisateur',
     pays:   'Mexique',
     bio:    'Maître de l\'image narrative. 20 ans de recherche sur la convergence entre émotion humaine et algorithme créatif.',
-    img:    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=85&w=800&auto=format&fit=crop&crop=face',
+    img:    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=88&w=800&auto=format&fit=crop&crop=face',
     alt:    'Portrait de Gabriel Del Toro, Réalisateur',
   },
   {
@@ -76,7 +76,7 @@ const JURY = [
     role:   'Compositrice IA',
     pays:   'France',
     bio:    'Compositrice et chercheuse en musique générative. Ses œuvres ont été interprétées dans 30 pays.',
-    img:    'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=85&w=800&auto=format&fit=crop&crop=face',
+    img:    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=88&w=800&auto=format&fit=crop&crop=face',
     alt:    'Portrait d\'Elena-Vanee, Compositrice IA',
   },
   {
@@ -86,7 +86,7 @@ const JURY = [
     role:   'Critique & Théoricien',
     pays:   'Royaume-Uni',
     bio:    'Auteur de "The Algorithm Gaze". Éditorialiste pour Sight & Sound, spécialiste du post-cinéma.',
-    img:    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=85&w=800&auto=format&fit=crop&crop=face',
+    img:    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=88&w=800&auto=format&fit=crop&crop=face',
     alt:    'Portrait de Marc Thorne, Critique et Théoricien',
   },
 ];
