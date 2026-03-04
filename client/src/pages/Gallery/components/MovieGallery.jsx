@@ -7,16 +7,19 @@ import Reveal from '@/components/animations/Reveal';
 gsap.registerPlugin(ScrollTrigger);
 
 // Données de test (Exigez des images haute résolution)
-const movies = [
+export const galleryMovies = [
   { id: 1, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
   { id: 2, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
   { id: 3, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
   { id: 4, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
-  { id: 1, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
-  { id: 2, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
-  { id: 3, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
-  { id: 4, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
+  { id: 5, title: "L'Aube Synthétique", director: "Elena Rostova", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop" },
+  { id: 6, title: "Mémoire Latente", director: "Kaelen & I.A. Core", img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop" },
+  { id: 7, title: "Racines de Silicium", director: "Studio Horizon", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop" },
+  { id: 8, title: "Écho Humain", director: "Collectif 2026", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop" },
 ];
+
+// keep local alias for component
+const movies = galleryMovies;
 
 export default function MovieGallery() {
   const sectionRef = useRef(null);
@@ -61,26 +64,36 @@ export default function MovieGallery() {
 
   }, { scope: sectionRef });
 
-  return (
+return (
     <section ref={sectionRef} className="h-screen w-full bg-stone-900 text-stone-100 overflow-hidden relative">
       
-      {/* Interface utilisateur superposée */}
-      <div className="absolute top-10 left-10 right-10 z-20 flex justify-between items-start pointer-events-none mix-blend-difference">
-        <div>
-          <h2 className="text-2xl md:text-4xl font-light tracking-widest uppercase">Galerie</h2>
-          <p className="text-sm tracking-widest opacity-60 mt-2">FESTIVAL 2026 // VISIONS</p>
-        </div>
-        <div className="text-right">
-          <span className="text-sm font-bold tracking-widest uppercase border border-stone-100/30 rounded-full px-4 py-2 backdrop-blur-sm">
-            Faites défiler
-          </span>
-        </div>
+      {/* LE NOUVEAU TITRE : Architecture Typographique
+        1. top-28 md:top-36 : On esquive l'attraction de la nouvelle Navbar.
+        2. mix-blend-difference : Le texte s'inversera optiquement si une image passe derrière lui.
+        3. z-30 : Il règne en maître sur les images qui défilent.
+      */}
+      <div className="absolute top-28 md:top-36 left-6 md:left-12 z-30 pointer-events-none mix-blend-difference">
+        <Reveal>
+          {/* Typographie fluide : text-5xl (mobile) -> text-[8vw] (desktop) */}
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7vw] font-black uppercase tracking-tighter leading-none text-white drop-shadow-2xl">
+            Sélection<br />Officielle
+          </h1>
+        </Reveal>
+        
+        <Reveal delay={0.2}>
+          <div className="flex items-center gap-4 mt-6">
+            <span className="w-12 h-[2px] bg-amber-500"></span>
+            <span className="text-sm md:text-base font-bold tracking-widest uppercase text-amber-500">
+              Galerie des Œuvres — 2026
+            </span>
+          </div>
+        </Reveal>
       </div>
 
       {/* Le conteneur en mouvement */}
       <div 
         ref={wrapperRef} 
-        className="flex h-full w-max items-center pl-[10vw] pr-[20vw] gap-20"
+        className="flex h-full w-max items-center pl-[10vw] pr-[20vw] gap-12 md:gap-20 pt-20 md:pt-0" 
       >
         {movies.map((movie, index) => (
           <article 

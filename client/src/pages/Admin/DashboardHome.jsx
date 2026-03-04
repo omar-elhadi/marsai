@@ -1,55 +1,100 @@
-import { KPI_STATS } from '../../data/mockData';
-import { Film, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Film, Clock, CheckCircle, XCircle, Loader2, Trophy, Star } from 'lucide-react';
 
 function DashboardHome() {
-  
-  // Petite fonction pour générer une carte de stat
+  const [stats, setStats]     = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res  = await fetch(`${import.meta.env.VITE_API_URL}/films/stats`, {
+          credentials: 'include',
+        });
+        const data = await res.json();
+        setStats(data);
+      } catch {
+        setStats(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Carte de statistique — fond et bordure via CSS variables, icône garde sa couleur Tailwind
   const StatCard = ({ title, count, icon, color }) => (
-    <div className="bg-[#1a1a1a] p-6 rounded-lg border border-white/5 flex items-center gap-4">
-      <div className={`p-3 rounded-full bg-opacity-10 ${color.bg} ${color.text}`}>
+    <div
+      style={{
+        background:    'var(--color-surface)',
+        border:        '1px solid var(--color-border)',
+        borderRadius:  '4px',
+        padding:       '1.5rem',
+        display:       'flex',
+        alignItems:    'center',
+        gap:           '1rem',
+      }}
+    >
+      <div className={`p-3 bg-opacity-10 ${color.bg} ${color.text} shrink-0`}>
         {icon}
       </div>
       <div>
-        <p className="text-white/40 text-xs uppercase font-bold tracking-wider">{title}</p>
-        <p className="text-2xl font-bold text-white">{count}</p>
+        <p className="label-overline" style={{ marginBottom: '0.25rem' }}>{title}</p>
+        <p style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.5rem, 3vw, 2rem)', color: 'var(--color-text)', lineHeight: 1 }}>
+          {loading ? <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-text-muted)' }} /> : (count ?? 0)}
+        </p>
       </div>
     </div>
   );
 
+  // Raccourci vers byStatus (évite les undefined)
+  const by = stats?.byStatus ?? {};
+
   return (
     <div>
-      <h2 className="text-3xl font-bold text-white mb-8">Vue d'ensemble</h2>
-      
-      {/* Grille des statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard 
-          title="Total Films" 
-          count={KPI_STATS.total} 
-          icon={<Film size={24} />} 
-          color={{ bg: 'bg-indigo-500', text: 'text-indigo-400' }}
-        />
-        <StatCard 
-          title="En Attente" 
-          count={KPI_STATS.pending} 
-          icon={<Clock size={24} />} 
-          color={{ bg: 'bg-yellow-500', text: 'text-yellow-400' }}
-        />
-        <StatCard 
-          title="Acceptés" 
-          count={KPI_STATS.approved} 
-          icon={<CheckCircle size={24} />} 
-          color={{ bg: 'bg-green-500', text: 'text-green-400' }}
-        />
-        <StatCard 
-          title="Refusés" 
-          count={KPI_STATS.rejected} 
-          icon={<XCircle size={24} />} 
-          color={{ bg: 'bg-red-500', text: 'text-red-400' }}
-        />
+
+      {/* ── Header éditorial ── */}
+      <header style={{ marginBottom: '2.5rem', paddingBottom: '2rem', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+          <span style={{ width: 'clamp(2rem, 3vw, 3rem)', height: '1px', background: 'var(--color-accent)', flexShrink: 0 }} />
+          <span className="label-overline">Tableau de bord</span>
+        </div>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(1.8rem, 4vw, 3rem)', letterSpacing: '-0.03em', textTransform: 'uppercase', color: 'var(--color-text)', lineHeight: 1 }}>
+          Vue d'ensemble
+        </h1>
+      </header>
+
+      {/* ── Grille des statistiques ── */}
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+        style={{ gap: 'clamp(1rem, 2vw, 1.5rem)', marginBottom: 'clamp(1.5rem, 3vw, 2.5rem)' }}
+      >
+        <StatCard title="Total Films"   count={stats?.total}                                                                                          icon={<Film size={24} />}        color={{ bg: 'bg-indigo-500', text: 'text-indigo-400' }} />
+        <StatCard title="En attente"    count={(by.SUBMITTED ?? 0) + (by.IN_REVIEW ?? 0)}                                                             icon={<Clock size={24} />}       color={{ bg: 'bg-yellow-500', text: 'text-yellow-400' }} />
+        <StatCard title="Acceptés"      count={(by.APPROVED ?? 0) + (by.SELECTION ?? 0) + (by.FINALIST ?? 0) + (by.AWARD ?? 0)}                       icon={<CheckCircle size={24} />} color={{ bg: 'bg-green-500',  text: 'text-green-400' }} />
+        <StatCard title="Refusés"       count={by.REJECTED ?? 0}                                                                                      icon={<XCircle size={24} />}     color={{ bg: 'bg-red-500',    text: 'text-red-400' }} />
+        <StatCard title="Sélectionnés"  count={by.SELECTION ?? 0}                                                                                     icon={<Star size={24} />}        color={{ bg: 'bg-indigo-500', text: 'text-indigo-400' }} />
+        <StatCard title="Finalistes"    count={by.FINALIST ?? 0}                                                                                      icon={<Star size={24} />}        color={{ bg: 'bg-purple-500', text: 'text-purple-400' }} />
+        <StatCard title="Primés"        count={by.AWARD ?? 0}                                                                                         icon={<Trophy size={24} />}      color={{ bg: 'bg-amber-500',  text: 'text-amber-400' }} />
+        <StatCard title="À modifier"    count={by.TO_MODIFY ?? 0}                                                                                     icon={<Clock size={24} />}       color={{ bg: 'bg-orange-500', text: 'text-orange-400' }} />
       </div>
 
-      {/* Section vide pour l'instant (Graphiques ou Derniers ajouts) */}
-      <div className="bg-[#1a1a1a] rounded-lg border border-white/5 p-8 text-center text-white/30 h-64 flex items-center justify-center">
+      {/* ── Zone future (graphiques / activité récente) ── */}
+      <div
+        style={{
+          background:    'var(--color-surface)',
+          border:        '1px solid var(--color-border)',
+          borderRadius:  '4px',
+          padding:       '2rem',
+          textAlign:     'center',
+          color:         'var(--color-text-faint)',
+          height:        '16rem',
+          display:       'flex',
+          alignItems:    'center',
+          justifyContent: 'center',
+          fontSize:      '0.875rem',
+        }}
+      >
         Zone pour les graphiques futurs ou les activités récentes
       </div>
     </div>
