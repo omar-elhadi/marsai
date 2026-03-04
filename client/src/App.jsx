@@ -151,9 +151,9 @@ function AppInner() {
 					<Route path={ROUTES.REGLES_CONDITIONS} element={<ReglesConditions />} />
 					<Route path={ROUTES.NEWS} element={<FestivalNews />} />
 					<Route path={ROUTES.EVENTS} element={<Events />} />
-					<Route path="/edit-film/:token" element={<EditFilmPage />} />
-					<Route path="/suivi" element={<TrackingPage />} />
-					<Route path="/palmares" element={<PalmaresPage />} />
+					<Route path={ROUTES.EDIT_FILM} element={<EditFilmPage />} />
+					<Route path={ROUTES.TRACKING} element={<TrackingPage />} />
+					<Route path={ROUTES.PALMARES} element={<PalmaresPage />} />
 				</Route>
 
 				{/* ZONE JURY SÉCURISÉE */}
