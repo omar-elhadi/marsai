@@ -1,0 +1,368 @@
+/**
+ * SectionRecompenses.module.css — MARSAI Festival
+ * Refactoring Étape 4.4
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * NOTES D'ARCHITECTURE — Kodawari
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * 1. Classes variantes pour isSpecial (Certification MARSAI) :
+ *    .prixCard         → base commune (background: surface)
+ *    .prixCardSpecial  → override (background: transparent)
+ *    .prixValeur       → couleur texte par défaut
+ *    .prixValeurSpecial → couleur text-muted
+ *    Appliquées conditionnellement dans SectionRecompenses.jsx.
+ *
+ * 2. Hover sur les cartes secondaires via :hover descendant :
+ *    .prixCard:hover .prixBorder → scaleY(1)
+ *    .prixCard:hover .prixTitre → color: accent
+ *    Les classes globales .prix-card/.prix-border/.prix-titre
+ *    du <style> tag JSX original sont entièrement absorbées.
+ *
+ * 3. Breakpoint tablette grand-prix-grid :
+ *    La colonne droite (.gpColDroite) perd son border-left
+ *    et récupère un border-top à max-width 900px.
+ *    Géré via class dédiée + override dans media query.
+ *
+ * 4. willChange sur le compteur (.gpCounter) reste en style{{}}
+ *    dans le JSX — propriétés animées par GSAP (opacity + y).
+ *    Voir SectionRecompenses.jsx pour la justification.
+ *
+ * 5. clearProps: 'all' ajouté sur les cartes secondaires (JSX)
+ *    pour libérer le contrôle CSS hover après l'entrée GSAP.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION WRAPPER
+   ───────────────────────────────────────────────────────────── */
+
+.sectionRecompenses {
+  background:  var(--color-bg-pure);
+  border-top:  1px solid var(--color-border);
+  padding:     clamp(5rem, 10vw, 9rem) clamp(1.5rem, 5vw, 6rem);
+}
+
+.container {
+  max-width: 1200px;
+  margin:    0 auto;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   EN-TÊTE
+   ───────────────────────────────────────────────────────────── */
+
+.overlineLine {
+  display:     block;
+  width:       clamp(2rem, 3vw, 3rem);
+  height:      1px;
+  background:  var(--color-accent);
+  flex-shrink: 0;
+}
+
+.titleMargin {
+  margin-bottom: clamp(3.5rem, 7vw, 6rem);
+}
+
+.titleAccent {
+  color: var(--color-accent);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   GRAND PRIX — Layout asymétrique
+   ───────────────────────────────────────────────────────────── */
+
+.grandPrixGrid {
+  display:               grid;
+  grid-template-columns: 5fr 3fr;
+  gap:                   clamp(2rem, 4vw, 5rem);
+  align-items:           start;
+  padding:               clamp(2.5rem, 4vw, 4rem);
+  background:            var(--color-surface);
+  border-radius:         var(--radius-sm);
+  border:                1px solid var(--color-border);
+  margin-bottom:         clamp(3rem, 5vw, 5rem);
+  position:              relative;
+  overflow:              hidden;
+}
+
+@media (max-width: 900px) {
+  .grandPrixGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Numéro d'index décoratif — "Grand Prix — 01" */
+.gpIndexLabel {
+  position:       absolute;
+  top:            clamp(1.5rem, 2.5vw, 2.5rem);
+  right:          clamp(1.5rem, 2.5vw, 2.5rem);
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      clamp(0.55rem, 0.8vw, 0.65rem);
+  letter-spacing: 0.20em;
+  /* Pas de token pour cette opacité fine — intentionnel */
+  color:          rgba(226, 209, 195, 0.25);
+  text-transform: uppercase;
+}
+
+
+/* ── Colonne gauche — chiffre + titre + description ──────────── */
+
+/* min-width: 0 — règle standard de grille CSS.
+   Sans cette déclaration, une colonne de grille ne peut pas
+   être plus petite que son contenu le plus large (le chiffre).
+   Avec elle, la colonne respecte sa piste et le clamp fait
+   le reste pour que le chiffre s'adapte. */
+.gpColGauche {
+  min-width: 0;
+}
+
+/* willChange reste en style={{}} dans le JSX.
+   Le compteur est animé par GSAP (opacity + y).
+   Voir en-tête du fichier pour la justification. */
+.gpCounter {
+  font-family:    var(--font-display);
+  font-weight:    900;
+  /* Plancher abaissé de 4rem → 2.2rem :
+     le chiffre suit le viewport sur petits écrans plutôt
+     que de rester fixe à 64px et déborder du conteneur. */
+  font-size:      clamp(2.2rem, 8vw, 10rem);
+  line-height:    0.9;
+  letter-spacing: -0.04em;
+  color:          var(--color-accent);
+  margin-bottom:  clamp(1.5rem, 2.5vw, 2rem);
+}
+
+.gpTitre {
+  font-family:    var(--font-sans);
+  font-weight:    800;
+  font-size:      clamp(1.2rem, 2.5vw, 1.8rem);
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color:          var(--color-text);
+  margin-bottom:  clamp(0.8rem, 1.5vw, 1.2rem);
+  line-height:    1.15;
+}
+
+.gpDescription {
+  max-width: 52ch;
+}
+
+
+/* ── Colonne droite — conditions ─────────────────────────────── */
+
+.gpColDroite {
+  padding-top:  clamp(0.5rem, 2vw, 1rem);
+  border-left:  1px solid var(--color-border);
+  padding-left: clamp(1.5rem, 3vw, 3rem);
+}
+
+/* Sur tablette : border-left → border-top, padding adapté */
+@media (max-width: 900px) {
+  .gpColDroite {
+    border-left:   none;
+    padding-left:  0;
+    border-top:    1px solid var(--color-border);
+    padding-top:   clamp(1.5rem, 3vw, 2rem);
+  }
+}
+
+.gpConditionsLabel {
+  display:       block;
+  margin-bottom: clamp(1.2rem, 2vw, 1.8rem);
+  opacity:       0.55;
+}
+
+.gpConditionsList {
+  display:        flex;
+  flex-direction: column;
+  gap:            1.2rem;
+  list-style:     none;
+  margin:         0;
+  padding:        0;
+}
+
+.gpConditionItem {
+  display:     flex;
+  align-items: flex-start;
+  gap:         0.9rem;
+}
+
+.gpConditionNum {
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      0.6rem;
+  letter-spacing: 0.18em;
+  color:          var(--color-accent);
+  opacity:        0.7;
+  flex-shrink:    0;
+  padding-top:    0.15em;
+}
+
+
+/* ── Note "vote à l'unanimité" ───────────────────────────────── */
+
+.gpJuryNote {
+  margin-top:  clamp(1.5rem, 3vw, 2.5rem);
+  padding-top: clamp(1rem, 2vw, 1.5rem);
+  border-top:  1px solid var(--color-border);
+}
+
+.gpJuryNoteInner {
+  display:     flex;
+  align-items: center;
+  gap:         0.6rem;
+}
+
+.gpDot {
+  width:        4px;
+  height:       4px;
+  border-radius: 50%;
+  background:   var(--color-accent);
+  flex-shrink:  0;
+}
+
+.gpJuryNoteText {
+  font-family:    var(--font-sans);
+  font-weight:    500;
+  font-size:      0.68rem;
+  letter-spacing: 0.08em;
+  color:          var(--color-text-muted);
+  font-style:     italic;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   SÉPARATEUR entre les deux temps
+   ───────────────────────────────────────────────────────────── */
+
+.separator {
+  display:       flex;
+  align-items:   center;
+  gap:           1.2rem;
+  margin-bottom: clamp(2.5rem, 4vw, 4rem);
+}
+
+.separatorHr {
+  flex:       1;
+  border:     none;
+  border-top: 1px solid var(--color-border);
+}
+
+.separatorLabel {
+  opacity:     0.45;
+  flex-shrink: 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   PRIX SECONDAIRES — Grille 3 colonnes
+   ───────────────────────────────────────────────────────────── */
+
+.prixGrid {
+  display:               grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:                   clamp(1rem, 2vw, 1.5rem);
+}
+
+@media (max-width: 680px) {
+  .prixGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ── Carte prix ──────────────────────────────────────────────── */
+
+.prixCard {
+  padding:        clamp(1.8rem, 3vw, 2.5rem);
+  background:     var(--color-surface);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-sm);
+  display:        flex;
+  flex-direction: column;
+  gap:            0.8rem;
+  position:       relative;
+}
+
+/* Variante : Certification MARSAI — fond transparent */
+.prixCardSpecial {
+  background: transparent;
+}
+
+
+/* ── Bord gauche animé — révélé au hover ────────────────────── */
+
+.prixBorder {
+  position:         absolute;
+  top:              0;
+  left:             0;
+  width:            2px;
+  height:           100%;
+  background:       var(--color-accent);
+  transform:        scaleY(0);
+  transform-origin: bottom center;
+  transition:       transform 0.25s var(--ease-out);
+}
+
+/* Hover : bord gauche se révèle depuis le bas */
+.prixCard:hover .prixBorder {
+  transform: scaleY(1);
+}
+
+
+/* ── Contenu carte ───────────────────────────────────────────── */
+
+.prixIndex {
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      0.6rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color:          var(--color-accent);
+  opacity:        0.8;
+}
+
+.prixValeur {
+  font-family:    var(--font-display);
+  font-weight:    900;
+  font-size:      clamp(1.6rem, 3.5vw, 2.6rem);
+  letter-spacing: -0.03em;
+  line-height:    1;
+  color:          var(--color-text);
+}
+
+/* Variante : Certification MARSAI — valeur en muted */
+.prixValeurSpecial {
+  color: var(--color-text-muted);
+}
+
+.prixTitre {
+  font-family:    var(--font-sans);
+  font-weight:    700;
+  font-size:      clamp(0.9rem, 1.5vw, 1.1rem);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color:          var(--color-text);
+  line-height:    1.2;
+  transition:     color 0.3s var(--ease-out);
+}
+
+/* Hover titre — vire à l'accent sable */
+.prixCard:hover .prixTitre {
+  color: var(--color-accent);
+}
+
+.prixSeparatorHr {
+  border:     none;
+  border-top: 1px solid var(--color-border);
+  margin:     0.2rem 0;
+}
+
+.prixDescription {
+  line-height: 1.65;
+}

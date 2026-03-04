@@ -1,4 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import "./politiquedeconfidentialite.css";
+// Sous-composant pour l'effet d'écriture (Typewriter) identique à Mentions Légales
+const TypewriterHeader = ({ text }) => {
+  const [displayText, setDisplayText] = useState("");
+  
+  useEffect(() => {
+    let i = 0;
+    const typingInterval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayText((prev) => text.substring(0, i + 1));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 80);
+    return () => clearInterval(typingInterval);
+  }, [text]);
+
+  return (
+    <h1 className="text-3xl md:text-5xl font-black mb-12 text-left tracking-tighter uppercase italic min-h-[60px]">
+      {/* ── EFFET TITRE BLANC SABLE DORÉ ── */}
+      <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FAF0E6] via-[#E6D5AC] to-[#D4AF37]">
+        {displayText}
+      </span>
+      <span className="animate-pulse ml-1 inline-block w-2 h-8 md:h-10 bg-[#E6D5AC] shadow-[0_0_15px_#D4AF37]">|</span>
+    </h1>
+  );
+};
 
 function PolitiqueDeConfidentialite() {
   const [openIndex, setOpenIndex] = useState(null);

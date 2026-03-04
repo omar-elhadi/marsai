@@ -132,3 +132,8 @@ dist
 audit-output/
 .pull-journal/
 audit-system/audit-output/
+
+# Configuration Claude Code (privée, jamais committée)
+.claude/
+CLAUDE.md
+audit-result/

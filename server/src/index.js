@@ -7,13 +7,14 @@
 import "dotenv/config"; // Charge les variables d'environnement (.env)
 import express from "express";
 import cors from "cors";
-import fileRoute from "./routes/file.js";
+import cookieParser from "cookie-parser";
 
 // --- IMPORT DES ROUTES ---
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
-// Importez vos futures routes ici :
-// import movieRoutes from "./routes/movie.routes.js";
+import authRoutes  from "./routes/auth.routes.js";
+import userRoutes  from "./routes/user.routes.js";
+import filmRoutes  from "./routes/film.routes.js";
+import juryRoutes  from "./routes/vote.routes.js";
+import awardRoutes from "./routes/award.routes.js";
 
 // --- GARDE-FOU (FAIL-SAFE) ---
 // On vérifie que les variables critiques sont présentes avant de démarrer.
@@ -39,30 +40,20 @@ app.use(
 );
 
 /**
- * Configuration S3 (fichiers uploadés)
- */
-
-app.use("/api/file", fileRoute);
-
-/**
  * Middleware pour parser le JSON
  * Permet de lire le contenu des requêtes (req.body)
  */
 app.use(express.json());
-
-/**
- * Route de test pour vérifier que le serveur peut servir des fichiers statiques
- * Utile pour tester les uploads sans passer par le frontend
- */
-app.get("/test-upload", (req, res) => {
-  res.sendFile("tests/test-upload.html", { root: process.cwd() });
-});
+app.use(cookieParser());
 
 // --- ROUTES DE L'API ---
 
 // Routes d'authentification (Login, Profile, etc.)
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/auth",   authRoutes);
+app.use("/api/users",  userRoutes);
+app.use("/api/films",  filmRoutes);
+app.use("/api/jury",   juryRoutes);
+app.use("/api/awards", awardRoutes);
 
 /**
  * Route de santé (Health Check)

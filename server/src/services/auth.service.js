@@ -21,20 +21,23 @@ export const loginAdmin = async (email, password) => {
   }
 
   // 4. Génération du Token
+  // Payload harmonisé : id (pas sub) pour cohérence avec les middlewares et le frontend
   const token = jwt.sign(
-    { sub: user.id, role: user.role },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "24h" },
   );
 
   // 5. Retour des infos (sans le mot de passe)
+  // firstName + lastName (le modèle User n'a pas de champ name)
   return {
     token,
     user: {
       id: user.id,
       email: user.email,
       role: user.role,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
     },
   };
 };
