@@ -164,11 +164,11 @@ function AppInner() {
 
 				{/* ZONE ADMIN SÉCURISÉE */}
 				<Route element={<ProtectedRoute />}>
-					<Route path="/admin" element={<AdminLayout />}>
+					<Route path={ROUTES.ADMIN} element={<AdminLayout />}>
 						<Route index element={<DashboardHome />} />
-						<Route path="films" element={<FilmsList />} />
-						<Route path="users" element={<AdminDashboard />} />
-						<Route path="awards" element={<div className="text-white">Palmarès (À venir)</div>} />
+						<Route path={ROUTES.ADMIN_FILMS} element={<FilmsList />} />
+						<Route path={ROUTES.ADMIN_USERS} element={<AdminDashboard />} />
+						<Route path={ROUTES.ADMIN_AWARDS} element={<div className="text-white">Palmarès (À venir)</div>} />
 					</Route>
 				</Route>
 
