@@ -6,7 +6,6 @@ const Mention = () => {
   const [headerText, setHeaderText] = useState("");
   const fullText = "Mentions Légales";
 
-  // Effet machine à écrire pour le titre
   useEffect(() => {
     let i = 0;
     const interval = setInterval(() => {
@@ -20,16 +19,15 @@ const Mention = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Animation d'entrée du contenu
   useEffect(() => {
     gsap.fromTo(mainContentRef.current, 
-      { opacity: 0, y: 30 },
+      { opacity: 0, y: 40 },
       { 
         opacity: 1, 
         y: 0, 
         duration: 1.5, 
-        ease: "power4.out",
-        delay: 0.3 
+        ease: "power3.out",
+        delay: 0.4 
       }
     );
   }, []);
@@ -48,58 +46,59 @@ const Mention = () => {
   ];
 
   return (
-    <div className="relative min-h-screen bg-bg-pure text-white overflow-hidden font-sans">
+    <div className="relative min-h-screen bg-black text-white overflow-x-hidden font-sans">
       
       <style>{`
         .heavy-title {
-          font-weight: 900;
-          letter-spacing: -0.04em;
-          line-height: 1;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          line-height: 1.4;
         }
       `}</style>
 
-      {/* IMAGE DE FOND CINÉMA */}
-      <img 
-        src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop" 
-        alt="Arrière-plan salle de cinéma" 
-        className="absolute inset-0 w-full h-full object-cover opacity-60 z-0"
-      />
+      {/* IMAGE DE FOND */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop" 
+          alt="Background" 
+          className="w-full h-full object-cover opacity-15"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+      </div>
 
-      {/* Overlay gradient radial */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_40%,rgba(20,20,25,0.1)_0%,rgba(5,5,8,0.8)_100%)] z-1" />
-
-      <main className="relative z-10 max-w-6xl mx-auto px-8 pb-32">
+      <main className="relative z-10 max-w-6xl mx-auto px-8 flex flex-col items-center">
         
-        <div ref={mainContentRef}>
-          {/* HEADER : Aligné à gauche avec items-start */}
-          <header className="pt-[28vh] mb-28 flex flex-col items-start text-left">
-            <div className="overflow-hidden mb-5">
-              <span className="inline-block text-[9px] font-black tracking-[0.5em] text-orange-400 uppercase opacity-70">
-                Mars AI • Protocol Juridique
+        <div ref={mainContentRef} className="w-full flex flex-col items-center">
+          
+          {/* HEADER : Poussé très bas pour éviter la navbar fixe */}
+          <header className="mt-[60vh] mb-64 flex flex-col items-center text-center">
+            <div className="overflow-hidden mb-6">
+              <span className="inline-block text-[10px] font-black tracking-[0.7em] text-orange-500/60 uppercase">
+                Protocol Juridique // Mars AI
               </span>
             </div>
             
-            <h1 className="heavy-title text-4xl md:text-[70px] lowercase italic">
-              {headerText}<span className="text-orange-400">.</span>
+            <h1 className="heavy-title text-4xl md:text-5xl lowercase italic text-white/90">
+              {headerText}<span className="text-orange-500">.</span>
             </h1>
             
-            <div className="h-[1px] w-16 bg-orange-400/20 mt-12" />
+            <div className="h-[1px] w-16 bg-orange-500/20 mt-12" />
           </header>
 
-          {/* GRILLE DE CONTENU */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-16">
+          {/* GRILLE : Très aérée */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-32 gap-y-40 w-full mb-80">
             {sections.map((item, index) => (
-              <section key={index} className="flex flex-col gap-4 group border-l border-white/5 pl-7 hover:border-orange-400/30 transition-all duration-500 rounded">
-                <h2 className="text-[9px] font-black text-white/30 uppercase tracking-[0.4em] group-hover:text-orange-400/60 transition-colors">
+              <section key={index} className="flex flex-col items-center text-center gap-5 group">
+                <h2 className="text-[10px] font-bold text-white/20 uppercase tracking-[0.5em] group-hover:text-orange-500/50 transition-colors">
                   {item.title}
                 </h2>
                 
                 {item.isLink ? (
-                  <a href={`mailto:${item.content}`} className="text-lg font-bold tracking-tight hover:text-orange-400 transition-all italic decoration-white/5 underline-offset-4">
+                  <a href={`mailto:${item.content}`} className="text-lg font-light tracking-wide text-white/70 hover:text-orange-500 transition-all italic underline decoration-white/5 underline-offset-8">
                     {item.content}
                   </a>
                 ) : (
-                  <p className="text-lg font-medium tracking-tight text-white/80 group-hover:text-white transition-colors italic leading-relaxed">
+                  <p className="text-lg font-light tracking-wide text-white/50 group-hover:text-white/90 transition-colors italic leading-relaxed max-w-sm">
                     {item.content}
                   </p>
                 )}
@@ -108,23 +107,14 @@ const Mention = () => {
           </div>
 
           {/* FOOTER */}
-          <footer className="mt-52 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-10 opacity-50">
-            <div className="max-w-md">
-              <p className="text-[9px] uppercase tracking-widest font-black mb-3 text-orange-400">Responsabilité & Juridiction</p>
-              <p className="text-xs leading-relaxed italic text-slate-400">
-                Cette plateforme est opérée par les protocoles Mars AI. 
-                Toute réclamation doit être adressée au Terminal Marseille 01.
-              </p>
-            </div>
-            <div className="text-[10px] font-black tracking-[0.4em] uppercase text-white/40">
-              Marseille // Terminal 01
-            </div>
+          <footer className="pb-32 pt-16 border-t border-white/5 opacity-20 w-full text-center">
+            <p className="text-[9px] uppercase tracking-[0.5em]">Marseille // Terminal 01</p>
           </footer>
         </div>
       </main>
 
-      {/* Effet de vignettage cinéma */}
-      <div className="fixed inset-0 pointer-events-none shadow-[inset_0_0_20vw_rgba(0,0,0,1)] z-30" />
+      {/* Vignettage pour focus central */}
+      <div className="fixed inset-0 pointer-events-none shadow-[inset_0_0_60vw_rgba(0,0,0,1)] z-30" />
     </div>
   );
 };
