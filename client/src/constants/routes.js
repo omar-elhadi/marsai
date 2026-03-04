@@ -59,6 +59,7 @@ export const ROUTES = {
   // ── Jury ─────────────────────────────────────────────────────
   VOTES_JURY:                '/VotesJury',
   JURY_DASHBOARD:            '/jury/dashboard',
+  JURY_FILM_DETAIL:          '/jury/film/:id',
 
   // ── Admin — chemins RELATIFS (imbriqués sous /admin) ─────────
   ADMIN:                     '/admin',

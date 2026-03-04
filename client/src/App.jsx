@@ -158,8 +158,8 @@ function AppInner() {
 
 				{/* ZONE JURY SÉCURISÉE */}
 				<Route element={<ProtectedRoute requiredRole="JURY" />}>
-					<Route path="/jury/dashboard" element={<JuryDashboard />} />
-					<Route path="/jury/film/:id" element={<JuryFilmDetail />} />
+					<Route path={ROUTES.JURY_DASHBOARD} element={<JuryDashboard />} />
+					<Route path={ROUTES.JURY_FILM_DETAIL} element={<JuryFilmDetail />} />
 				</Route>
 
 				{/* ZONE ADMIN SÉCURISÉE */}
