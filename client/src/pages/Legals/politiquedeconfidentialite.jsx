@@ -58,7 +58,7 @@ function PolitiqueDeConfidentialite() {
         <img 
           src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop" 
           alt="Cinema Background" 
-          className="w-full h-full object-cover opacity-30"
+          className="w-full h-full object-cover opacity-50"
         />
         <div className="absolute inset-0 bg-black/40" />
       </div>
@@ -95,7 +95,7 @@ function PolitiqueDeConfidentialite() {
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex flex-col items-center p-10 md:p-14 text-center"
+                className="w-full flex justify-between items-center p-8 md:p-10 text-left"
               >
                 <div>
                   <span className={`text-[10px] font-bold tracking-[0.3em] mb-1 block ${openIndex === index ? "text-[#E6D5AC]" : "text-gray-600"}`}>
@@ -112,7 +112,7 @@ function PolitiqueDeConfidentialite() {
 
               <div 
                 className={`transition-all duration-1000 ease-in-out ${
-                  openIndex === index ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+                  openIndex === index ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
                 }`}
               >
                 <div className="px-6 pb-6 pt-2 text-gray-300 border-t border-white/5 mt-2 font-sans italic leading-relaxed">
@@ -122,7 +122,6 @@ function PolitiqueDeConfidentialite() {
                     <span className="text-[9px] text-[#E6D5AC] font-black tracking-widest uppercase">
                       {section.law}
                     </span>
-                    <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-[#D4AF37]"></div>
                   </div>
                 </div>
               </div>
