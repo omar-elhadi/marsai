@@ -20,7 +20,6 @@ import Newsletters from '@/pages/Newsletters.jsx';
 import Gallery from '@/pages/Gallery/Gallery.jsx';
 import Contact from '@/pages/Contact/Contact.jsx';
 import Mention from '@/pages/Legals/Mention.jsx';
-import VotesJury from '@/pages/Jury/VotesJury.jsx';
 import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
 import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
@@ -139,11 +138,9 @@ function AppInner() {
 					<Route path={ROUTES.LOGIN} element={<LoginAdmin />} />
 					<Route path={ROUTES.CONTACT} element={<Contact />} />
 					<Route path={ROUTES.MENTION} element={<Mention />} />
-					<Route path={ROUTES.VOTES_JURY} element={<VotesJury />} />
 					<Route path={ROUTES.COOKIES} element={<Cookies />} />
 					<Route path={ROUTES.POLITIQUE_CONFIDENTIALITE} element={<PolitiqueDeConfidentialite />} />
 					<Route path={ROUTES.CONDITIONS_UTILISATIONS} element={<ConditionsUtilisations />} />
-					<Route path={ROUTES.FILM_DETAIL} element={<MovieDetails />} />
 					<Route path={ROUTES.FAQ} element={<FAQ />} />
 					<Route path={ROUTES.CALENDRIER} element={<Calendrier />} />
 					<Route path={ROUTES.LOGIN_VERIFY} element={<VerifyToken />} />
