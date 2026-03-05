@@ -25,6 +25,7 @@ import conferencesImg from '@/assets/conferences-ia.png';
 import awardsImg      from '@/assets/remises-prix-ia.png';
 
 import CategorySection from './components/CategorySection';
+import ReservationModal from './components/ReservationModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -87,6 +88,15 @@ export default function FestivalEvents() {
 
   const [started,      setStarted]      = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
+  const [modalState, setModalState] = useState({ isOpen: false, event: null, categoryTitle: '' });
+
+  const handleReservation = (event, categoryTitle) => {
+    setModalState({ isOpen: true, event, categoryTitle });
+  };
+
+  const handleCloseModal = () => {
+    setModalState({ isOpen: false, event: null, categoryTitle: '' });
+  };
 
   const flatEvents = useMemo(
     () => EVENT_CATEGORIES.flatMap(c => c.items), []
@@ -288,10 +298,19 @@ export default function FestivalEvents() {
                 category={category}
                 startIndex={categoryStartIndex[category.key]}
                 visibleCount={visibleCount}
+                onReservation={handleReservation}
               />
             ))}
           </div>
         </div>
+
+        {/* Modal de réservation */}
+        <ReservationModal
+          isOpen={modalState.isOpen}
+          onClose={handleCloseModal}
+          event={modalState.event}
+          categoryTitle={modalState.categoryTitle}
+        />
 
       </div>
     </section>

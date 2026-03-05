@@ -4,7 +4,7 @@
  */
 import EventActionButton from './EventActionButton';
 
-export default function EventCard({ event, isVisible }) {
+export default function EventCard({ event, isVisible, onReservation }) {
   return (
     <li
       className={[
@@ -61,7 +61,7 @@ export default function EventCard({ event, isVisible }) {
 
         {/* Bouton à l'extérieur */}
         <div className="shrink-0">
-          <EventActionButton>Réserver</EventActionButton>
+          <EventActionButton onClick={onReservation}>Réserver</EventActionButton>
         </div>
       </div>
     </li>
