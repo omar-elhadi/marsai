@@ -1,123 +1,174 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const FaqItem = ({ question, answer }) => {
-  const [isOpen, setIsOpen] = useState(false);
+gsap.registerPlugin(ScrollTrigger);
 
-  return (
-    <div className="border-b border-white/10 group">
-      <button
-        className="w-full flex justify-between items-center py-8 text-left transition-all"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <h3 className={`text-xl md:text-2xl font-medium tracking-tight transition-colors duration-300 ${isOpen ? 'text-[#E6D5AC]' : 'text-white/90 group-hover:text-white'}`}>
-          {question}
-        </h3>
-        <span
-          className={`ml-6 transform transition-transform duration-500 ${
-            isOpen ? 'rotate-180 text-[#D4AF37]' : 'rotate-0 text-white/40'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-          </svg>
-        </span>
-      </button>
+const CSS = `
+  .faq-section {
+    background: #000;
+    min-height: 100vh;
+    padding: clamp(6rem,12vw,10rem) clamp(1.5rem,5vw,6rem);
+    padding-top: clamp(4rem,6vw,5rem);
+    color: #fff;
+  }
+  .faq-inner { max-width: 820px; margin: 0 auto; }
+  .faq-header { margin-bottom: clamp(4rem,8vw,7rem); }
+  .faq-overline { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
+  .faq-overline-bar { display: block; width: clamp(2rem,3vw,3rem); height: 1px; background: #decba4; flex-shrink: 0; }
+  .faq-titles { margin-bottom: 1.5rem; }
+  .faq-title-line { overflow: hidden; line-height: 1.1; }
+  .faq-title-line span { display: block; padding-bottom: 0.06em; text-transform: uppercase; font-weight: 900; font-size: clamp(2.5rem, 5vw, 4rem); }
+  .faq-title-accent { color: #decba4; font-family: serif; font-weight: 300 !important; letter-spacing: 0.1em; }
 
-      <div
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <p className="pb-8 text-lg text-white/60 leading-relaxed font-light italic border-l border-[#D4AF37]/30 pl-6 ml-1">
-          {answer}
-        </p>
-      </div>
-    </div>
-  );
-};
+  .faq-timeline { position: relative; padding-left: clamp(2.5rem,4vw,3.5rem); }
+  .faq-track { position: absolute; left: 1.5rem; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.1); }
+  .faq-progress-wrap { position: absolute; left: 1.5rem; top: 0; width: 1px; height: 100%; overflow: hidden; }
+  .faq-progress { width: 1px; height: 0%; background: linear-gradient(to bottom, #decba4 0%, rgba(222,203,164,0.4) 65%, transparent 100%); }
+  .faq-dot { position: absolute; left: calc(1.5rem - 6px); top: -6px; width: 13px; height: 13px; border-radius: 50%; background: #decba4; box-shadow: 0 0 15px #decba4; z-index: 4; }
 
-const FAQ = () => {
-  const currentYear = 2026;
+  .faq-row { opacity: 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .faq-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 2rem 0; background: none; border: none; cursor: pointer; text-align: left; gap: 1.5rem; }
+  .faq-num { font-family: serif; italic; font-size: 0.9rem; color: #decba4; opacity: 0.5; flex-shrink: 0; }
+  .faq-question { font-size: clamp(1.1rem, 1.8vw, 1.4rem); color: #ececec; transition: color 0.3s; font-weight: 300; }
+  .faq-question.is-open { color: #decba4; }
+  .faq-toggle { color: #decba4; font-size: 1.5rem; transition: transform 0.4s; font-weight: 200; }
+  .faq-toggle.is-open { transform: rotate(45deg); }
+  
+  .faq-body { height: 0; opacity: 0; overflow: hidden; }
+  .faq-content { padding-bottom: 2.5rem; padding-left: 2.5rem; max-width: 650px; }
+  .faq-text { font-size: 1rem; color: #a0a0a0; line-height: 1.8; font-family: sans-serif; font-weight: 300; }
+`;
 
-  const faqData = [
-    {
-      question: "Comment puis-je soumettre mon film ?",
-      answer: "Les soumissions sont ouvertes via notre plateforme dédiée. Vous trouverez un lien 'SOUMETTRE' dans le menu principal qui vous guidera tout au long du processus."
-    },
-    {
-      question: "Quels sont les critères de sélection ?",
-      answer: "Nous recherchons des œuvres narratives qui explorent l'utilisation créative et éthique de l'IA générative dans leur processus de production."
-    },
-    {
-      question: "Le festival est-il ouvert au public ?",
-      answer: "Certaines projections et conférences seront ouvertes au public sur billetterie. Les détails seront annoncés prochainement."
+const QUESTIONS = [
+  { id: 'q1', title: "Qu’est-ce que le Festival Mars AI ?", content: "Le Festival Mars AI est un événement annuel dédié à l’intelligence artificielle et ses applications dans l’art, la musique, la robotique et la technologie." },
+  { id: 'q2', title: "Quand et où a lieu le festival ?", content: "Le festival se déroule chaque année au mois de mars au Parc des Expositions de Marseille. Les dates exactes sont annoncées sur le site officiel." },
+  { id: 'q3', title: "Comment acheter des billets ?", content: "Les billets sont disponibles en ligne via notre billetterie sécurisée. Différents pass (journée, week-end, full access) sont proposés." },
+  { id: 'q4', title: "Qui peut participer ?", content: "L'événement est ouvert à tous : professionnels, étudiants, familles et curieux. Certaines zones sont spécifiquement adaptées au jeune public." },
+  { id: 'q5', title: "Types d’activités proposés ?", content: "Conférences d'experts, ateliers de code/IA, expositions d'art génératif et performances live de robots musiciens." },
+  { id: 'q6', title: "Restauration sur place ?", content: "Un espace 'Food & Tech' avec des food trucks locaux et des options végétariennes est disponible durant toute la durée de l'événement." },
+  { id: 'q7', title: "Accessibilité PMR ?", content: "Le site est entièrement accessible aux personnes à mobilité réduite. Des fauteuils sont disponibles sur demande à l'accueil." },
+];
+
+function FAQItem({ item, index, isVisible, isOpen, onToggle }) {
+  const rowRef = useRef(null);
+  const bodyRef = useRef(null);
+
+  useGSAP(() => {
+    if (isVisible) {
+      gsap.to(rowRef.current, { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out', delay: index * 0.1 });
     }
-  ];
+  }, [isVisible]);
+
+  useGSAP(() => {
+    if (isOpen) {
+      gsap.to(bodyRef.current, { height: 'auto', opacity: 1, duration: 0.4, ease: 'power2.out' });
+    } else {
+      gsap.to(bodyRef.current, { height: 0, opacity: 0, duration: 0.3, ease: 'power2.in' });
+    }
+  }, [isOpen]);
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden">
-      
-      {/* ── BACKGROUND AVEC IMAGE ET OVERLAY ── */}
-      <div className="fixed inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2000&auto=format&fit=crop" 
-          alt="Cinema Background" 
-          className="w-full h-full object-cover opacity-40"
-        />
-        {/* Gradient radial pour l'effet de profondeur cinéma */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,rgba(5,5,5,1)_90%)]" />
+    <div ref={rowRef} className="faq-row" style={{ transform: 'translateX(20px)' }}>
+      <button onClick={onToggle} className="faq-btn">
+        <div className="flex items-baseline gap-4">
+          <span className="faq-num">{String(index + 1).padStart(2, '0')}</span>
+          <span className={`faq-question ${isOpen ? 'is-open' : ''}`}>{item.title}</span>
+        </div>
+        <span className={`faq-toggle ${isOpen ? 'is-open' : ''}`}>{isOpen ? '✕' : '＋'}</span>
+      </button>
+      <div ref={bodyRef} className="faq-body">
+        <div className="faq-content">
+          <p className="faq-text italic">{item.content}</p>
+        </div>
       </div>
-
-      {/* ── CONTENU PRINCIPAL ── */}
-      <main className="relative z-10 max-w-[1400px] mx-auto px-6 pt-[20vh] pb-40">
-        
-        {/* Petit label en haut */}
-        <div className="mb-8 flex items-center gap-4">
-          <div className="h-[1px] w-12 bg-[#D4AF37]/50"></div>
-          <p className="text-[10px] uppercase tracking-[0.5em] text-[#E6D5AC] opacity-70">
-            Protocol Assistance // FAQ
-          </p>
-        </div>
-
-        {/* TITRE GÉANT MARSAI STYLE (Blanc Sable Doré) */}
-        <h1 className="text-[15vw] md:text-[200px] font-black leading-none tracking-tighter mb-24 select-none italic uppercase">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FAF0E6] via-[#E6D5AC] to-[#D4AF37] drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
-            MARSAI
-          </span>
-          <span className="text-[#D4AF37] animate-pulse">.</span>
-        </h1>
-
-        {/* SECTION DES QUESTIONS (Centrée ou décalée) */}
-        <div className="w-full max-w-4xl ml-auto md:mr-20">
-          <div className="mb-12">
-            <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-white/40 mb-2">Questions Fréquentes</h2>
-            <div className="h-1 w-20 bg-[#D4AF37]"></div>
-          </div>
-          
-          <div className="space-y-2">
-            {faqData.map((item, index) => (
-              <FaqItem key={index} question={item.question} answer={item.answer} />
-            ))}
-          </div>
-        </div>
-      </main>
-
-      {/* ── FOOTER STYLE GÉNÉRIQUE ── */}
-      <footer className="relative z-10 w-full px-10 py-16 mt-20 border-t border-white/5 bg-black/20 backdrop-blur-md">
-        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-white/40 text-[10px] tracking-[0.4em] uppercase">
-          <div className="flex items-center gap-6 font-bold">
-            <span className="text-[#D4AF37]">Marseille</span>
-            <span className="w-2 h-2 rounded-full bg-white/10"></span>
-            <span>Station 01 — {currentYear}</span>
-          </div>
-          <p className="text-center">© {currentYear} Marsai. L'apogée du cinéma génératif.</p>
-        </div>
-      </footer>
-
-      {/* Effet de vignettage cinéma final */}
-      <div className="fixed inset-0 pointer-events-none shadow-[inset_0_0_15vw_rgba(0,0,0,1)] z-20" />
     </div>
   );
-};
+}
 
-export default FAQ;
+export default function FAQ() {
+  const sectionRef = useRef(null);
+  const headerRef = useRef(null);
+  const timelineRef = useRef(null);
+  const progressRef = useRef(null);
+  const dotRef = useRef(null);
+  
+  const [openId, setOpenId] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useGSAP(() => {
+    // Animation du Header (Titre)
+    ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: 'top 80%',
+      onEnter: () => setIsVisible(true)
+    });
+
+    // Animation de la barre de progression au scroll
+    gsap.to(progressRef.current, {
+      height: '100%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: timelineRef.current,
+        start: 'top center',
+        end: 'bottom center',
+        scrub: 0.5,
+      }
+    });
+
+    gsap.to(dotRef.current, {
+      top: 'calc(100% - 6px)',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: timelineRef.current,
+        start: 'top center',
+        end: 'bottom center',
+        scrub: 0.5,
+      }
+    });
+  }, { scope: sectionRef });
+
+  return (
+    <>
+      <style>{CSS}</style>
+      <section ref={sectionRef} className="faq-section">
+        <div className="faq-inner">
+          
+          <header className="faq-header">
+            <div className="faq-overline">
+              <span className="faq-overline-bar" />
+              <span className="text-[#decba4] text-xs tracking-[0.3em] uppercase">Assistance & Infos</span>
+            </div>
+            <div className="faq-titles">
+              <div className="faq-title-line"><span>Questions</span></div>
+              <div className="faq-title-line"><span className="faq-title-accent">Fréquentes</span></div>
+            </div>
+          </header>
+
+          <div ref={timelineRef} className="faq-timeline">
+            <div className="faq-track" />
+            <div className="faq-progress-wrap">
+              <div ref={progressRef} className="faq-progress" />
+            </div>
+            <div ref={dotRef} className="faq-dot" />
+
+            <div className="faq-list">
+              {QUESTIONS.map((item, index) => (
+                <FAQItem
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  isVisible={isVisible}
+                  isOpen={openId === item.id}
+                  onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </>
+  );
+}
