@@ -63,7 +63,6 @@ const NAV_COLUMNS = [
     title: 'Ressources',
     links: [
       { label: 'FAQ',         to: '/faq'      },
-      { label: 'Actualités',  to: '/news'     },
       { label: 'Contact',     to: ROUTES.CONTACT },
     ],
   },
