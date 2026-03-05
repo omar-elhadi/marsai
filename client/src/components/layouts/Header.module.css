@@ -1,0 +1,516 @@
+/**
+ * Header.module.css — MARSAI Festival
+ * Navigation cinématographique — Phase 7
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * SÉPARATION DES RESPONSABILITÉS
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Ce fichier : tous les styles statiques + états CSS purs.
+ *
+ * Ce qui ne vit PAS ici (dans Header.jsx) :
+ *   isScrolled → classe conditionnelle .headerScrolled
+ *   isOpen     → classes conditionnelles .*Open / .*Visible
+ *   isActive   → attribut data-active="true" + sélecteur CSS
+ *   --stagger  → CSS custom property posée en style={{}} minimal
+ *                (délai calculé `80 + i * 70`ms — seule valeur
+ *                 vraiment computed, non extractible en classe)
+ *
+ * onMouseEnter / onMouseLeave → supprimés, remplacés par :hover.
+ * <style> tag globale → supprimée, intégrée ici avec @media.
+ * !important → supprimés, scoping CSS Module suffit.
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * TOKENS — Variables.css
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Tous les var(--*) référencent Variables.css.
+ * Exceptions documentées : rgba() fines sans token équivalent
+ * (boxShadow lumineux Soumettre, fond header scrollé).
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   HEADER ROOT
+   ───────────────────────────────────────────────────────────── */
+
+/* Propriétés statiques — position, z-index, transition.
+   background, backdropFilter, borderBottom sont dynamiques
+   (isScrolled) → gérés par .headerScrolled ci-dessous. */
+.header {
+  position:   fixed;
+  top:        0;
+  left:       0;
+  width:      100%;
+  z-index:    100;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background      400ms var(--ease-out),
+    border-color    400ms var(--ease-out),
+    backdrop-filter 400ms var(--ease-out);
+}
+
+/* État scrollé — fond foncé + blur + filet */
+.headerScrolled {
+  /* rgba sans token — opacité fine liée au scroll, pas de variable */
+  background:              rgba(0, 0, 0, 0.92);
+  backdrop-filter:         blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom-color:     var(--color-border);
+}
+
+/* Barre intérieure — flex centré */
+.headerInner {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         0 clamp(1.5rem, 5vw, 6rem);
+  height:          clamp(3.5rem, 5vw, 4.5rem);
+  max-width:       1440px;
+  margin:          0 auto;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   LOGO
+   ───────────────────────────────────────────────────────────── */
+
+/* Wrapper — z-index élevé pour passer au-dessus du panel mobile */
+.logoWrapper {
+  position: relative;
+  z-index:  110;
+}
+
+/* Lien logo — typographie display, transition couleur */
+.logo {
+  font-family:     var(--font-display);
+  font-weight:     900;
+  font-size:       clamp(1.1rem, 2vw, 1.35rem);
+  letter-spacing:  -0.04em;
+  text-transform:  uppercase;
+  color:           var(--color-text);
+  text-decoration: none;
+  transition:      color 300ms var(--ease-out);
+}
+
+/* CSS hover — remplace onMouseEnter/onMouseLeave du JSX original */
+.logo:hover {
+  color: var(--color-accent);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   NAVIGATION DESKTOP
+   ───────────────────────────────────────────────────────────── */
+
+/* Cachée par défaut — révélée par @media 768px ci-dessous.
+   display:none ici, display:flex dans la media query. */
+.navDesktop {
+  display:     none;
+  align-items: center;
+  gap:         clamp(1.5rem, 2.5vw, 2.8rem);
+}
+
+/* Séparateur vertical entre liens et bouton Soumettre */
+.navSeparator {
+  display:    block;
+  width:      1px;
+  height:     16px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   LIENS DESKTOP
+   ───────────────────────────────────────────────────────────── */
+
+/* Lien nav desktop — typographie + transition couleur.
+   État inactif par défaut. */
+.navLinkDesktop {
+  position:        relative;
+  display:         inline-flex;
+  flex-direction:  column;
+  gap:             3px;
+  font-family:     var(--font-sans);
+  font-weight:     700;
+  font-size:       clamp(0.62rem, 0.85vw, 0.72rem);
+  letter-spacing:  0.18em;
+  text-transform:  uppercase;
+  color:           var(--color-text-muted);
+  text-decoration: none;
+  transition:      color 150ms var(--ease-out);
+  padding:         0.25rem 0;
+}
+
+/* Hover — lien actif visuellement.
+   Remplace onMouseEnter du JSX original. */
+.navLinkDesktop:hover {
+  color: var(--color-text);
+}
+
+/* État actif — même couleur que hover, persistant.
+   Remplace `color: isActive ? var(--color-text) : ...` inline.
+   data-active="true" posé depuis le JSX. */
+.navLinkDesktop[data-active='true'] {
+  color: var(--color-text);
+}
+
+/* Filet souligné — scaleX 0 par défaut */
+.navUnderline {
+  display:          block;
+  height:           1px;
+  width:            100%;
+  background:       var(--color-accent);
+  transform:        scaleX(0);
+  transform-origin: left center;
+  transition:       transform 280ms var(--ease-out);
+}
+
+/* Hover — révèle le filet.
+   Remplace querySelector('.nav-underline').style.transform inline. */
+.navLinkDesktop:hover .navUnderline {
+  transform: scaleX(1);
+}
+
+/* Actif — filet toujours visible.
+   onMouseLeave avait `if (!isActive)` pour le préserver — CSS
+   le gère naturellement : [data-active='true'] a même spécificité
+   que :hover, l'ordre de déclaration garantit la persistance. */
+.navLinkDesktop[data-active='true'] .navUnderline {
+  transform: scaleX(1);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   BOUTON BURGER
+   ───────────────────────────────────────────────────────────── */
+
+/* Structure — flex column, aligné à droite.
+   z-index 110 — passe au-dessus du panel mobile (z-index 105). */
+.burger {
+  position:        relative;
+  z-index:         110;
+  width:           2.5rem;
+  height:          2.5rem;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     flex-end;
+  justify-content: center;
+  gap:             6px;
+  background:      transparent;
+  border:          none;
+  cursor:          pointer;
+  padding:         0;
+}
+
+/* Base commune aux 3 traits du burger */
+.burgerLine {
+  display:       block;
+  height:        2px;
+  background:    var(--color-text);
+  border-radius: 1px;
+}
+
+/* ── Trait 1 — se transforme en barre diagonale gauche ──── */
+.burgerLine1 {
+  width:            2rem;      /* état fermé */
+  transform:        none;
+  transform-origin: right center;
+  transition:
+    transform 320ms var(--ease-out),
+    width     320ms var(--ease-out),
+    opacity   320ms;
+}
+
+.burgerLine1Open {
+  width:     1.5rem;
+  transform: rotate(-45deg) translateY(-1px);
+}
+
+/* ── Trait 2 — disparaît quand ouvert ───────────────────── */
+.burgerLine2 {
+  width:   1.5rem;  /* état fermé */
+  opacity: 1;
+  transition:
+    width   320ms var(--ease-out),
+    opacity 200ms;
+}
+
+.burgerLine2Open {
+  width:   0;
+  opacity: 0;
+}
+
+/* ── Trait 3 — se transforme en barre diagonale droite ──── */
+.burgerLine3 {
+  width:            1rem;      /* état fermé */
+  transform:        none;
+  transform-origin: right center;
+  transition:
+    transform 320ms var(--ease-out),
+    width     320ms var(--ease-out);
+}
+
+.burgerLine3Open {
+  width:     1.5rem;
+  transform: rotate(45deg) translateY(1px);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   PANEL MOBILE
+   ───────────────────────────────────────────────────────────── */
+
+/* Position fixe plein écran — clipPath anime l'ouverture.
+   clipPath + pointerEvents sont dynamiques (isOpen)
+   → gérés par .mobilePanelOpen ci-dessous. */
+.mobilePanel {
+  position:        fixed;
+  inset:           0;
+  z-index:         105;
+  background:      var(--color-bg-pure);
+  display:         flex;
+  flex-direction:  column;
+  justify-content: center;
+  padding:         clamp(2rem, 8vw, 5rem) clamp(1.5rem, 6vw, 4rem);
+  /* État fermé par défaut */
+  clip-path:       inset(0% 0% 100% 0%);
+  pointer-events:  none;
+  transition:      clip-path 550ms var(--ease-out);
+}
+
+/* État ouvert — panel visible et interactif */
+.mobilePanelOpen {
+  clip-path:      inset(0% 0% 0% 0%);
+  pointer-events: auto;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   TRAIT DÉCORATIF — haut gauche du panel
+   ───────────────────────────────────────────────────────────── */
+
+/* Largeur 0 par défaut — s'étend à l'ouverture (.panelTraitOpen).
+   Délai 200ms — apparaît après le panel. */
+.panelTrait {
+  position:   absolute;
+  top:        clamp(1.8rem, 4vw, 3rem);
+  left:       clamp(1.5rem, 6vw, 4rem);
+  height:     1px;
+  background: var(--color-accent);
+  width:      0;
+  transition: width 600ms 200ms var(--ease-out);
+}
+
+.panelTraitOpen {
+  width: clamp(2rem, 4vw, 3rem);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   BOUTON FERMER — haut droite du panel
+   ───────────────────────────────────────────────────────────── */
+
+/* Miroir symétrique du trait décoratif.
+   État fermé : invisible, légèrement décalé vers le haut.
+   État ouvert (.closeBtnOpen) : visible, position nominale.
+   Délai 150ms — apparaît juste après le panel, avant les liens. */
+.closeBtn {
+  position:        absolute;
+  top:             clamp(1.2rem, 3.2vw, 2.2rem);
+  right:           clamp(1.5rem, 6vw, 4rem);
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.5rem;
+  background:      transparent;
+  border:          none;
+  cursor:          pointer;
+  padding:         0.4rem 0;
+  opacity:         0;
+  transform:       translateY(-10px);
+  pointer-events:  none;
+  transition:
+    opacity   380ms 150ms var(--ease-out),
+    transform 380ms 150ms var(--ease-out);
+}
+
+.closeBtnOpen {
+  opacity:        1;
+  transform:      translateY(0);
+  pointer-events: auto;
+}
+
+/* Label "Fermer" — typographie overline */
+.closeLabel {
+  font-family:    var(--font-sans);
+  font-weight:    600;
+  font-size:      0.58rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+  transition:     color 200ms var(--ease-out);
+  user-select:    none;
+}
+
+/* Icône × SVG */
+.closeIcon {
+  display:     flex;
+  align-items: center;
+  color:       var(--color-text-muted);
+  transition:  color 200ms var(--ease-out);
+}
+
+/* Hover — remplace onMouseEnter/Leave du JSX.
+   Cible label et icône depuis le parent. */
+.closeBtn:hover .closeLabel,
+.closeBtn:hover .closeIcon {
+  color: var(--color-accent);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   NAVIGATION MOBILE
+   ───────────────────────────────────────────────────────────── */
+
+/* Colonne de liens — gap fluide */
+.mobileNav {
+  display:        flex;
+  flex-direction: column;
+  gap:            clamp(1.8rem, 4vw, 2.8rem);
+}
+
+/* Wrapper de chaque lien — animé à l'ouverture.
+   opacity + transform : état fermé par défaut.
+   --stagger : CSS custom property posée depuis le JSX
+   (valeur calculée `80 + i × 70`ms — seule prop inline restante).
+   Transition référence var(--stagger) pour le délai. */
+.mobileNavItem {
+  opacity:   0;
+  transform: translateY(28px);
+  transition:
+    opacity   450ms var(--stagger, 80ms) var(--ease-out),
+    transform 450ms var(--stagger, 80ms) var(--ease-out);
+}
+
+.mobileNavItemOpen {
+  opacity:   1;
+  transform: translateY(0);
+}
+
+/* Lien mobile — flex baseline, reset textDecoration */
+.mobileLink {
+  display:         flex;
+  align-items:     baseline;
+  gap:             1rem;
+  text-decoration: none;
+}
+
+/* Couleurs selon le type de lien */
+.mobileLinkDefault   { color: var(--color-text); }
+.mobileLinkSoumettre { color: var(--color-accent); }
+
+
+/* ─────────────────────────────────────────────────────────────
+   CONTENU LIEN MOBILE — index + glow + label
+   ───────────────────────────────────────────────────────────── */
+
+/* Numéro d'index — "01", "02"... */
+.mobileLinkIndex {
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      0.6rem;
+  letter-spacing: 0.18em;
+  flex-shrink:    0;
+  min-width:      1.8rem;
+}
+
+.mobileLinkIndexDefault   { color: var(--color-text-faint); }
+.mobileLinkIndexSoumettre { color: var(--color-accent); }
+
+/* Barre lumineuse — séparateur avant "Soumettre" */
+.mobileLinkGlow {
+  display:       block;
+  width:         2px;
+  height:        1.4rem;
+  border-radius: 1px;
+  background:    var(--color-accent);
+  flex-shrink:   0;
+  /* rgba sans token — effet lumineux multi-couches, pas d'équivalent */
+  box-shadow:
+    0 0  8px rgba(226, 209, 195, 0.90),
+    0 0 18px rgba(226, 209, 195, 0.40),
+    0 0 32px rgba(226, 209, 195, 0.15);
+}
+
+/* Label du lien — typographie display, massif */
+.mobileLinkLabel {
+  font-family:    var(--font-display);
+  font-weight:    900;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  line-height:    1;
+  color:          inherit;
+}
+
+.mobileLinkLabelDefault   { font-size: clamp(2.2rem, 7vw, 3.5rem); }
+.mobileLinkLabelSoumettre { font-size: clamp(1.8rem, 6vw, 2.8rem); }
+
+
+/* ─────────────────────────────────────────────────────────────
+   PIED DU PANEL — date + ville
+   ───────────────────────────────────────────────────────────── */
+
+/* Positionné en absolu en bas du panel.
+   opacity 0 par défaut → .panelFooterVisible l'active.
+   Délai 400ms — apparaît après les liens. */
+.panelFooter {
+  position:        absolute;
+  bottom:          clamp(1.8rem, 4vw, 3rem);
+  left:            clamp(1.5rem, 6vw, 4rem);
+  right:           clamp(1.5rem, 6vw, 4rem);
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  opacity:         0;
+  transition:      opacity 500ms 400ms;
+}
+
+.panelFooterVisible {
+  opacity: 1;
+}
+
+/* Date — "20 — 22 Juin 2026" */
+.panelDate {
+  font-family:    var(--font-sans);
+  font-weight:    500;
+  font-size:      0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+}
+
+/* Ville — "Marseille" */
+.panelCity {
+  font-family:    var(--font-sans);
+  font-weight:    500;
+  font-size:      0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          var(--color-text-faint);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE — breakpoint 768px
+   ───────────────────────────────────────────────────────────── */
+
+/* Remplace entièrement la <style> tag globale du JSX original.
+   !important supprimé — scoping CSS Module suffit. */
+@media (min-width: 768px) {
+  .navDesktop  { display: flex; }
+  .burger      { display: none; }
+  .mobilePanel { display: none; }
+}
