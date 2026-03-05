@@ -1,128 +1,278 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
 /**
- * PAGE : Connexion Administration (LoginAdmin.jsx)
- * Gère l'accès sécurisé et le stockage des tokens Marsai.
+ * LoginAdmin.jsx — MARSAI Festival
+ * Harmonisé avec Contact.jsx — design system MARSAI
+ * Layout centré, champs identiques, animations GSAP
  */
+
+import { useRef, useState } from 'react';
+import { useNavigate }  from 'react-router-dom';
+import gsap             from 'gsap';
+import { useGSAP }      from '@gsap/react';
+
+// ─────────────────────────────────────────────────────────────
+// STYLES PARTAGÉS — copie exacte de Contact.jsx
+// ─────────────────────────────────────────────────────────────
+const FIELD = {
+  width:        '100%',
+  padding:      'clamp(0.75rem,1.1vw,0.95rem) clamp(0.85rem,1.3vw,1.1rem)',
+  fontFamily:   'var(--font-sans)',
+  fontWeight:   400,
+  fontSize:     'clamp(0.85rem,1.1vw,0.95rem)',
+  color:        'var(--color-text)',
+  background:   'var(--color-surface)',
+  border:       '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-sm)',
+  outline:      'none',
+  transition:   'border-color 260ms var(--ease-out), background 260ms var(--ease-out)',
+  boxSizing:    'border-box',
+};
+
+const LABEL = {
+  display:       'block',
+  fontFamily:    'var(--font-sans)',
+  fontWeight:    600,
+  fontSize:      '0.60rem',
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color:         'var(--color-text-muted)',
+  marginBottom:  '0.5rem',
+};
+
+function onFocus(e) {
+  e.target.style.borderColor = 'rgba(226,209,195,0.50)';
+  e.target.style.background  = 'var(--color-surface-high)';
+}
+function onBlur(e) {
+  e.target.style.borderColor = 'var(--color-border)';
+  e.target.style.background  = 'var(--color-surface)';
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPOSANT
+// ─────────────────────────────────────────────────────────────
 export default function LoginAdmin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError("");
-    setSuccess("");
+  const pageRef     = useRef(null);
+  const overlineRef = useRef(null);
+  const titleRef    = useRef(null);
+  const cardRef     = useRef(null);
+
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
+  const [success,  setSuccess]  = useState('');
+
+  useGSAP(() => {
+    gsap.set(overlineRef.current, { opacity: 0, y: 12  });
+    gsap.set(titleRef.current,    { opacity: 0, y: 26  });
+    gsap.set(cardRef.current,     { opacity: 0, y: 22  });
+
+    const tl = gsap.timeline({ delay: 0.10 });
+    tl.to(overlineRef.current, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' });
+    tl.to(titleRef.current,    { opacity: 1, y: 0, duration: 0.75, ease: 'power2.out' }, 0.12);
+    tl.to(cardRef.current,     { opacity: 1, y: 0, duration: 0.80, ease: 'power3.out' }, 0.28);
+  }, { scope: pageRef });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
       const apiBaseUrl = import.meta.env.VITE_API_URL;
-      
-      if (!apiBaseUrl) {
-        throw new Error("Configuration VITE_API_URL manquante dans le .env");
-      }
+      if (!apiBaseUrl) throw new Error('Configuration VITE_API_URL manquante dans le .env');
 
-      // ✅ FIX : On utilise ${apiBaseUrl}/auth/login
-      // Car VITE_API_URL contient déjà le "/api"
       const response = await fetch(`${apiBaseUrl}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // Le cookie httpOnly est posé automatiquement
-        body: JSON.stringify({ email, password }),
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body:        JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data?.error || data?.message || 'Identifiants incorrects.');
 
-      if (!response.ok) {
-        throw new Error(data?.error || data?.message || "Identifiants incorrects.");
-      }
-
-      // Le token est dans un cookie httpOnly (inaccessible JS) — on stocke uniquement les infos utilisateur
-      localStorage.setItem("marsai_user", JSON.stringify(data.user));
-
-      setSuccess("Connexion réussie !");
-      
-      // Petit délai pour laisser l'utilisateur voir le message de succès
-      setTimeout(() => {
-        // Redirection vers le dashboard
-        navigate("/admin", { replace: true });
-      }, 800);
-
+      localStorage.setItem('marsai_user', JSON.stringify(data.user));
+      setSuccess('Connexion réussie.');
+      setTimeout(() => navigate('/admin', { replace: true }), 800);
     } catch (err) {
-      console.error("Erreur Login:", err);
-      setError(err.message || "Impossible de joindre le serveur.");
+      setError(err.message || 'Impossible de joindre le serveur.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-6 py-12 font-sans">
-      <form
-        className="w-full max-w-md bg-[#111827] rounded-2xl shadow-xl p-8 space-y-6 border border-white/10"
-        onSubmit={handleSubmit}
-      >
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.3em] text-indigo-400 font-bold text-center">
-            Marsai Festival
-          </p>
-          <h2 className="text-2xl font-bold text-white text-center italic tracking-tighter">
-            ADMIN_LOGIN
-          </h2>
+    <div
+      ref={pageRef}
+      style={{
+        background:     'var(--color-bg-pure)',
+        minHeight:      '100vh',
+        display:        'flex',
+        flexDirection:  'column',
+        alignItems:     'center',
+        justifyContent: 'center',
+        padding:        'clamp(4rem,8vw,7rem) clamp(1.5rem,5vw,6rem)',
+      }}
+    >
+      {/* ── En-tête ── */}
+      <div style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem,5vw,4rem)' }}>
+        <div
+          ref={overlineRef}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginBottom: '1.2rem' }}
+        >
+          <span style={{
+            display:    'block',
+            width:      'clamp(2rem,3vw,3rem)',
+            height:     '1px',
+            background: 'var(--color-accent)',
+            flexShrink: 0,
+          }} />
+          <span className="label-overline">Espace administration</span>
+          <span style={{
+            display:    'block',
+            width:      'clamp(2rem,3vw,3rem)',
+            height:     '1px',
+            background: 'var(--color-accent)',
+            flexShrink: 0,
+          }} />
         </div>
 
-        <div className="space-y-4">
+        <h1 ref={titleRef} className="title-section">
+          Connexion
+        </h1>
+      </div>
+
+      {/* ── Carte formulaire ── */}
+      <div
+        ref={cardRef}
+        style={{
+          width:      '100%',
+          maxWidth:   '440px',
+          padding:    'clamp(2rem,4vw,3rem)',
+          border:     '1px solid var(--color-border)',
+          borderLeft: '2px solid var(--color-accent)',
+          background: 'var(--color-surface)',
+        }}
+      >
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1.1rem,1.8vw,1.5rem)' }}
+        >
+          {/* Email */}
           <div>
-            <label className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 block ml-1">Email</label>
+            <label htmlFor="la-email" style={LABEL}>Email</label>
             <input
+              id="la-email"
               type="email"
-              placeholder="admin@marsai.local"
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
+              placeholder="admin@marsai.fr"
               required
+              autoComplete="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={FIELD}
+              onFocus={onFocus}
+              onBlur={onBlur}
             />
           </div>
 
+          {/* Mot de passe */}
           <div>
-            <label className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 block ml-1">Password</label>
+            <label htmlFor="la-password" style={LABEL}>Mot de passe</label>
             <input
+              id="la-password"
               type="password"
               placeholder="••••••••"
-              className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
               required
+              autoComplete="current-password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              style={FIELD}
+              onFocus={onFocus}
+              onBlur={onBlur}
             />
           </div>
-        </div>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-lg animate-pulse">
-            <p className="text-[11px] text-red-400 text-center font-medium">{error}</p>
-          </div>
-        )}
-        
-        {success && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-lg">
-            <p className="text-[11px] text-emerald-400 text-center font-medium">{success}</p>
-          </div>
-        )}
+          {/* Erreur */}
+          {error && (
+            <div style={{
+              padding:    '0.85rem 1.1rem',
+              border:     '1px solid rgba(220,80,80,0.25)',
+              borderLeft: '2px solid rgba(220,80,80,0.70)',
+              background: 'rgba(220,80,80,0.06)',
+            }}>
+              <p style={{
+                fontFamily:    'var(--font-sans)',
+                fontSize:      '0.72rem',
+                letterSpacing: '0.08em',
+                color:         'rgba(220,100,100,0.90)',
+                margin:        0,
+              }}>
+                {error}
+              </p>
+            </div>
+          )}
 
-        <button
-          type="submit"
-          className="w-full rounded-full bg-white py-3 text-xs font-black text-black hover:bg-gray-200 disabled:opacity-50 transition-all uppercase tracking-widest"
-          disabled={loading}
-        >
-          {loading ? "Authentification..." : "Accéder à la gestion"}
-        </button>
-      </form>
+          {/* Succès */}
+          {success && (
+            <div style={{
+              padding:    '0.85rem 1.1rem',
+              border:     '1px solid rgba(180,209,195,0.25)',
+              borderLeft: '2px solid var(--color-accent)',
+              background: 'rgba(180,209,195,0.05)',
+            }}>
+              <p style={{
+                fontFamily:    'var(--font-sans)',
+                fontSize:      '0.72rem',
+                letterSpacing: '0.08em',
+                color:         'var(--color-accent)',
+                margin:        0,
+              }}>
+                {success}
+              </p>
+            </div>
+          )}
+
+          {/* Bouton — même style que le bouton de confirmation de Contact */}
+          <div style={{ paddingTop: '0.3rem' }}>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width:          '100%',
+                padding:        'clamp(0.8rem,1.2vw,1rem) 1.5rem',
+                fontFamily:     'var(--font-sans)',
+                fontWeight:     700,
+                fontSize:       '0.60rem',
+                letterSpacing:  '0.22em',
+                textTransform:  'uppercase',
+                color:          loading ? 'var(--color-text-faint)' : 'var(--color-bg-pure)',
+                background:     loading ? 'var(--color-surface-high)' : 'var(--color-accent)',
+                border:         '1px solid var(--color-accent)',
+                borderRadius:   'var(--radius-sm)',
+                cursor:         loading ? 'not-allowed' : 'pointer',
+                transition:     'background 260ms var(--ease-out), color 260ms var(--ease-out), opacity 260ms',
+                opacity:        loading ? 0.6 : 1,
+              }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = 'var(--color-text)'; }}
+              onMouseLeave={e => { if (!loading) e.currentTarget.style.background = 'var(--color-accent)'; }}
+            >
+              {loading ? 'Authentification…' : 'Accéder à la gestion'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Responsive + placeholders */}
+      <style>{`
+        input::placeholder {
+          color: var(--color-text-faint);
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }
