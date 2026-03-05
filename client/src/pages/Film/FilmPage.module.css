@@ -1,0 +1,292 @@
+/**
+ * FilmPage.module.css — MARSAI Festival
+ * Page publique — Fiche détail d'un film
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * ARCHITECTURE — Séparation des responsabilités
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Ce fichier contient UNIQUEMENT les styles statiques.
+ *
+ * Ce qui ne vit PAS ici :
+ *   GSAP  → opacity + y sur .pageHeader / .body (clearProps:'all')
+ *           GSAP pose et retire ces propriétés — CSS ne doit pas
+ *           les déclarer pour ne pas entrer en conflit.
+ *   Tailwind → aucune classe Tailwind dans FilmPage (kodawari :
+ *           un seul système de style par composant).
+ *
+ * Tokens : tous les clamp(), var(--*) référencent Variables.css.
+ * Exception documentée : rgba() fine sans équivalent en token.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   ÉTATS TRANSITOIRES — chargement & erreur
+   ───────────────────────────────────────────────────────────── */
+
+/* Centrage vertical plein écran — chargement */
+.loadingState {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  min-height:      60vh;
+  font-family:     var(--font-sans);
+  font-size:       0.75rem;
+  letter-spacing:  0.12em;
+  text-transform:  uppercase;
+  color:           var(--color-text-muted);
+}
+
+/* Centrage vertical plein écran — film introuvable */
+.notFoundState {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  justify-content: center;
+  min-height:      60vh;
+  gap:             1.5rem;
+  font-family:     var(--font-sans);
+  color:           var(--color-text-muted);
+}
+
+/* Label "Film introuvable" */
+.notFoundLabel {
+  font-size:      0.65rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+}
+
+/* Lien retour dans l'état not-found */
+.notFoundLink {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.5rem;
+  font-size:       0.6rem;
+  letter-spacing:  0.18em;
+  text-transform:  uppercase;
+  font-weight:     600;
+  color:           var(--color-accent);
+  text-decoration: none;
+  opacity:         0.75;
+  transition:      opacity 250ms var(--ease-out);
+}
+
+.notFoundLink:hover {
+  opacity: 1;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   PAGE WRAPPER
+   ───────────────────────────────────────────────────────────── */
+
+.page {
+  background: var(--color-bg-pure);
+  min-height: 100vh;
+  padding:
+    clamp(6rem, 12vw, 10rem)
+    clamp(1.5rem, 5vw, 6rem)
+    clamp(4rem, 8vw, 7rem);
+}
+
+.container {
+  max-width: 1200px;
+  margin:    0 auto;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   EN-TÊTE — navigation + titre + réalisateur
+   ───────────────────────────────────────────────────────────── */
+
+/* Bloc header — animé par GSAP (opacity + y).
+   Pas de opacity ni de transform ici — GSAP les gère.
+   clearProps:'all' nettoie après l'animation d'entrée. */
+.pageHeader {
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* Ligne de navigation : lien retour + filet + overline */
+.navRow {
+  display:       flex;
+  align-items:   center;
+  gap:           1rem;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+/* Lien retour "← Galerie" */
+.backLink {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.5rem;
+  font-family:     var(--font-sans);
+  font-weight:     600;
+  font-size:       0.6rem;
+  letter-spacing:  0.18em;
+  text-transform:  uppercase;
+  color:           var(--color-text-muted);
+  text-decoration: none;
+  transition:      color 250ms var(--ease-out);
+}
+
+/* CSS hover — remplace les handlers onMouseEnter/Leave du JSX original.
+   :hover est fait pour ça. Le JS ne doit pas gérer ce qui est statique. */
+.backLink:hover {
+  color: var(--color-accent);
+}
+
+/* Filet séparateur horizontal dans la nav */
+.navSeparator {
+  display:    block;
+  width:      clamp(2rem, 3vw, 3rem);
+  height:     1px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* Pill catégorie — ex : "Fiction", "Expérimental", "Documentaire" */
+.categoryBadge {
+  display:       inline-block;
+  font-family:   var(--font-sans);
+  font-weight:   600;
+  font-size:     0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          var(--color-accent);
+  border:         1px solid var(--color-border);
+  border-radius:  var(--radius-pill);
+  padding:        0.3em 0.85em;
+  margin-bottom:  clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Titre du film — typographie display, massif */
+.filmTitle {
+  font-family:    var(--font-display);
+  font-weight:    900;
+  font-size:      clamp(2.2rem, 6vw, 5rem);
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color:          var(--color-text);
+  line-height:    0.95;
+  margin-bottom:  clamp(0.8rem, 1.5vw, 1.2rem);
+}
+
+/* Nom du réalisateur — sous le titre, discret */
+.filmDirector {
+  font-family:    var(--font-sans);
+  font-weight:    400;
+  font-size:      clamp(0.85rem, 1.4vw, 1rem);
+  letter-spacing: 0.06em;
+  color:          var(--color-text-muted);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   CORPS — animé par GSAP (opacity + y)
+   Pas de opacity ni transform ici — GSAP les gère.
+   ───────────────────────────────────────────────────────────── */
+
+/* Wrapper média — encadre le lecteur vidéo ou l'image */
+.mediaWrapper {
+  background:    var(--color-surface);
+  border:        1px solid var(--color-border);
+  overflow:      hidden;
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* Wrapper ratio 16/9 pour l'iframe YouTube.
+   paddingTop: 56.25% = 9/16 — technique classique aspect-ratio CSS. */
+.youtubeWrapper {
+  position:    relative;
+  padding-top: 56.25%;
+}
+
+/* Iframe YouTube — positionné en absolu dans son ratio-wrapper */
+.youtubeIframe {
+  position: absolute;
+  inset:    0;
+  width:    100%;
+  height:   100%;
+  border:   none;
+}
+
+/* Vidéo S3 — pleine largeur, pas de hauteur imposée */
+.videoS3 {
+  width:   100%;
+  display: block;
+}
+
+/* Wrapper image de couverture (fallback sans vidéo) */
+.imageFallbackWrapper {
+  position:    relative;
+  width:       100%;
+  aspect-ratio: 16 / 9;
+  overflow:    hidden;
+}
+
+/* Image de couverture — couvre son cadre en préservant le ratio */
+.fallbackImg {
+  width:           100%;
+  height:          100%;
+  object-fit:      cover;
+  object-position: center;
+  display:         block;
+}
+
+/* Badge "Vidéo disponible prochainement" — superposé sur l'image */
+.videoBadge {
+  position:        absolute;
+  bottom:          clamp(1rem, 2vw, 1.5rem);
+  left:            clamp(1rem, 2vw, 1.5rem);
+  /* Pas de token pour ce rgba — opacité fine liée à l'image */
+  background:      rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border:          1px solid var(--color-border);
+  padding:         0.35em 0.8em;
+  font-family:     var(--font-sans);
+  font-weight:     600;
+  font-size:       0.58rem;
+  letter-spacing:  0.18em;
+  text-transform:  uppercase;
+  color:           var(--color-text-muted);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   MÉTADONNÉES — grille de champs film
+   ───────────────────────────────────────────────────────────── */
+
+/* Grille auto-fit — s'adapte au nombre de champs disponibles.
+   minmax(160px, 1fr) : les champs ne sont jamais trop étroits. */
+.metaGrid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap:                   clamp(1rem, 2vw, 1.5rem);
+  padding:               clamp(1.5rem, 3vw, 2.5rem);
+  background:            var(--color-surface);
+  border:                1px solid var(--color-border);
+}
+
+/* Label de champ — ex : "Titre", "Réalisateur", "Catégorie" */
+.metaLabel {
+  display:        block;
+  font-family:    var(--font-sans);
+  font-weight:    900;
+  font-size:      0.55rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color:          var(--color-accent);
+  opacity:        0.7;
+  margin-bottom:  0.4rem;
+}
+
+/* Valeur de champ */
+.metaValue {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size:   clamp(0.85rem, 1.2vw, 0.95rem);
+  color:       var(--color-text);
+  line-height: 1.4;
+}

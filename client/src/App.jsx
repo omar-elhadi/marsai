@@ -31,6 +31,7 @@ import CompetitionRules from '@/pages/CompetitionRules/CompetitionRules.jsx';
 import EditFilmPage from '@/pages/Submission/EditFilmPage.jsx';
 import TrackingPage from '@/pages/Submission/TrackingPage.jsx';
 import PalmaresPage from '@/pages/Palmares/PalmaresPage.jsx';
+import FilmPage     from '@/pages/Film/FilmPage.jsx';
 
 /**
  * 2. IMPORTS AUTHENTIFICATION & JURY
@@ -150,7 +151,13 @@ function AppInner() {
 					<Route path={ROUTES.EVENTS} element={<Events />} />
 					<Route path={ROUTES.EDIT_FILM} element={<EditFilmPage />} />
 					<Route path={ROUTES.TRACKING} element={<TrackingPage />} />
-					<Route path={ROUTES.PALMARES} element={<PalmaresPage />} />
+					<Route path={ROUTES.PALMARES}     element={<PalmaresPage />} />
+					{/* Route publique film — /film/:id
+					    FilmPage lit galleryMovies[] statique aujourd'hui.
+					    Migration backend : voir contrat dans FilmPage.jsx.
+					    ROUTES.FILM_DETAIL = '/film/:id' — défini dans routes.js.
+					    Distinct de l'admin FilmDetail (pages/Admin/) qui requiert auth. */}
+					<Route path={ROUTES.FILM_DETAIL}   element={<FilmPage />} />
 				</Route>
 
 				{/* ZONE JURY SÉCURISÉE */}
