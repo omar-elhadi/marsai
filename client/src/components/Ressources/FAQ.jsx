@@ -90,6 +90,36 @@ const faqData = [
     question: "Le festival est-il ouvert au public ?",
     answer:   "Certaines projections et conférences seront ouvertes au public sur billetterie. Les détails seront annoncés prochainement.",
   },
+  {
+    id:       'f4',
+    question: "Quels formats de fichiers sont acceptés pour la soumission ?",
+    answer:   "Nous acceptons les formats ProRes 4444, H.264 et H.265 en résolution minimale 1080p. Les fichiers doivent être déposés via notre interface de téléversement sécurisée, avec un poids maximum de 20 Go par œuvre.",
+  },
+  {
+    id:       'f5',
+    question: "Y a-t-il des frais d'inscription ?",
+    answer:   "La soumission est gratuite pour les œuvres réalisées dans le cadre d'un projet étudiant ou associatif. Un frais de dossier de 30 € s'applique aux productions professionnelles et commerciales.",
+  },
+  {
+    id:       'f6',
+    question: "Quelle part d'IA est requise dans la production ?",
+    answer:   "Il n'existe pas de seuil minimal fixé. Nous évaluons la cohérence artistique entre l'intention humaine et l'apport de l'IA — qu'il s'agisse de génération d'images, d'écriture de scénario, de composition musicale ou de montage assisté.",
+  },
+  {
+    id:       'f7',
+    question: "Les films étrangers sont-ils acceptés ?",
+    answer:   "Oui, le festival est ouvert aux soumissions internationales. Les œuvres non francophones devront être sous-titrées en français ou en anglais. Une version sous-titrée dans les deux langues est fortement recommandée.",
+  },
+  {
+    id:       'f8',
+    question: "Comment se déroule la cérémonie de remise des prix ?",
+    answer:   "La soirée de clôture se tient le 22 juin 2026 à la Grande Salle. Elle réunit le jury, les cinéastes sélectionnés et les partenaires du festival. Trois prix seront décernés : Meilleur Film IA, Prix de la Narration Hybride et Prix de l'Innovation Technique.",
+  },
+  {
+    id:       'f9',
+    question: "Comment contacter l'équipe du festival ?",
+    answer:   "Vous pouvez nous joindre via le formulaire de contact disponible sur le site, ou directement à l'adresse contact@marsai-festival.fr. L'équipe s'engage à répondre sous 72 heures ouvrées.",
+  },
 ];
 
 function FaqRow({ item, index, isVisible, isOpen, onToggle }) {
