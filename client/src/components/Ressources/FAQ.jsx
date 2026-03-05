@@ -1,250 +1,123 @@
-import { useState, useRef } from 'react';
-import gsap        from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState } from 'react';
 
-gsap.registerPlugin(ScrollTrigger);
-
-const CSS = `
-  .faq-section {
-    background:  var(--color-bg-pure);
-    border-top:  1px solid var(--color-border);
-    min-height:  100vh;
-    padding:     clamp(6rem,12vw,10rem) clamp(1.5rem,5vw,6rem);
-    padding-top: clamp(4rem,6vw,5rem);
-  }
-  .faq-inner { max-width: 820px; margin: 0 auto; }
-
-  /* ── Header ── */
-  .faq-header { margin-bottom: clamp(4rem,8vw,7rem); }
-  .faq-overline { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
-  .faq-overline-bar { display: block; width: clamp(2rem,3vw,3rem); height: 1px; background: var(--color-accent); flex-shrink: 0; }
-  .faq-titles { margin-bottom: 1.5rem; }
-  .faq-title-line { overflow: hidden; line-height: 1; }
-  .faq-title-line span { display: block; padding-bottom: 0.06em; }
-  .faq-title-accent { color: var(--color-accent); }
-
-  /* ── Liste de questions ── */
-  .faq-list { display: flex; flex-direction: column; }
-
-  /* ── Item ── */
-  .faq-row { border-bottom: 1px solid var(--color-border); opacity: 0; }
-  .faq-row.is-visible { opacity: 1; }
-
-  .faq-btn {
-    width: 100%; display: flex; align-items: center;
-    justify-content: space-between;
-    padding: 1.3rem 0; background: none; border: none;
-    cursor: pointer; text-align: left; gap: 1rem;
-  }
-  .faq-btn-left { display: flex; align-items: baseline; gap: 1rem; }
-  .faq-num {
-    font-family: var(--font-display); font-style: italic;
-    font-weight: 900; font-size: clamp(0.8rem,1.2vw,1rem);
-    color: var(--color-accent); opacity: 0.45;
-    line-height: 1; flex-shrink: 0;
-  }
-  .faq-question {
-    font-family: var(--font-sans); font-weight: 500;
-    font-size: clamp(0.95rem,1.4vw,1.05rem);
-    color: var(--color-text-muted);
-    transition: color 240ms var(--ease-out);
-  }
-  .faq-question.is-open { color: var(--color-text); }
-  .faq-toggle {
-    font-family: var(--font-sans); font-size: 1.2rem;
-    font-weight: 300; color: var(--color-accent);
-    flex-shrink: 0; opacity: 0.45;
-    transition: opacity 240ms;
-  }
-  .faq-toggle.is-open { opacity: 1; }
-
-  /* ── Body accordéon ── */
-  .faq-body { height: 0; opacity: 0; overflow: hidden; }
-  .faq-answer {
-    padding-bottom: 1.6rem;
-    padding-left:   2.2rem;
-    font-family:    var(--font-sans);
-    font-weight:    300;
-    font-size:      clamp(0.85rem,1.1vw,0.95rem);
-    line-height:    1.75;
-    color:          var(--color-text-muted);
-    border-left:    2px solid rgba(226,209,195,0.18);
-    margin-left:    0.1rem;
-  }
-`;
-
-const faqData = [
-  {
-    id:       'f1',
-    question: "Comment puis-je soumettre mon film ?",
-    answer:   "Les soumissions sont ouvertes via notre plateforme dédiée. Vous trouverez un lien « SOUMETTRE » dans le menu principal qui vous guidera tout au long du processus.",
-  },
-  {
-    id:       'f2',
-    question: "Quels sont les critères de sélection ?",
-    answer:   "Nous recherchons des œuvres narratives qui explorent l'utilisation créative et éthique de l'IA générative dans leur processus de production.",
-  },
-  {
-    id:       'f3',
-    question: "Le festival est-il ouvert au public ?",
-    answer:   "Certaines projections et conférences seront ouvertes au public sur billetterie. Les détails seront annoncés prochainement.",
-  },
-  {
-    id:       'f4',
-    question: "Quels formats de fichiers sont acceptés pour la soumission ?",
-    answer:   "Nous acceptons les formats ProRes 4444, H.264 et H.265 en résolution minimale 1080p. Les fichiers doivent être déposés via notre interface de téléversement sécurisée, avec un poids maximum de 20 Go par œuvre.",
-  },
-  {
-    id:       'f5',
-    question: "Y a-t-il des frais d'inscription ?",
-    answer:   "La soumission est gratuite pour les œuvres réalisées dans le cadre d'un projet étudiant ou associatif. Un frais de dossier de 30 € s'applique aux productions professionnelles et commerciales.",
-  },
-  {
-    id:       'f6',
-    question: "Quelle part d'IA est requise dans la production ?",
-    answer:   "Il n'existe pas de seuil minimal fixé. Nous évaluons la cohérence artistique entre l'intention humaine et l'apport de l'IA — qu'il s'agisse de génération d'images, d'écriture de scénario, de composition musicale ou de montage assisté.",
-  },
-  {
-    id:       'f7',
-    question: "Les films étrangers sont-ils acceptés ?",
-    answer:   "Oui, le festival est ouvert aux soumissions internationales. Les œuvres non francophones devront être sous-titrées en français ou en anglais. Une version sous-titrée dans les deux langues est fortement recommandée.",
-  },
-  {
-    id:       'f8',
-    question: "Comment se déroule la cérémonie de remise des prix ?",
-    answer:   "La soirée de clôture se tient le 22 juin 2026 à la Grande Salle. Elle réunit le jury, les cinéastes sélectionnés et les partenaires du festival. Trois prix seront décernés : Meilleur Film IA, Prix de la Narration Hybride et Prix de l'Innovation Technique.",
-  },
-  {
-    id:       'f9',
-    question: "Comment contacter l'équipe du festival ?",
-    answer:   "Vous pouvez nous joindre via le formulaire de contact disponible sur le site, ou directement à l'adresse contact@marsai-festival.fr. L'équipe s'engage à répondre sous 72 heures ouvrées.",
-  },
-];
-
-function FaqRow({ item, index, isVisible, isOpen, onToggle }) {
-  const rowRef  = useRef(null);
-  const bodyRef = useRef(null);
-
-  useGSAP(() => {
-    if (!rowRef.current) return;
-    gsap.to(rowRef.current, {
-      opacity:  isVisible ? 1 : 0,
-      x:        isVisible ? 0 : 18,
-      duration: 0.45,
-      ease:     'power2.out',
-    });
-  }, [isVisible]);
-
-  useGSAP(() => {
-    if (!bodyRef.current) return;
-    if (isOpen) {
-      gsap.to(bodyRef.current, { height: 'auto', opacity: 1, duration: 0.38, ease: 'power2.out' });
-    } else {
-      gsap.to(bodyRef.current, { height: 0,      opacity: 0, duration: 0.28, ease: 'power2.in'  });
-    }
-  }, [isOpen]);
+const FaqItem = ({ question, answer }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div ref={rowRef} className="faq-row">
-      <button onClick={onToggle} className="faq-btn">
-        <div className="faq-btn-left">
-          <span className="faq-num">{String(index + 1).padStart(2, '0')}</span>
-          <span className={'faq-question' + (isOpen ? ' is-open' : '')}>{item.question}</span>
-        </div>
-        <span className={'faq-toggle' + (isOpen ? ' is-open' : '')}>
-          {isOpen ? '−' : '+'}
+    <div className="border-b border-white/10 group">
+      <button
+        className="w-full flex justify-between items-center py-8 text-left transition-all"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h3 className={`text-xl md:text-2xl font-medium tracking-tight transition-colors duration-300 ${isOpen ? 'text-[#E6D5AC]' : 'text-white/90 group-hover:text-white'}`}>
+          {question}
+        </h3>
+        <span
+          className={`ml-6 transform transition-transform duration-500 ${
+            isOpen ? 'rotate-180 text-[#D4AF37]' : 'rotate-0 text-white/40'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
         </span>
       </button>
-      <div ref={bodyRef} className="faq-body">
-        <p className="faq-answer">{item.answer}</p>
+
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <p className="pb-8 text-lg text-white/60 leading-relaxed font-light italic border-l border-[#D4AF37]/30 pl-6 ml-1">
+          {answer}
+        </p>
       </div>
     </div>
   );
-}
+};
 
-export default function FAQ() {
-  const sectionRef  = useRef(null);
-  const overlineRef = useRef(null);
-  const line1Ref    = useRef(null);
-  const line2Ref    = useRef(null);
-  const subtitleRef = useRef(null);
+const FAQ = () => {
+  const currentYear = 2026;
 
-  const [openId,       setOpenId]       = useState(null);
-  const [visibleCount, setVisibleCount] = useState(0);
-
-  useGSAP(() => {
-    gsap.set(overlineRef.current,                  { opacity: 0, y: 12  });
-    gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110       });
-    gsap.set(subtitleRef.current,                  { opacity: 0, y: 18  });
-
-    ScrollTrigger.create({
-      trigger: sectionRef.current, start: 'top 75%', once: true,
-      onEnter() {
-        const tl = gsap.timeline();
-        tl.to(overlineRef.current,
-          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' });
-        tl.to([line1Ref.current, line2Ref.current],
-          { yPercent: 0, duration: 0.85, stagger: 0.12, ease: 'power3.out' }, 0.15);
-        tl.to(subtitleRef.current,
-          { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.50);
-
-        // stagger items
-        let current = 0;
-        const id = setInterval(() => {
-          current++;
-          setVisibleCount(current);
-          if (current >= faqData.length) clearInterval(id);
-        }, 280);
-      },
-    });
-  }, { scope: sectionRef });
+  const faqData = [
+    {
+      question: "Comment puis-je soumettre mon film ?",
+      answer: "Les soumissions sont ouvertes via notre plateforme dédiée. Vous trouverez un lien 'SOUMETTRE' dans le menu principal qui vous guidera tout au long du processus."
+    },
+    {
+      question: "Quels sont les critères de sélection ?",
+      answer: "Nous recherchons des œuvres narratives qui explorent l'utilisation créative et éthique de l'IA générative dans leur processus de production."
+    },
+    {
+      question: "Le festival est-il ouvert au public ?",
+      answer: "Certaines projections et conférences seront ouvertes au public sur billetterie. Les détails seront annoncés prochainement."
+    }
+  ];
 
   return (
-    <>
-      <style>{CSS}</style>
+    <div className="relative min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden">
+      
+      {/* ── BACKGROUND AVEC IMAGE ET OVERLAY ── */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2000&auto=format&fit=crop" 
+          alt="Cinema Background" 
+          className="w-full h-full object-cover opacity-40"
+        />
+        {/* Gradient radial pour l'effet de profondeur cinéma */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,rgba(5,5,5,1)_90%)]" />
+      </div>
 
-      <section ref={sectionRef} id="faq" className="faq-section">
-        <div className="faq-inner">
+      {/* ── CONTENU PRINCIPAL ── */}
+      <main className="relative z-10 max-w-[1400px] mx-auto px-6 pt-[20vh] pb-40">
+        
+        {/* Petit label en haut */}
+        <div className="mb-8 flex items-center gap-4">
+          <div className="h-[1px] w-12 bg-[#D4AF37]/50"></div>
+          <p className="text-[10px] uppercase tracking-[0.5em] text-[#E6D5AC] opacity-70">
+            Protocol Assistance // FAQ
+          </p>
+        </div>
 
-          {/* ── Header ── */}
-          <div className="faq-header">
-            <div ref={overlineRef} className="faq-overline">
-              <span className="faq-overline-bar" />
-              <span className="label-overline">Protocol Assistance · Marsai 2026</span>
-            </div>
+        {/* TITRE GÉANT MARSAI STYLE (Blanc Sable Doré) */}
+        <h1 className="text-[15vw] md:text-[200px] font-black leading-none tracking-tighter mb-24 select-none italic uppercase">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FAF0E6] via-[#E6D5AC] to-[#D4AF37] drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
+            MARSAI
+          </span>
+          <span className="text-[#D4AF37] animate-pulse">.</span>
+        </h1>
 
-            <div className="faq-titles">
-              <div className="faq-title-line">
-                <span ref={line1Ref} className="title-section">Questions</span>
-              </div>
-              <div className="faq-title-line">
-                <span ref={line2Ref} className="title-section faq-title-accent">fréquentes</span>
-              </div>
-            </div>
-
-            <p ref={subtitleRef} className="body-editorial">
-              Retrouvez ici les réponses aux interrogations les plus courantes
-              sur le processus de soumission, les critères de sélection et l'accès au festival.
-            </p>
+        {/* SECTION DES QUESTIONS (Centrée ou décalée) */}
+        <div className="w-full max-w-4xl ml-auto md:mr-20">
+          <div className="mb-12">
+            <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-white/40 mb-2">Questions Fréquentes</h2>
+            <div className="h-1 w-20 bg-[#D4AF37]"></div>
           </div>
-
-          {/* ── Accordéon ── */}
-          <div className="faq-list">
-            {faqData.map((item, i) => (
-              <FaqRow
-                key={item.id}
-                item={item}
-                index={i}
-                isVisible={visibleCount > i}
-                isOpen={openId === item.id}
-                onToggle={() => setOpenId(openId === item.id ? null : item.id)}
-              />
+          
+          <div className="space-y-2">
+            {faqData.map((item, index) => (
+              <FaqItem key={index} question={item.question} answer={item.answer} />
             ))}
           </div>
-
         </div>
-      </section>
-    </>
+      </main>
+
+      {/* ── FOOTER STYLE GÉNÉRIQUE ── */}
+      <footer className="relative z-10 w-full px-10 py-16 mt-20 border-t border-white/5 bg-black/20 backdrop-blur-md">
+        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-white/40 text-[10px] tracking-[0.4em] uppercase">
+          <div className="flex items-center gap-6 font-bold">
+            <span className="text-[#D4AF37]">Marseille</span>
+            <span className="w-2 h-2 rounded-full bg-white/10"></span>
+            <span>Station 01 — {currentYear}</span>
+          </div>
+          <p className="text-center">© {currentYear} Marsai. L'apogée du cinéma génératif.</p>
+        </div>
+      </footer>
+
+      {/* Effet de vignettage cinéma final */}
+      <div className="fixed inset-0 pointer-events-none shadow-[inset_0_0_15vw_rgba(0,0,0,1)] z-20" />
+    </div>
   );
-}
+};
+
+export default FAQ;
