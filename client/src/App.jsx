@@ -22,7 +22,7 @@ import Contact from '@/pages/Contact/Contact.jsx';
 import Mention from '@/pages/Legals/Mention.jsx';
 import Cookies from '@/pages/Legals/cookies.jsx';
 import PolitiqueDeConfidentialite from '@/pages/Legals/politiquedeconfidentialite.jsx';
-import ConditionsUtilisations from '@/pages/Legals/conditions-utilisations.jsx';
+import ConditionsUtilisations from '@/pages/Legals/CGU.jsx';
 import FAQ from '@/components/Ressources/FAQ.jsx';
 import Calendrier from './components/Ressources/calendrier.jsx';
 import ReglesConditions from './components/Ressources/regles-conditions.jsx';
