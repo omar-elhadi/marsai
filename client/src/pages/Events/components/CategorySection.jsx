@@ -7,7 +7,7 @@
 import CategoryHeader from './CategoryHeader';
 import EventCard      from './EventCard';
 
-export default function CategorySection({ category, startIndex, visibleCount }) {
+export default function CategorySection({ category, startIndex, visibleCount, onReservation }) {
   const catOn = visibleCount >= startIndex + 1;
 
   return (
@@ -81,6 +81,7 @@ export default function CategorySection({ category, startIndex, visibleCount }) 
               key={event.id}
               event={event}
               isVisible={isVisible}
+                          onReservation={() => onReservation(event, category.title)}
             />
           );
         })}
