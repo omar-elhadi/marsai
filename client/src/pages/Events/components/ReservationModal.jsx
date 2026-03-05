@@ -109,32 +109,16 @@ export default function ReservationModal({ isOpen, onClose, event, categoryTitle
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      style={{
-        display: 'none',
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        backgroundColor: 'rgba(15, 12, 10, 0.88)',
-        backdropFilter: 'blur(8px)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 'clamp(1rem, 3vw, 2rem)',
-        opacity: 0,
-      }}
+      className="fixed inset-0 z-[9999] hidden flex-col items-center justify-center px-[clamp(1rem,3vw,2rem)] py-4 backdrop-blur-[8px]"
+      style={{ backgroundColor: 'rgba(15, 12, 10, 0.88)', opacity: 0 }}
     >
       <div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
+        className="relative w-full max-w-[540px] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-pure)] px-[clamp(2rem,4vw,3rem)] py-[clamp(2rem,4vw,3rem)]"
         style={{
-          position: 'relative',
-          maxWidth: '540px',
-          width: '100%',
-          backgroundColor: 'var(--color-bg-pure)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-md)',
-          padding: 'clamp(2rem, 4vw, 3rem)',
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(226, 209, 195, 0.08)',
         }}
       >
@@ -143,30 +127,7 @@ export default function ReservationModal({ isOpen, onClose, event, categoryTitle
           type="button"
           onClick={onClose}
           aria-label="Fermer"
-          style={{
-            position: 'absolute',
-            top: '1.5rem',
-            right: '1.5rem',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-sm)',
-            backgroundColor: 'transparent',
-            color: 'var(--color-text-main)',
-            cursor: 'pointer',
-            transition: 'all 0.24s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-surface)';
-            e.currentTarget.style.borderColor = 'var(--color-accent)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.borderColor = 'var(--color-border)';
-          }}
+          className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-transparent text-[var(--color-text-main)] transition-all duration-[240ms] hover:border-[var(--color-accent)] hover:bg-[var(--color-surface)]"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M1 1L13 13M13 1L1 13" />
@@ -174,32 +135,24 @@ export default function ReservationModal({ isOpen, onClose, event, categoryTitle
         </button>
 
         {/* En-tête */}
-        <div style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+        <div className="mb-8">
+          <div className="mb-3 flex items-center gap-3">
             <span
-              style={{
-                display: 'block',
-                width: '2rem',
-                height: '1px',
-                background: 'var(--color-accent)',
-              }}
+              className="block h-px w-8 bg-[var(--color-accent)]"
+              aria-hidden="true"
             />
             <span className="label-overline">Réservation</span>
           </div>
 
           <h2
             id="modal-title"
-            className="title-section"
-            style={{
-              fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-              marginBottom: '0.5rem',
-            }}
+            className="title-section mb-2 text-[clamp(1.5rem,3vw,2rem)]"
           >
             {event.title}
           </h2>
 
-          <div className="body-editorial" style={{ color: 'var(--color-text-faint)' }}>
-            <p style={{ margin: 0 }}>
+          <div className="body-editorial text-[var(--color-text-faint)]">
+            <p className="m-0">
               {categoryTitle} · {event.time}
               {event.place && ` · ${event.place}`}
             </p>
@@ -208,35 +161,18 @@ export default function ReservationModal({ isOpen, onClose, event, categoryTitle
 
         {/* Formulaire */}
         {submitSuccess ? (
-          <div
-            style={{
-              padding: '2rem',
-              textAlign: 'center',
-              backgroundColor: 'var(--color-surface)',
-              borderRadius: 'var(--radius-sm)',
-              border: '1px solid var(--color-accent)',
-            }}
-          >
+          <div className="rounded-[var(--radius-sm)] border border-[var(--color-accent)] bg-[var(--color-surface)] p-8 text-center">
             <div
-              style={{
-                width: '48px',
-                height: '48px',
-                margin: '0 auto 1rem',
-                borderRadius: '50%',
-                backgroundColor: 'var(--color-accent-dim)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent-dim)]"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2.5">
                 <path d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="title-event" style={{ color: 'var(--color-accent)' }}>
+            <p className="title-event text-[var(--color-accent)]">
               Réservation confirmée !
             </p>
-            <p className="body-editorial" style={{ marginTop: '0.5rem', color: 'var(--color-text-faint)' }}>
+            <p className="body-editorial mt-2 text-[var(--color-text-faint)]">
               Vous recevrez un email de confirmation.
             </p>
           </div>
