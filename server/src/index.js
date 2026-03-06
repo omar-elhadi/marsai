@@ -13,6 +13,7 @@ import cookieParser from "cookie-parser";
 import authRoutes  from "./routes/auth.routes.js";
 import userRoutes  from "./routes/user.routes.js";
 import filmRoutes  from "./routes/film.routes.js";
+import galleryRoutes from "./routes/gallery.routes.js";
 import juryRoutes  from "./routes/vote.routes.js";
 import awardRoutes from "./routes/award.routes.js";
 
@@ -52,6 +53,7 @@ app.use(cookieParser());
 app.use("/api/auth",   authRoutes);
 app.use("/api/users",  userRoutes);
 app.use("/api/films",  filmRoutes);
+app.use("/api/gallery", galleryRoutes); // Alias pour la galerie
 app.use("/api/jury",   juryRoutes);
 app.use("/api/awards", awardRoutes);
 
