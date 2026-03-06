@@ -221,6 +221,32 @@ function SubmissionForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionToken, setSubmissionToken] = useState(null); // token reçu après succès
+  
+  // États pour l'upload de vidéo
+  const [videoFile, setVideoFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [s3VideoKey, setS3VideoKey] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+
+  /**
+   * Gestion de la sélection de fichier vidéo
+   */
+  const handleVideoFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setVideoFile(file);
+      setUploadError(null);
+    }
+  };
+
+  /**
+   * Supprimer le fichier vidéo sélectionné
+   */
+  const handleRemoveVideo = () => {
+    setVideoFile(null);
+    setS3VideoKey(null);
+    setUploadError(null);
+  };
 
   /**
    * Gestion des changements de champs du formulaire
@@ -250,9 +276,39 @@ function SubmissionForm() {
       return;
     }
 
+    // Validation : au moins une source vidéo (YouTube URL OU fichier sélectionné)
+    if (!formData.youtubeUrl && !videoFile) {
+      alert("Veuillez fournir un lien YouTube/Vimeo ou sélectionner votre fichier vidéo");
+      return;
+    }
+
     setIsSubmitting(true);
+    let uploadedS3Key = null;
 
     try {
+      // Étape 1 : Si un fichier vidéo est sélectionné, l'uploader vers S3
+      if (videoFile) {
+        setIsUploading(true);
+        const videoFormData = new FormData();
+        videoFormData.append("video", videoFile);
+
+        const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/films/upload-video`, {
+          method: "POST",
+          body: videoFormData,
+        });
+
+        const uploadData = await uploadResponse.json();
+
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.error || "Erreur lors de l'upload de la vidéo");
+        }
+
+        uploadedS3Key = uploadData.key;
+        setS3VideoKey(uploadedS3Key);
+        setIsUploading(false);
+      }
+
+      // Étape 2 : Soumettre le formulaire avec toutes les données
       const response = await fetch(`${import.meta.env.VITE_API_URL}/films/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -268,6 +324,7 @@ function SubmissionForm() {
           language:    formData.language,
           aiToolsUsed: formData.aiToolsUsed,
           youtubeUrl:  formData.youtubeUrl,
+          s3VideoKey:  uploadedS3Key,
         }),
       });
 
@@ -282,6 +339,7 @@ function SubmissionForm() {
 
     } catch (err) {
       alert(err.message);
+      setIsUploading(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -503,7 +561,6 @@ function SubmissionForm() {
           type="url"
           id="youtubeUrl"
           name="youtubeUrl"
-          required
           placeholder="https://www.youtube.com/watch?v=..."
           className={inputClass}
           value={formData.youtubeUrl}
@@ -511,6 +568,77 @@ function SubmissionForm() {
         />
         <p className="marsai-finePrint">
           Ajoutez le lien de votre film hébergé sur YouTube ou Vimeo
+        </p>
+      </div>
+
+      <div style={{ textAlign: "center", margin: "1rem 0", opacity: 0.6 }}>
+        <span className="marsai-section-divider-text">— OU —</span>
+      </div>
+
+      <div>
+        <label className={labelClass}>
+          Upload direct de votre film
+        </label>
+        
+        {!videoFile && (
+          <div>
+            <input
+              type="file"
+              id="videoFile"
+              accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm"
+              onChange={handleVideoFileChange}
+              style={{ display: "none" }}
+            />
+            <label
+              htmlFor="videoFile"
+              className="marsai-upload-zone marsai-upload-zone--lg"
+              style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                alignItems: "center", 
+                gap: "0.75rem",
+                textAlign: "center"
+              }}
+            >
+              <svg className="marsai-upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span style={{ fontSize: "0.80rem", fontWeight: 600 }}>
+                Cliquez pour sélectionner votre fichier vidéo
+              </span>
+              <span style={{ fontSize: "0.70rem", opacity: 0.7 }}>
+                Formats: MP4, MOV, AVI, MKV, WEBM (Max 500 MB)
+              </span>
+            </label>
+          </div>
+        )}
+
+        {videoFile && (
+          <div className="marsai-file-preview" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <svg style={{ width: "1.5rem", height: "1.5rem", color: "var(--color-accent)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p style={{ fontWeight: 600, fontSize: "0.85rem" }}>{videoFile.name}</p>
+                <p style={{ fontSize: "0.75rem", opacity: 0.7, marginTop: "0.25rem" }}>
+                  {(videoFile.size / (1024 * 1024)).toFixed(2)} MB · Sera uploadé lors de la soumission
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleRemoveVideo}
+              className="marsai-delete-btn"
+              style={{ fontSize: "1.2rem" }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        <p className="marsai-finePrint">
+          Vous pouvez soit fournir un lien YouTube/Vimeo, soit uploader directement votre fichier vidéo
         </p>
       </div>
 
@@ -563,10 +691,10 @@ function SubmissionForm() {
         <Button
           type="submit"
           disabled={
-            !formData.acceptTerms || !formData.acceptPrivacy || isSubmitting
+            !formData.acceptTerms || !formData.acceptPrivacy || isSubmitting || isUploading
           }
         >
-          {isSubmitting ? "Soumission en cours..." : "Soumettre le film"}
+          {isUploading ? "Upload vidéo en cours..." : isSubmitting ? "Soumission en cours..." : "Soumettre le film"}
         </Button>
       </div>
     </form>
