@@ -65,4 +65,34 @@ export const galleryService = {
       throw error;
     }
   },
+
+  /**
+   * Récupère un film spécifique par son ID pour la page de détail
+   *
+   * @param {number|string} id - ID du film
+   * @returns {Promise<Object>} Détails du film
+   */
+  getById: async (id) => {
+    try {
+      const response = await fetch(`${API_URL}/gallery/${id}`);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("Film introuvable");
+        }
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Erreur lors de la récupération du film",
+        );
+      }
+
+      const film = await response.json();
+
+      // Le film est déjà formaté par le backend, on le retourne tel quel
+      return film;
+    } catch (error) {
+      console.error("❌ Erreur galleryService.getById:", error);
+      throw error;
+    }
+  },
 };

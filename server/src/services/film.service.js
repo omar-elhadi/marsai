@@ -16,10 +16,18 @@ import { mailService } from "./mail.service.js";
 export const submitFilm = async (data) => {
   const {
     // Champs Submitter
-    firstName, lastName, email, bio, instagram,
+    firstName,
+    lastName,
+    email,
+    bio,
+    instagram,
     // Champs Film
-    title, description, country, language,
-    aiToolsUsed, youtubeUrl,
+    title,
+    description,
+    country,
+    language,
+    aiToolsUsed,
+    youtubeUrl,
   } = data;
 
   // 1. Trouver le réalisateur existant ou le créer
@@ -29,7 +37,13 @@ export const submitFilm = async (data) => {
 
   if (!submitter) {
     submitter = await prisma.submitter.create({
-      data: { email, firstName, lastName, bio: bio || null, instagram: instagram || null },
+      data: {
+        email,
+        firstName,
+        lastName,
+        bio: bio || null,
+        instagram: instagram || null,
+      },
     });
   }
 
@@ -40,10 +54,10 @@ export const submitFilm = async (data) => {
       title,
       description,
       country,
-      language:    language || null,
+      language: language || null,
       aiToolsUsed,
-      youtubeUrl:  youtubeUrl || null,
-      status:      "SUBMITTED",
+      youtubeUrl: youtubeUrl || null,
+      status: "SUBMITTED",
     },
   });
 
@@ -63,14 +77,14 @@ export const submitFilm = async (data) => {
  * Admin = décideur final — peut faire toutes les transitions listées.
  */
 const VALID_TRANSITIONS = {
-  SUBMITTED:  ["IN_REVIEW", "APPROVED", "REJECTED", "TO_MODIFY"],
-  IN_REVIEW:  ["APPROVED", "REJECTED", "TO_MODIFY"],
-  TO_MODIFY:  ["IN_REVIEW", "APPROVED", "REJECTED"],
-  APPROVED:   ["SELECTION", "REJECTED", "TO_MODIFY"],
-  SELECTION:  ["FINALIST", "APPROVED"],
-  FINALIST:   ["AWARD", "SELECTION"],
-  REJECTED:   [], // statut final
-  AWARD:      [], // statut final
+  SUBMITTED: ["IN_REVIEW", "APPROVED", "REJECTED", "TO_MODIFY"],
+  IN_REVIEW: ["APPROVED", "REJECTED", "TO_MODIFY"],
+  TO_MODIFY: ["IN_REVIEW", "APPROVED", "REJECTED"],
+  APPROVED: ["SELECTION", "REJECTED", "TO_MODIFY"],
+  SELECTION: ["FINALIST", "APPROVED"],
+  FINALIST: ["AWARD", "SELECTION"],
+  REJECTED: [], // statut final
+  AWARD: [], // statut final
 };
 
 /**
@@ -89,25 +103,27 @@ export const getFilms = async ({ status, search, hasSuggestions } = {}) => {
   // Sous-filtre "Suggestions" : films IN_REVIEW avec ≥1 jury qui suggère une modif
   if (hasSuggestions === "true" || hasSuggestions === true) {
     where.status = "IN_REVIEW";
-    where.votes  = { some: { suggestModification: true } };
+    where.votes = { some: { suggestModification: true } };
   }
 
   if (search) {
     where.OR = [
-      { title:     { contains: search } },
-      { country:   { contains: search } },
-      { submitter: { email:     { contains: search } } },
+      { title: { contains: search } },
+      { country: { contains: search } },
+      { submitter: { email: { contains: search } } },
       { submitter: { firstName: { contains: search } } },
-      { submitter: { lastName:  { contains: search } } },
+      { submitter: { lastName: { contains: search } } },
     ];
   }
 
   return prisma.film.findMany({
     where,
     include: {
-      submitter:     { select: { id: true, firstName: true, lastName: true, email: true } },
+      submitter: {
+        select: { id: true, firstName: true, lastName: true, email: true },
+      },
       assignedUsers: { select: { id: true, firstName: true, lastName: true } },
-      _count:        { select: { votes: true } },
+      _count: { select: { votes: true } },
     },
     orderBy: { submittedAt: "desc" },
   });
@@ -122,12 +138,15 @@ export const getFilmsStats = async () => {
     prisma.film.groupBy({ by: ["status"], _count: { id: true } }),
     // Films IN_REVIEW avec ≥1 jury suggérant une modification
     prisma.film.count({
-      where: { status: "IN_REVIEW", votes: { some: { suggestModification: true } } },
+      where: {
+        status: "IN_REVIEW",
+        votes: { some: { suggestModification: true } },
+      },
     }),
   ]);
 
   const counts = Object.fromEntries(
-    byStatus.map(({ status, _count }) => [status, _count.id])
+    byStatus.map(({ status, _count }) => [status, _count.id]),
   );
 
   return { total, byStatus: counts, suggestions };
@@ -142,7 +161,7 @@ export const getFilmsStats = async () => {
  */
 export const assignUsersToFilm = async (filmId, userIds) => {
   const film = await prisma.film.findUnique({
-    where:   { id: filmId },
+    where: { id: filmId },
     include: { _count: { select: { votes: true } } },
   });
   if (!film) {
@@ -152,8 +171,10 @@ export const assignUsersToFilm = async (filmId, userIds) => {
   // Blocage si des votes ont déjà été déposés (règle business R-ASSIGN-003)
   if (film._count.votes > 0 && userIds.length > 0) {
     throw Object.assign(
-      new Error("Impossible de modifier les jurys : des votes ont déjà été déposés."),
-      { statusCode: 409 }
+      new Error(
+        "Impossible de modifier les jurys : des votes ont déjà été déposés.",
+      ),
+      { statusCode: 409 },
     );
   }
 
@@ -170,8 +191,8 @@ export const assignUsersToFilm = async (filmId, userIds) => {
 
   return prisma.film.update({
     where: { id: filmId },
-    data:  {
-      assignedUsers: { set: userIds.map(id => ({ id })) },
+    data: {
+      assignedUsers: { set: userIds.map((id) => ({ id })) },
       status: newStatus,
     },
     include: {
@@ -191,11 +212,13 @@ export const getFilmById = async (filmId) => {
   const film = await prisma.film.findUnique({
     where: { id: filmId },
     include: {
-      submitter:     true,
-      assignedUsers: { select: { id: true, firstName: true, lastName: true, email: true } },
+      submitter: true,
+      assignedUsers: {
+        select: { id: true, firstName: true, lastName: true, email: true },
+      },
       votes: {
         include: {
-          user:     { select: { id: true, firstName: true, lastName: true } },
+          user: { select: { id: true, firstName: true, lastName: true } },
           comments: true,
         },
         orderBy: { votedAt: "desc" },
@@ -234,8 +257,10 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
   // Transitions SELECTION / FINALIST / AWARD : ADMIN uniquement
   if (ADMIN_ONLY_TARGETS.has(newStatus) && role !== "ADMIN") {
     throw Object.assign(
-      new Error(`La transition vers ${newStatus} est réservée aux administrateurs.`),
-      { statusCode: 403 }
+      new Error(
+        `La transition vers ${newStatus} est réservée aux administrateurs.`,
+      ),
+      { statusCode: 403 },
     );
   }
 
@@ -243,13 +268,13 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
   if (!allowed.includes(newStatus)) {
     throw Object.assign(
       new Error(`Transition invalide : ${film.status} → ${newStatus}`),
-      { statusCode: 400 }
+      { statusCode: 400 },
     );
   }
 
   return prisma.film.update({
     where: { id: filmId },
-    data:  { status: newStatus },
+    data: { status: newStatus },
   });
 };
 
@@ -267,7 +292,7 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
  */
 export const requestModification = async (filmId, message, adminUserId) => {
   const film = await prisma.film.findUnique({
-    where:   { id: filmId },
+    where: { id: filmId },
     include: { submitter: true },
   });
 
@@ -275,36 +300,38 @@ export const requestModification = async (filmId, message, adminUserId) => {
     throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
   }
   if (!film.submitter) {
-    throw Object.assign(new Error("Réalisateur introuvable"), { statusCode: 404 });
+    throw Object.assign(new Error("Réalisateur introuvable"), {
+      statusCode: 404,
+    });
   }
 
   // Snapshot de la version actuelle avant modification
   await prisma.filmVersion.create({
     data: {
-      filmId:      film.id,
-      title:       film.title,
+      filmId: film.id,
+      title: film.title,
       description: film.description,
       aiToolsUsed: film.aiToolsUsed,
-      youtubeUrl:  film.youtubeUrl  ?? null,
-      posterUrl:   film.posterUrl   ?? null,
+      youtubeUrl: film.youtubeUrl ?? null,
+      posterUrl: film.posterUrl ?? null,
     },
   });
 
   // Token d'édition 7 jours sur le compte Submitter
-  const token   = crypto.randomBytes(32).toString("hex");
+  const token = crypto.randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   await prisma.submitter.update({
     where: { id: film.submitter.id },
-    data:  { loginToken: token, tokenExpires: expires },
+    data: { loginToken: token, tokenExpires: expires },
   });
 
   // Mise à jour du film
   const updated = await prisma.film.update({
     where: { id: filmId },
     data: {
-      status:                  "TO_MODIFY",
-      modificationRequest:     message,
+      status: "TO_MODIFY",
+      modificationRequest: message,
       modificationRequestedAt: new Date(),
       modificationRequestedBy: adminUserId,
     },
@@ -333,17 +360,25 @@ export const getFilmByEditToken = async (token) => {
     where: { loginToken: token },
   });
 
-  if (!submitter || !submitter.tokenExpires || submitter.tokenExpires < new Date()) {
-    throw Object.assign(new Error("Lien invalide ou expiré"), { statusCode: 404 });
+  if (
+    !submitter ||
+    !submitter.tokenExpires ||
+    submitter.tokenExpires < new Date()
+  ) {
+    throw Object.assign(new Error("Lien invalide ou expiré"), {
+      statusCode: 404,
+    });
   }
 
   const film = await prisma.film.findFirst({
-    where:   { submitterId: submitter.id, status: "TO_MODIFY" },
+    where: { submitterId: submitter.id, status: "TO_MODIFY" },
     include: { submitter: true },
   });
 
   if (!film) {
-    throw Object.assign(new Error("Aucun film en attente de modification"), { statusCode: 404 });
+    throw Object.assign(new Error("Aucun film en attente de modification"), {
+      statusCode: 404,
+    });
   }
 
   return film;
@@ -359,15 +394,15 @@ export const trackFilmByToken = async (submissionToken) => {
   const film = await prisma.film.findUnique({
     where: { submissionToken },
     select: {
-      title:                   true,
-      description:             true,
-      country:                 true,
-      language:                true,
-      aiToolsUsed:             true,
-      youtubeUrl:              true,
-      status:                  true,
-      submittedAt:             true,
-      modificationRequest:     true,
+      title: true,
+      description: true,
+      country: true,
+      language: true,
+      aiToolsUsed: true,
+      youtubeUrl: true,
+      status: true,
+      submittedAt: true,
+      modificationRequest: true,
       modificationRequestedAt: true,
       submitter: {
         select: { firstName: true, lastName: true },
@@ -376,7 +411,9 @@ export const trackFilmByToken = async (submissionToken) => {
   });
 
   if (!film) {
-    throw Object.assign(new Error("Film introuvable ou lien invalide"), { statusCode: 404 });
+    throw Object.assign(new Error("Film introuvable ou lien invalide"), {
+      statusCode: 404,
+    });
   }
 
   return film;
@@ -392,19 +429,22 @@ export const trackFilmByToken = async (submissionToken) => {
  * @param {string} token - Submitter.loginToken
  * @param {{ title, description, youtubeUrl, aiToolsUsed }} data
  */
-export const applyFilmEdit = async (token, { title, description, youtubeUrl, aiToolsUsed }) => {
+export const applyFilmEdit = async (
+  token,
+  { title, description, youtubeUrl, aiToolsUsed },
+) => {
   // Vérification token + récupération film
   const film = await getFilmByEditToken(token);
 
   // Snapshot avant modification (traçabilité)
   await prisma.filmVersion.create({
     data: {
-      filmId:      film.id,
-      title:       film.title,
+      filmId: film.id,
+      title: film.title,
       description: film.description,
       aiToolsUsed: film.aiToolsUsed,
-      youtubeUrl:  film.youtubeUrl ?? null,
-      posterUrl:   film.posterUrl  ?? null,
+      youtubeUrl: film.youtubeUrl ?? null,
+      posterUrl: film.posterUrl ?? null,
     },
   });
 
@@ -412,9 +452,9 @@ export const applyFilmEdit = async (token, { title, description, youtubeUrl, aiT
   return prisma.film.update({
     where: { id: film.id },
     data: {
-      title:       title?.trim()       ?? film.title,
+      title: title?.trim() ?? film.title,
       description: description?.trim() ?? film.description,
-      youtubeUrl:  youtubeUrl?.trim()  ?? film.youtubeUrl,
+      youtubeUrl: youtubeUrl?.trim() ?? film.youtubeUrl,
       aiToolsUsed: aiToolsUsed?.trim() ?? film.aiToolsUsed,
       // status reste TO_MODIFY — c'est l'admin qui décide ensuite
     },

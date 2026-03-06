@@ -66,6 +66,7 @@ import { useRef, useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { galleryService } from "@/services/api/gallery.service.js";
 import { GALLERY_MOVIES } from "@/data/mockData";
 import { ROUTES } from "@/constants/routes";
 import styles from "./FilmPage.module.css";
@@ -102,9 +103,26 @@ export default function FilmPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const found = GALLERY_MOVIES.find((m) => String(m.id) === String(id));
-    setFilm(found ?? null);
-    setLoading(false);
+    const loadFilm = async () => {
+      try {
+        setLoading(true);
+        const data = await galleryService.getById(id);
+        setFilm(data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération du film:", err);
+        setFilm(null);
+        // Fallback sur les données statiques en cas d'erreur (dev only)
+        if (import.meta.env.DEV) {
+          console.warn("⚠️ Utilisation des données statiques en fallback");
+          const found = GALLERY_MOVIES.find((m) => String(m.id) === String(id));
+          setFilm(found ?? null);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFilm();
   }, [id]);
 
   // ── Animation d'entrée ─────────────────────────────────────
@@ -176,7 +194,9 @@ export default function FilmPage() {
           </div>
 
           {/* Pill catégorie */}
-          <span className={styles.categoryBadge}>{film.category}</span>
+          {film.category && (
+            <span className={styles.categoryBadge}>{film.category}</span>
+          )}
 
           {/* Titre */}
           <h1 className={styles.filmTitle}>{film.title}</h1>
@@ -231,12 +251,14 @@ export default function FilmPage() {
               { label: "Titre", value: film.title },
               { label: "Réalisateur", value: film.director },
               { label: "Catégorie", value: film.category },
-            ].map(({ label, value }) => (
-              <div key={label}>
-                <span className={styles.metaLabel}>{label}</span>
-                <span className={styles.metaValue}>{value}</span>
-              </div>
-            ))}
+            ]
+              .filter(({ value }) => value) // Filtre les valeurs null/undefined
+              .map(({ label, value }) => (
+                <div key={label}>
+                  <span className={styles.metaLabel}>{label}</span>
+                  <span className={styles.metaValue}>{value}</span>
+                </div>
+              ))}
           </div>
         </div>
         {/* fin bodyRef */}
