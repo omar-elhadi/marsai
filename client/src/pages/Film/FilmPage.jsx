@@ -17,7 +17,7 @@
  * ÉTAT ACTUEL — Données statiques
  * ═══════════════════════════════════════════════════════════════
  *
- * La galerie (MovieGallery.jsx) tourne sur galleryMovies[] statique.
+ * La galerie (MovieGallery.jsx) tourne sur GALLERY_MOVIES[] statique.
  * FilmPage lit la même source — cohérence garantie.
  * Quand MovieGallery migre vers l'API, FilmPage suit le même
  * mouvement sans restructuration du JSX.
@@ -62,13 +62,13 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef, useState, useEffect } from 'react';
-import { useParams, Link }             from 'react-router-dom';
-import gsap                            from 'gsap';
-import { useGSAP }                     from '@gsap/react';
-import { galleryMovies }               from '@/pages/Gallery/components/MovieGallery';
-import { ROUTES }                      from '@/constants/routes';
-import styles                          from './FilmPage.module.css';
+import { useRef, useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { GALLERY_MOVIES } from "@/data/mockData";
+import { ROUTES } from "@/constants/routes";
+import styles from "./FilmPage.module.css";
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -85,49 +85,49 @@ const getYoutubeId = (url) => {
 // Chemin retour centralisé — si ROUTES.GALERIE change, un seul endroit.
 const BACK_HREF = ROUTES.GALERIE;
 
-
 // ─────────────────────────────────────────────────────────────
 // COMPOSANT
 // ─────────────────────────────────────────────────────────────
 export default function FilmPage() {
-  const { id }    = useParams();
-  const pageRef   = useRef(null);
+  const { id } = useParams();
+  const pageRef = useRef(null);
   const headerRef = useRef(null);
-  const bodyRef   = useRef(null);
+  const bodyRef = useRef(null);
 
   // ── Source de données ───────────────────────────────────────
   // DONNÉES STATIQUES — actives jusqu'à connexion backend.
   // Voir bloc CONTRAT DE MIGRATION BACKEND ci-dessus.
   // id dans l'URL est une string — comparaison via String() explicite.
-  const [film, setFilm]       = useState(null);
+  const [film, setFilm] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const found = galleryMovies.find(m => String(m.id) === String(id));
+    const found = GALLERY_MOVIES.find((m) => String(m.id) === String(id));
     setFilm(found ?? null);
     setLoading(false);
   }, [id]);
-
 
   // ── Animation d'entrée ─────────────────────────────────────
   // GSAP anime opacity + y sur headerRef et bodyRef.
   // clearProps: 'all' libère le contrôle CSS après l'entrée.
   // Le CSS module ne déclare pas opacity/transform — pas de conflit.
-  useGSAP(() => {
-    if (!film || loading) return;
+  useGSAP(
+    () => {
+      if (!film || loading) return;
 
-    const els = [headerRef.current, bodyRef.current].filter(Boolean);
-    gsap.set(els, { opacity: 0, y: 24 });
-    gsap.to(els, {
-      opacity:    1,
-      y:          0,
-      duration:   0.65,
-      stagger:    0.12,
-      ease:       'power2.out',
-      clearProps: 'all',
-    });
-  }, { scope: pageRef, dependencies: [film, loading] });
-
+      const els = [headerRef.current, bodyRef.current].filter(Boolean);
+      gsap.set(els, { opacity: 0, y: 24 });
+      gsap.to(els, {
+        opacity: 1,
+        y: 0,
+        duration: 0.65,
+        stagger: 0.12,
+        ease: "power2.out",
+        clearProps: "all",
+      });
+    },
+    { scope: pageRef, dependencies: [film, loading] },
+  );
 
   // ── États transitoires ─────────────────────────────────────
   if (loading) {
@@ -150,16 +150,24 @@ export default function FilmPage() {
   return (
     <div ref={pageRef} className={styles.page}>
       <div className={styles.container}>
-
         {/* ── En-tête ────────────────────────────────────────── */}
         <header ref={headerRef} className={styles.pageHeader}>
-
           {/* Navigation retour */}
           <div className={styles.navRow}>
             <Link to={BACK_HREF} className={styles.backLink}>
-              <svg width="14" height="8" viewBox="0 0 14 8" fill="none" aria-hidden="true">
-                <path d="M13 4H1M4 1L1 4L4 7"
-                  stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              <svg
+                width="14"
+                height="8"
+                viewBox="0 0 14 8"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M13 4H1M4 1L1 4L4 7"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                />
               </svg>
               Galerie
             </Link>
@@ -175,20 +183,16 @@ export default function FilmPage() {
 
           {/* Réalisateur */}
           <p className={styles.filmDirector}>{film.director}</p>
-
         </header>
 
         {/* ── Corps ──────────────────────────────────────────── */}
         <div ref={bodyRef}>
-
           {/* ── Lecteur vidéo / image ─────────────────────────
               Cas 1 : YouTube  → iframe 16/9
               Cas 2 : S3       → <video controls>
               Cas 3 : pas de vidéo → image de couverture + badge */}
           <div className={styles.mediaWrapper}>
-
             {youtubeId ? (
-
               <div className={styles.youtubeWrapper}>
                 <iframe
                   className={styles.youtubeIframe}
@@ -198,18 +202,14 @@ export default function FilmPage() {
                   allowFullScreen
                 />
               </div>
-
-            ) : film.videoUrl && film.videoSource === 's3' ? (
-
+            ) : film.videoUrl && film.videoSource === "s3" ? (
               <video
                 className={styles.videoS3}
                 src={film.videoUrl}
                 controls
                 aria-label={`Lecture de ${film.title}`}
               />
-
             ) : (
-
               <div className={styles.imageFallbackWrapper}>
                 <img
                   className={styles.fallbackImg}
@@ -220,9 +220,7 @@ export default function FilmPage() {
                   Vidéo disponible prochainement
                 </div>
               </div>
-
             )}
-
           </div>
 
           {/* ── Métadonnées ────────────────────────────────────
@@ -230,9 +228,9 @@ export default function FilmPage() {
               country, aiToolsUsed viendront dans la migration). */}
           <div className={styles.metaGrid}>
             {[
-              { label: 'Titre',       value: film.title },
-              { label: 'Réalisateur', value: film.director },
-              { label: 'Catégorie',   value: film.category },
+              { label: "Titre", value: film.title },
+              { label: "Réalisateur", value: film.director },
+              { label: "Catégorie", value: film.category },
             ].map(({ label, value }) => (
               <div key={label}>
                 <span className={styles.metaLabel}>{label}</span>
@@ -240,9 +238,8 @@ export default function FilmPage() {
               </div>
             ))}
           </div>
-
-        </div>{/* fin bodyRef */}
-
+        </div>
+        {/* fin bodyRef */}
       </div>
     </div>
   );
