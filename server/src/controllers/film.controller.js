@@ -10,6 +10,7 @@ import {
   applyFilmEdit as applyFilmEditService,
   trackFilmByToken as fetchFilmBySubmissionToken,
 } from "../services/film.service.js";
+import { uploadFileToS3 } from "../services/s3.service.js";
 
 /**
  * POST /api/films/submit
@@ -29,6 +30,7 @@ export const submit = async (req, res) => {
       language,
       aiToolsUsed,
       youtubeUrl,
+      s3VideoKey,
     } = req.body;
 
     // Validation des champs obligatoires
@@ -64,6 +66,7 @@ export const submit = async (req, res) => {
       language,
       aiToolsUsed: aiToolsUsed.trim(),
       youtubeUrl,
+      s3VideoKey,
     });
 
     return res.status(201).json({
@@ -255,5 +258,32 @@ export const assign = async (req, res) => {
     const code = error.statusCode || 500;
     console.error("❌ Erreur assign:", error.message);
     return res.status(code).json({ error: error.message });
+  }
+};
+
+/**
+ * POST /api/films/upload-video
+ * Upload d'une vidéo vers Scaleway S3
+ * Multipart form-data avec le fichier vidéo
+ */
+export const uploadVideo = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Aucun fichier reçu" });
+    }
+
+    const { buffer, originalname, mimetype } = req.file;
+
+    // Upload vers S3
+    const { url, key } = await uploadFileToS3(buffer, originalname, mimetype);
+
+    return res.status(200).json({
+      message: "Vidéo uploadée avec succès",
+      url,
+      key,
+    });
+  } catch (error) {
+    console.error("❌ Erreur uploadVideo:", error);
+    return res.status(500).json({ error: error.message });
   }
 };
