@@ -374,6 +374,9 @@ export default function MovieGallery() {
       if (!galleryRootRef.current || !sectionRef.current || !wrapperRef.current)
         return;
 
+      // Attendre que les films soient chargés avant d'initialiser GSAP
+      if (!films || films.length === 0) return;
+
       // ── Mesures dynamiques ──────────────────────────────────────
       // Posées via DOM direct, hors du context GSAP.
       // context.revert() ne les touche pas → layout stable après cleanup.
@@ -461,7 +464,7 @@ export default function MovieGallery() {
         window.dispatchEvent(new CustomEvent("lenis:resize"));
       });
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [films] },
   );
 
   return (

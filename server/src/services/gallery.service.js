@@ -3,7 +3,7 @@ import prisma from "../utils/prisma.js";
 export const fetchGallery = async () => {
   try {
     const films = await prisma.film.findMany({
-      where: { status: "AWARD" },
+      where: { status: "IN_REVIEW" },
       select: {
         id: true,
         title: true,
