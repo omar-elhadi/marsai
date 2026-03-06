@@ -28,6 +28,7 @@ export const submitFilm = async (data) => {
     language,
     aiToolsUsed,
     youtubeUrl,
+    s3VideoKey,
   } = data;
 
   // 1. Trouver le réalisateur existant ou le créer
@@ -57,6 +58,7 @@ export const submitFilm = async (data) => {
       language: language || null,
       aiToolsUsed,
       youtubeUrl: youtubeUrl || null,
+      s3VideoKey: s3VideoKey || null,
       status: "SUBMITTED",
     },
   });
