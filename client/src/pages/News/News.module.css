@@ -288,13 +288,6 @@
   }
 }
 
-/* ── Variante large — hero ── */
-/* La hauteur est gérée par .cardHero ci-dessus.
-   Cette classe conserve la compatibilité sémantique. */
-.cardLarge {
-  /* intentionnellement vide — hauteur gérée par .cardHero */
-}
-
 
 /* ─────────────────────────────────────────────────────────────
    IMAGE DE FOND — cartes verticales
@@ -492,13 +485,15 @@
 }
 
 .desc[data-text-size='large'] {
-  font-size:            0.9rem;
-  -webkit-line-clamp:   3;
+  font-size:          0.9rem;
+  -webkit-line-clamp: 3; /* support universel — Chrome <126, Safari, Firefox */
+  line-clamp:         3; /* standard CSS Overflow 4 — Chrome 126+             */
 }
 
 .desc[data-text-size='medium'] {
-  font-size:            0.78rem;
-  -webkit-line-clamp:   2;
+  font-size:          0.78rem;
+  -webkit-line-clamp: 2;
+  line-clamp:         2;
 }
 
 

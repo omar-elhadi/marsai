@@ -133,7 +133,6 @@ function BentoCard({ item, gridClass, textSize, horizontal }) {
     styles.card,
     styles[gridClass],
     horizontal ? styles.cardHorizontal : styles.cardVertical,
-    textSize === 'large' && !horizontal ? styles.cardLarge : '',
   ].filter(Boolean).join(' ');
 
   return (
