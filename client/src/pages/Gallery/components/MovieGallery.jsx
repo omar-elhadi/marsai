@@ -42,12 +42,14 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef }       from 'react';
-import gsap              from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP }       from '@gsap/react';
-import MovieCard         from './MovieCard';
-import styles            from './MovieGallery.module.css';
+import { useRef, useEffect, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import MovieCard from "./MovieCard";
+import styles from "./MovieGallery.module.css";
+import { galleryService } from "@/services/api/gallery.service.js";
+import { GALLERY_MOVIES } from "@/data/mockData.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -161,82 +163,11 @@ gsap.registerPlugin(ScrollTrigger);
 //   selon videoSource.
 //
 // ─────────────────────────────────────────────────────────────
-// DONNÉES STATIQUES — actives jusqu'à connexion backend
 // ─────────────────────────────────────────────────────────────
-export const galleryMovies = [
-  {
-    id:          1,
-    title:       "L'Aube Synthétique",
-    director:    'Elena Rostova',
-    category:    'Fiction',
-    img:         'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,   // À remplacer par URL S3 ou ID YouTube
-    videoSource: 's3',
-  },
-  {
-    id:          2,
-    title:       'Mémoire Latente',
-    director:    'Kaelen & I.A. Core',
-    category:    'Expérimental',
-    img:         'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 's3',
-  },
-  {
-    id:          3,
-    title:       'Racines de Silicium',
-    director:    'Studio Horizon',
-    category:    'Documentaire',
-    img:         'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 's3',
-  },
-  {
-    id:          4,
-    title:       'Écho Humain',
-    director:    'Collectif 2026',
-    category:    'Fiction',
-    img:         'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 's3',
-  },
-  {
-    id:          5,
-    title:       'Fragments du Futur',
-    director:    'Nadia Volkov',
-    category:    'Expérimental',
-    img:         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 'youtube',
-  },
-  {
-    id:          6,
-    title:       'La Dernière Image',
-    director:    'Marc Tessier',
-    category:    'Documentaire',
-    img:         'https://images.unsplash.com/photo-1519608425089-7f3bfa6f6bb8?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 's3',
-  },
-  {
-    id:          7,
-    title:       'Protocole Lumière',
-    director:    'Amara Diallo',
-    category:    'Fiction',
-    img:         'https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 'youtube',
-  },
-  {
-    id:          8,
-    title:       'Signal Perdu',
-    director:    'Yuki Tanaka',
-    category:    'Expérimental',
-    img:         'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1600&auto=format&fit=crop',
-    videoUrl:    null,
-    videoSource: 's3',
-  },
-];
+// DONNÉES STATIQUES — Déplacées vers /data/mockData.js (GALLERY_MOVIES)
+// Les données statiques sont maintenant utilisées uniquement comme fallback
+// en cas d'erreur de connexion API (mode développement)
+// ─────────────────────────────────────────────────────────────
 
 // FILMS_PER_PAGE sera réintroduit lors de la connexion backend.
 // L'API recevra : GET /api/films?page=1&limit=8
@@ -399,116 +330,139 @@ export const galleryMovies = [
 //
 // ─────────────────────────────────────────────────────────────
 
-
-
 // const FILMS_PER_PAGE = 8; Cette constante sera réintroduite lors de la connexion backend. L'API recevra : GET /api/films?page=1&limit=8
 // Voir bloc CONTRAT D'INTERFACE BACKEND ci-dessus.
 
-
-
 export default function MovieGallery() {
-
   // galleryRootRef : paddingTop = headerH (DOM direct, hors context GSAP).
   //   Non revert au cleanup → section toujours sous le header.
   const galleryRootRef = useRef(null);
 
   // sectionRef : cible du pin:true. height = vh − headerH (DOM direct).
   //   scope de useGSAP → toutes les queries GSAP sont scoped ici.
-  const sectionRef    = useRef(null);
+  const sectionRef = useRef(null);
 
   // wrapperRef  : translateX animé par la timeline.
   // progressRef : scaleX animé par onUpdate (0 → 1).
   // scrollHintRef : disparaît après 3% de progression.
-  const wrapperRef    = useRef(null);
-  const progressRef   = useRef(null);
+  const wrapperRef = useRef(null);
+  const progressRef = useRef(null);
   const scrollHintRef = useRef(null);
 
-  useGSAP(() => {
-    if (!galleryRootRef.current || !sectionRef.current || !wrapperRef.current) return;
+  const [films, setFilms] = useState([]);
 
-    // ── Mesures dynamiques ──────────────────────────────────────
-    // Posées via DOM direct, hors du context GSAP.
-    // context.revert() ne les touche pas → layout stable après cleanup.
-    const headerEl = document.querySelector('header');
-    const headerH  = headerEl ? headerEl.offsetHeight : 64;
-    const sectionH = window.innerHeight - headerH;
+  useEffect(() => {
+    const loadGallery = async () => {
+      try {
+        const data = await galleryService.getAll();
+        setFilms(data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des films :", err);
+        // Fallback sur les données statiques en cas d'erreur (dev only)
+        if (import.meta.env.DEV) {
+          console.warn("⚠️ Utilisation des données statiques en fallback");
+          setFilms(GALLERY_MOVIES);
+        }
+      }
+    };
 
-    galleryRootRef.current.style.paddingTop = headerH  + 'px';
-    sectionRef.current.style.height        = sectionH + 'px';
+    loadGallery();
+  }, []);
 
-    const scrollDistance = wrapperRef.current.scrollWidth - window.innerWidth;
-    if (scrollDistance <= 0) return;
+  useGSAP(
+    () => {
+      if (!galleryRootRef.current || !sectionRef.current || !wrapperRef.current)
+        return;
 
-    if (scrollHintRef.current) {
-      gsap.set(scrollHintRef.current, { opacity: 1, display: '' });
-    }
+      // ── Mesures dynamiques ──────────────────────────────────────
+      // Posées via DOM direct, hors du context GSAP.
+      // context.revert() ne les touche pas → layout stable après cleanup.
+      const headerEl = document.querySelector("header");
+      const headerH = headerEl ? headerEl.offsetHeight : 64;
+      const sectionH = window.innerHeight - headerH;
 
-    // ── Timeline unifiée ────────────────────────────────────────
-    //
-    // pin:true + pinSpacing:true :
-    //   GSAP applique position:fixed à la section pendant le scroll.
-    //   Le scroll vertical est entièrement consommé par la translation H.
-    //   Aucun axe parasite. Le pin-spacer maintient la place dans le flux.
-    //
-    // scrub:1.2 : inertie légère pour une sensation luxueuse.
-    // invalidateOnRefresh:true : recalcule scrollDistance au resize.
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger:             sectionRef.current,
-        pin:                 true,
-        pinSpacing:          true,
-        scrub:               1.2,
-        start:               'top top+=' + headerH,
-        end:                 () => '+=' + (wrapperRef.current.scrollWidth - window.innerWidth),
-        invalidateOnRefresh: true,
+      galleryRootRef.current.style.paddingTop = headerH + "px";
+      sectionRef.current.style.height = sectionH + "px";
 
-        onRefresh() {
-          if (!galleryRootRef.current || !sectionRef.current) return;
-          const hEl  = document.querySelector('header');
-          const hH   = hEl ? hEl.offsetHeight : 64;
-          const sH   = window.innerHeight - hH;
-          galleryRootRef.current.style.paddingTop = hH + 'px';
-          sectionRef.current.style.height        = sH + 'px';
-          window.dispatchEvent(new CustomEvent('lenis:resize'));
+      const scrollDistance = wrapperRef.current.scrollWidth - window.innerWidth;
+      if (scrollDistance <= 0) return;
+
+      if (scrollHintRef.current) {
+        gsap.set(scrollHintRef.current, { opacity: 1, display: "" });
+      }
+
+      // ── Timeline unifiée ────────────────────────────────────────
+      //
+      // pin:true + pinSpacing:true :
+      //   GSAP applique position:fixed à la section pendant le scroll.
+      //   Le scroll vertical est entièrement consommé par la translation H.
+      //   Aucun axe parasite. Le pin-spacer maintient la place dans le flux.
+      //
+      // scrub:1.2 : inertie légère pour une sensation luxueuse.
+      // invalidateOnRefresh:true : recalcule scrollDistance au resize.
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          pin: true,
+          pinSpacing: true,
+          scrub: 1.2,
+          start: "top top+=" + headerH,
+          end: () =>
+            "+=" + (wrapperRef.current.scrollWidth - window.innerWidth),
+          invalidateOnRefresh: true,
+
+          onRefresh() {
+            if (!galleryRootRef.current || !sectionRef.current) return;
+            const hEl = document.querySelector("header");
+            const hH = hEl ? hEl.offsetHeight : 64;
+            const sH = window.innerHeight - hH;
+            galleryRootRef.current.style.paddingTop = hH + "px";
+            sectionRef.current.style.height = sH + "px";
+            window.dispatchEvent(new CustomEvent("lenis:resize"));
+          },
+
+          onUpdate(self) {
+            if (progressRef.current) {
+              gsap.set(progressRef.current, { scaleX: self.progress });
+            }
+            if (scrollHintRef.current && self.progress > 0.03) {
+              gsap.to(scrollHintRef.current, {
+                opacity: 0,
+                y: 6,
+                duration: 0.4,
+                ease: "power2.out",
+                onComplete() {
+                  if (scrollHintRef.current)
+                    scrollHintRef.current.style.display = "none";
+                },
+              });
+            }
+          },
         },
+      });
 
-        onUpdate(self) {
-          if (progressRef.current) {
-            gsap.set(progressRef.current, { scaleX: self.progress });
-          }
-          if (scrollHintRef.current && self.progress > 0.03) {
-            gsap.to(scrollHintRef.current, {
-              opacity: 0, y: 6, duration: 0.4, ease: 'power2.out',
-              onComplete() {
-                if (scrollHintRef.current) scrollHintRef.current.style.display = 'none';
-              },
-            });
-          }
-        },
-      },
-    });
+      // Position 0 : translation du wrapper
+      tl.to(wrapperRef.current, { x: -scrollDistance, ease: "none" }, 0);
 
-    // Position 0 : translation du wrapper
-    tl.to(wrapperRef.current, { x: -scrollDistance, ease: 'none' }, 0);
+      // Position 0 : parallaxe interne par image
+      //
+      // x : 15vw → -15vw — l'image glisse dans son cadre opaque pendant
+      //   que la carte traverse le viewport.
+      //   scale:1.3 en CSS (hors context) absorbe le déplacement :
+      //   30% d'agrandissement = 15% de marge par côté → jamais de bord visible.
+      //   Le scale étant en CSS et non dans le fromTo, revert() le laisse intact.
+      gsap.utils.toArray(".movie-card").forEach((card) => {
+        const img = card.querySelector(".movie-image");
+        if (img) tl.fromTo(img, { x: "15vw" }, { x: "-15vw", ease: "none" }, 0);
+      });
 
-    // Position 0 : parallaxe interne par image
-    //
-    // x : 15vw → -15vw — l'image glisse dans son cadre opaque pendant
-    //   que la carte traverse le viewport.
-    //   scale:1.3 en CSS (hors context) absorbe le déplacement :
-    //   30% d'agrandissement = 15% de marge par côté → jamais de bord visible.
-    //   Le scale étant en CSS et non dans le fromTo, revert() le laisse intact.
-    gsap.utils.toArray('.movie-card').forEach((card) => {
-      const img = card.querySelector('.movie-image');
-      if (img) tl.fromTo(img, { x: '15vw' }, { x: '-15vw', ease: 'none' }, 0);
-    });
-
-    // Lenis recalcule la hauteur du document (pin-spacer vient d'être créé)
-    requestAnimationFrame(() => {
-      window.dispatchEvent(new CustomEvent('lenis:resize'));
-    });
-
-  }, { scope: sectionRef });
+      // Lenis recalcule la hauteur du document (pin-spacer vient d'être créé)
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent("lenis:resize"));
+      });
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <div ref={galleryRootRef} className={styles.galleryRoot}>
@@ -517,15 +471,23 @@ export default function MovieGallery() {
         className={styles.section}
         aria-label="Galerie des films — défilement horizontal"
       >
-        <div ref={progressRef} className={styles.progressBar} aria-hidden="true" />
+        <div
+          ref={progressRef}
+          className={styles.progressBar}
+          aria-hidden="true"
+        />
 
         <div ref={wrapperRef} className={styles.wrapper}>
-          {galleryMovies.map((movie, i) => (
-            <MovieCard key={movie.id + '-' + i} movie={movie} index={i} />
+          {films.map((movie, i) => (
+            <MovieCard key={movie.id + "-" + i} movie={movie} index={i} />
           ))}
         </div>
 
-        <div ref={scrollHintRef} className={styles.scrollHint} aria-hidden="true">
+        <div
+          ref={scrollHintRef}
+          className={styles.scrollHint}
+          aria-hidden="true"
+        >
           <span className={styles.scrollHintText}>Défiler</span>
           <span className={styles.scrollHintArrow}>→</span>
         </div>

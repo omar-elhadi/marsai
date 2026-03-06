@@ -1,9 +1,29 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import { submit, getFilms, getStats, getOne, updateStatus, assign, requestModification, getByEditToken, applyEdit, trackFilm } from "../controllers/film.controller.js";
-import { verifyToken, isAdminOrModerator } from "../middlewares/auth.middleware.js";
+import {
+  submit,
+  getFilms,
+  getStats,
+  getOne,
+  updateStatus,
+  assign,
+  requestModification,
+  getByEditToken,
+  applyEdit,
+  trackFilm,
+} from "../controllers/film.controller.js";
+import {
+  verifyToken,
+  isAdminOrModerator,
+} from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { submitFilmSchema, updateStatusSchema, assignSchema, requestModificationSchema, applyEditSchema } from "../validators/film.validator.js";
+import {
+  submitFilmSchema,
+  updateStatusSchema,
+  assignSchema,
+  requestModificationSchema,
+  applyEditSchema,
+} from "../validators/film.validator.js";
 
 const router = express.Router();
 
@@ -15,7 +35,8 @@ const submitLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    error: "Vous avez atteint la limite de soumissions. Réessayez dans une heure.",
+    error:
+      "Vous avez atteint la limite de soumissions. Réessayez dans une heure.",
   },
 });
 
@@ -42,12 +63,30 @@ router.get("/stats", verifyToken, isAdminOrModerator, getStats);
 router.get("/:id", verifyToken, isAdminOrModerator, getOne);
 
 // Changement de statut d'un film (transitions validées)
-router.put("/:id/status", verifyToken, isAdminOrModerator, validate(updateStatusSchema), updateStatus);
+router.put(
+  "/:id/status",
+  verifyToken,
+  isAdminOrModerator,
+  validate(updateStatusSchema),
+  updateStatus,
+);
 
 // Assignation des jurys à un film
-router.put("/:id/assign", verifyToken, isAdminOrModerator, validate(assignSchema), assign);
+router.put(
+  "/:id/assign",
+  verifyToken,
+  isAdminOrModerator,
+  validate(assignSchema),
+  assign,
+);
 
 // Demander des modifications au réalisateur (envoie email + génère token 7j)
-router.post("/:id/request-modification", verifyToken, isAdminOrModerator, validate(requestModificationSchema), requestModification);
+router.post(
+  "/:id/request-modification",
+  verifyToken,
+  isAdminOrModerator,
+  validate(requestModificationSchema),
+  requestModification,
+);
 
 export default router;

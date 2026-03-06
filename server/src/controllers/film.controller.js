@@ -1,14 +1,14 @@
 import {
   submitFilm,
-  getFilms             as fetchFilms,
-  getFilmsStats        as fetchFilmsStats,
-  getFilmById          as fetchFilmById,
+  getFilms as fetchFilms,
+  getFilmsStats as fetchFilmsStats,
+  getFilmById as fetchFilmById,
   changeFilmStatus,
   assignUsersToFilm,
-  requestModification  as requestModificationService,
-  getFilmByEditToken   as fetchFilmByEditToken,
-  applyFilmEdit        as applyFilmEditService,
-  trackFilmByToken     as fetchFilmBySubmissionToken,
+  requestModification as requestModificationService,
+  getFilmByEditToken as fetchFilmByEditToken,
+  applyFilmEdit as applyFilmEditService,
+  trackFilmByToken as fetchFilmBySubmissionToken,
 } from "../services/film.service.js";
 
 /**
@@ -18,14 +18,29 @@ import {
 export const submit = async (req, res) => {
   try {
     const {
-      firstName, lastName, email,
-      bio, instagram,
-      title, description, country, language,
-      aiToolsUsed, youtubeUrl,
+      firstName,
+      lastName,
+      email,
+      bio,
+      instagram,
+      title,
+      description,
+      country,
+      language,
+      aiToolsUsed,
+      youtubeUrl,
     } = req.body;
 
     // Validation des champs obligatoires
-    const required = { firstName, lastName, email, title, description, country, aiToolsUsed };
+    const required = {
+      firstName,
+      lastName,
+      email,
+      title,
+      description,
+      country,
+      aiToolsUsed,
+    };
     const missing = Object.entries(required)
       .filter(([, v]) => !v || String(v).trim() === "")
       .map(([k]) => k);
@@ -39,26 +54,28 @@ export const submit = async (req, res) => {
 
     const result = await submitFilm({
       firstName: firstName.trim(),
-      lastName:  lastName.trim(),
-      email:     email.trim().toLowerCase(),
-      bio, instagram,
-      title:       title.trim(),
+      lastName: lastName.trim(),
+      email: email.trim().toLowerCase(),
+      bio,
+      instagram,
+      title: title.trim(),
       description: description.trim(),
-      country:     country.trim(),
+      country: country.trim(),
       language,
       aiToolsUsed: aiToolsUsed.trim(),
       youtubeUrl,
     });
 
     return res.status(201).json({
-      message:         "Film soumis avec succès",
+      message: "Film soumis avec succès",
       submissionToken: result.submissionToken,
-      filmId:          result.film.id,
+      filmId: result.film.id,
     });
-
   } catch (error) {
     console.error("❌ Erreur submit film:", error);
-    return res.status(500).json({ error: "Erreur lors de la soumission du film" });
+    return res
+      .status(500)
+      .json({ error: "Erreur lors de la soumission du film" });
   }
 };
 
@@ -74,7 +91,9 @@ export const getFilms = async (req, res) => {
     return res.json(films);
   } catch (error) {
     console.error("❌ Erreur getFilms:", error);
-    return res.status(500).json({ error: "Erreur lors de la récupération des films" });
+    return res
+      .status(500)
+      .json({ error: "Erreur lors de la récupération des films" });
   }
 };
 
@@ -88,7 +107,9 @@ export const getStats = async (req, res) => {
     return res.json(stats);
   } catch (error) {
     console.error("❌ Erreur getStats:", error);
-    return res.status(500).json({ error: "Erreur lors du calcul des statistiques" });
+    return res
+      .status(500)
+      .json({ error: "Erreur lors du calcul des statistiques" });
   }
 };
 
@@ -114,7 +135,7 @@ export const getOne = async (req, res) => {
  */
 export const updateStatus = async (req, res) => {
   try {
-    const filmId   = parseInt(req.params.id);
+    const filmId = parseInt(req.params.id);
     const { status } = req.body;
 
     if (!status) {
@@ -137,14 +158,20 @@ export const updateStatus = async (req, res) => {
  */
 export const requestModification = async (req, res) => {
   try {
-    const filmId     = parseInt(req.params.id);
+    const filmId = parseInt(req.params.id);
     const { message } = req.body;
 
     if (!message || String(message).trim() === "") {
-      return res.status(400).json({ error: "Le message de modification est obligatoire" });
+      return res
+        .status(400)
+        .json({ error: "Le message de modification est obligatoire" });
     }
 
-    const film = await requestModificationService(filmId, message.trim(), req.user.id);
+    const film = await requestModificationService(
+      filmId,
+      message.trim(),
+      req.user.id,
+    );
     return res.json(film);
   } catch (error) {
     const code = error.statusCode || 500;
@@ -176,7 +203,12 @@ export const getByEditToken = async (req, res) => {
 export const applyEdit = async (req, res) => {
   try {
     const { title, description, youtubeUrl, aiToolsUsed } = req.body;
-    const film = await applyFilmEditService(req.params.token, { title, description, youtubeUrl, aiToolsUsed });
+    const film = await applyFilmEditService(req.params.token, {
+      title,
+      description,
+      youtubeUrl,
+      aiToolsUsed,
+    });
     return res.json({ message: "Modifications enregistrées", film });
   } catch (error) {
     const code = error.statusCode || 500;
@@ -208,11 +240,13 @@ export const trackFilm = async (req, res) => {
  */
 export const assign = async (req, res) => {
   try {
-    const filmId  = parseInt(req.params.id);
+    const filmId = parseInt(req.params.id);
     const { userIds } = req.body;
 
     if (!Array.isArray(userIds)) {
-      return res.status(400).json({ error: "userIds doit être un tableau d'IDs" });
+      return res
+        .status(400)
+        .json({ error: "userIds doit être un tableau d'IDs" });
     }
 
     const film = await assignUsersToFilm(filmId, userIds.map(Number));
