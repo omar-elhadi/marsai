@@ -172,7 +172,7 @@ function AppInner() {
 						<Route index element={<DashboardHome />} />
 						<Route path={ROUTES.ADMIN_FILMS} element={<FilmsList />} />
 						<Route path={ROUTES.ADMIN_USERS} element={<AdminDashboard />} />
-						<Route path={ROUTES.ADMIN_AWARDS} element={<div className="text-white">Palmarès (À venir)</div>} />
+						<Route path={ROUTES.ADMIN_AWARDS} element={<PalmaresPage />} />
 					</Route>
 				</Route>
 
