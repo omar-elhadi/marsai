@@ -255,6 +255,30 @@
 
 
 /* ─────────────────────────────────────────────────────────────
+   LIEN WRAPPER — chaque carte est un <Link>
+   ───────────────────────────────────────────────────────────── */
+
+/* Supprime toute la décoration native du <a>.
+   display:contents : le Link disparaît visuellement — la carte
+   enfant occupe exactement la cellule de grille.
+   Sans display:contents, le Link deviendrait un block anonyme
+   qui casserait le placement grid de .card* enfant. */
+.cardLink {
+  display:         contents;
+  text-decoration: none;
+  color:           inherit;
+  outline:         none;
+}
+
+/* Focus clavier visible — outline sur la carte enfant directe.
+   :focus-visible : uniquement au clavier, jamais au clic. */
+.cardLink:focus-visible > * {
+  outline:        2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
    CARTE — wrapper
    ───────────────────────────────────────────────────────────── */
 
