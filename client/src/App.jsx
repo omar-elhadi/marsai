@@ -170,9 +170,10 @@ function AppInner() {
 				<Route element={<ProtectedRoute />}>
 					<Route path={ROUTES.ADMIN} element={<AdminLayout />}>
 						<Route index element={<DashboardHome />} />
-						<Route path={ROUTES.ADMIN_FILMS} element={<FilmsList />} />
-						<Route path={ROUTES.ADMIN_USERS} element={<AdminDashboard />} />
-						<Route path={ROUTES.ADMIN_AWARDS} element={<PalmaresPage />} />
+						<Route path={ROUTES.ADMIN_FILMS}      element={<FilmsList />} />
+						<Route path={ROUTES.ADMIN_USERS}      element={<AdminDashboard />} />
+						<Route path={ROUTES.ADMIN_SELECTION}  element={<SelectionPage />} />
+						<Route path={ROUTES.ADMIN_AWARDS}     element={<AwardsPage />} />
 					</Route>
 				</Route>
 
