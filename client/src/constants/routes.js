@@ -68,6 +68,7 @@ export const ROUTES = {
   ADMIN:                     '/admin',
   ADMIN_FILMS:               'films',
   ADMIN_USERS:               'users',
+  ADMIN_SELECTION:           'selection',
   ADMIN_AWARDS:              'awards',
 
 };

@@ -9,6 +9,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RotateCcw, Loader2, Trophy, ExternalLink, Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
 import VideoModal from '../../components/VideoModal.jsx';
 
 const API = import.meta.env.VITE_API_URL;
@@ -95,7 +96,7 @@ export default function SelectionPage() {
           {/* Pont vers Palmarès — visible quand des films sont prêts à être nominés */}
           {inSelection.length > 0 && (
             <Link
-              to="/admin/awards"
+              to={`${ROUTES.ADMIN}/${ROUTES.ADMIN_AWARDS}`}
               style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fbbf24', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', padding: '0.5rem 0.875rem', transition: 'background 0.15s, border-color 0.15s', textDecoration: 'none' }}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.15)'; e.currentTarget.style.borderColor = 'rgba(251,191,36,0.35)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'rgba(251,191,36,0.08)'; e.currentTarget.style.borderColor = 'rgba(251,191,36,0.2)'; }}
