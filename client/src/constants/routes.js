@@ -68,6 +68,7 @@ export const ROUTES = {
   // ── Admin — chemins RELATIFS (imbriqués sous /admin) ─────────
   ADMIN:                     '/admin',
   ADMIN_FILMS:               'films',
+  ADMIN_DETAILS:             'films/:id',
   ADMIN_USERS:               'users',
   ADMIN_SELECTION:           'selection',
   ADMIN_AWARDS:              'awards',
