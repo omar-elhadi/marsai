@@ -27,6 +27,7 @@ export const ROUTES = {
   // ── Pages publiques principales ──────────────────────────────
   HOME:                      '/',
   NEWS:                      '/news',
+  NEWS_DETAIL:               '/news/:id',
   EVENTS:                    '/events',
   GALERIE:                   '/galerie',
   SOUMETTRE:                 '/soumettre',

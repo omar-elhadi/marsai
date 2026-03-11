@@ -1,0 +1,688 @@
+/**
+ * NewsDetail.module.css — MARSAI Festival
+ * Page Détail Article — Actualités
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * CONVENTIONS — identiques à News.module.css
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Inline styles restants dans NewsDetail.jsx :
+ *   style={{ backgroundImage }} — hero image, donnée runtime
+ *   style={{ '--tag-color' }}   — CSS variable par article
+ *   GSAP refs                  — opacity/y sur heroRef, bodyRef
+ *
+ * Hover → :hover CSS pur, wrappé @media (hover:hover).
+ * Responsive mobile-first : 320px → 4K (5 breakpoints).
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * TOKENS — Variables.css
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+
+/* ─────────────────────────────────────────────────────────────
+   ROOT
+   ───────────────────────────────────────────────────────────── */
+
+.page {
+  min-height:  100vh;
+  background:  var(--color-bg);
+  font-family: var(--font-sans);
+  color:       var(--color-text);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   HERO — image plein écran avec overlay
+   ───────────────────────────────────────────────────────────── */
+
+.hero {
+  position:   relative;
+  width:       100%;
+  height:      clamp(320px, 55vw, 680px);
+  overflow:    hidden;
+}
+
+/* backgroundImage : posée via style={{}} dans le JSX */
+.heroBg {
+  position:            absolute;
+  inset:               0;
+  background-size:     cover;
+  background-position: center;
+  transition:          transform 800ms var(--ease-out);
+}
+
+/* Léger zoom au load — effet cinématographique */
+.heroBgLoaded {
+  transform: scale(1.03);
+}
+
+/* Dégradé bas → haut : lisibilité du contenu hero */
+.heroOverlay {
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.96) 0%,
+    rgba(0, 0, 0, 0.55) 40%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+}
+
+/* Contenu positionné en bas du hero */
+.heroContent {
+  position:        absolute;
+  bottom:          0;
+  left:            0;
+  right:           0;
+  padding:         clamp(2rem, 5vw, 4rem) clamp(1.5rem, 6vw, 6rem);
+  display:         flex;
+  flex-direction:  column;
+  gap:             clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* Navigation retour — haut gauche */
+.heroNav {
+  position: absolute;
+  top:      clamp(1.5rem, 3vw, 2.5rem);
+  left:     clamp(1.5rem, 6vw, 6rem);
+  display:  flex;
+  align-items: center;
+  gap:      0.75rem;
+}
+
+.backLink {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.5rem;
+  font-family:     var(--font-sans);
+  font-weight:     var(--fw-semibold);
+  font-size:       0.65rem;
+  letter-spacing:  0.20em;
+  text-transform:  uppercase;
+  color:           var(--color-text-muted);
+  text-decoration: none;
+  transition:      color 200ms var(--ease-out);
+}
+
+.backArrow {
+  display:    inline-block;
+  transition: transform 200ms var(--ease-out);
+}
+
+/* Meta row — tag + date */
+.heroMeta {
+  display:     flex;
+  align-items: center;
+  gap:         0.75rem;
+  flex-wrap:   wrap;
+}
+
+/* Tag — couleur via var(--tag-color) */
+.heroTag {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-bold);
+  font-size:      0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding:        0.2rem 0.5rem;
+  border-radius:  var(--radius-sm);
+  color:          var(--tag-color);
+  border:         1px solid color-mix(in srgb, var(--tag-color) 20%, transparent);
+}
+
+.heroDate {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color:          var(--color-text-faint);
+}
+
+/* Titre hero — massif, fluide */
+.heroTitle {
+  font-family:    var(--font-display);
+  font-weight:    var(--fw-ultra);
+  font-size:      clamp(1.8rem, 5vw, 4rem);
+  line-height:    1.0;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color:          var(--color-text);
+  margin:         0;
+  max-width:      860px;
+}
+
+/* Chapeau — intro sous le titre hero */
+.heroLead {
+  font-family:  var(--font-sans);
+  font-weight:  var(--fw-light);
+  font-size:    clamp(0.9rem, 1.5vw, 1.1rem);
+  line-height:  1.65;
+  color:        var(--color-text-muted);
+  max-width:    720px;
+  margin:       0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   CORPS DE L'ARTICLE
+   ───────────────────────────────────────────────────────────── */
+
+.body {
+  max-width: 1440px;
+  margin:    0 auto;
+  padding:   clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem);
+  display:   grid;
+  grid-template-columns: 1fr;
+  gap:       clamp(2rem, 4vw, 3.5rem);
+}
+
+/* 2 colonnes à partir de 1024px : contenu principal + sidebar */
+@media (min-width: 1024px) {
+  .body {
+    grid-template-columns: 1fr 320px;
+    align-items: start;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   COLONNE PRINCIPALE
+   ───────────────────────────────────────────────────────────── */
+
+.main {
+  display:        flex;
+  flex-direction: column;
+  gap:            clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* Section de l'article — bloc de contenu */
+.section {
+  display:        flex;
+  flex-direction: column;
+  gap:            clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* Filet horizontal entre sections */
+.divider {
+  width:      100%;
+  height:     1px;
+  background: var(--color-border);
+  margin:     0;
+  border:     none;
+}
+
+/* Titre de section — overline + titre display */
+.sectionEyebrow {
+  display:     flex;
+  align-items: center;
+  gap:         0.75rem;
+}
+
+.sectionLine {
+  display:    block;
+  width:      clamp(1.5rem, 3vw, 2.5rem);
+  height:     1px;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.sectionLabel {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+}
+
+.sectionTitle {
+  font-family:    var(--font-display);
+  font-weight:    var(--fw-ultra);
+  font-size:      clamp(1.2rem, 2.5vw, 1.8rem);
+  line-height:    1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color:          var(--color-text);
+  margin:         0;
+}
+
+/* Paragraphe corps */
+.paragraph {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-light);
+  font-size:   clamp(0.88rem, 1.2vw, 1rem);
+  line-height: 1.75;
+  color:       var(--color-text-muted);
+  margin:      0;
+}
+
+/* Paragraphe accentué — intro de section */
+.paragraphAccent {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium, 500);
+  font-size:   clamp(0.92rem, 1.3vw, 1.05rem);
+  line-height: 1.7;
+  color:       var(--color-text);
+  margin:      0;
+}
+
+/* Citation — encart éditorial */
+.quote {
+  margin:       0;
+  padding:      clamp(1rem, 2vw, 1.5rem) clamp(1.25rem, 2.5vw, 2rem);
+  border-left:  3px solid var(--color-accent);
+  background:   var(--color-surface);
+}
+
+.quoteText {
+  font-family:    var(--font-display);
+  font-weight:    var(--fw-bold);
+  font-size:      clamp(1rem, 2vw, 1.35rem);
+  line-height:    1.45;
+  letter-spacing: -0.01em;
+  color:          var(--color-text);
+  font-style:     italic;
+  margin:         0 0 0.5rem;
+}
+
+.quoteAuthor {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          var(--color-text-faint);
+  margin:         0;
+}
+
+/* Liste éditoriale */
+.list {
+  margin:         0;
+  padding-left:   0;
+  list-style:     none;
+  display:        flex;
+  flex-direction: column;
+  gap:            0.6rem;
+}
+
+.listItem {
+  display:     flex;
+  align-items: baseline;
+  gap:         0.75rem;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-light);
+  font-size:   clamp(0.88rem, 1.2vw, 1rem);
+  line-height: 1.6;
+  color:       var(--color-text-muted);
+}
+
+.listItem::before {
+  content:        '—';
+  color:          var(--color-accent);
+  font-weight:    var(--fw-bold);
+  flex-shrink:    0;
+  font-size:      0.75rem;
+}
+
+/* Grille de chiffres clés */
+.statsGrid {
+  display:               grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:                   1px;
+  background:            var(--color-border);
+  border:                1px solid var(--color-border);
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.statItem {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.25rem;
+  padding:        clamp(1rem, 2vw, 1.5rem);
+  background:     var(--color-bg);
+}
+
+.statValue {
+  font-family:    var(--font-display);
+  font-weight:    var(--fw-ultra);
+  font-size:      clamp(1.8rem, 4vw, 2.8rem);
+  line-height:    1.0;
+  letter-spacing: -0.03em;
+  color:          var(--color-text);
+}
+
+.statLabel {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.6rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+}
+
+/* Image inline dans l'article */
+.inlineImage {
+  width:               100%;
+  aspect-ratio:        16 / 7;
+  object-fit:          cover;
+  display:             block;
+  background-size:     cover;
+  background-position: center;
+}
+
+/* Grille de programme — horaires / intervenants */
+.programGrid {
+  display:        flex;
+  flex-direction: column;
+  gap:            0;
+  border:         1px solid var(--color-border);
+}
+
+.programItem {
+  display:     flex;
+  align-items: baseline;
+  gap:         clamp(1rem, 3vw, 2rem);
+  padding:     clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+  border-bottom: 1px solid var(--color-border);
+  transition:  background 200ms var(--ease-out);
+}
+
+.programItem:last-child {
+  border-bottom: none;
+}
+
+.programTime {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-bold);
+  font-size:      0.7rem;
+  letter-spacing: 0.12em;
+  color:          var(--color-accent);
+  white-space:    nowrap;
+  min-width:      4.5rem;
+  flex-shrink:    0;
+}
+
+.programTitle {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size:   clamp(0.82rem, 1.1vw, 0.92rem);
+  color:       var(--color-text);
+  line-height: 1.4;
+}
+
+.programSub {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-light);
+  font-size:   0.72rem;
+  color:       var(--color-text-faint);
+  margin-top:  0.1rem;
+}
+
+/* Grille de films sélectionnés */
+.filmsGrid {
+  display:               grid;
+  grid-template-columns: 1fr;
+  gap:                   1px;
+  background:            var(--color-border);
+  border:                1px solid var(--color-border);
+}
+
+@media (min-width: 640px) {
+  .filmsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.filmCard {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.3rem;
+  padding:        clamp(0.875rem, 1.5vw, 1.25rem);
+  background:     var(--color-bg);
+  transition:     background 200ms var(--ease-out);
+}
+
+.filmTitle {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-black);
+  font-size:      clamp(0.82rem, 1.1vw, 0.92rem);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color:          var(--color-text);
+}
+
+.filmMeta {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-light);
+  font-size:      0.72rem;
+  color:          var(--color-text-faint);
+  letter-spacing: 0.04em;
+}
+
+.filmCategory {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          var(--tag-color, var(--color-accent));
+  margin-top:     0.2rem;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   SIDEBAR
+   ───────────────────────────────────────────────────────────── */
+
+.sidebar {
+  display:        flex;
+  flex-direction: column;
+  gap:            1.5rem;
+  position:       sticky;
+  top:            clamp(5rem, 7vw, 6rem); /* sous le header fixe */
+}
+
+/* Bloc sidebar générique */
+.sidebarBlock {
+  display:        flex;
+  flex-direction: column;
+  gap:            1rem;
+  padding:        clamp(1rem, 2vw, 1.5rem);
+  background:     var(--color-surface);
+  border:         1px solid var(--color-border);
+}
+
+.sidebarTitle {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-bold);
+  font-size:      0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color:          var(--color-text-muted);
+  padding-bottom: 0.75rem;
+  border-bottom:  1px solid var(--color-border);
+}
+
+/* Info item — label + valeur */
+.infoItem {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.2rem;
+}
+
+.infoLabel {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.58rem;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color:          var(--color-text-faint);
+}
+
+.infoValue {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium, 500);
+  font-size:   0.85rem;
+  color:       var(--color-text);
+  line-height: 1.4;
+}
+
+/* Tag accentué dans la sidebar */
+.infoTag {
+  display:        inline-flex;
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-bold);
+  font-size:      0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding:        0.2rem 0.5rem;
+  border-radius:  var(--radius-sm);
+  color:          var(--tag-color);
+  border:         1px solid color-mix(in srgb, var(--tag-color) 20%, transparent);
+  width:          fit-content;
+}
+
+/* Articles liés — liste sidebar */
+.relatedList {
+  display:        flex;
+  flex-direction: column;
+  gap:            0;
+}
+
+.relatedItem {
+  display:         flex;
+  flex-direction:  column;
+  gap:             0.25rem;
+  padding:         0.875rem 0;
+  border-bottom:   1px solid var(--color-border);
+  text-decoration: none;
+  color:           inherit;
+  transition:      color 200ms var(--ease-out);
+}
+
+.relatedItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.relatedTitle {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-bold);
+  font-size:      0.8rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color:          var(--color-text);
+  line-height:    1.3;
+  transition:     color 200ms var(--ease-out);
+}
+
+.relatedDate {
+  font-family:    var(--font-sans);
+  font-weight:    var(--fw-semibold);
+  font-size:      0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color:          var(--color-text-faint);
+}
+
+/* Bouton CTA sidebar */
+.ctaButton {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             0.5rem;
+  padding:         0.75rem 1rem;
+  font-family:     var(--font-sans);
+  font-weight:     var(--fw-bold);
+  font-size:       0.6rem;
+  letter-spacing:  0.20em;
+  text-transform:  uppercase;
+  color:           var(--color-bg);
+  background:      var(--color-text);
+  border:          none;
+  cursor:          pointer;
+  text-decoration: none;
+  transition:
+    background 200ms var(--ease-out),
+    color      200ms var(--ease-out);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   HOVER
+   ───────────────────────────────────────────────────────────── */
+
+@media (hover: hover) and (pointer: fine) {
+  .backLink:hover {
+    color: var(--color-text);
+  }
+
+  .backLink:hover .backArrow {
+    transform: translateX(-3px);
+  }
+
+  .programItem:hover {
+    background: var(--color-surface);
+  }
+
+  .filmCard:hover {
+    background: var(--color-surface);
+  }
+
+  .relatedItem:hover .relatedTitle {
+    color: var(--color-accent);
+  }
+
+  .ctaButton:hover {
+    background: var(--color-accent);
+    color:      var(--color-bg);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE — ajustements fins
+   ───────────────────────────────────────────────────────────── */
+
+/* Sur mobile, sidebar passe sous le contenu principal */
+@media (max-width: 1023px) {
+  .sidebar {
+    position: static;
+  }
+}
+
+/* 2K — conteneur max-width */
+@media (min-width: 2560px) {
+  .body {
+    max-width: 2200px;
+  }
+
+  .heroTitle {
+    font-size: clamp(4rem, 4.5vw, 6rem);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   ACCESSIBILITÉ — prefers-reduced-motion
+   ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .heroBg,
+  .heroBgLoaded,
+  .backLink,
+  .backArrow,
+  .ctaButton,
+  .programItem,
+  .filmCard,
+  .relatedItem .relatedTitle {
+    transition-duration: 0.01ms !important;
+  }
+}

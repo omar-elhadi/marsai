@@ -46,7 +46,8 @@ import JuryFilmDetail from './pages/Jury/JuryFilmDetail.jsx';
  * S'assurer que src/Layouts/ a bien été renommé en src/layouts/ avant
  * de lancer le serveur de développement.
  */
-import FestivalNews from '@/pages/News/News.jsx';
+import FestivalNews  from '@/pages/News/News.jsx';
+import NewsDetail    from '@/pages/News/NewsDetail.jsx';
 import PublicLayout from '@/layouts/PublicLayout.jsx';
 
 /**
@@ -147,7 +148,8 @@ function AppInner() {
 					<Route path={ROUTES.LOGIN_VERIFY} element={<VerifyToken />} />
 					<Route path={ROUTES.JURY_DASHBOARD} element={<JuryDashboard />} />
 					<Route path={ROUTES.REGLES_CONDITIONS} element={<ReglesConditions />} />
-					<Route path={ROUTES.NEWS} element={<FestivalNews />} />
+					<Route path={ROUTES.NEWS}           element={<FestivalNews />} />
+					<Route path={ROUTES.NEWS_DETAIL}     element={<NewsDetail />} />
 					<Route path={ROUTES.EVENTS} element={<Events />} />
 					<Route path={ROUTES.EDIT_FILM} element={<EditFilmPage />} />
 					<Route path={ROUTES.TRACKING} element={<TrackingPage />} />

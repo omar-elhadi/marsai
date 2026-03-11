@@ -32,85 +32,10 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import styles from './News.module.css';
-
-// ─── Données ──────────────────────────────────────────────────
-
-const newsData = [
-  {
-    id: 1,
-    category: 'Ouverture',
-    date:     '18 mars 2026',
-    tag:      'À LA UNE',
-    image:    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1600&auto=format&fit=crop',
-    title:    'Ouverture du Festival IA 2026',
-    content:  'Le Festival International du Film IA ouvre ses portes à Cannes pour deux jours dédiés au cinéma génératif, aux nouvelles écritures et aux innovations hybrides.',
-    size:     'large',
-  },
-  {
-    id: 2,
-    category: 'Sélection',
-    date:     '19 mars 2026',
-    tag:      'OFFICIEL',
-    image:    'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop',
-    title:    'Sélection Officielle',
-    content:  '40 films internationaux explorent la collaboration entre réalisateurs et intelligences artificielles, du script au montage.',
-    size:     'medium',
-  },
-  {
-    id: 3,
-    category: 'Débats',
-    date:     '20 mars 2026',
-    tag:      'TABLES RONDES',
-    image:    'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1600&auto=format&fit=crop',
-    title:    'Tables Rondes & Débats',
-    content:  "Experts IA, producteurs et réalisateurs discutent des enjeux éthiques, des droits d'auteur et de la transparence algorithmique.",
-    size:     'medium',
-  },
-  {
-    id: 4,
-    category: 'Cérémonie',
-    date:     '21 mars 2026',
-    tag:      'PALMARÈS',
-    image:    'https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=1600&auto=format&fit=crop',
-    title:    'Prix IA 2026',
-    content:  'Meilleur Film Génératif, Narration Hybride et Innovation Technique seront récompensés lors de la cérémonie de clôture.',
-    size:     'small',
-  },
-  {
-    id: 5,
-    category: 'Expositions',
-    date:     '19–21 mars 2026',
-    tag:      'EXPO',
-    image:    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1600&auto=format&fit=crop',
-    title:    'Galerie des Œuvres Génératives',
-    content:  "Une sélection d'installations immersives créées entièrement par des modèles diffusion, exposées sur la Croisette.",
-    size:     'small',
-  },
-  {
-    id: 6,
-    category: 'Masterclass',
-    date:     '20 mars 2026',
-    tag:      'MASTERCLASS',
-    image:    'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1600&auto=format&fit=crop',
-    title:    'IA & Réalisation : Le futur du cinéma',
-    content:  'Une session exclusive avec les pionniers du cinéma IA pour explorer les nouvelles frontières de la narration visuelle.',
-    size:     'wide',
-  },
-];
-
-// Couleurs par tag — lookup JS nécessaire (valeur par item, runtime).
-// Injecté en CSS variable --tag-color sur chaque carte.
-// CSS module lit var(--tag-color) pour .tag et .readMoreLabel.
-// color-mix(in srgb, var(--tag-color) 20%, transparent) gère l'alpha du border.
-const tagColors = {
-  'À LA UNE':      '#e8d5a3',
-  'OFFICIEL':      '#a3c4e8',
-  'TABLES RONDES': '#a3e8c4',
-  'PALMARÈS':      '#e8a3a3',
-  'EXPO':          '#c4a3e8',
-  'MASTERCLASS':   '#e8c4a3',
-};
+import { Link }  from 'react-router-dom';
+import { ROUTES }                            from '@/constants/routes';
+import { newsItems as newsData, tagColors }  from '@/data/newsData';
+import styles                                from './News.module.css';
 
 
 // ─── BentoCard ────────────────────────────────────────────────
@@ -136,14 +61,18 @@ function BentoCard({ item, gridClass, textSize, horizontal }) {
   ].filter(Boolean).join(' ');
 
   return (
-    // --tag-color : seule CSS variable inline sur la carte.
-    // backgroundImage appliqué uniquement sur les divs image ci-dessous.
-    <div className={cardClass} style={{ '--tag-color': tagColor }}>
+    <Link
+      to={ROUTES.NEWS_DETAIL.replace(':id', item.id)}
+      className={styles.cardLink}
+      aria-label={`Lire l'article : ${item.title}`}
+    >
+      {/* --tag-color : seule CSS variable inline sur la carte. */}
+      <div className={cardClass} style={{ '--tag-color': tagColor }}>
 
-      {horizontal ? (
-        /* ── Layout horizontal (carte wide / masterclass) ─────
-           Comportement responsive géré entièrement par le CSS module :
-             < 640px  → flex-direction: column (image au-dessus)
+        {horizontal ? (
+          /* ── Layout horizontal (carte wide / masterclass) ─────
+             Comportement responsive géré entièrement par le CSS module :
+               < 640px  → flex-direction: column (image au-dessus)
              ≥ 640px  → flex-direction: row (image à gauche)
            Transition fluide sans media query JS. */
         <>
@@ -216,7 +145,8 @@ function BentoCard({ item, gridClass, textSize, horizontal }) {
         </>
       )}
 
-    </div>
+      </div>
+    </Link>
   );
 }
 
