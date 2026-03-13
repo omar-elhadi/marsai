@@ -24,7 +24,7 @@ import {
   assignSchema,
   requestModificationSchema,
   applyEditSchema,
-} from "../validators/film.validator.js";
+} from "@marsai/validators";
 import { upload } from "../config/multer.js";
 
 const router = express.Router();

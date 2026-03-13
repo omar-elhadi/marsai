@@ -14,7 +14,7 @@ import {
 } from "../controllers/award.controller.js";
 import { verifyToken, isAdmin, isAdminOrModerator } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { categorySchema, nominationSchema } from "../validators/award.validator.js";
+import { categorySchema, nominationSchema } from "@marsai/validators";
 
 const router = express.Router();
 

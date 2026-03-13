@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export const userService = {
   create: async (userData) => {
     const { email, password, firstName, lastName, role } = userData;
-    const data = {
+    const data: any = {
       email,
       firstName,
       lastName,

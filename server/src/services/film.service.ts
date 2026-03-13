@@ -95,8 +95,8 @@ const VALID_TRANSITIONS = {
  *
  * @param {{ status?: string, search?: string }} filters
  */
-export const getFilms = async ({ status, search, hasSuggestions } = {}) => {
-  const where = {};
+export const getFilms = async ({ status, search, hasSuggestions }: any = {}) => {
+  const where: any = {};
 
   if (status) {
     where.status = status;

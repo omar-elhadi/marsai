@@ -71,6 +71,7 @@ export const addCategory = async (req, res) => {
 export const editCategory = async (req, res) => {
   try {
     const categoryId = parseInt(req.params.id);
+    if (isNaN(categoryId)) return res.status(400).json({ message: "ID invalide" });
     const { name, description, displayOrder } = req.body;
     const category = await updateCategory(categoryId, { name, description, displayOrder });
     return res.json(category);
@@ -87,6 +88,7 @@ export const editCategory = async (req, res) => {
 export const removeCategory = async (req, res) => {
   try {
     const categoryId = parseInt(req.params.id);
+    if (isNaN(categoryId)) return res.status(400).json({ message: "ID invalide" });
     await deleteCategory(categoryId);
     return res.json({ success: true });
   } catch (error) {
@@ -125,6 +127,7 @@ export const addNomination = async (req, res) => {
 export const deleteNomination = async (req, res) => {
   try {
     const nominationId = parseInt(req.params.id);
+    if (isNaN(nominationId)) return res.status(400).json({ message: "ID invalide" });
     const result = await removeNomination(nominationId);
     return res.json(result);
   } catch (error) {
@@ -143,6 +146,7 @@ export const deleteNomination = async (req, res) => {
 export const markWinner = async (req, res) => {
   try {
     const nominationId = parseInt(req.params.id);
+    if (isNaN(nominationId)) return res.status(400).json({ message: "ID invalide" });
     const result = await setWinner(nominationId);
     return res.json(result);
   } catch (error) {
@@ -159,6 +163,7 @@ export const markWinner = async (req, res) => {
 export const clearWinner = async (req, res) => {
   try {
     const nominationId = parseInt(req.params.id);
+    if (isNaN(nominationId)) return res.status(400).json({ message: "ID invalide" });
     const result = await unsetWinner(nominationId);
     return res.json(result);
   } catch (error) {

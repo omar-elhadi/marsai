@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import prisma from "../utils/prisma.js";
 
@@ -14,7 +14,7 @@ export const loginAdmin = async (email, password) => {
   }
 
   // 3. Vérification mot de passe
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await argon2.verify(user.password, password);
 
   if (!isPasswordValid) {
     throw new Error("Identifiants incorrects.");

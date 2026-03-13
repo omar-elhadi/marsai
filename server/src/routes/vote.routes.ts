@@ -2,7 +2,7 @@ import express from "express";
 import { getJuryFilms, getJuryFilmDetail, cast, addComment, remove } from "../controllers/vote.controller.js";
 import { verifyToken, isJury } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { castVoteSchema, addCommentSchema } from "../validators/vote.validator.js";
+import { castVoteSchema, addCommentSchema } from "@marsai/validators";
 
 const router = express.Router();
 

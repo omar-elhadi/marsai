@@ -68,11 +68,14 @@ export const verifyToken = async (req, res) => {
       return res.status(401).json({ error: "Ce lien a expiré. Demandez un nouvel accès à l'administrateur." });
     }
 
-    // On enregistre uniquement la date de connexion (badge VERT dashboard)
-    // Le token est conservé en base — réutilisable jusqu'à tokenExpires (fin festival)
+    // Invalidation du token (sécurité) : le lien magique est à usage unique.
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLogin: new Date() },
+      data: { 
+        lastLogin: new Date(),
+        loginToken: null, 
+        tokenExpires: null 
+      },
     });
 
     const sessionToken = jwt.sign(

@@ -37,7 +37,7 @@ export const getFilmsForJury = async (userId) => {
  * @param {number} userId
  * @param {"LIKE"|"DISLIKE"} sentiment
  */
-export const castVote = async (filmId, userId, sentiment, options = {}) => {
+export const castVote = async (filmId, userId, sentiment, options: any = {}) => {
   const { suggestModification = false, comment = null, ratingOverride = null } = options;
 
   // Vérification : votes gelés si film APPROVED ou REJECTED (règle business R-VOTE-003)

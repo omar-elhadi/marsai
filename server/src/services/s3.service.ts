@@ -30,7 +30,7 @@ export const uploadFileToS3 = async (fileBuffer, fileName, mimeType) => {
     Body: fileBuffer,
     ContentType: mimeType,
     // ACL public-read pour rendre le fichier accessible publiquement
-    ACL: "public-read",
+    ACL: "private" as const,
   };
 
   try {
@@ -70,4 +70,23 @@ export const deleteFileFromS3 = async (key) => {
 export default {
   uploadFileToS3,
   deleteFileFromS3,
+};
+
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+
+export const getPresignedUrl = async (key: string, expiresIn = 3600) => {
+  if (!key) return null;
+  const command = new GetObjectCommand({
+    Bucket: process.env.SCALEWAY_BUCKET_NAME,
+    Key: key,
+  });
+
+  try {
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn });
+    return signedUrl;
+  } catch (error: any) {
+    console.error("Erreur lors de la génération de l'URL présignée:", error);
+    throw new Error(`Échec de la génération de l'URL: ${error.message}`);
+  }
 };

@@ -122,7 +122,9 @@ export const getStats = async (req, res) => {
  */
 export const getOne = async (req, res) => {
   try {
-    const film = await fetchFilmById(parseInt(req.params.id));
+    const filmId = parseInt(req.params.id);
+    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
+    const film = await fetchFilmById(filmId);
     return res.json(film);
   } catch (error) {
     const code = error.statusCode || 500;
@@ -139,6 +141,7 @@ export const getOne = async (req, res) => {
 export const updateStatus = async (req, res) => {
   try {
     const filmId = parseInt(req.params.id);
+    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { status } = req.body;
 
     if (!status) {
@@ -162,6 +165,7 @@ export const updateStatus = async (req, res) => {
 export const requestModification = async (req, res) => {
   try {
     const filmId = parseInt(req.params.id);
+    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { message } = req.body;
 
     if (!message || String(message).trim() === "") {
@@ -244,6 +248,7 @@ export const trackFilm = async (req, res) => {
 export const assign = async (req, res) => {
   try {
     const filmId = parseInt(req.params.id);
+    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { userIds } = req.body;
 
     if (!Array.isArray(userIds)) {

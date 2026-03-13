@@ -1,3 +1,4 @@
+import he from "he";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({

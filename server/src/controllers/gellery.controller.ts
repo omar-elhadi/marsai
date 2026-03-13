@@ -19,6 +19,7 @@ export const getGallery = async (req, res) => {
 export const getFilmDetail = async (req, res) => {
   try {
     const filmId = parseInt(req.params.id);
+    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const film = await fetchFilmById(filmId);
 
     // Transforme pour correspondre au format frontend attendu

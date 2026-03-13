@@ -8,6 +8,8 @@ import "dotenv/config"; // Charge les variables d'environnement (.env)
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import hpp from "hpp";
 
 // --- IMPORT DES ROUTES ---
 import authRoutes  from "./routes/auth.routes.js";
@@ -16,18 +18,18 @@ import filmRoutes  from "./routes/film.routes.js";
 import galleryRoutes from "./routes/gallery.routes.js";
 import juryRoutes  from "./routes/vote.routes.js";
 import awardRoutes from "./routes/award.routes.js";
+import { validateEnv } from "./utils/validateEnv.js";
 
 // --- GARDE-FOU (FAIL-SAFE) ---
 // On vérifie que les variables critiques sont présentes avant de démarrer.
-if (!process.env.JWT_SECRET) {
-  console.error("❌ ERREUR : JWT_SECRET est manquant dans le fichier .env");
-  process.exit(1); // Arrête le processus en cas de danger sécuritaire
-}
+validateEnv();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // --- MIDDLEWARES GLOBAUX ---
+app.use(helmet());
+app.use(hpp());
 
 /**
  * Configuration du CORS (Cross-Origin Resource Sharing)
@@ -42,9 +44,9 @@ app.use(
 
 /**
  * Middleware pour parser le JSON
- * Permet de lire le contenu des requêtes (req.body)
+ * Permet de lire le contenu des requêtes (req.body) avec une limite de 5mb
  */
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
 
 // --- ROUTES DE L'API ---

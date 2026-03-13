@@ -27,6 +27,7 @@ export const getJuryFilms = async (req, res) => {
 export const getJuryFilmDetail = async (req, res) => {
   try {
     const filmId = parseInt(req.params.id);
+    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     if (isNaN(filmId)) return res.status(400).json({ error: "ID film invalide" });
     const film = await getFilmForJury(filmId, req.user.id);
     return res.json(film);
