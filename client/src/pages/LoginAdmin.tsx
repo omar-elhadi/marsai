@@ -6,6 +6,9 @@
  */
 
 import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '@marsai/validators';
 import { useNavigate }  from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiClient } from '../services/api/apiClient';
@@ -15,32 +18,6 @@ import { useGSAP }      from '@gsap/react';
 // ─────────────────────────────────────────────────────────────
 // STYLES PARTAGÉS — copie exacte de Contact.jsx
 // ─────────────────────────────────────────────────────────────
-const FIELD = {
-  width:        '100%',
-  padding:      'clamp(0.75rem,1.1vw,0.95rem) clamp(0.85rem,1.3vw,1.1rem)',
-  fontFamily:   'var(--font-sans)',
-  fontWeight:   400,
-  fontSize:     'clamp(0.85rem,1.1vw,0.95rem)',
-  color:        'var(--color-text)',
-  background:   'var(--color-surface)',
-  border:       '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-sm)',
-  outline:      'none',
-  transition:   'border-color 260ms var(--ease-out), background 260ms var(--ease-out)',
-  boxSizing:    'border-box',
-};
-
-const LABEL = {
-  display:       'block',
-  fontFamily:    'var(--font-sans)',
-  fontWeight:    600,
-  fontSize:      '0.60rem',
-  letterSpacing: '0.22em',
-  textTransform: 'uppercase',
-  color:         'var(--color-text-muted)',
-  marginBottom:  '0.5rem',
-};
-
 function onFocus(e) {
   e.target.style.borderColor = 'rgba(226,209,195,0.50)';
   e.target.style.background  = 'var(--color-surface-high)';
@@ -62,8 +39,10 @@ export default function LoginAdmin() {
   const titleRef    = useRef(null);
   const cardRef     = useRef(null);
 
-  const [email,    setEmail]    = useState('');
-  const [password, setPassword] = useState('');
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' }
+  });
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
   const [success,  setSuccess]  = useState('');
