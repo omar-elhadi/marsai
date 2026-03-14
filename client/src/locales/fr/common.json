@@ -1,1 +1,37 @@
-{}
+{
+  "nav": {
+    "festival": "Le Festival",
+    "gallery": "Galerie",
+    "events": "Events",
+    "submit": "Soumettre",
+    "contact": "Contacter"
+  },
+  "header": {
+    "submitButton": "Soumettre un film",
+    "teamAccess": "Accès équipe"
+  },
+  "footer": {
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "legal": "Mentions légales",
+    "rules": "Règlement du concours",
+    "contact": "Contact",
+    "credits": "Création",
+    "allRightsReserved": "Tous droits réservés"
+  },
+  "footerNav": {
+    "col1Title": "Participer",
+    "submit": "Soumettre un film",
+    "rules": "Règlement du concours",
+    "calendar": "Calendrier",
+    "login": "Se connecter",
+    "col2Title": "Ressources",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "col3Title": "Légal",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "cgu": "CGU",
+    "cookies": "Cookies"
+  }
+}
