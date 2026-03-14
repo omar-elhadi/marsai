@@ -1,4 +1,7 @@
-import prisma from "../config/prisma.js"; // SANS les accolades
+import { logger } from "../utils/logger.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../utils/AppError.js";
+import prisma from "../utils/prisma.js"; // SANS les accolades
 import crypto from "crypto";
 import { mailService } from "../services/mail.service.js";
 
@@ -89,7 +92,7 @@ export const userController = {
         message: `Lien magique envoyé avec succès à ${user.firstName} (${user.email})`,
       });
     } catch (error) {
-      console.error("Erreur sendInvite:", error);
+      logger.error(error, "Erreur sendInvite:");
       res.status(500).json({
         message:
           "Échec de l'envoi de l'invitation. Vérifiez la configuration SMTP.",

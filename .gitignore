@@ -122,18 +122,9 @@ dist
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
 # Audit system outputs (ajoutés manuellement)
 audit-output/
 .pull-journal/
 audit-system/audit-output/
 
-# Configuration Claude Code (privée, jamais committée)
-.claude/
-CLAUDE.md
-audit-result/
+.github/

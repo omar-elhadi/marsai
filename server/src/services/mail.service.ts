@@ -1,3 +1,5 @@
+import { emailQueue } from "../utils/emailQueue.js";
+import { logger } from "../utils/logger.js";
 import he from "he";
 import nodemailer from "nodemailer";
 
@@ -38,11 +40,14 @@ export const mailService = {
         `,
       };
 
-      const info = await transporter.sendMail(mailOptions);
-      console.log("✅ Email envoyé :", info.messageId);
-      return info;
+      await emailQueue.add(async () => {
+        const info = await transporter.sendMail(mailOptions);
+         
+      });
+       
+       
     } catch (error) {
-      console.error("❌ Erreur SMTP :", error.message);
+      logger.error(error.message, "❌ Erreur SMTP :");
       throw new Error("Impossible d'envoyer l'email. Vérifiez MAIL_PASS.");
     }
   },
@@ -81,11 +86,14 @@ export const mailService = {
         `,
       };
 
-      const info = await transporter.sendMail(mailOptions);
-      console.log("✅ Confirmation soumission envoyée :", info.messageId);
-      return info;
+      await emailQueue.add(async () => {
+        const info = await transporter.sendMail(mailOptions);
+         
+      });
+       
+       
     } catch (error) {
-      console.error("❌ Erreur SMTP confirmation :", error.message);
+      logger.error(error.message, "❌ Erreur SMTP confirmation :");
       // On ne bloque pas la soumission si l'email échoue
       // Le film est déjà enregistré en base
     }
@@ -134,11 +142,14 @@ export const mailService = {
         `,
       };
 
-      const info = await transporter.sendMail(mailOptions);
-      console.log("✅ Email modification envoyé :", info.messageId);
-      return info;
+      await emailQueue.add(async () => {
+        const info = await transporter.sendMail(mailOptions);
+         
+      });
+       
+       
     } catch (error) {
-      console.error("❌ Erreur SMTP modification :", error.message);
+      logger.error(error.message, "❌ Erreur SMTP modification :");
       // On ne bloque pas le workflow si l'email échoue
     }
   },

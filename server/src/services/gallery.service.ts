@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger.js";
 import prisma from "../utils/prisma.js";
 
 export const fetchGallery = async () => {
@@ -60,7 +61,7 @@ export const fetchGallery = async () => {
 
     return formattedFilms;
   } catch (error) {
-    console.error("❌ Erreur fetchGallery:", error);
+    logger.error(error, "❌ Erreur fetchGallery:");
     throw error;
   }
 };
@@ -140,7 +141,7 @@ export const fetchFilmById = async (filmId) => {
       updatedAt: film.updatedAt,
     };
   } catch (error) {
-    console.error("❌ Erreur fetchFilmById:", error);
+    logger.error(error, "❌ Erreur fetchFilmById:");
     throw error;
   }
 };

@@ -1,24 +1,18 @@
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../utils/AppError.js";
 import { fetchGallery, fetchFilmById } from "../services/gallery.service.js";
 
-export const getGallery = async (req, res) => {
-  try {
-    const galleryData = await fetchGallery();
+export const getGallery = catchAsync(async (req: any, res: any, next: any) => {
+  const galleryData = await fetchGallery();
     return res.json(galleryData);
-  } catch (error) {
-    console.error("❌ Erreur getGallery:", error);
-    return res
-      .status(500)
-      .json({ error: "Erreur serveur lors de la récupération de la galerie." });
-  }
-};
+});
 
 /**
  * GET /api/gallery/:id
  * Détail public d'un film APPROVED pour la page de détail.
  */
-export const getFilmDetail = async (req, res) => {
-  try {
-    const filmId = parseInt(req.params.id);
+export const getFilmDetail = catchAsync(async (req: any, res: any, next: any) => {
+  const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const film = await fetchFilmById(filmId);
 
@@ -50,9 +44,4 @@ export const getFilmDetail = async (req, res) => {
     };
 
     return res.json(formattedFilm);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur getFilmDetail:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});

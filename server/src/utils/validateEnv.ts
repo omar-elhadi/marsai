@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger.js";
 import { z } from "zod";
 
 const envSchema = z.object({
@@ -17,10 +18,10 @@ const envSchema = z.object({
 export const validateEnv = () => {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
-    console.error(
+    logger.error(
       "❌ ERREUR DE CONFIGURATION : Variables d'environnement manquantes ou invalides"
     );
-    console.error(result.error.issues);
+    logger.error(result.error.issues);
     process.exit(1); // Arrête le processus
   }
 };

@@ -1,3 +1,5 @@
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../utils/AppError.js";
 import {
   submitFilm,
   getFilms as fetchFilms,
@@ -16,9 +18,8 @@ import { uploadFileToS3 } from "../services/s3.service.js";
  * POST /api/films/submit
  * Reçoit le formulaire de soumission, crée le Submitter + Film, envoie l'email.
  */
-export const submit = async (req, res) => {
-  try {
-    const {
+export const submit = catchAsync(async (req: any, res: any, next: any) => {
+  const {
       firstName,
       lastName,
       email,
@@ -74,73 +75,46 @@ export const submit = async (req, res) => {
       submissionToken: result.submissionToken,
       filmId: result.film.id,
     });
-  } catch (error) {
-    console.error("❌ Erreur submit film:", error);
-    return res
-      .status(500)
-      .json({ error: "Erreur lors de la soumission du film" });
-  }
-};
+});
 
 /**
  * GET /api/films
  * Liste des films pour le dashboard admin, avec filtres optionnels.
  * Query params : ?status=SUBMITTED&search=titre
  */
-export const getFilms = async (req, res) => {
-  try {
-    const { status, search, hasSuggestions } = req.query;
+export const getFilms = catchAsync(async (req: any, res: any, next: any) => {
+  const { status, search, hasSuggestions } = req.query;
     const films = await fetchFilms({ status, search, hasSuggestions });
     return res.json(films);
-  } catch (error) {
-    console.error("❌ Erreur getFilms:", error);
-    return res
-      .status(500)
-      .json({ error: "Erreur lors de la récupération des films" });
-  }
-};
+});
 
 /**
  * GET /api/films/stats
  * KPIs pour le DashboardHome.
  */
-export const getStats = async (req, res) => {
-  try {
-    const stats = await fetchFilmsStats();
+export const getStats = catchAsync(async (req: any, res: any, next: any) => {
+  const stats = await fetchFilmsStats();
     return res.json(stats);
-  } catch (error) {
-    console.error("❌ Erreur getStats:", error);
-    return res
-      .status(500)
-      .json({ error: "Erreur lors du calcul des statistiques" });
-  }
-};
+});
 
 /**
  * GET /api/films/:id
  * Détail complet d'un film (admin) : réalisateur, jurys, votes + commentaires.
  */
-export const getOne = async (req, res) => {
-  try {
-    const filmId = parseInt(req.params.id);
+export const getOne = catchAsync(async (req: any, res: any, next: any) => {
+  const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const film = await fetchFilmById(filmId);
     return res.json(film);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur getOne:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * PUT /api/films/:id/status
  * Changer le statut d'un film (transitions validées côté service).
  * Body : { status: "APPROVED" }
  */
-export const updateStatus = async (req, res) => {
-  try {
-    const filmId = parseInt(req.params.id);
+export const updateStatus = catchAsync(async (req: any, res: any, next: any) => {
+  const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { status } = req.body;
 
@@ -150,21 +124,15 @@ export const updateStatus = async (req, res) => {
 
     const film = await changeFilmStatus(filmId, status, req.user.role);
     return res.json(film);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur updateStatus:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * POST /api/films/:id/request-modification
  * Demander des modifications au réalisateur.
  * Body : { message: "..." }
  */
-export const requestModification = async (req, res) => {
-  try {
-    const filmId = parseInt(req.params.id);
+export const requestModification = catchAsync(async (req: any, res: any, next: any) => {
+  const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { message } = req.body;
 
@@ -180,36 +148,24 @@ export const requestModification = async (req, res) => {
       req.user.id,
     );
     return res.json(film);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur requestModification:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * GET /api/films/edit/:token
  * Récupérer le film à modifier via le token du réalisateur (public).
  */
-export const getByEditToken = async (req, res) => {
-  try {
-    const film = await fetchFilmByEditToken(req.params.token);
+export const getByEditToken = catchAsync(async (req: any, res: any, next: any) => {
+  const film = await fetchFilmByEditToken(req.params.token);
     return res.json(film);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur getByEditToken:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * PUT /api/films/edit/:token
  * Appliquer les corrections du réalisateur (public).
  * Body : { title, description, youtubeUrl, aiToolsUsed }
  */
-export const applyEdit = async (req, res) => {
-  try {
-    const { title, description, youtubeUrl, aiToolsUsed } = req.body;
+export const applyEdit = catchAsync(async (req: any, res: any, next: any) => {
+  const { title, description, youtubeUrl, aiToolsUsed } = req.body;
     const film = await applyFilmEditService(req.params.token, {
       title,
       description,
@@ -217,37 +173,25 @@ export const applyEdit = async (req, res) => {
       aiToolsUsed,
     });
     return res.json({ message: "Modifications enregistrées", film });
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur applyEdit:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * GET /api/films/track/:token
  * Suivi public d'un film via le submissionToken reçu par email (sans auth).
  * Retourne uniquement les champs non-sensibles : titre, statut, pays, dates.
  */
-export const trackFilm = async (req, res) => {
-  try {
-    const film = await fetchFilmBySubmissionToken(req.params.token);
+export const trackFilm = catchAsync(async (req: any, res: any, next: any) => {
+  const film = await fetchFilmBySubmissionToken(req.params.token);
     return res.json(film);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur trackFilm:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * PUT /api/films/:id/assign
  * Assigner une liste de jurys à un film (remplace la liste existante).
  * Body : { userIds: [1, 2, 3] }
  */
-export const assign = async (req, res) => {
-  try {
-    const filmId = parseInt(req.params.id);
+export const assign = catchAsync(async (req: any, res: any, next: any) => {
+  const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { userIds } = req.body;
 
@@ -259,21 +203,15 @@ export const assign = async (req, res) => {
 
     const film = await assignUsersToFilm(filmId, userIds.map(Number));
     return res.json(film);
-  } catch (error) {
-    const code = error.statusCode || 500;
-    console.error("❌ Erreur assign:", error.message);
-    return res.status(code).json({ error: error.message });
-  }
-};
+});
 
 /**
  * POST /api/films/upload-video
  * Upload d'une vidéo vers Scaleway S3
  * Multipart form-data avec le fichier vidéo
  */
-export const uploadVideo = async (req, res) => {
-  try {
-    if (!req.file) {
+export const uploadVideo = catchAsync(async (req: any, res: any, next: any) => {
+  if (!req.file) {
       return res.status(400).json({ error: "Aucun fichier reçu" });
     }
 
@@ -287,8 +225,4 @@ export const uploadVideo = async (req, res) => {
       url,
       key,
     });
-  } catch (error) {
-    console.error("❌ Erreur uploadVideo:", error);
-    return res.status(500).json({ error: error.message });
-  }
-};
+});

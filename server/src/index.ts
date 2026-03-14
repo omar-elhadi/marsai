@@ -10,13 +10,17 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import hpp from "hpp";
+import pinoHttp from "pino-http";
+// @ts-ignore
+import { logger } from "./utils/logger.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 // --- IMPORT DES ROUTES ---
-import authRoutes  from "./routes/auth.routes.js";
-import userRoutes  from "./routes/user.routes.js";
-import filmRoutes  from "./routes/film.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import filmRoutes from "./routes/film.routes.js";
 import galleryRoutes from "./routes/gallery.routes.js";
-import juryRoutes  from "./routes/vote.routes.js";
+import juryRoutes from "./routes/vote.routes.js";
 import awardRoutes from "./routes/award.routes.js";
 import { validateEnv } from "./utils/validateEnv.js";
 
@@ -30,6 +34,7 @@ const PORT = process.env.PORT || 5001;
 // --- MIDDLEWARES GLOBAUX ---
 app.use(helmet());
 app.use(hpp());
+app.use((pinoHttp as any)({ logger }));
 
 /**
  * Configuration du CORS (Cross-Origin Resource Sharing)
@@ -46,17 +51,17 @@ app.use(
  * Middleware pour parser le JSON
  * Permet de lire le contenu des requêtes (req.body) avec une limite de 5mb
  */
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
 // --- ROUTES DE L'API ---
 
 // Routes d'authentification (Login, Profile, etc.)
-app.use("/api/auth",   authRoutes);
-app.use("/api/users",  userRoutes);
-app.use("/api/films",  filmRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/films", filmRoutes);
 app.use("/api/gallery", galleryRoutes); // Alias pour la galerie
-app.use("/api/jury",   juryRoutes);
+app.use("/api/jury", juryRoutes);
 app.use("/api/awards", awardRoutes);
 
 /**
@@ -72,14 +77,17 @@ app.get("/", (req, res) => {
 
 // --- GESTION DES ERREURS GLOBALES ---
 // Capture les erreurs 404 (Route non trouvée)
-app.use((req, res) => {
+app.use((req, res, next) => {
   res.status(404).json({ message: "Ressource introuvable." });
 });
 
+// Middleware d'erreur global
+app.use(errorHandler);
+
 // --- DÉMARRAGE DU SERVEUR ---
 app.listen(PORT, () => {
-  console.log("-------------------------------------------------");
-  console.log(`✅ Serveur prêt sur : http://localhost:${PORT}`);
-  console.log(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
-  console.log("-------------------------------------------------");
+  logger.info("-------------------------------------------------");
+  logger.info(`✅ Serveur prêt sur : http://localhost:${PORT}`);
+  logger.info(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
+  logger.info("-------------------------------------------------");
 });

@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger.js";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
 
@@ -42,7 +43,7 @@ export const uploadFileToS3 = async (fileBuffer, fileName, mimeType) => {
 
     return { url, key };
   } catch (error) {
-    console.error("Erreur lors de l'upload vers S3:", error);
+    logger.error(error, "Erreur lors de l'upload vers S3:");
     throw new Error(`Échec de l'upload du fichier: ${error.message}`);
   }
 };
@@ -62,7 +63,7 @@ export const deleteFileFromS3 = async (key) => {
     const command = new DeleteObjectCommand(deleteParams);
     await s3Client.send(command);
   } catch (error) {
-    console.error("Erreur lors de la suppression du fichier S3:", error);
+    logger.error(error, "Erreur lors de la suppression du fichier S3:");
     throw new Error(`Échec de la suppression du fichier: ${error.message}`);
   }
 };
@@ -86,7 +87,7 @@ export const getPresignedUrl = async (key: string, expiresIn = 3600) => {
     const signedUrl = await getSignedUrl(s3Client, command, { expiresIn });
     return signedUrl;
   } catch (error: any) {
-    console.error("Erreur lors de la génération de l'URL présignée:", error);
+    logger.error(error, "Erreur lors de la génération de l'URL présignée:");
     throw new Error(`Échec de la génération de l'URL: ${error.message}`);
   }
 };
