@@ -1,3 +1,4 @@
+import { formatDate } from "../../utils/format";
 /**
  * TrackingPage.jsx — MARSAI Festival
  * Page publique de suivi d'un film pour le réalisateur.
@@ -85,10 +86,6 @@ const STATUS_CONFIG = {
 
 const TIMELINE_STEPS = ['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'SELECTION', 'FINALIST', 'AWARD'];
 
-function formatDate(iso) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-}
 
 // ── Composant Timeline ──────────────────────────────────────────────────────
 

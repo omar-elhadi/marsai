@@ -1,16 +1,10 @@
+import { formatDateTime } from "../../utils/format";
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Loader2, Users, Globe, Calendar, Cpu, CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react';
 
 // "12 jan. 2026 · 14h37"
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return '';
-  const d    = new Date(dateStr);
-  const date = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-  const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  return `${date} · ${time}`;
-};
 
 const STATUS_STYLES = {
   SUBMITTED: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
@@ -368,7 +362,7 @@ function FilmDetail() {
                       {vote.comments?.length > 0 && (
                         <div style={{ marginTop: '0.75rem' }} className="space-y-2">
                           {[...vote.comments]
-                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                             .map(c => (
                               <div key={c.id}
                                 className={`px-3 py-2 border ${!c.isInternal ? 'bg-orange-500/5 border-orange-500/15' : ''}`}

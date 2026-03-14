@@ -1,3 +1,4 @@
+import { formatDateTime } from "../../utils/format";
 // @ts-nocheck
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,13 +18,6 @@ const getYoutubeId = (url) => {
   return m ? m[1] : null;
 };
 
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return "";
-  const d    = new Date(dateStr);
-  const date = d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-  const time = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-  return `${date} · ${time}`;
-};
 
 const STATUS_LABELS = {
   SUBMITTED:  "Soumis",
@@ -200,12 +194,12 @@ export default function JuryFilmDetail() {
   useEffect(() => {
     const onKey = (e) => {
       const tag  = document.activeElement?.tagName;
-      const type = document.activeElement?.type;
+      const type = (document.activeElement as any)?.type;
       if (tag === "TEXTAREA") return;
       if (tag === "INPUT" && type === "range") return;
       if (tag === "INPUT" && e.key !== "Escape") return;
       if ((e.metaKey || e.ctrlKey) && e.key !== "Escape") return;
-      const st = stateRef.current;
+      const st = stateRef.current as any;
       switch (e.key) {
         case "ArrowUp":   e.preventDefault(); setRating(r => Math.min(10, r + 1)); break;
         case "ArrowDown": e.preventDefault(); setRating(r => Math.max(1,  r - 1)); break;
