@@ -1,1 +1,12 @@
-{}
+{
+  "login": {
+    "overline": "Administration Space",
+    "title": "Log in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Access management",
+    "loading": "Authenticating...",
+    "success": "Login successful.",
+    "error": "Cannot reach server or invalid credentials."
+  }
+}

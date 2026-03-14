@@ -1,1 +1,12 @@
-{}
+{
+  "login": {
+    "overline": "Espace administration",
+    "title": "Connexion",
+    "email": "Email",
+    "password": "Mot de passe",
+    "submit": "Accéder à la gestion",
+    "loading": "Authentification...",
+    "success": "Connexion réussie.",
+    "error": "Impossible de joindre le serveur ou identifiants incorrects."
+  }
+}
