@@ -1,6 +1,6 @@
 /**
  * SectionManifeste.jsx — MARSAI Festival
- * Phase 2.1 — "L'Art de la Contrainte"
+ * Phase 2.1 — "{t('manifeste.title1')} {t('manifeste.title2')} {t('manifeste.title3')}"
  *
  * ═══════════════════════════════════════════════════════════════
  * DIRECTION VISUELLE : Rupture typographique éditoriale
@@ -14,7 +14,7 @@
  *   3 piliers répondent en grille : les contraintes concrètes.
  *
  * Composition :
- *   Overline "MANIFESTE" + filet sable
+ *   Overline "{t('manifeste.overline')}" + filet sable
  *   Titre 3 lignes (clip-path reveal GSAP)
  *   Paragraphe philosophique
  *   Séparateur horizontal
@@ -28,6 +28,7 @@
  */
 
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -59,6 +60,7 @@ const CONTRAINTES = [
 // COMPOSANT
 // ─────────────────────────────────────────────
 export default function SectionManifeste() {
+  const { t } = useTranslation('common');
   const sectionRef   = useRef(null);
   const overlineRef  = useRef(null);
   const line1Ref     = useRef(null);
@@ -231,9 +233,9 @@ export default function SectionManifeste() {
             marginBottom: 'clamp(3rem, 6vw, 5rem)',
           }}
         >
-          Le génie naît de la résistance, jamais de l'abondance.
-          MARSAI impose une règle unique : une minute, une IA, une vérité.
-          Ce que tu feras dans ce cadre sera plus grand que ce que tu croyais possible.
+          {t('manifeste.desc1')}
+          {t('manifeste.desc2')}
+          {t('manifeste.desc3')}
         </p>
 
         {/* ── Séparateur ──────────────────────────────────── */}

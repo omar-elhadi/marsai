@@ -44,6 +44,22 @@
     "stat1": "Films soumis",
     "stat2": "Présélections",
     "stat3": "Finalistes",
-    "stat4": "Jurés"
+    "stat4": "Jurés",
+    "scrollBtn": "Défiler"
+  },
+  "manifeste": {
+    "overline": "MANIFESTE",
+    "title1": "L'Art",
+    "title2": "de la",
+    "title3": "Contrainte",
+    "desc1": "Le génie naît de la résistance, jamais de l'abondance.",
+    "desc2": "MARSAI impose une règle unique : une minute, une IA, une vérité.",
+    "desc3": "Ce que tu feras dans ce cadre sera plus grand que ce que tu croyais possible.",
+    "c1_title": "Une minute",
+    "c1_desc": "Chaque œuvre est limitée à 60 secondes. La contrainte de temps est la première des libertés créatives.",
+    "c2_title": "IA seule",
+    "c2_desc": "Aucun tournage réel. L'intégralité du film — images, son, narration — est générée par intelligence artificielle.",
+    "c3_title": "Cinéma authentique",
+    "c3_desc": "Malgré les outils, l'émotion doit être vraie. L'IA est le pinceau. L'humanité reste le sujet."
   }
 }
