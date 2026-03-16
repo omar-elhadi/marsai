@@ -2,10 +2,14 @@ import { apiClient } from './apiClient';
 import { Film } from '../../types';
 
 export const galleryService = {
-  getAll: async () => {
+  getAll: async ({ page = 1, limit = 50 } = {}) => {
     try {
-      const { data } = await apiClient.get<any[]>('/gallery');
-      return data.map((film) => ({
+      const response = await apiClient.get<any>(`/gallery?page=${page}&limit=${limit}`);
+      const payload = response.data;
+      const items = Array.isArray(payload.data) ? payload.data : Array.isArray(payload) ? payload : [];
+      return {
+        meta: payload.meta || { total: items.length, page, limit, totalPages: 1 },
+        data: items.map((film: any) => ({
         id: film.id,
         title: film.title,
         director: film.directorName,
@@ -28,7 +32,8 @@ export const galleryService = {
         submittedAt: film.submittedAt,
         updatedAt: film.updatedAt,
         category: null,
-      }));
+      }))
+      };
     } catch (error) {
       console.error("❌ Erreur galleryService.getAll:", error);
       throw error;

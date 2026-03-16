@@ -50,7 +50,6 @@ import { useGSAP } from "@gsap/react";
 import MovieCard from "./MovieCard";
 import styles from "./MovieGallery.module.css";
 import { galleryService } from "@/services/api/gallery.service.js";
-import { GALLERY_MOVIES } from "@/data/mockData.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -355,15 +354,11 @@ export default function MovieGallery() {
   useEffect(() => {
     const loadGallery = async () => {
       try {
-        const data = await galleryService.getAll();
-        setFilms(data);
+        const response = await galleryService.getAll({ page: 1, limit: 100 });
+        setFilms(response.data);
       } catch (err) {
         console.error("Erreur lors de la récupération des films :", err);
-        // Fallback sur les données statiques en cas d'erreur (dev only)
-        if (import.meta.env.DEV) {
-          console.warn("⚠️ Utilisation des données statiques en fallback");
-          setFilms(GALLERY_MOVIES);
-        }
+        // Fallbacks removed
       }
     };
 

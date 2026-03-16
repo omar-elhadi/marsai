@@ -1,6 +1,7 @@
 // @ts-nocheck
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
@@ -38,8 +39,8 @@ import FilmPage     from '@/pages/Film/FilmPage.jsx';
  * 2. IMPORTS AUTHENTIFICATION & JURY
  */
 import VerifyToken from './pages/VerifyToken';
-import JuryDashboard from './pages/Jury/JuryDashboard.jsx';
-import JuryFilmDetail from './pages/Jury/JuryFilmDetail.jsx';
+
+
 
 /**
  * 3. IMPORTS LAYOUTS
@@ -54,13 +55,28 @@ import PublicLayout from '@/layouts/PublicLayout.jsx';
 /**
  * 4. IMPORTS ADMIN
  */
+
+const JuryDashboard = React.lazy(() => import('./pages/Jury/JuryDashboard'));
+const JuryFilmDetail = React.lazy(() => import('./pages/Jury/JuryFilmDetail'));
+const FilmsList = React.lazy(() => import('@/pages/Admin/FilmsList'));
+const FilmDetailAdmin = React.lazy(() => import('./pages/Admin/FilmDetail'));
+const DashboardHome = React.lazy(() => import('@/pages/Admin/DashboardHome'));
+// Note: if AdminDashboard is not default export, lazy load needs a small wrapper or to be adjusted.
+// Actually, let's lazy load them assuming default exports. If any are named, they'll fail. 
+// Let's assume standard Vite exports for now, AdminDashboard might be named exported.
+const AdminDashboardLazy = React.lazy(() => import('@/pages/Admin/AdminDashboard').then(module => ({ default: module.AdminDashboard || module.default })));
+const AwardsPage = React.lazy(() => import('./pages/Admin/AwardsPage'));
+const SelectionPage = React.lazy(() => import('./pages/Admin/SelectionPage'));
+
+const SuspenseLoader = () => <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-faint)' }}>Chargement...</div>;
+
 import ProtectedRoute from '@/components/ProtectedRoute.jsx';
-import FilmsList from '@/pages/Admin/FilmsList.jsx';
-import FilmDetail from './pages/Admin/FilmDetail.jsx';
-import DashboardHome from '@/pages/Admin/DashboardHome.jsx';
-import { AdminDashboard } from '@/pages/Admin/AdminDashboard.jsx';
-import AdminLayout from '@/layouts/AdminLayout.jsx'; import AwardsPage from './pages/Admin/AwardsPage.jsx';
-import SelectionPage from './pages/Admin/SelectionPage.jsx';
+
+
+
+
+import AdminLayout from '@/layouts/AdminLayout.jsx'; 
+
 
 /**
  * 5. PHASE 8 — Transitions cinématographiques (désactivées)
@@ -147,7 +163,7 @@ function AppInner() {
 					<Route path={ROUTES.FAQ} element={<FAQ />} />
 					<Route path={ROUTES.CALENDRIER} element={<Calendrier />} />
 					<Route path={ROUTES.LOGIN_VERIFY} element={<VerifyToken />} />
-					<Route path={ROUTES.JURY_DASHBOARD} element={<JuryDashboard />} />
+					<Route path={ROUTES.JURY_DASHBOARD} element={<Suspense fallback={<SuspenseLoader />}><JuryDashboard /></Suspense>} />
 					<Route path={ROUTES.REGLES_CONDITIONS} element={<ReglesConditions />} />
 					<Route path={ROUTES.NEWS}           element={<FestivalNews />} />
 					<Route path={ROUTES.NEWS_DETAIL}     element={<NewsDetail />} />
@@ -165,19 +181,19 @@ function AppInner() {
 
 				{/* ZONE JURY SÉCURISÉE */}
 				<Route element={<ProtectedRoute requiredRole="JURY" />}>
-					<Route path={ROUTES.JURY_DASHBOARD} element={<JuryDashboard />} />
-					<Route path={ROUTES.JURY_FILM_DETAIL} element={<JuryFilmDetail />} />
+					<Route path={ROUTES.JURY_DASHBOARD} element={<Suspense fallback={<SuspenseLoader />}><JuryDashboard /></Suspense>} />
+					<Route path={ROUTES.JURY_FILM_DETAIL} element={<Suspense fallback={<SuspenseLoader />}><JuryFilmDetail /></Suspense>} />
 				</Route>
 
 				{/* ZONE ADMIN SÉCURISÉE */}
 				<Route element={<ProtectedRoute />}>
 					<Route path={ROUTES.ADMIN} element={<AdminLayout />}>
-						<Route index element={<DashboardHome />} />
-						<Route path={ROUTES.ADMIN_FILMS}      element={<FilmsList />} />
-						<Route path={ROUTES.ADMIN_DETAILS}      element={<FilmDetail />} />
-						<Route path={ROUTES.ADMIN_USERS}      element={<AdminDashboard />} />
-						<Route path={ROUTES.ADMIN_SELECTION}  element={<SelectionPage />} />
-						<Route path={ROUTES.ADMIN_AWARDS}     element={<AwardsPage />} />
+						<Route index element={<Suspense fallback={<SuspenseLoader />}><DashboardHome /></Suspense>} />
+						<Route path={ROUTES.ADMIN_FILMS}      element={<Suspense fallback={<SuspenseLoader />}><FilmsList /></Suspense>} />
+						<Route path={ROUTES.ADMIN_DETAILS}      element={<Suspense fallback={<SuspenseLoader />}><FilmDetailAdmin /></Suspense>} />
+						<Route path={ROUTES.ADMIN_USERS}      element={<Suspense fallback={<SuspenseLoader />}><AdminDashboardLazy /></Suspense>} />
+						<Route path={ROUTES.ADMIN_SELECTION}  element={<Suspense fallback={<SuspenseLoader />}><SelectionPage /></Suspense>} />
+						<Route path={ROUTES.ADMIN_AWARDS}     element={<Suspense fallback={<SuspenseLoader />}><AwardsPage /></Suspense>} />
 					</Route>
 				</Route>
 
@@ -191,10 +207,14 @@ function AppInner() {
 // ─────────────────────────────────────────────────────────────
 function App() {
 	return (
-		<BrowserRouter>
-			<AppInner />
-		</BrowserRouter>
-	);
+                <HelmetProvider>
+                        <BrowserRouter>
+                                <AppInner />
+                        </BrowserRouter>
+                </HelmetProvider>
+
+
+        );
 }
 
 export default App;

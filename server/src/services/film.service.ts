@@ -95,7 +95,7 @@ const VALID_TRANSITIONS = {
  *
  * @param {{ status?: string, search?: string }} filters
  */
-export const getFilms = async ({ status, search, hasSuggestions }: any = {}) => {
+export const getFilms = async ({ status, search, hasSuggestions, page = 1, limit = 50 }: any = {}) => {
   const where: any = {};
 
   if (status) {
@@ -118,7 +118,14 @@ export const getFilms = async ({ status, search, hasSuggestions }: any = {}) => 
     ];
   }
 
-  return prisma.film.findMany({
+  
+  const take = parseInt(limit, 10) || 50;
+  const skip = (parseInt(page, 10) - 1) * take;
+  
+  const [films, total] = await Promise.all([
+    prisma.film.findMany({
+      skip,
+      take,
     where,
     include: {
       submitter: {
@@ -128,7 +135,19 @@ export const getFilms = async ({ status, search, hasSuggestions }: any = {}) => 
       _count: { select: { votes: true } },
     },
     orderBy: { submittedAt: "desc" },
-  });
+  }),
+    prisma.film.count({ where }),
+  ]);
+  
+  return {
+    data: films,
+    meta: {
+      total,
+      page: parseInt(page, 10),
+      limit: take,
+      totalPages: Math.ceil(total / take),
+    },
+  };
 };
 
 /**

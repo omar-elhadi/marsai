@@ -1,9 +1,14 @@
 import { logger } from "../utils/logger.js";
 import prisma from "../utils/prisma.js";
 
-export const fetchGallery = async () => {
+export const fetchGallery = async ({ page = 1, limit = 50 }: any = {}) => {
+  const take = parseInt(limit, 10) || 50;
+  const skip = (parseInt(page, 10) - 1) * take;
   try {
-    const films = await prisma.film.findMany({
+    const [films, total] = await Promise.all([
+    prisma.film.findMany({
+      skip,
+      take,
       where: { status: "AWARD" },
       select: {
         id: true,
@@ -32,9 +37,10 @@ export const fetchGallery = async () => {
             instagram: true,
           },
         },
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+      },      orderBy: { updatedAt: "desc" },
+    }),
+    prisma.film.count({ where: { status: "AWARD" } }),
+  ]);
 
     const formattedFilms = films.map((film) => ({
       id: film.id,
@@ -59,7 +65,15 @@ export const fetchGallery = async () => {
       updatedAt: film.updatedAt,
     }));
 
-    return formattedFilms;
+    return {
+      data: formattedFilms,
+      meta: {
+        total,
+        page: parseInt(page, 10),
+        limit: take,
+        totalPages: Math.ceil(total / take),
+      },
+    };
   } catch (error) {
     logger.error(error, "❌ Erreur fetchGallery:");
     throw error;

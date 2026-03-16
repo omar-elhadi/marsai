@@ -61,6 +61,7 @@ function NavLink({ link, isActive, onClick }) {
   const commonProps = {
     className:     styles.navLinkDesktop,
     'data-active': String(isActive),
+    'aria-current': isActive ? 'page' : undefined,
     onClick,
   };
 
@@ -213,6 +214,7 @@ export default function Header() {
                         to={link.href}
                         onClick={close}
                         className={`${styles.mobileLink} ${isSoumettre ? styles.mobileLinkSoumettre : styles.mobileLinkDefault}`}
+                        aria-current={location.pathname === link.href ? 'page' : undefined}
                       >
                         <MobileLinkContent link={link} isSoumettre={isSoumettre} />
                       </Link>
@@ -220,6 +222,7 @@ export default function Header() {
                         href={link.href}
                         onClick={close}
                         className={`${styles.mobileLink} ${isSoumettre ? styles.mobileLinkSoumettre : styles.mobileLinkDefault}`}
+                        aria-current={location.pathname === link.href ? 'page' : undefined}
                       >
                         <MobileLinkContent link={link} isSoumettre={isSoumettre} />
                       </a>

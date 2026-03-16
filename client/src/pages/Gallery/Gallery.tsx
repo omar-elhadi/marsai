@@ -7,7 +7,18 @@
  */
 
 import MovieGallery from '@/pages/Gallery/components/MovieGallery';
+import SEO from '@/components/SEO';
+import { useTranslation } from 'react-i18next';
 
 export default function GalleryPage() {
-  return <MovieGallery />;
+  const { t } = useTranslation();
+  return (
+    <>
+      <SEO 
+        title={`${t('navigation.gallery')} | Marsai Film Festival`}
+        description="Découvrez la sélection officielle du Marsai Film Festival." 
+      />
+      <MovieGallery />
+    </>
+  );
 }

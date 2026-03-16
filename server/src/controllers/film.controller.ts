@@ -83,9 +83,9 @@ export const submit = catchAsync(async (req: any, res: any, next: any) => {
  * Query params : ?status=SUBMITTED&search=titre
  */
 export const getFilms = catchAsync(async (req: any, res: any, next: any) => {
-  const { status, search, hasSuggestions } = req.query;
-    const films = await fetchFilms({ status, search, hasSuggestions });
-    return res.json(films);
+  const { status, search, hasSuggestions, page, limit } = req.query;
+  const filmsData = await fetchFilms({ status, search, hasSuggestions, page, limit });
+  return res.json(filmsData);
 });
 
 /**

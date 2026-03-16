@@ -23,11 +23,17 @@ import SectionJury      from '@/pages/Home/components/SectionJury';
 import SectionRecompenses from '@/pages/Home/components/SectionRecompenses';
 import SectionGalerie      from '@/pages/Home/components/SectionGalerie';
 import SectionAlliances   from '@/pages/Home/components/SectionAlliances';
+import SEO from '@/components/SEO';
 import SectionCTA         from '@/pages/Home/components/SectionCTA';
 
 function Home() {
   return (
-    <div className="bg-bg-pure text-text">
+    <>
+      <SEO 
+        title="Accueil | Marsai Film Festival"
+        description="Le Marsai Film Festival célèbre le cinéma indépendant. Un rendez-vous incontournable de créativité, de réflexion et d'innovation."
+      />
+      <div className="bg-bg-pure text-text">
 
       {/* ── §1 HERO + STATS ──────────────────────────────────────── */}
       <HeroImpact />
@@ -54,6 +60,7 @@ function Home() {
       <SectionAlliances />
 
     </div>
+    </>
   );
 }
 

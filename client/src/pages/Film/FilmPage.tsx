@@ -63,11 +63,11 @@
  */
 
 import { useRef, useState, useEffect } from "react";
+import SEO from "@/components/SEO";
 import { useParams, Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { galleryService } from "@/services/api/gallery.service.js";
-import { GALLERY_MOVIES } from "@/data/mockData";
 import { ROUTES } from "@/constants/routes";
 import styles from "./FilmPage.module.css";
 
@@ -111,12 +111,7 @@ export default function FilmPage() {
       } catch (err) {
         console.error("Erreur lors de la récupération du film:", err);
         setFilm(null);
-        // Fallback sur les données statiques en cas d'erreur (dev only)
-        if (import.meta.env.DEV) {
-          console.warn("⚠️ Utilisation des données statiques en fallback");
-          const found = GALLERY_MOVIES.find((m) => String(m.id) === String(id));
-          setFilm(found ?? null);
-        }
+        // Removed mock fallback
       } finally {
         setLoading(false);
       }
@@ -166,7 +161,13 @@ export default function FilmPage() {
   const youtubeId = getYoutubeId(film.videoUrl);
 
   return (
-    <div ref={pageRef} className={styles.page}>
+    <>
+      <SEO 
+        title={`${film.title} | Marsai Film Festival`} 
+        description={film.synopsis || `Découvrez le film ${film.title} sur la galerie du Marsai Film Festival.`}
+        image={film.coverUrl || film.thumbnail}
+      />
+      <div ref={pageRef} className={styles.page}>
       <div className={styles.container}>
         {/* ── En-tête ────────────────────────────────────────── */}
         <header ref={headerRef} className={styles.pageHeader}>
@@ -264,5 +265,6 @@ export default function FilmPage() {
         {/* fin bodyRef */}
       </div>
     </div>
+    </>
   );
 }

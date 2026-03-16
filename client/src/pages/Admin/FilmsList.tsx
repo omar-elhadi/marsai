@@ -60,8 +60,9 @@ function FilmsList() {
       if (search)         params.set('search', search);
       if (hasSuggestions) params.set('hasSuggestions', 'true');
       const res  = await fetch(`${API}/films?${params}`, { credentials: 'include' });
-      const data = await res.json();
-      // On exclut les films de la phase compétition (Sélection / Palmarès)
+      const json = await res.json();
+        const data = json.data || json;
+        // On exclut les films de la phase compétition (Sélection / Palmarès)
       const EVAL_STATUSES = new Set(['SUBMITTED', 'IN_REVIEW', 'TO_MODIFY', 'APPROVED', 'REJECTED']);
       setFilms(Array.isArray(data) ? data.filter(f => EVAL_STATUSES.has(f.status)) : []);
     } catch {

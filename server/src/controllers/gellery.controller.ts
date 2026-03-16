@@ -3,7 +3,8 @@ import { AppError } from "../utils/AppError.js";
 import { fetchGallery, fetchFilmById } from "../services/gallery.service.js";
 
 export const getGallery = catchAsync(async (req: any, res: any, next: any) => {
-  const galleryData = await fetchGallery();
+    const { page, limit } = req.query;
+    const galleryData = await fetchGallery({ page, limit });
     return res.json(galleryData);
 });
 
