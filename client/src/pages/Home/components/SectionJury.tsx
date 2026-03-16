@@ -1,6 +1,6 @@
 /**
  * SectionJury.jsx — MARSAI Festival
- * Phase 4 — "Le Jury International"
+ * Phase 4 — "{t('jury.title1')} International"
  * Étape 4.2 — Refactoring CSS → SectionJury.module.css
  *
  * ═══════════════════════════════════════════════════════════════
@@ -166,6 +166,7 @@ function JuryCard({ juré, cardRef }) {
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export default function SectionJury() {
+  const { t } = useTranslation('common');
   const sectionRef  = useRef(null);
   const overlineRef = useRef(null);
   const titleRef    = useRef(null);
@@ -244,7 +245,7 @@ export default function SectionJury() {
 
           <h2 ref={titleRef} className="title-section">
             Le Jury<br />
-            <span className={styles.titleAccent}>International</span>
+            <span className={styles.titleAccent}>{t('jury.title2')}</span>
           </h2>
 
           <p

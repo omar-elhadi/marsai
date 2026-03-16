@@ -83,5 +83,119 @@
     "day3_d3": "19:00 — Remise des Prix & Projection des Lauréats",
     "ticketsBtn": "Accéder à la billetterie",
     "ticketsSub": "Places limitées. Pass 3 Jours ou Journée."
+  },
+  "theme": {
+    "overline": "THÈME 2026",
+    "title1": "Imaginer des",
+    "title2": "futurs souhaitables",
+    "quote": "Et si l'IA n'était pas la menace, mais le miroir dans lequel l'humanité voit enfin ce qu'elle veut devenir ?"
+  },
+  "jury": {
+    "overline": "JURY INTERNATIONAL",
+    "title1": "Le Jury",
+    "title2": "International",
+    "intro": "Quatre regards. Quatre continents. Une exigence commune : que l'émotion prime sur la technique, que l'humanité surgisse de l'algorithme.",
+    "members": {
+      "1": {
+        "role": "Directrice Artistique",
+        "bio": "Pionnière du cinéma génératif européen. Fondatrice du studio Chromatic AI, primée à la Mostra de Venise."
+      },
+      "2": {
+        "role": "Réalisateur",
+        "bio": "Maître de l'image narrative. 20 ans de recherche sur la convergence entre émotion humaine et algorithme créatif."
+      },
+      "3": {
+        "role": "Compositrice IA",
+        "bio": "Compositrice et chercheuse en musique générative. Ses œuvres ont été interprétées dans 30 pays."
+      },
+      "4": {
+        "role": "Critique & Théoricien",
+        "bio": "Auteur de \"The Algorithm Gaze\". Éditorialiste pour Sight & Sound, spécialiste du post-cinéma."
+      }
+    }
+  },
+  "recompenses": {
+    "overline": "PALMARÈS 2026",
+    "title1": "Les Prix",
+    "title2": "de la 1ère Édition",
+    "intro": "Le festival récompense les créateurs qui repoussent les frontières. Quatre catégories pour un tournant historique dans l'art cinématographique.",
+    "awards": {
+      "grand-prix": {
+        "title": "Grand Prix Marsai",
+        "subtitle": "Meilleur court-métrage",
+        "desc": "Récompense l'œuvre qui marie avec le plus de justesse l'émotion humaine à l'innovation algorithmique. Le film complet, où la technique s'efface devant le récit."
+      },
+      "realisation": {
+        "title": "Meilleure Réalisation",
+        "subtitle": "Prix de la Mise en Scène",
+        "desc": "Salue la vision du réalisateur, sa capacité à diriger les outils d'IA et à créer un univers esthétique cohérent."
+      },
+      "scenaristique": {
+        "title": "Prix de l'Innovation",
+        "subtitle": "Scénaristique",
+        "desc": "Distingue un récit original, un prompt-engineering novateur et une structure narrative audacieuse."
+      },
+      "public": {
+        "title": "Prix du Public",
+        "subtitle": "Vote en ligne",
+        "desc": "La communauté internationale vote pour son film favori pendant toute la durée du festival."
+      }
+    }
+  },
+  "alliances": {
+    "tiers": {
+      "visionnaire": "Visionnaire",
+      "architecte": "Architecte",
+      "pionnier": "Pionnier"
+    },
+    "overline": "ALLIANCES",
+    "title1": "Ils Construisent",
+    "title2": "l'Avenir",
+    "title3": "Avec Nous",
+    "intro": "L'écosystème Marsai réunit les leaders mondiaux de l'intelligence artificielle et de la création numérique. Plus que des sponsors, ce sont les architectes du cinéma de demain, sans qui cette révolution ne serait possible.",
+    "partnerBlock": {
+      "title1": "Devenir",
+      "title2": "Partenaire",
+      "desc": "Le Festival Marsai est la plateforme de lancement des technologies génératives de demain. Associez votre marque à l'avant-garde du cinéma mondial.",
+      "benefits": {
+        "1": "Visibilité internationale",
+        "2": "Accès VIP aux masterclasses",
+        "3": "Rencontres avec les créateurs"
+      }
+    }
+  },
+  "galerie": {
+    "overline": "SELECTION",
+    "title1": "Ils Ont Marqué",
+    "title2": "l'Histoire",
+    "intro": "Découvrez les œuvres pionnières qui ont redéfini les standards du cinéma génératif. Une sélection qui prouve que l'IA est avant tout un instrument d'amplification de l'âme humaine.",
+    "exploreLabel": "Explorer",
+    "festivalImagesBtn": "Le festival en images",
+    "directedBy": "Réalisé par",
+    "films": {
+      "f1": {
+        "desc": "Une exploration poétique de la mémoire urbaine à travers l'œil d'un algorithme défaillant."
+      },
+      "f2": {
+        "desc": "L'intelligence artificielle réinvente le mythe d'Icare dans une symphonie visuelle époustouflante."
+      },
+      "f3": {
+        "desc": "Quand la machine apprend à pleurer. Un documentaire fictif sur les premiers sentiments synthétiques."
+      },
+      "f4": {
+        "desc": "Dystopie hypnotique où l'humanité a délégué ses rêves aux serveurs quantiques."
+      }
+    }
+  },
+  "cta": {
+    "mots": {
+      "1": "C'est",
+      "2": "ta",
+      "3": "minute."
+    },
+    "subtitle": "600 histoires. Une minute. L'éternité.",
+    "btn": "Soumettre une œuvre",
+    "deadline": "Soumissions ouvertes jusqu'au ",
+    "deadlineDate": "15 Mai 2026"
   }
 }

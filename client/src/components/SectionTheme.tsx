@@ -1,6 +1,6 @@
 /**
  * SectionTheme.jsx — MARSAI Festival
- * Phase 2.2 — "Imaginer des Futurs Souhaitables"
+ * Phase 2.2 — "{t('theme.title1')} Futurs Souhaitables"
  *
  * ═══════════════════════════════════════════════════════════════
  * DIRECTION VISUELLE : Section contemplative plein-largeur
@@ -24,6 +24,7 @@
  */
 
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -31,6 +32,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SectionTheme() {
+  const { t } = useTranslation('common');
   const sectionRef  = useRef(null);
   const imageRef    = useRef(null);
   const contentRef  = useRef(null);
@@ -223,7 +225,7 @@ export default function SectionTheme() {
           }}
         >
           Imaginer des<br />
-          <span style={{ color: 'var(--color-accent)' }}>futurs souhaitables</span>
+          <span style={{ color: 'var(--color-accent)' }}>{t('theme.title2')}</span>
         </h2>
 
         {/* Citation — sobre, sans guillemets tape-à-l'œil */}
@@ -240,8 +242,7 @@ export default function SectionTheme() {
             lineHeight:    1.7,
           }}
         >
-          Et si l'IA n'était pas la menace, mais le miroir dans lequel
-          l'humanité voit enfin ce qu'elle veut devenir ?
+          {t('theme.quote')}
         </p>
 
       </div>

@@ -103,6 +103,7 @@ const PRIX_SECONDAIRES = [
 // COMPOSANT
 // ─────────────────────────────────────────────────────────────
 export default function SectionRecompenses() {
+  const { t } = useTranslation('common');
   const sectionRef  = useRef(null);
   const overlineRef = useRef(null);
   const titleRef    = useRef(null);

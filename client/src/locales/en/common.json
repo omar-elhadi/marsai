@@ -83,5 +83,119 @@
     "day3_d3": "19:00 — Awards Ceremony & Winners Screening",
     "ticketsBtn": "Access ticketing",
     "ticketsSub": "Limited seats. 3-Day or Daily passes."
+  },
+  "theme": {
+    "overline": "2026 THEME",
+    "title1": "Imagining",
+    "title2": "desirable futures",
+    "quote": "What if AI wasn't the threat, but the mirror in which humanity finally sees what it wants to become?"
+  },
+  "jury": {
+    "overline": "INTERNATIONAL JURY",
+    "title1": "The International",
+    "title2": "Jury",
+    "intro": "Four gazes. Four continents. One common demand: that emotion precedes technique, that humanity emerges from the algorithm.",
+    "members": {
+      "1": {
+        "role": "Art Director",
+        "bio": "Pioneer of European generative cinema. Founder of Chromatic AI studio, awarded at the Venice Film Festival."
+      },
+      "2": {
+        "role": "Director",
+        "bio": "Master of narrative image. 20 years of research on the convergence between human emotion and creative algorithm."
+      },
+      "3": {
+        "role": "AI Composer",
+        "bio": "Composer and researcher in generative music. Her works have been performed in 30 countries."
+      },
+      "4": {
+        "role": "Critic & Theorist",
+        "bio": "Author of \"The Algorithm Gaze\". Editor for Sight & Sound, specialist in post-cinema."
+      }
+    }
+  },
+  "recompenses": {
+    "overline": "AWARDS 2026",
+    "title1": "The Prizes",
+    "title2": "of the 1st Edition",
+    "intro": "The festival rewards creators who push the boundaries. Four categories for a historic turning point in cinematic art.",
+    "awards": {
+      "grand-prix": {
+        "title": "Marsai Grand Prize",
+        "subtitle": "Best Short Film",
+        "desc": "Rewards the work that most accurately marries human emotion with algorithmic innovation. The complete film, where technique fades behind the narrative."
+      },
+      "realisation": {
+        "title": "Best Direction",
+        "subtitle": "Directing Award",
+        "desc": "Hails the director's vision, their ability to direct AI tools and create a coherent aesthetic universe."
+      },
+      "scenaristique": {
+        "title": "Innovation Prize",
+        "subtitle": "Screenwriting",
+        "desc": "Distinguishes an original narrative, innovative prompt-engineering and a bold narrative structure."
+      },
+      "public": {
+        "title": "Audience Award",
+        "subtitle": "Online Vote",
+        "desc": "The international community votes for its favorite film throughout the festival."
+      }
+    }
+  },
+  "alliances": {
+    "tiers": {
+      "visionnaire": "Visionary",
+      "architecte": "Architect",
+      "pionnier": "Pioneer"
+    },
+    "overline": "ALLIANCES",
+    "title1": "They Build",
+    "title2": "the Future",
+    "title3": "With Us",
+    "intro": "The Marsai ecosystem brings together world leaders in artificial intelligence and digital creation. More than sponsors, they are the architects of tomorrow's cinema, without whom this revolution would not be possible.",
+    "partnerBlock": {
+      "title1": "Become a",
+      "title2": "Partner",
+      "desc": "Marsai Festival is the launchpad for tomorrow's generative technologies. Associate your brand with the avant-garde of global cinema.",
+      "benefits": {
+        "1": "International visibility",
+        "2": "VIP access to masterclasses",
+        "3": "Meetings with creators"
+      }
+    }
+  },
+  "galerie": {
+    "overline": "SELECTION",
+    "title1": "They Made",
+    "title2": "History",
+    "intro": "Discover the pioneering works that have redefined the standards of generative cinema. A selection that proves AI is above all an instrument for amplifying the human soul.",
+    "exploreLabel": "Explore",
+    "festivalImagesBtn": "The festival in pictures",
+    "directedBy": "Directed by",
+    "films": {
+      "f1": {
+        "desc": "A poetic exploration of urban memory through the eye of a failing algorithm."
+      },
+      "f2": {
+        "desc": "Artificial intelligence reinvents the myth of Icarus in a breathtaking visual symphony."
+      },
+      "f3": {
+        "desc": "When the machine learns to cry. A fictitious documentary about the first synthetic feelings."
+      },
+      "f4": {
+        "desc": "Hypnotic dystopia where humanity has delegated its dreams to quantum servers."
+      }
+    }
+  },
+  "cta": {
+    "mots": {
+      "1": "It's",
+      "2": "your",
+      "3": "minute."
+    },
+    "subtitle": "600 stories. One minute. Eternity.",
+    "btn": "Submit your work",
+    "deadline": "Submissions open until ",
+    "deadlineDate": "May 15, 2026"
   }
 }

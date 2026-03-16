@@ -45,6 +45,7 @@
  */
 
 import { useRef }        from 'react';
+import { useTranslation } from 'react-i18next';
 import gsap              from 'gsap';
 import { useGSAP }       from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -60,16 +61,17 @@ gsap.registerPlugin(ScrollTrigger);
 
 // Trois mots — révélés un par un par rideau GSAP.
 // Le dernier reçoit la classe .ctaWordAccent (var(--color-accent)).
-const MOTS = [
-  { text: "C'est",  accent: false },
-  { text: 'ta',    accent: false },
-  { text: 'minute.', accent: true  },
+const getMots = (t: any) => [
+  { text: t('cta.mots.1'), accent: false },
+  { text: t('cta.mots.2'), accent: false },
+  { text: t('cta.mots.3'), accent: true  },
 ];
 
 // ─────────────────────────────────────────────────────────────
 // COMPOSANT
 // ─────────────────────────────────────────────────────────────
 export default function SectionCTA() {
+  const { t } = useTranslation('common');
   const sectionRef  = useRef(null);
   const lineRef     = useRef(null);
   const word1Ref    = useRef(null);
@@ -164,7 +166,7 @@ export default function SectionCTA() {
 
         {/* Titre — mots révélés un par un, rideau GSAP */}
         <div className={styles.ctaTitleWrapper}>
-          {MOTS.map(({ text, accent }, i) => (
+          {getMots(t).map(({ text, accent }, i) => (
             <div key={text} className={styles.ctaWordMask}>
               <span
                 ref={wordRefs[i]}
@@ -178,7 +180,7 @@ export default function SectionCTA() {
 
         {/* Sous-titre — poétique, centré, dense */}
         <p ref={subtitleRef} className={styles.ctaSubtitle}>
-          600 histoires. Une minute. L'éternité.
+          {t('cta.subtitle')}
         </p>
 
         {/* Bloc bouton + deadline — animé ensemble */}
@@ -187,7 +189,7 @@ export default function SectionCTA() {
           {/* Halo pulsant — wrapper CSS, jamais GSAP */}
           <div className={styles.ctaBtnHalo}>
             <LuminousButton
-              label   ="Soumettre une œuvre"
+              label   ={t('cta.btn')}
               to      ={ROUTES.SOUMETTRE}
               size    ="lg"
             />
@@ -196,8 +198,8 @@ export default function SectionCTA() {
           {/* Date de clôture — rareté temporelle chuchotée.
               La tension de l'urgence, sans crier. */}
           <p className={styles.ctaDeadline}>
-            Soumissions ouvertes jusqu'au{' '}
-            <span className={styles.ctaDeadlineAccent}>15 Mai 2026</span>
+            {t('cta.deadline')}
+            <span className={styles.ctaDeadlineAccent}>{t('cta.deadlineDate')}</span>
           </p>
 
         </div>

@@ -50,7 +50,7 @@ gsap.registerPlugin(ScrollTrigger);
 // ─────────────────────────────────────────────────────────────
 // DONNÉES — Sélection officielle 2026
 // ─────────────────────────────────────────────────────────────
-const FILMS = [
+const getFilms = (t: any) => [
   {
     id:          'film-01',
     titre:       'Mémoire Synthétique',
@@ -201,6 +201,7 @@ function FilmCard({ film, cardRef, offsetTop = 0 }) {
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export default function SectionGalerie() {
+  const { t } = useTranslation('common');
   const sectionRef  = useRef(null);
   const overlineRef = useRef(null);
   const line1Ref    = useRef(null);
@@ -318,14 +319,14 @@ export default function SectionGalerie() {
 
           {/* Carte 1 — grande, span 2 rangées */}
           <div className={styles.featuredWrapper}>
-            <FilmCard film={FILMS[0]} cardRef={card1Ref} />
+            <FilmCard film={getFilms(t)[0]} cardRef={card1Ref} />
           </div>
 
           {/* Carte 2 — standard */}
-          <FilmCard film={FILMS[1]} cardRef={card2Ref} />
+          <FilmCard film={getFilms(t)[1]} cardRef={card2Ref} />
 
           {/* Carte 3 — décalée vers le bas (offsetTop dynamique) */}
-          <FilmCard film={FILMS[2]} cardRef={card3Ref} offsetTop={60} />
+          <FilmCard film={getFilms(t)[2]} cardRef={card3Ref} offsetTop={60} />
 
         </div>
 

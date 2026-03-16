@@ -202,6 +202,7 @@ function LogoSlider() {
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export default function SectionAlliances() {
+  const { t } = useTranslation('common');
   const sectionRef  = useRef(null);
   const overlineRef = useRef(null);
   const titleRef    = useRef(null);
