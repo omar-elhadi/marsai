@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: marsai_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: marsai
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  server:
+    build:
+      context: ./server
+      target: builder
+    container_name: marsai_server
+    command: npm run dev
+    environment:
+      - DATABASE_URL=mysql://root:${DB_PASSWORD:-root}@db:3306/marsai
+      - PORT=5001
+      - CORS_ORIGIN=http://localhost:5173
+      - JWT_SECRET=${JWT_SECRET:-dev_secret}
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+
+  client:
+    build:
+      context: ./client
+      target: builder
+    container_name: marsai_client
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      - VITE_API_URL=http://localhost:5001/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - server
+
+volumes:
+  db_data:

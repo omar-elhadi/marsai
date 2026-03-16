@@ -85,9 +85,13 @@ app.use((req, res, next) => {
 app.use(errorHandler);
 
 // --- DÉMARRAGE DU SERVEUR ---
-app.listen(PORT, () => {
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
   logger.info("-------------------------------------------------");
   logger.info(`✅ Serveur prêt sur : http://localhost:${PORT}`);
   logger.info(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
   logger.info("-------------------------------------------------");
-});
+  });
+}
+
+export default app;

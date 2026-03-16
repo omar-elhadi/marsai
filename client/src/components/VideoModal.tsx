@@ -45,18 +45,14 @@ export default function VideoModal({ film, onClose }) {
   const directUrl = film.youtubeUrl?.trim() || null;
 
   return (
-    <div
-      className="fixed inset-0 z-9999 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(4px)' }}
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(4px)' }} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
       <div
         style={{ width: '100%', maxWidth: '52rem', background: 'var(--color-bg-pure)', border: '1px solid var(--color-border)', overflow: 'hidden' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--color-border)', gap: '1rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.1em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p id="video-modal-title" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '0.1em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {film.title}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
@@ -73,8 +69,7 @@ export default function VideoModal({ film, onClose }) {
                 <ExternalLink size={11} /> YouTube
               </a>
             )}
-            <button
-              onClick={onClose}
+            <button aria-label="Fermer la modale" onClick={onClose}
               style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', transition: 'color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.color = 'var(--color-text)'}
               onMouseLeave={e => e.currentTarget.style.color = 'var(--color-text-muted)'}

@@ -322,12 +322,12 @@ export default function HeroImpact() {
           ══════════════════════════════════════════════════ */}
       <section ref={statsRef} className={styles.statsSection}>
         <div className="grid grid-cols-2 md:grid-cols-4 max-w-6xl mx-auto">
-          {STATS.map(({ value, label, target, suffix }, i) => (
+          {getStats(t).map(({ value, label, target, suffix }, i) => (
             <div
               key={label}
               className="stat-item flex flex-col items-center justify-center text-center py-10 md:py-14 px-6"
               style={{
-                borderRight:  i < STATS.length - 1 ? '1px solid var(--color-border)' : 'none',
+                borderRight:  i < getStats(t).length - 1 ? '1px solid var(--color-border)' : 'none',
                 borderBottom: i < 2                ? '1px solid var(--color-border)' : 'none',
               }}
             >
