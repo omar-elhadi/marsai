@@ -37,19 +37,21 @@ import gsap              from 'gsap';
 import { useGSAP }       from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import LuminousButton    from '@/components/common/LuminousButton';
+import { useTranslation } from 'react-i18next';
 import { ROUTES }        from '@/constants/routes';
 import styles            from './HeroImpact.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const STATS = [
-  { value: '600', label: 'Films soumis',  target: 600, suffix: '' },
-  { value: '120', label: 'Présélections', target: 120, suffix: '' },
-  { value: '50',  label: 'Finalistes',    target: 50,  suffix: '' },
-  { value: '50',  label: 'Jurés',         target: 50,  suffix: '' },
+const getStats = (t) => [
+  { value: '600', label: t('hero.stat1'),  target: 600, suffix: '' },
+  { value: '120', label: t('hero.stat2'), target: 120, suffix: '' },
+  { value: '50',  label: t('hero.stat3'),    target: 50,  suffix: '' },
+  { value: '50',  label: t('hero.stat4'),         target: 50,  suffix: '' },
 ];
 
 export default function HeroImpact() {
+  const { t } = useTranslation('common');
   const heroRef      = useRef(null);
   const imageRef     = useRef(null);
   const overlayRef   = useRef(null);
@@ -223,10 +225,10 @@ export default function HeroImpact() {
           {/* Surtitre */}
           <div ref={overlineRef} className="flex items-center gap-4 mb-6">
             <span className={`label-overline ${styles.overlineAccent}`}>
-              Festival du Cinéma I.A. · Tous niveaux
+              {t('hero.overline1')}
             </span>
             <span className={`hidden sm:block ${styles.overlineSeparator}`} />
-            <span className="label-overline hidden sm:block">Édition 2026</span>
+            <span className="label-overline hidden sm:block">{t('hero.overline2')}</span>
           </div>
 
           {/* Titre principal — MARSAI */}
@@ -244,9 +246,9 @@ export default function HeroImpact() {
               Ligne 2 : invitation pour le 22 ans ("quelque chose à dire")
               Lecture à deux niveaux — aucun des deux n'est exclu. */}
           <p ref={subtitleRef} className={styles.heroSubtitle}>
-            Un festival pour ceux qui ont quelque chose à dire —
+            {t('hero.subtitle1')} 
             <span className={styles.heroSubtitleSub}>
-              {' '}Débutants, passionnés et professionnels bienvenus.
+              {' '}{t('hero.subtitle2')}
             </span>
           </p>
 
@@ -257,7 +259,7 @@ export default function HeroImpact() {
           >
             <span className={styles.dateLineSeparator} />
             <span className={styles.dateLineText}>
-              20 — 22 Juin 2026 · Marseille
+              {t('hero.date')}
             </span>
           </div>
 
@@ -285,7 +287,7 @@ export default function HeroImpact() {
               le bouton s'ancre sur l'image sans animation. */}
           <div ref={heroBtnRef} className={styles.heroBtnWrapper}>
             <LuminousButton
-              label="Soumettre"
+              label={t("hero.submitBtn")}
               to={ROUTES.SOUMETTRE}
               variant="dark"
               size="lg"

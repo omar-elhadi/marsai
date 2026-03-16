@@ -33,5 +33,17 @@
     "privacy": "Privacy policy",
     "cgu": "Terms of use",
     "cookies": "Cookies"
+  },
+  "hero": {
+    "overline1": "A.I. Film Festival · All levels",
+    "overline2": "2026 Edition",
+    "subtitle1": "A festival for those who have something to say —",
+    "subtitle2": "Beginners, enthusiasts and professionals welcome.",
+    "date": "June 20 — 22, 2026 · Marseille",
+    "submitBtn": "Submit",
+    "stat1": "Submitted films",
+    "stat2": "Shortlists",
+    "stat3": "Finalists",
+    "stat4": "Jurors"
   }
 }

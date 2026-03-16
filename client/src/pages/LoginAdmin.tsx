@@ -1,7 +1,11 @@
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema } from '@marsai/validators';
+import { z } from 'zod';
+const loginSchema = z.object({
+  email: z.string().email('Email invalide'),
+  password: z.string().min(6, '6 caractères minimum')
+});
 import { useNavigate }  from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiClient } from '../services/api/apiClient';
@@ -20,7 +24,7 @@ export default function LoginAdmin() {
   const cardRef     = useRef<HTMLDivElement>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema as any),
     defaultValues: { email: '', password: '' }
   });
   

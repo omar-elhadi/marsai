@@ -33,5 +33,17 @@
     "privacy": "Confidentialité",
     "cgu": "CGU",
     "cookies": "Cookies"
+  },
+  "hero": {
+    "overline1": "Festival du Cinéma I.A. · Tous niveaux",
+    "overline2": "Édition 2026",
+    "subtitle1": "Un festival pour ceux qui ont quelque chose à dire —",
+    "subtitle2": "Débutants, passionnés et professionnels bienvenus.",
+    "date": "20 — 22 Juin 2026 · Marseille",
+    "submitBtn": "Soumettre",
+    "stat1": "Films soumis",
+    "stat2": "Présélections",
+    "stat3": "Finalistes",
+    "stat4": "Jurés"
   }
 }
