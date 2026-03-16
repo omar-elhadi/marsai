@@ -61,5 +61,27 @@
     "c2_desc": "Aucun tournage réel. L'intégralité du film — images, son, narration — est générée par intelligence artificielle.",
     "c3_title": "Cinéma authentique",
     "c3_desc": "Malgré les outils, l'émotion doit être vraie. L'IA est le pinceau. L'humanité reste le sujet."
+  },
+  "programme": {
+    "overline": "PROGRAMME 2026",
+    "title": "Trois jours",
+    "title2": "d'immersion",
+    "day1_date": "20 Juin",
+    "day1_title": "Genèse",
+    "day1_d1": "14:00 — Masterclass : \"De Midjourney à Sora\"",
+    "day1_d2": "16:30 — Projections : Sélection Officielle (Phase 1)",
+    "day1_d3": "20:00 — Cérémonie d'ouverture & Guest Speakers",
+    "day2_date": "21 Juin",
+    "day2_title": "Mutation",
+    "day2_d1": "11:00 — Panel : \"Droits d'auteur & IA : La Frontière\"",
+    "day2_d2": "14:30 — Projections : Sélection Officielle (Phase 2)",
+    "day2_d3": "21:00 — Soirée Nuit Noire (Performances Live / VJing IA)",
+    "day3_date": "22 Juin",
+    "day3_title": "Héritage",
+    "day3_d1": "10:30 — Workshop : Sound Design & Génération Audio",
+    "day3_d2": "15:00 — Rétrospective : Les pionniers 2024-2025",
+    "day3_d3": "19:00 — Remise des Prix & Projection des Lauréats",
+    "ticketsBtn": "Accéder à la billetterie",
+    "ticketsSub": "Places limitées. Pass 3 Jours ou Journée."
   }
 }
