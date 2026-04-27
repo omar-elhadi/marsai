@@ -18,6 +18,6 @@ RUN npm ci --only=production
 COPY --from=builder /usr/src/app/dist ./dist
 COPY prisma ./prisma
 
-EXPOSE 5001
+EXPOSE 5000
 
 CMD ["npm", "start"]

@@ -6,17 +6,17 @@
  * Ce fichier n'a qu'un seul rôle : monter la page dans le routeur.
  */
 
-import MovieGallery from '@/pages/Gallery/components/MovieGallery';
-import SEO from '@/components/SEO';
-import { useTranslation } from 'react-i18next';
+import MovieGallery from "@/pages/Gallery/components/MovieGallery";
+import SEO from "@/components/SEO";
+import { useTranslation } from "react-i18next";
 
 export default function GalleryPage() {
   const { t } = useTranslation();
   return (
     <>
-      <SEO 
-        title={`${t('navigation.gallery')} | Marsai Film Festival`}
-        description="Découvrez la sélection officielle du Marsai Film Festival." 
+      <SEO
+        title={`${t("navigation.gallery")} | Marsai Film Festival`}
+        description="Découvrez la sélection officielle du Marsai Film Festival."
       />
       <MovieGallery />
     </>

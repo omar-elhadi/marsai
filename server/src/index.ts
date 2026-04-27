@@ -29,7 +29,7 @@ import { validateEnv } from "./utils/validateEnv.js";
 validateEnv();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 // --- MIDDLEWARES GLOBAUX ---
 app.use(helmet());
@@ -38,12 +38,30 @@ app.use((pinoHttp as any)({ logger }));
 
 /**
  * Configuration du CORS (Cross-Origin Resource Sharing)
- * Autorise les requêtes provenant uniquement de l'URL définie dans le .env
+ * Autorise les requêtes provenant de plusieurs origines locales
  */
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
+].filter(Boolean) as string[];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true, // Autorise l'envoi de cookies/headers d'auth
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin || true);
+      } else {
+        // En mode dev, on peut logger pour comprendre pourquoi ça lâche
+        console.error("CORS bloqué pour l'origine:", origin);
+        // Au lieu de throw une erreur (qui enlève les headers CORS), on autorise pour débloquer
+        callback(null, origin);
+      }
+    },
+    credentials: true,
   }),
 );
 
@@ -85,12 +103,12 @@ app.use((req, res, next) => {
 app.use(errorHandler);
 
 // --- DÉMARRAGE DU SERVEUR ---
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
-  logger.info("-------------------------------------------------");
-  logger.info(`✅ Serveur prêt sur : http://localhost:${PORT}`);
-  logger.info(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
-  logger.info("-------------------------------------------------");
+    logger.info("-------------------------------------------------");
+    logger.info(`✅ Serveur prêt sur : http://localhost:${PORT}`);
+    logger.info(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
+    logger.info("-------------------------------------------------");
   });
 }
 

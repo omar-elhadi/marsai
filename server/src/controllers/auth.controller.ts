@@ -102,3 +102,31 @@ export const verifyToken = catchAsync(async (req: any, res: any, next: any) => {
     },
   });
 });
+
+export const me = catchAsync(async (req: any, res: any) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ message: "Non authentifié" });
+  }
+
+  const userId = parseInt(req.user.id, 10);
+  if (isNaN(userId)) {
+    return res.status(401).json({ message: "Token corrompu" });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!user) {
+    return res.status(401).json({ message: "Utilisateur non trouvé" });
+  }
+
+  return res.status(200).json({ user });
+});

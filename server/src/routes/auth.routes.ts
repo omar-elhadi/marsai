@@ -33,6 +33,7 @@ const verifyTokenLimiter = rateLimit({
 
 // Route publique pour se connecter
 router.post("/login", loginLimiter, validate(loginSchema), authController.login);
+router.get("/me", verifyToken, authController.me);
 router.get("/verify-token", verifyTokenLimiter, authController.verifyToken);
 
 // Déconnexion — efface le cookie httpOnly côté serveur

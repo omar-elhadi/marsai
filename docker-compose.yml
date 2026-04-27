@@ -1,51 +1,107 @@
-version: '3.8'
-
 services:
+  # MySQL Database
   db:
     image: mysql:8.4
     container_name: marsai_db
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_DATABASE: marsai
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${DB_PASSWORD:-root}",
+        ]
+      timeout: 20s
+      retries: 10
+    networks:
+      - marsai-network
 
+  # Express API Server
   server:
     build:
       context: ./server
-      target: builder
+      dockerfile: Dockerfile
+      target: builder # Use builder for development (with npm run dev)
     container_name: marsai_server
-    command: npm run dev
+    restart: unless-stopped
+    command: npm run dev # tsx watch src/index.ts
     environment:
-      - DATABASE_URL=mysql://root:${DB_PASSWORD:-root}@db:3306/marsai
-      - PORT=5001
-      - CORS_ORIGIN=http://localhost:5173
-      - JWT_SECRET=${JWT_SECRET:-dev_secret}
+      DATABASE_URL: mysql://root:${DB_PASSWORD:-root}@db:3306/marsai
+      PORT: 5000
+      FRONTEND_URL: http://localhost:5173
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_do_not_use_in_production}
+      NODE_ENV: development
+      # Email configuration (provide your own or use mailhog)
+      MAIL_HOST: ${MAIL_HOST:-mailhog}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USER: ${MAIL_USER:-user}
+      MAIL_PASS: ${MAIL_PASS:-pass}
+      # S3/Scaleway configuration
+      SCALEWAY_ENDPOINT: ${SCALEWAY_ENDPOINT:-https://s3.nl-ams.scw.cloud}
+      SCALEWAY_REGION: ${SCALEWAY_REGION:-nl-ams}
+      SCALEWAY_BUCKET_NAME: ${SCALEWAY_BUCKET_NAME:-marsai-dev}
+      SCALEWAY_FOLDER: ${SCALEWAY_FOLDER:-videos}
     ports:
-      - "5001:5001"
+      - "5000:5000"
+      - "9229:9229" # For debugging if needed
     volumes:
       - ./server:/usr/src/app
-      - /usr/src/app/node_modules
+      - /usr/src/app/node_modules # Exclude node_modules from bind mount
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - marsai-network
 
+  # React Frontend (Vite dev server)
   client:
     build:
       context: ./client
-      target: builder
+      dockerfile: Dockerfile
+      target: builder # Use builder for development
     container_name: marsai_client
+    restart: unless-stopped
     command: npm run dev -- --host 0.0.0.0
     environment:
-      - VITE_API_URL=http://localhost:5001/api
+      VITE_API_URL: http://localhost:5000/api
+      VITE_ENV: development
     ports:
       - "5173:5173"
     volumes:
       - ./client:/usr/src/app
-      - /usr/src/app/node_modules
+      - /usr/src/app/node_modules # Exclude node_modules from bind mount
     depends_on:
       - server
+    networks:
+      - marsai-network
+
+  # Optional: Mailhog for email testing (uncomment to use)
+  # mailhog:
+  #   image: mailhog/mailhog:latest
+  #   container_name: marsai_mailhog
+  #   ports:
+  #     - "1025:1025"  # SMTP
+  #     - "8025:8025"  # Web UI
+  #   networks:
+  #     - marsai-network
 
 volumes:
   db_data:
+    driver: local
+
+networks:
+  marsai-network:
+    driver: bridge

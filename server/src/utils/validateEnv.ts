@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
-  PORT: z.string().regex(/^\d+$/).optional().default("5001"),
+  PORT: z.string().regex(/^\d+$/).optional().default("5000"),
   JWT_SECRET: z.string().min(1),
   FRONTEND_URL: z.string().url(),
   AWS_ACCESS_KEY_ID: z.string().optional(),

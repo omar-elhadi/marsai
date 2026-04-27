@@ -44,6 +44,7 @@
  */
 
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import gsap                 from 'gsap';
 import { useGSAP }          from '@gsap/react';
 import { ScrollTrigger }    from 'gsap/ScrollTrigger';

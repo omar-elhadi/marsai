@@ -162,109 +162,112 @@ export default function FilmPage() {
 
   return (
     <>
-      <SEO 
-        title={`${film.title} | Marsai Film Festival`} 
-        description={film.synopsis || `Découvrez le film ${film.title} sur la galerie du Marsai Film Festival.`}
+      <SEO
+        title={`${film.title} | Marsai Film Festival`}
+        description={
+          film.synopsis ||
+          `Découvrez le film ${film.title} sur la galerie du Marsai Film Festival.`
+        }
         image={film.coverUrl || film.thumbnail}
       />
       <div ref={pageRef} className={styles.page}>
-      <div className={styles.container}>
-        {/* ── En-tête ────────────────────────────────────────── */}
-        <header ref={headerRef} className={styles.pageHeader}>
-          {/* Navigation retour */}
-          <div className={styles.navRow}>
-            <Link to={BACK_HREF} className={styles.backLink}>
-              <svg
-                width="14"
-                height="8"
-                viewBox="0 0 14 8"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M13 4H1M4 1L1 4L4 7"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                />
-              </svg>
-              Galerie
-            </Link>
-            <span className={styles.navSeparator} aria-hidden="true" />
-            <span className="label-overline">Sélection officielle</span>
-          </div>
+        <div className={styles.container}>
+          {/* ── En-tête ────────────────────────────────────────── */}
+          <header ref={headerRef} className={styles.pageHeader}>
+            {/* Navigation retour */}
+            <div className={styles.navRow}>
+              <Link to={BACK_HREF} className={styles.backLink}>
+                <svg
+                  width="14"
+                  height="8"
+                  viewBox="0 0 14 8"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M13 4H1M4 1L1 4L4 7"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                Galerie
+              </Link>
+              <span className={styles.navSeparator} aria-hidden="true" />
+              <span className="label-overline">Sélection officielle</span>
+            </div>
 
-          {/* Pill catégorie */}
-          {film.category && (
-            <span className={styles.categoryBadge}>{film.category}</span>
-          )}
+            {/* Pill catégorie */}
+            {film.category && (
+              <span className={styles.categoryBadge}>{film.category}</span>
+            )}
 
-          {/* Titre */}
-          <h1 className={styles.filmTitle}>{film.title}</h1>
+            {/* Titre */}
+            <h1 className={styles.filmTitle}>{film.title}</h1>
 
-          {/* Réalisateur */}
-          <p className={styles.filmDirector}>{film.director}</p>
-        </header>
+            {/* Réalisateur */}
+            <p className={styles.filmDirector}>{film.director}</p>
+          </header>
 
-        {/* ── Corps ──────────────────────────────────────────── */}
-        <div ref={bodyRef}>
-          {/* ── Lecteur vidéo / image ─────────────────────────
+          {/* ── Corps ──────────────────────────────────────────── */}
+          <div ref={bodyRef}>
+            {/* ── Lecteur vidéo / image ─────────────────────────
               Cas 1 : YouTube  → iframe 16/9
               Cas 2 : S3       → <video controls>
               Cas 3 : pas de vidéo → image de couverture + badge */}
-          <div className={styles.mediaWrapper}>
-            {youtubeId ? (
-              <div className={styles.youtubeWrapper}>
-                <iframe
-                  className={styles.youtubeIframe}
-                  src={`https://www.youtube.com/embed/${youtubeId}`}
-                  title={film.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : film.videoUrl && film.videoSource === "s3" ? (
-              <video
-                className={styles.videoS3}
-                src={film.videoUrl}
-                controls
-                aria-label={`Lecture de ${film.title}`}
-              />
-            ) : (
-              <div className={styles.imageFallbackWrapper}>
-                <img
-                  className={styles.fallbackImg}
-                  src={film.img}
-                  alt={`Affiche du film ${film.title}`}
-                />
-                <div className={styles.videoBadge}>
-                  Vidéo disponible prochainement
+            <div className={styles.mediaWrapper}>
+              {youtubeId ? (
+                <div className={styles.youtubeWrapper}>
+                  <iframe
+                    className={styles.youtubeIframe}
+                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    title={film.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
                 </div>
-              </div>
-            )}
-          </div>
+              ) : film.videoUrl && film.videoSource === "s3" ? (
+                <video
+                  className={styles.videoS3}
+                  src={film.videoUrl}
+                  controls
+                  aria-label={`Lecture de ${film.title}`}
+                />
+              ) : (
+                <div className={styles.imageFallbackWrapper}>
+                  <img
+                    className={styles.fallbackImg}
+                    src={film.img}
+                    alt={`Affiche du film ${film.title}`}
+                  />
+                  <div className={styles.videoBadge}>
+                    Vidéo disponible prochainement
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* ── Métadonnées ────────────────────────────────────
+            {/* ── Métadonnées ────────────────────────────────────
               Grille auto-fit — extensible au backend (description,
               country, aiToolsUsed viendront dans la migration). */}
-          <div className={styles.metaGrid}>
-            {[
-              { label: "Titre", value: film.title },
-              { label: "Réalisateur", value: film.director },
-              { label: "Catégorie", value: film.category },
-            ]
-              .filter(({ value }) => value) // Filtre les valeurs null/undefined
-              .map(({ label, value }) => (
-                <div key={label}>
-                  <span className={styles.metaLabel}>{label}</span>
-                  <span className={styles.metaValue}>{value}</span>
-                </div>
-              ))}
+            <div className={styles.metaGrid}>
+              {[
+                { label: "Titre", value: film.title },
+                { label: "Réalisateur", value: film.director },
+                { label: "Catégorie", value: film.category },
+              ]
+                .filter(({ value }) => value) // Filtre les valeurs null/undefined
+                .map(({ label, value }) => (
+                  <div key={label}>
+                    <span className={styles.metaLabel}>{label}</span>
+                    <span className={styles.metaValue}>{value}</span>
+                  </div>
+                ))}
+            </div>
           </div>
+          {/* fin bodyRef */}
         </div>
-        {/* fin bodyRef */}
       </div>
-    </div>
     </>
   );
 }

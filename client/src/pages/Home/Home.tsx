@@ -15,51 +15,49 @@
  *   §8  Alliances                 existant
  *   §9  CTA final                 existant
  */
-import HeroImpact from '@/pages/Home/HeroImpact';
-import SectionManifeste from '@/components/SectionManifeste';
-import SectionTheme     from '@/components/SectionTheme';
-import SectionProgramme from '@/components/SectionProgramme';
-import SectionJury      from '@/pages/Home/components/SectionJury';
-import SectionRecompenses from '@/pages/Home/components/SectionRecompenses';
-import SectionGalerie      from '@/pages/Home/components/SectionGalerie';
-import SectionAlliances   from '@/pages/Home/components/SectionAlliances';
-import SEO from '@/components/SEO';
-import SectionCTA         from '@/pages/Home/components/SectionCTA';
+import HeroImpact from "@/pages/Home/HeroImpact";
+import SectionManifeste from "@/components/SectionManifeste";
+import SectionTheme from "@/components/SectionTheme";
+import SectionProgramme from "@/components/SectionProgramme";
+import SectionJury from "@/pages/Home/components/SectionJury";
+import SectionRecompenses from "@/pages/Home/components/SectionRecompenses";
+import SectionGalerie from "@/pages/Home/components/SectionGalerie";
+import SectionAlliances from "@/pages/Home/components/SectionAlliances";
+import SEO from "@/components/SEO";
+import SectionCTA from "@/pages/Home/components/SectionCTA";
 
 function Home() {
   return (
     <>
-      <SEO 
+      <SEO
         title="Accueil | Marsai Film Festival"
         description="Le Marsai Film Festival célèbre le cinéma indépendant. Un rendez-vous incontournable de créativité, de réflexion et d'innovation."
       />
       <div className="bg-bg-pure text-text">
+        {/* ── §1 HERO + STATS ──────────────────────────────────────── */}
+        <HeroImpact />
 
-      {/* ── §1 HERO + STATS ──────────────────────────────────────── */}
-      <HeroImpact />
+        {/* ── §2 MANIFESTE ─────────────────────────────────────────── */}
+        <SectionManifeste />
 
-      {/* ── §2 MANIFESTE ─────────────────────────────────────────── */}
-      <SectionManifeste />
+        {/* ── §3 THÈME ─────────────────────────────────────────────── */}
+        <SectionTheme />
 
-      {/* ── §3 THÈME ─────────────────────────────────────────────── */}
-      <SectionTheme />
+        {/* ── §10 CTA FINAL ──────────────────────────────────────────── */}
+        <SectionCTA />
 
-      {/* ── §10 CTA FINAL ──────────────────────────────────────────── */}
-      <SectionCTA />
+        {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
+        <SectionRecompenses />
 
-      {/* ── §7 RÉCOMPENSES ─────────────────────────────────────────── */}
-      <SectionRecompenses />
+        {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
+        <SectionJury />
 
-      {/* ── §5 JURY INTERNATIONAL ────────────────────────────────── */}
-      <SectionJury />
+        {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
+        <SectionProgramme />
 
-      {/* ── §4 PROGRAMME ─────────────────────────────────────────── */}
-      <SectionProgramme />
-
-      {/* ── §9 ALLIANCES ────────────────────────────────────────── */}
-      <SectionAlliances />
-
-    </div>
+        {/* ── §9 ALLIANCES ────────────────────────────────────────── */}
+        <SectionAlliances />
+      </div>
     </>
   );
 }

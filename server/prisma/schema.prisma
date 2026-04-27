@@ -97,6 +97,10 @@ model Submitter {
   loginToken   String?   @unique
   tokenExpires DateTime?
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
   films Film[]
 
   @@map("submitters")
