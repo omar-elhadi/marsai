@@ -3,21 +3,37 @@ FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+COPY client/package.json ./client/
+COPY server/package.json ./server/
+COPY packages/validators/package.json ./packages/validators/
+
+# Add make, python3, g++ for native modules like bcrypt
+RUN apk add --no-cache python3 make g++
+
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN npm run build --workspace=packages/validators
+RUN npm run build --workspace=server
 
 FROM node:20-alpine AS production
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm ci --only=production
+COPY client/package.json ./client/
+COPY server/package.json ./server/
+COPY packages/validators/package.json ./packages/validators/
 
-COPY --from=builder /usr/src/app/dist ./dist
-COPY prisma ./prisma
+# Add make, python3, g++ for native modules
+RUN apk add --no-cache python3 make g++
+
+RUN npm ci --omit=dev
+
+COPY --from=builder /usr/src/app/packages/validators/dist ./packages/validators/dist
+COPY --from=builder /usr/src/app/server/dist ./server/dist
+COPY --from=builder /usr/src/app/server/prisma ./server/prisma
 
 EXPOSE 5000
 
-CMD ["npm", "start"]
+CMD ["npm", "start", "--workspace=server"]
