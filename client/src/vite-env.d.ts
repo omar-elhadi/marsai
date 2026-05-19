@@ -4,14 +4,14 @@ declare module '*.module.css' {
   export default classes;
 }
 declare module '*.png' {
-  const value: any;
+  const value: string;
   export = value;
 }
 declare module '*.svg' {
-  const value: any;
+  const value: string;
   export = value;
 }
 declare module '*.webp' {
-  const value: any;
+  const value: string;
   export = value;
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Contact.jsx — MARSAI Festival · Phase 9
  * "L'accès direct — sobre, précis, humain"

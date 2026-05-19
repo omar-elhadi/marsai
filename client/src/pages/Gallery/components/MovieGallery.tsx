@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * MovieGallery.jsx — MARSAI Festival
  * Galerie · Page complète — défilement horizontal

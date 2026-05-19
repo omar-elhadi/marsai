@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { Play, Loader2, Users, X, AlertTriangle, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';

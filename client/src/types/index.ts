@@ -8,6 +8,25 @@ export interface User {
 
 export interface AuthUser extends User {}
 
+export interface LoginCredentials {
+  email: string;
+  password?: string;
+}
+
+export type UserCreationPayload = Omit<User, 'id'> & {
+  password?: string;
+};
+
+export interface VotePayload {
+  rating?: 'LIKE' | 'DISCOURAGED';
+  comment?: string;
+}
+
+export type FilmSubmissionPayload = Partial<Omit<Film, 'id' | 'status' | 'avgRating' | 'totalVotes'>> & {
+  title: string;
+  directorName: string;
+};
+
 export interface Film {
   id: number;
   title: string;

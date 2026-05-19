@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * NewsDetail.jsx — MARSAI Festival
  * Page Détail Article — Actualités

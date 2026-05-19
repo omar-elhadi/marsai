@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * CategorySection.jsx — MARSAI Festival · Phase 9
  * Section de catégorie sur la timeline.

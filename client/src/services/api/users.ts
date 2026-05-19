@@ -1,12 +1,12 @@
 import { apiClient } from './apiClient';
-import { User } from '../../types';
+import { User, UserCreationPayload } from '../../types';
 
 export const usersService = {
   getAll: async () => {
     const { data } = await apiClient.get<User[]>('/users');
     return data;
   },
-  create: async (userData: any) => {
+  create: async (userData: UserCreationPayload) => {
     const { data } = await apiClient.post<User>('/users', userData);
     return data;
   },

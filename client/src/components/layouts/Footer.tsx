@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Footer.jsx — MARSAI Festival
  * "La Générique" — Refactoring & Révision cinématographique

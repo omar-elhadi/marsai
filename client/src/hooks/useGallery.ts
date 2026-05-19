@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { galleryService } from '../services/api/gallery.service';
+import { useState, useCallback, useEffect } from "react";
+import { galleryService } from "../services/api/gallery.service";
 
 export const useGallery = () => {
   const [items, setItems] = useState<any[]>([]);
@@ -11,9 +11,11 @@ export const useGallery = () => {
     setError(null);
     try {
       const data = await galleryService.getAll();
-      setItems(data || []);
+      setItems(data?.data || data || []);
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to fetch gallery');
+      setError(
+        err.response?.data?.error || err.message || "Failed to fetch gallery",
+      );
     } finally {
       setLoading(false);
     }

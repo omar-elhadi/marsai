@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * HeroImpact.jsx — MARSAI Festival
  * Phase 1.1 + 1.2 — Héros cinématographique sobre + Bande de statistiques

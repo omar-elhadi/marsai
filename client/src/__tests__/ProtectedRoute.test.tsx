@@ -40,7 +40,7 @@ describe('ProtectedRoute', () => {
     // @ts-ignore
     vi.mocked(authHook.useAuth).mockReturnValue({
       loading: false,
-      user: { id: '1', role: 'JURY' },
+      user: { id: 1, email: 'test@example.com', role: 'JURY' },
       hasRole: vi.fn().mockReturnValue(true)
     });
     renderRoute();
@@ -51,7 +51,7 @@ describe('ProtectedRoute', () => {
     // @ts-ignore
     vi.mocked(authHook.useAuth).mockReturnValue({
       loading: false,
-      user: { id: '1', role: 'JURY' },
+      user: { id: 1, email: 'test@example.com', role: 'JURY' },
       hasRole: vi.fn().mockReturnValue(false)
     });
     renderRoute(['ADMIN']);
@@ -62,7 +62,7 @@ describe('ProtectedRoute', () => {
     // @ts-ignore
     vi.mocked(authHook.useAuth).mockReturnValue({
       loading: false,
-      user: { id: '1', role: 'ADMIN' },
+      user: { id: 1, email: 'test@example.com', role: 'ADMIN' },
       hasRole: vi.fn().mockImplementation((roles) => roles.includes('ADMIN'))
     });
     renderRoute(['ADMIN']);

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Header.jsx — MARSAI Festival
  * Phase 7 — Navigation cinématographique

@@ -14,7 +14,7 @@
 
 import { X, ExternalLink } from 'lucide-react';
 
-function extractYouTubeId(url) {
+function extractYouTubeId(url: string) {
   if (!url) return null;
   const raw = url.trim();
   try {
@@ -33,7 +33,7 @@ function extractYouTubeId(url) {
   return match ? match[1] : null;
 }
 
-export default function VideoModal({ film, onClose }) {
+export default function VideoModal({ film, onClose }: { film: any; onClose: () => void }) {
   if (!film) return null;
 
   const id       = extractYouTubeId(film.youtubeUrl);

@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { Film } from '../../types';
+import { Film, FilmSubmissionPayload } from '../../types';
 
 export const filmsService = {
   getAll: async () => {
@@ -14,7 +14,7 @@ export const filmsService = {
     const { data } = await apiClient.patch<Film>(`/films/${id}/status`, { status, comment });
     return data;
   },
-  submit: async (payload: any) => {
+  submit: async (payload: FilmSubmissionPayload) => {
     const { data } = await apiClient.post<Film>('/films/submit', payload);
     return data;
   },

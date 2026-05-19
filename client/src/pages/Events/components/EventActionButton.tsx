@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from 'react';
 
 // Keyframes pour l'animation pulsante de la barre

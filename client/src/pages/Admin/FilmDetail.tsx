@@ -1,5 +1,4 @@
 import { formatDateTime } from "../../utils/format";
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Loader2, Users, Globe, Calendar, Cpu, CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react';

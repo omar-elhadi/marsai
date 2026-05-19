@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * News.jsx — MARSAI Festival
  * Page Actualités — Bento Grid
