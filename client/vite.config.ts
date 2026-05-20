@@ -7,6 +7,13 @@ import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const keyPath = "/home/kaneki_ken/bin/certs/localhost+2-key.pem";
+const certPath = "/home/kaneki_ken/bin/certs/localhost+2.pem";
+const httpsConfig =
+  fs.existsSync(keyPath) && fs.existsSync(certPath)
+    ? { key: fs.readFileSync(keyPath), cert: fs.readFileSync(certPath) }
+    : false;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -17,11 +24,8 @@ export default defineConfig({
     // NOTE: configs HTTPS
   ],
   server: {
-    https: {
-      key: fs.readFileSync("/home/kaneki_ken/bin/certs/localhost+2-key.pem"),
-      cert: fs.readFileSync("/home/kaneki_ken/bin/certs/localhost+2.pem"),
-    },
-    host: "localhost",
+    https: httpsConfig,
+    host: "0.0.0.0",
     port: 5173,
   },
   resolve: {

@@ -64,14 +64,14 @@ const CONTRAINTES = [
 // ─────────────────────────────────────────────
 export default function SectionManifeste() {
   const { t } = useTranslation("common");
-  const sectionRef = useRef(null);
-  const overlineRef = useRef(null);
-  const line1Ref = useRef(null);
-  const line2Ref = useRef(null);
-  const line3Ref = useRef(null);
-  const paraRef = useRef(null);
-  const separatorRef = useRef(null);
-  const pilaersRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const overlineRef = useRef<HTMLDivElement>(null);
+  const line1Ref = useRef<HTMLSpanElement>(null);
+  const line2Ref = useRef<HTMLSpanElement>(null);
+  const line3Ref = useRef<HTMLSpanElement>(null);
+  const paraRef = useRef<HTMLParagraphElement>(null);
+  const separatorRef = useRef<HTMLHRElement>(null);
+  const pilaersRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -86,7 +86,7 @@ export default function SectionManifeste() {
         scaleX: 0,
         transformOrigin: "left center",
       });
-      gsap.set(pilaersRef.current.children, { opacity: 0, y: 30 });
+      gsap.set(pilaersRef.current!.children, { opacity: 0, y: 30 });
 
       // ── ScrollTrigger ─────────────────────────────────────────
       ScrollTrigger.create({
@@ -137,7 +137,7 @@ export default function SectionManifeste() {
           );
 
           tl.to(
-            pilaersRef.current.children,
+            pilaersRef.current!.children,
             {
               opacity: 1,
               y: 0,

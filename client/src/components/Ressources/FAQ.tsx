@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,41 +42,114 @@ const CSS = `
 `;
 
 const QUESTIONS = [
-  { id: 'q1', title: "Qu’est-ce que le Festival Mars AI ?", content: "Le Festival Mars AI est un événement annuel dédié à l’intelligence artificielle et ses applications dans l’art, la musique, la robotique et la technologie." },
-  { id: 'q2', title: "Quand et où a lieu le festival ?", content: "Le festival se déroule chaque année au mois de mars au Parc des Expositions de Marseille. Les dates exactes sont annoncées sur le site officiel." },
-  { id: 'q3', title: "Comment acheter des billets ?", content: "Les billets sont disponibles en ligne via notre billetterie sécurisée. Différents pass (journée, week-end, full access) sont proposés." },
-  { id: 'q4', title: "Qui peut participer ?", content: "L'événement est ouvert à tous : professionnels, étudiants, familles et curieux. Certaines zones sont spécifiquement adaptées au jeune public." },
-  { id: 'q5', title: "Types d’activités proposés ?", content: "Conférences d'experts, ateliers de code/IA, expositions d'art génératif et performances live de robots musiciens." },
-  { id: 'q6', title: "Restauration sur place ?", content: "Un espace 'Food & Tech' avec des food trucks locaux et des options végétariennes est disponible durant toute la durée de l'événement." },
-  { id: 'q7', title: "Accessibilité PMR ?", content: "Le site est entièrement accessible aux personnes à mobilité réduite. Des fauteuils sont disponibles sur demande à l'accueil." },
+  {
+    id: "q1",
+    title: "Qu’est-ce que le Festival Mars AI ?",
+    content:
+      "Le Festival Mars AI est un événement annuel dédié à l’intelligence artificielle et ses applications dans l’art, la musique, la robotique et la technologie.",
+  },
+  {
+    id: "q2",
+    title: "Quand et où a lieu le festival ?",
+    content:
+      "Le festival se déroule chaque année au mois de mars au Parc des Expositions de Marseille. Les dates exactes sont annoncées sur le site officiel.",
+  },
+  {
+    id: "q3",
+    title: "Comment acheter des billets ?",
+    content:
+      "Les billets sont disponibles en ligne via notre billetterie sécurisée. Différents pass (journée, week-end, full access) sont proposés.",
+  },
+  {
+    id: "q4",
+    title: "Qui peut participer ?",
+    content:
+      "L'événement est ouvert à tous : professionnels, étudiants, familles et curieux. Certaines zones sont spécifiquement adaptées au jeune public.",
+  },
+  {
+    id: "q5",
+    title: "Types d’activités proposés ?",
+    content:
+      "Conférences d'experts, ateliers de code/IA, expositions d'art génératif et performances live de robots musiciens.",
+  },
+  {
+    id: "q6",
+    title: "Restauration sur place ?",
+    content:
+      "Un espace 'Food & Tech' avec des food trucks locaux et des options végétariennes est disponible durant toute la durée de l'événement.",
+  },
+  {
+    id: "q7",
+    title: "Accessibilité PMR ?",
+    content:
+      "Le site est entièrement accessible aux personnes à mobilité réduite. Des fauteuils sont disponibles sur demande à l'accueil.",
+  },
 ];
 
-function FAQItem({ item, index, isVisible, isOpen, onToggle }) {
+interface Question {
+  id: string;
+  title: string;
+  content: string;
+}
+
+interface FAQItemProps {
+  item: Question;
+  index: number;
+  isVisible: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+function FAQItem({ item, index, isVisible, isOpen, onToggle }: FAQItemProps) {
   const rowRef = useRef(null);
   const bodyRef = useRef(null);
 
   useGSAP(() => {
     if (isVisible) {
-      gsap.to(rowRef.current, { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out', delay: index * 0.1 });
+      gsap.to(rowRef.current, {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        ease: "power2.out",
+        delay: index * 0.1,
+      });
     }
   }, [isVisible]);
 
   useGSAP(() => {
     if (isOpen) {
-      gsap.to(bodyRef.current, { height: 'auto', opacity: 1, duration: 0.4, ease: 'power2.out' });
+      gsap.to(bodyRef.current, {
+        height: "auto",
+        opacity: 1,
+        duration: 0.4,
+        ease: "power2.out",
+      });
     } else {
-      gsap.to(bodyRef.current, { height: 0, opacity: 0, duration: 0.3, ease: 'power2.in' });
+      gsap.to(bodyRef.current, {
+        height: 0,
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.in",
+      });
     }
   }, [isOpen]);
 
   return (
-    <div ref={rowRef} className="faq-row" style={{ transform: 'translateX(20px)' }}>
+    <div
+      ref={rowRef}
+      className="faq-row"
+      style={{ transform: "translateX(20px)" }}
+    >
       <button onClick={onToggle} className="faq-btn">
         <div className="flex items-baseline gap-4">
-          <span className="faq-num">{String(index + 1).padStart(2, '0')}</span>
-          <span className={`faq-question ${isOpen ? 'is-open' : ''}`}>{item.title}</span>
+          <span className="faq-num">{String(index + 1).padStart(2, "0")}</span>
+          <span className={`faq-question ${isOpen ? "is-open" : ""}`}>
+            {item.title}
+          </span>
         </div>
-        <span className={`faq-toggle ${isOpen ? 'is-open' : ''}`}>{isOpen ? '✕' : '＋'}</span>
+        <span className={`faq-toggle ${isOpen ? "is-open" : ""}`}>
+          {isOpen ? "✕" : "＋"}
+        </span>
       </button>
       <div ref={bodyRef} className="faq-body">
         <div className="faq-content">
@@ -93,56 +166,64 @@ export default function FAQ() {
   const timelineRef = useRef(null);
   const progressRef = useRef(null);
   const dotRef = useRef(null);
-  
-  const [openId, setOpenId] = useState(null);
+
+  const [openId, setOpenId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  useGSAP(() => {
-    // Animation du Header (Titre)
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top 80%',
-      onEnter: () => setIsVisible(true)
-    });
+  useGSAP(
+    () => {
+      // Animation du Header (Titre)
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 80%",
+        onEnter: () => setIsVisible(true),
+      });
 
-    // Animation de la barre de progression au scroll
-    gsap.to(progressRef.current, {
-      height: '100%',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: timelineRef.current,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: 0.5,
-      }
-    });
+      // Animation de la barre de progression au scroll
+      gsap.to(progressRef.current, {
+        height: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: "top center",
+          end: "bottom center",
+          scrub: 0.5,
+        },
+      });
 
-    gsap.to(dotRef.current, {
-      top: 'calc(100% - 6px)',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: timelineRef.current,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: 0.5,
-      }
-    });
-  }, { scope: sectionRef });
+      gsap.to(dotRef.current, {
+        top: "calc(100% - 6px)",
+        ease: "none",
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: "top center",
+          end: "bottom center",
+          scrub: 0.5,
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <>
       <style>{CSS}</style>
       <section ref={sectionRef} className="faq-section">
         <div className="faq-inner">
-          
           <header className="faq-header">
             <div className="faq-overline">
               <span className="faq-overline-bar" />
-              <span className="text-[#decba4] text-xs tracking-[0.3em] uppercase">Assistance & Infos</span>
+              <span className="text-[#decba4] text-xs tracking-[0.3em] uppercase">
+                Assistance & Infos
+              </span>
             </div>
             <div className="faq-titles">
-              <div className="faq-title-line"><span>Questions</span></div>
-              <div className="faq-title-line"><span className="faq-title-accent">Fréquentes</span></div>
+              <div className="faq-title-line">
+                <span>Questions</span>
+              </div>
+              <div className="faq-title-line">
+                <span className="faq-title-accent">Fréquentes</span>
+              </div>
             </div>
           </header>
 
@@ -161,12 +242,13 @@ export default function FAQ() {
                   index={index}
                   isVisible={isVisible}
                   isOpen={openId === item.id}
-                  onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+                  onToggle={() =>
+                    setOpenId(openId === item.id ? null : item.id)
+                  }
                 />
               ))}
             </div>
           </div>
-
         </div>
       </section>
     </>

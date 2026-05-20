@@ -29,14 +29,14 @@ const CURRENT_EDITION = new Date().getFullYear();
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
-const STATUS_BG = {
+const STATUS_BG: Record<string, string> = {
   APPROVED: "bg-green-500/10 border-green-500/20 text-green-400",
   SELECTION: "bg-indigo-500/10 border-indigo-500/20 text-indigo-400",
   FINALIST: "bg-purple-500/10 border-purple-500/20 text-purple-400",
   AWARD: "bg-amber-500/10 border-amber-500/20 text-amber-400",
 };
 
-function Badge({ status }) {
+function Badge({ status }: { status: string }) {
   return (
     <span
       className={`text-[11px] px-2 py-0.5 border ${STATUS_BG[status] ?? ""}`}
@@ -55,7 +55,7 @@ function Badge({ status }) {
   );
 }
 
-function Rating({ avg, total }) {
+function Rating({ avg, total }: { avg?: number | null; total?: number }) {
   if (avg == null)
     return (
       <span style={{ color: "var(--color-text-faint)", fontSize: "0.75rem" }}>
@@ -84,16 +84,34 @@ const spinnerStyle = {
 
 // ── Onglet 1 — Catégories ────────────────────────────────────────────────────
 
-function TabCategories({ edition, userRole }) {
-  const [categories, setCategories] = useState([]);
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  displayOrder: number;
+  nominations?: any[];
+}
+
+function TabCategories({
+  edition,
+  userRole,
+}: {
+  edition: number;
+  userRole: string;
+}) {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    name: string;
+    description: string;
+    displayOrder: number;
+  }>({
     name: "",
     description: "",
     displayOrder: 0,
   });
   const [saving, setSaving] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const [editId, setEditId] = useState<number | null>(null);
 
   const isAdmin = userRole === "ADMIN";
 
@@ -137,7 +155,7 @@ function TabCategories({ edition, userRole }) {
     }
   };
 
-  const remove = async (id) => {
+  const remove = async (id: number) => {
     if (!confirm("Supprimer cette catégorie ?")) return;
     await fetch(`${API}/awards/categories/${id}`, {
       method: "DELETE",
@@ -146,7 +164,7 @@ function TabCategories({ edition, userRole }) {
     await load();
   };
 
-  const startEdit = (cat) => {
+  const startEdit = (cat: Category) => {
     setEditId(cat.id);
     setForm({
       name: cat.name,
@@ -155,7 +173,7 @@ function TabCategories({ edition, userRole }) {
     });
   };
 
-  const inputStyle = {
+  const inputStyle: React.CSSProperties = {
     background: "transparent",
     border: "1px solid var(--color-border)",
     color: "var(--color-text)",

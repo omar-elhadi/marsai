@@ -1,5 +1,5 @@
-import { apiClient } from './apiClient';
-import { VotePayload } from '../../types';
+import { apiClient } from "./apiClient";
+import { VotePayload } from "../../types";
 
 export const votesService = {
   createVote: async (filmId: number | string, data: VotePayload) => {

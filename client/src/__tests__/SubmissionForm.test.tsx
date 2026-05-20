@@ -1,16 +1,16 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import SubmissionForm from '../pages/Submission/SubmissionForm';
-import { MemoryRouter } from 'react-router-dom';
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import SubmissionForm from "../pages/Submission/SubmissionForm";
+import { MemoryRouter } from "react-router-dom";
 
-describe('SubmissionForm', () => {
+describe("SubmissionForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn();
-    (global.fetch as any).mockResolvedValue({
+    globalThis.fetch = vi.fn();
+    (globalThis.fetch as any).mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ success: true, trackingCode: 'ABC-123' })
+      json: () => Promise.resolve({ success: true, trackingCode: "ABC-123" }),
     });
   });
 
@@ -18,10 +18,10 @@ describe('SubmissionForm', () => {
     render(
       <MemoryRouter>
         <SubmissionForm />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
-  it('renders correctly', () => {
+  it("renders correctly", () => {
     renderComponent();
 
     expect(screen.getByLabelText(/Prénom/i)).toBeInTheDocument();
@@ -29,33 +29,35 @@ describe('SubmissionForm', () => {
     expect(screen.getByLabelText(/Titre du film/i)).toBeInTheDocument();
   });
 
-  it('can type into inputs', async () => {
+  it("can type into inputs", async () => {
     renderComponent();
 
     const prenomInput = screen.getByLabelText(/Prénom/i);
-    fireEvent.change(prenomInput, { target: { value: 'John' } });
-    
-    expect(prenomInput).toHaveValue('John');
+    fireEvent.change(prenomInput, { target: { value: "John" } });
+
+    expect(prenomInput).toHaveValue("John");
   });
 
-  it('submits form successfully', async () => {
+  it("submits form successfully", async () => {
     renderComponent();
-    
+
     // Fill in minimum requirements just in case
     const titleInput = screen.getByLabelText(/Titre du film/i);
-    fireEvent.change(titleInput, { target: { value: 'Test Film' } });
-    
+    fireEvent.change(titleInput, { target: { value: "Test Film" } });
+
     // Fire sumbit via form or button (the button is "Soumettre mon film")
     // Might not have that exact text. Let's see what the submit buttons are.
-    const submitBtns = screen.getAllByRole('button');
+    const submitBtns = screen.getAllByRole("button");
     // Assuming the last button might be the submit or the one having type="submit".
-    const submitBtn = submitBtns.find(b => b.getAttribute('type') === 'submit') || submitBtns[submitBtns.length - 1];
-    
+    const submitBtn =
+      submitBtns.find((b) => b.getAttribute("type") === "submit") ||
+      submitBtns[submitBtns.length - 1];
+
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
-       // just checking that no big crash happens. We could check fetch if it actually gets called.
-       // The original file expects valid form submission to run fetch.
+      // just checking that no big crash happens. We could check fetch if it actually gets called.
+      // The original file expects valid form submission to run fetch.
     });
   });
 });

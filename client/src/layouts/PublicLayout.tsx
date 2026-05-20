@@ -1,17 +1,17 @@
-import { useEffect, useRef } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import Header           from '@/components/layouts/Header';
-import Footer           from '@/components/layouts/Footer';
-import Lenis            from 'lenis';
-import gsap             from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import Header from "@/components/layouts/Header";
+import Footer from "@/components/layouts/Footer";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // TODO: Étape 3 Kodawari — importer ScrollProgressBar ici
 
 function PublicLayout() {
-  const lenisRef     = useRef(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const { pathname } = useLocation();
 
   // ── Intégration officielle Lenis + GSAP ScrollTrigger ────
@@ -34,23 +34,23 @@ function PublicLayout() {
   //     des frames lors de pics CPU — discontinuités dans le scrub.
   useEffect(() => {
     const lenis = new Lenis({
-      duration:        1.2,
-      easing:          (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel:     true,
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
       wheelMultiplier: 1,
     });
 
     lenisRef.current = lenis;
 
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on("scroll", ScrollTrigger.update);
 
-    const lenisRaf = (time) => lenis.raf(time * 1000);
+    const lenisRaf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(lenisRaf);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
       gsap.ticker.remove(lenisRaf);
-      lenis.off('scroll', ScrollTrigger.update);
+      lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
       lenisRef.current = null;
     };
@@ -70,18 +70,18 @@ function PublicLayout() {
       requestAnimationFrame(() => lenisRef.current?.resize());
     };
 
-    const onScrollTo = (e) => {
-      const target = e.detail?.target;
+    const onScrollTo = (e: Event) => {
+      const target = (e as CustomEvent).detail?.target;
       if (!target || !lenisRef.current) return;
       lenisRef.current.scrollTo(target, { immediate: true, offset: 0 });
     };
 
-    window.addEventListener('lenis:resize',   onResize);
-    window.addEventListener('lenis:scrollTo', onScrollTo);
+    window.addEventListener("lenis:resize", onResize);
+    window.addEventListener("lenis:scrollTo", onScrollTo);
 
     return () => {
-      window.removeEventListener('lenis:resize',   onResize);
-      window.removeEventListener('lenis:scrollTo', onScrollTo);
+      window.removeEventListener("lenis:resize", onResize);
+      window.removeEventListener("lenis:scrollTo", onScrollTo);
     };
   }, []);
 

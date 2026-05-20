@@ -1,7 +1,7 @@
 export interface User {
   id: number;
   email: string;
-  role: 'ADMIN' | 'MODERATOR' | 'JURY';
+  role: "ADMIN" | "MODERATOR" | "JURY";
   firstName?: string;
   lastName?: string;
 }
@@ -13,16 +13,18 @@ export interface LoginCredentials {
   password?: string;
 }
 
-export type UserCreationPayload = Omit<User, 'id'> & {
+export type UserCreationPayload = Omit<User, "id"> & {
   password?: string;
 };
 
 export interface VotePayload {
-  rating?: 'LIKE' | 'DISCOURAGED';
+  rating?: "LIKE" | "DISCOURAGED";
   comment?: string;
 }
 
-export type FilmSubmissionPayload = Partial<Omit<Film, 'id' | 'status' | 'avgRating' | 'totalVotes'>> & {
+export type FilmSubmissionPayload = Partial<
+  Omit<Film, "id" | "status" | "avgRating" | "totalVotes">
+> & {
   title: string;
   directorName: string;
 };
@@ -45,7 +47,15 @@ export interface Film {
   totalDislikes?: number;
   submittedAt?: string;
   updatedAt?: string;
-  status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'SELECTION' | 'FINALIST' | 'AWARDED' | 'TO_MODIFY';
+  status:
+    | "SUBMITTED"
+    | "IN_REVIEW"
+    | "APPROVED"
+    | "REJECTED"
+    | "SELECTION"
+    | "FINALIST"
+    | "AWARDED"
+    | "TO_MODIFY";
 }
 
 export interface ApiResponse<T> {

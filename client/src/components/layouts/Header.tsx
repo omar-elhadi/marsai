@@ -47,7 +47,22 @@ const NAV_LINKS = [
 // data-active posé sur l'élément — CSS module gère
 // [data-active='true'] et :hover sans JS handler.
 // ─────────────────────────────────────────────────────────────
-function NavLink({ link, isActive, onClick }) {
+interface LinkItem {
+  label: string;
+  href: string;
+  isLink?: boolean;
+  index: string;
+}
+
+function NavLink({
+  link,
+  isActive,
+  onClick,
+}: {
+  link: LinkItem;
+  isActive: boolean;
+  onClick?: () => void;
+}) {
   const content = (
     <>
       <span>{link.label}</span>
@@ -59,7 +74,7 @@ function NavLink({ link, isActive, onClick }) {
   const commonProps = {
     className: styles.navLinkDesktop,
     "data-active": String(isActive),
-    "aria-current": isActive ? "page" : undefined,
+    "aria-current": (isActive ? "page" : undefined) as "page" | undefined,
     onClick,
   };
 
@@ -79,7 +94,13 @@ function NavLink({ link, isActive, onClick }) {
 // ─────────────────────────────────────────────────────────────
 // Classes conditionnelles selon isSoumettre. Zéro style inline.
 // ─────────────────────────────────────────────────────────────
-function MobileLinkContent({ link, isSoumettre }) {
+function MobileLinkContent({
+  link,
+  isSoumettre,
+}: {
+  link: LinkItem;
+  isSoumettre: boolean;
+}) {
   return (
     <>
       <span
@@ -236,7 +257,9 @@ export default function Header() {
               <div
                 key={link.href}
                 className={`${styles.mobileNavItem} ${isOpen ? styles.mobileNavItemOpen : ""}`}
-                style={{ "--stagger": `${80 + i * 70}ms` }}
+                style={
+                  { "--stagger": `${80 + i * 70}ms` } as React.CSSProperties
+                }
               >
                 {link.isLink ? (
                   <Link

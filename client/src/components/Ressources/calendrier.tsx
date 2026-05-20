@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
-import gsap              from 'gsap';
-import { useGSAP }       from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import projectionsImg from '@/assets/projections-ia.png';
-import conferencesImg from '@/assets/conferences-ia.png';
-import awardsImg      from '@/assets/remises-prix-ia.png';
+import projectionsImg from "@/assets/projections-ia.png";
+import conferencesImg from "@/assets/conferences-ia.png";
+import awardsImg from "@/assets/remises-prix-ia.png";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -51,67 +51,137 @@ const CSS = `
 
 const EVENT_CATEGORIES = [
   {
-    key:      'projections',
-    title:    'Projections',
-    subtitle: 'Festival du film réalisé en IA',
-    date:     '20 Juin 2026',
-    image:    projectionsImg,
+    key: "projections",
+    title: "Projections",
+    subtitle: "Festival du film réalisé en IA",
+    date: "20 Juin 2026",
+    image: projectionsImg,
     items: [
-      { id: 'p1', title: 'Film IA — Génération narrative',  time: '18:00', place: 'Salle 1' },
-      { id: 'p2', title: 'Sélection Courts Métrages IA',   time: '19:30', place: 'Salle 2' },
+      {
+        id: "p1",
+        title: "Film IA — Génération narrative",
+        time: "18:00",
+        place: "Salle 1",
+      },
+      {
+        id: "p2",
+        title: "Sélection Courts Métrages IA",
+        time: "19:30",
+        place: "Salle 2",
+      },
     ],
   },
   {
-    key:      'conferences',
-    title:    'Conférences',
+    key: "conferences",
+    title: "Conférences",
     subtitle: "Rencontres et talks autour de l'IA et du cinéma",
-    date:     '21 Juin 2026',
-    image:    conferencesImg,
+    date: "21 Juin 2026",
+    image: conferencesImg,
     items: [
-      { id: 'c1', title: "L'IA dans le cinéma de demain",          time: '14:00', place: 'Auditorium' },
-      { id: 'c2', title: "Créer un film avec l'IA\u00a0: workflow", time: '16:00', place: 'Auditorium' },
+      {
+        id: "c1",
+        title: "L'IA dans le cinéma de demain",
+        time: "14:00",
+        place: "Auditorium",
+      },
+      {
+        id: "c2",
+        title: "Créer un film avec l'IA\u00a0: workflow",
+        time: "16:00",
+        place: "Auditorium",
+      },
     ],
   },
   {
-    key:      'awards',
-    title:    'Remises de prix',
+    key: "awards",
+    title: "Remises de prix",
     subtitle: "Célébration des meilleures créations IA",
-    date:     '22 Juin 2026',
-    image:    awardsImg,
+    date: "22 Juin 2026",
+    image: awardsImg,
     items: [
-      { id: 'a1', title: 'Prix du Meilleur Film IA', time: '21:30', place: 'Grande Salle' },
-      { id: 'a2', title: 'Prix Innovation IA',       time: '22:00', place: 'Grande Salle' },
+      {
+        id: "a1",
+        title: "Prix du Meilleur Film IA",
+        time: "21:30",
+        place: "Grande Salle",
+      },
+      {
+        id: "a2",
+        title: "Prix Innovation IA",
+        time: "22:00",
+        place: "Grande Salle",
+      },
     ],
   },
 ];
 
-const flatEvents = EVENT_CATEGORIES.flatMap(c => c.items);
+const flatEvents = EVENT_CATEGORIES.flatMap((c) => c.items);
 
 function prefersReducedMotion() {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function AccordionItem({ item, globalIndex, isVisible, isOpen, onToggle }) {
-  const rowRef  = useRef(null);
+interface EventItem {
+  id: string;
+  title: string;
+  time: string;
+  place: string;
+}
+
+interface EventCategory {
+  key: string;
+  title: string;
+  subtitle: string;
+  date: string;
+  image: string;
+  items: EventItem[];
+}
+
+interface AccordionItemProps {
+  item: EventItem;
+  globalIndex: number;
+  isVisible: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+function AccordionItem({
+  item,
+  globalIndex,
+  isVisible,
+  isOpen,
+  onToggle,
+}: AccordionItemProps) {
+  const rowRef = useRef(null);
   const bodyRef = useRef(null);
 
   useGSAP(() => {
     if (!rowRef.current) return;
     gsap.to(rowRef.current, {
-      opacity:  isVisible ? 1 : 0,
-      x:        isVisible ? 0 : 18,
+      opacity: isVisible ? 1 : 0,
+      x: isVisible ? 0 : 18,
       duration: 0.45,
-      ease:     'power2.out',
+      ease: "power2.out",
     });
   }, [isVisible]);
 
   useGSAP(() => {
     if (!bodyRef.current) return;
     if (isOpen) {
-      gsap.to(bodyRef.current, { height: 'auto', opacity: 1, duration: 0.38, ease: 'power2.out' });
+      gsap.to(bodyRef.current, {
+        height: "auto",
+        opacity: 1,
+        duration: 0.38,
+        ease: "power2.out",
+      });
     } else {
-      gsap.to(bodyRef.current, { height: 0,      opacity: 0, duration: 0.28, ease: 'power2.in'  });
+      gsap.to(bodyRef.current, {
+        height: 0,
+        opacity: 0,
+        duration: 0.28,
+        ease: "power2.in",
+      });
     }
   }, [isOpen]);
 
@@ -120,21 +190,23 @@ function AccordionItem({ item, globalIndex, isVisible, isOpen, onToggle }) {
       <button onClick={onToggle} className="accordion-btn">
         <div className="accordion-btn-left">
           <span className="accordion-num">
-            {String(globalIndex + 1).padStart(2, '0')}
+            {String(globalIndex + 1).padStart(2, "0")}
           </span>
-          <span className={'accordion-title' + (isOpen ? ' is-open' : '')}>
+          <span className={"accordion-title" + (isOpen ? " is-open" : "")}>
             {item.title}
           </span>
         </div>
-        <span className={'accordion-toggle' + (isOpen ? ' is-open' : '')}>
-          {isOpen ? '−' : '+'}
+        <span className={"accordion-toggle" + (isOpen ? " is-open" : "")}>
+          {isOpen ? "−" : "+"}
         </span>
       </button>
 
       <div ref={bodyRef} className="accordion-body">
         <div className="accordion-details">
           <div>
-            <span className="label-overline accordion-detail-label">Horaire</span>
+            <span className="label-overline accordion-detail-label">
+              Horaire
+            </span>
             <span className="accordion-detail-value">{item.time}</span>
           </div>
           <div>
@@ -147,8 +219,18 @@ function AccordionItem({ item, globalIndex, isVisible, isOpen, onToggle }) {
   );
 }
 
-function CategoryBlock({ category, startIndex, visibleCount }) {
-  const [openId, setOpenId] = useState(null);
+interface CategoryBlockProps {
+  category: EventCategory;
+  startIndex: number;
+  visibleCount: number;
+}
+
+function CategoryBlock({
+  category,
+  startIndex,
+  visibleCount,
+}: CategoryBlockProps) {
+  const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <div className="category-block">
@@ -171,48 +253,74 @@ function CategoryBlock({ category, startIndex, visibleCount }) {
 }
 
 export default function Calendrier() {
-  const sectionRef  = useRef(null);
+  const sectionRef = useRef(null);
   const overlineRef = useRef(null);
-  const line1Ref    = useRef(null);
-  const line2Ref    = useRef(null);
+  const line1Ref = useRef(null);
+  const line2Ref = useRef(null);
   const subtitleRef = useRef(null);
   const timelineRef = useRef(null);
   const progressRef = useRef(null);
-  const dotRef      = useRef(null);
+  const dotRef = useRef(null);
 
-  const [started,      setStarted]      = useState(false);
+  const [started, setStarted] = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
   const total = flatEvents.length;
 
-  const categoryStartIndex = EVENT_CATEGORIES.reduce((acc, cat, i) => {
-    acc[cat.key] = EVENT_CATEGORIES.slice(0, i).reduce((s, c) => s + c.items.length, 0);
-    return acc;
-  }, {});
+  const categoryStartIndex = EVENT_CATEGORIES.reduce(
+    (acc: Record<string, number>, cat, i) => {
+      acc[cat.key] = EVENT_CATEGORIES.slice(0, i).reduce(
+        (s, c) => s + c.items.length,
+        0,
+      );
+      return acc;
+    },
+    {},
+  );
 
-  useGSAP(() => {
-    gsap.set(overlineRef.current,                  { opacity: 0, y: 12  });
-    gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110       });
-    gsap.set(subtitleRef.current,                  { opacity: 0, y: 18  });
-    ScrollTrigger.create({
-      trigger: sectionRef.current, start: 'top 75%', once: true,
-      onEnter() {
-        const tl = gsap.timeline();
-        tl.to(overlineRef.current,
-          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' });
-        tl.to([line1Ref.current, line2Ref.current],
-          { yPercent: 0, duration: 0.85, stagger: 0.12, ease: 'power3.out' }, 0.15);
-        tl.to(subtitleRef.current,
-          { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.50);
-      },
-    });
-  }, { scope: sectionRef });
+  useGSAP(
+    () => {
+      gsap.set(overlineRef.current, { opacity: 0, y: 12 });
+      gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110 });
+      gsap.set(subtitleRef.current, { opacity: 0, y: 18 });
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 75%",
+        once: true,
+        onEnter() {
+          const tl = gsap.timeline();
+          tl.to(overlineRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            ease: "power2.out",
+          });
+          tl.to(
+            [line1Ref.current, line2Ref.current],
+            { yPercent: 0, duration: 0.85, stagger: 0.12, ease: "power3.out" },
+            0.15,
+          );
+          tl.to(
+            subtitleRef.current,
+            { opacity: 1, y: 0, duration: 0.65, ease: "power2.out" },
+            0.5,
+          );
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   useEffect(() => {
     const el = timelineRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStarted(true); observer.disconnect(); } },
-      { threshold: 0.15 }
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -220,7 +328,10 @@ export default function Calendrier() {
 
   useEffect(() => {
     if (!started) return;
-    if (prefersReducedMotion()) { setVisibleCount(total); return; }
+    if (prefersReducedMotion()) {
+      setVisibleCount(total);
+      return;
+    }
     setVisibleCount(0);
     let current = 0;
     const id = setInterval(() => {
@@ -231,19 +342,23 @@ export default function Calendrier() {
     return () => clearInterval(id);
   }, [started, total]);
 
-  useGSAP(() => {
-    if (!timelineRef.current || !progressRef.current || !dotRef.current) return;
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: timelineRef.current,
-        start:   'top center',
-        end:     'bottom center',
-        scrub:   0.4,
-      },
-    });
-    tl.to(progressRef.current, { height: '100%',          ease: 'none' }, 0);
-    tl.to(dotRef.current,      { top: 'calc(100% - 6px)', ease: 'none' }, 0);
-  }, { scope: sectionRef });
+  useGSAP(
+    () => {
+      if (!timelineRef.current || !progressRef.current || !dotRef.current)
+        return;
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: "top center",
+          end: "bottom center",
+          scrub: 0.4,
+        },
+      });
+      tl.to(progressRef.current, { height: "100%", ease: "none" }, 0);
+      tl.to(dotRef.current, { top: "calc(100% - 6px)", ease: "none" }, 0);
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <>
@@ -251,25 +366,34 @@ export default function Calendrier() {
 
       <section ref={sectionRef} id="calendrier" className="calendrier-section">
         <div className="calendrier-inner">
-
           <div className="calendrier-header">
             <div ref={overlineRef} className="calendrier-overline">
               <span className="calendrier-overline-bar" />
-              <span className="label-overline">20 — 22 Juin 2026 · Marseille</span>
+              <span className="label-overline">
+                20 — 22 Juin 2026 · Marseille
+              </span>
             </div>
 
             <div className="calendrier-titles">
               <div className="calendrier-title-line">
-                <span ref={line1Ref} className="title-section">Calendrier</span>
+                <span ref={line1Ref} className="title-section">
+                  Calendrier
+                </span>
               </div>
               <div className="calendrier-title-line">
-                <span ref={line2Ref} className="title-section calendrier-title-accent">du festival</span>
+                <span
+                  ref={line2Ref}
+                  className="title-section calendrier-title-accent"
+                >
+                  du festival
+                </span>
               </div>
             </div>
 
             <p ref={subtitleRef} className="body-editorial">
               Trois jours de projections, de conférences et de remises de prix
-              autour de la création cinématographique par intelligence artificielle.
+              autour de la création cinématographique par intelligence
+              artificielle.
             </p>
           </div>
 
@@ -280,7 +404,7 @@ export default function Calendrier() {
             </div>
             <div ref={dotRef} aria-hidden="true" className="timeline-dot" />
             <div className="timeline-categories">
-              {EVENT_CATEGORIES.map(category => (
+              {EVENT_CATEGORIES.map((category) => (
                 <CategoryBlock
                   key={category.key}
                   category={category}
@@ -290,7 +414,6 @@ export default function Calendrier() {
               ))}
             </div>
           </div>
-
         </div>
       </section>
     </>

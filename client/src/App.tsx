@@ -204,7 +204,7 @@ function AppInner() {
         </Route>
 
         {/* ZONE JURY SÉCURISÉE */}
-        <Route element={<ProtectedRoute requiredRole="JURY" />}>
+        <Route element={<ProtectedRoute allowedRoles={["JURY"]} />}>
           <Route
             path={ROUTES.JURY_DASHBOARD}
             element={
