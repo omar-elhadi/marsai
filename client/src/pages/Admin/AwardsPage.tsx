@@ -422,12 +422,12 @@ function TabCategories({
                           fontFamily: "monospace",
                           fontSize: "0.875rem",
                           color:
-                            cat.nominations.length > 0
+                            cat.nominations && cat.nominations.length > 0
                               ? "var(--color-text)"
                               : "var(--color-text-faint)",
                         }}
                       >
-                        {cat.nominations.length}
+                        {cat.nominations?.length || 0}
                       </span>
                     </td>
                     <td
@@ -478,12 +478,12 @@ function TabCategories({
 
 // ── Onglet 3 — Nominations ───────────────────────────────────────────────────
 
-function TabNominations({ edition }) {
-  const [categories, setCategories] = useState([]);
-  const [selection, setSelection] = useState([]); // films SELECTION
+function TabNominations({ edition }: { edition: number }) {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selection, setSelection] = useState<any[]>([]); // films SELECTION
   const [loading, setLoading] = useState(true);
-  const [nominating, setNominating] = useState(null);
-  const [selectedFilm, setSelectedFilm] = useState({}); // { [categoryId]: filmId }
+  const [nominating, setNominating] = useState<number | null>(null);
+  const [selectedFilm, setSelectedFilm] = useState<Record<number, string>>({}); // { [categoryId]: filmId }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -513,7 +513,7 @@ function TabNominations({ edition }) {
     load();
   }, [load]);
 
-  const nominate = async (categoryId) => {
+  const nominate = async (categoryId: number) => {
     const filmId = selectedFilm[categoryId];
     if (!filmId) return;
     setNominating(categoryId);
@@ -531,7 +531,7 @@ function TabNominations({ edition }) {
     }
   };
 
-  const removeNom = async (nominationId) => {
+  const removeNom = async (nominationId: number) => {
     await fetch(`${API}/awards/nominations/${nominationId}`, {
       method: "DELETE",
       credentials: "include",
@@ -569,7 +569,9 @@ function TabNominations({ edition }) {
     <div className="space-y-4">
       {categories.map((cat) => {
         // Films disponibles = SELECTION, pas encore nominés dans cette catégorie
-        const nominatedFilmIds = new Set(cat.nominations.map((n) => n.film.id));
+        const nominatedFilmIds = new Set(
+          (cat.nominations || []).map((n: any) => n.film.id),
+        );
         const available = selection.filter((f) => !nominatedFilmIds.has(f.id));
 
         return (
@@ -619,7 +621,7 @@ function TabNominations({ edition }) {
                   <option value="">
                     — Choisir un film en SELECTION ({available.length} dispo.) —
                   </option>
-                  {available.map((f) => (
+                  {available.map((f: any) => (
                     <option key={f.id} value={f.id}>
                       {f.title} · {f.country} — {f.avgRating?.toFixed(1) ?? "?"}
                       /10
@@ -665,7 +667,7 @@ function TabNominations({ edition }) {
             </div>
 
             {/* Tableau des nominés */}
-            {cat.nominations.length === 0 ? (
+            {!cat.nominations || cat.nominations.length === 0 ? (
               <p
                 style={{
                   fontSize: "0.75rem",
@@ -695,7 +697,7 @@ function TabNominations({ edition }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {cat.nominations.map((nom) => (
+                  {cat.nominations?.map((nom: any) => (
                     <tr
                       key={nom.id}
                       style={{
@@ -798,10 +800,10 @@ function TabNominations({ edition }) {
 
 // ── Onglet 4 — Gagnants ──────────────────────────────────────────────────────
 
-function TabWinners({ edition }) {
-  const [categories, setCategories] = useState([]);
+function TabWinners({ edition }: { edition: number }) {
+  const [categories, setCategories] = useState<null | any[]>(null);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(null);
+  const [processing, setProcessing] = useState<null | number>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -821,7 +823,7 @@ function TabWinners({ edition }) {
     load();
   }, [load]);
 
-  const setWinner = async (nominationId) => {
+  const setWinner = async (nominationId: number | null) => {
     setProcessing(nominationId);
     try {
       await fetch(`${API}/awards/nominations/${nominationId}/winner`, {
@@ -834,7 +836,7 @@ function TabWinners({ edition }) {
     }
   };
 
-  const clearWinner = async (nominationId) => {
+  const clearWinner = async (nominationId: number) => {
     setProcessing(nominationId);
     try {
       await fetch(`${API}/awards/nominations/${nominationId}/winner`, {
@@ -860,8 +862,8 @@ function TabWinners({ edition }) {
 
   return (
     <div className="space-y-4">
-      {categories.map((cat) => {
-        const winner = cat.nominations.find((n) => n.isWinner);
+      {categories?.map((cat) => {
+        const winner = cat.nominations.find((n: any) => n.isWinner);
 
         return (
           <div
@@ -935,7 +937,7 @@ function TabWinners({ edition }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {cat.nominations.map((nom) => (
+                  {cat.nominations.map((nom: any) => (
                     <tr
                       key={nom.id}
                       style={{
@@ -1080,7 +1082,7 @@ function TabWinners({ edition }) {
           </div>
         );
       })}
-      {categories.length === 0 && (
+      {categories?.length === 0 && (
         <p
           style={{
             fontSize: "0.875rem",
@@ -1136,7 +1138,7 @@ export default function AwardsPage() {
   }, [loadSummary]);
 
   // Changement d'onglet + refresh des counts
-  const handleTabChange = (id) => {
+  const handleTabChange = (id: string) => {
     setTab(id);
     loadSummary();
   };

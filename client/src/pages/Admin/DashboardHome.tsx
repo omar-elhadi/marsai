@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Film, Clock, CheckCircle, XCircle, Loader2, Trophy, Star } from 'lucide-react';
 
 function DashboardHome() {
-  const [stats, setStats]     = useState(null);
+  const [stats, setStats]     = useState<null | any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function DashboardHome() {
   }, []);
 
   // Carte de statistique — fond et bordure via CSS variables, icône garde sa couleur Tailwind
-  const StatCard = ({ title, count, icon, color }) => (
+  const StatCard = ({ title, count, icon, color }: { title: string; count: number | null; icon: React.ReactNode; color: { bg: string; text: string } }) => (
     <div
       style={{
         background:    'var(--color-surface)',
