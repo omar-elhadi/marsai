@@ -7,7 +7,7 @@
 import CategoryHeader from './CategoryHeader';
 import EventCard      from './EventCard';
 
-export default function CategorySection({ category, startIndex, visibleCount, onReservation }) {
+export default function CategorySection({ category, startIndex, visibleCount, onReservation }: { category: any, startIndex: number, visibleCount: number, onReservation: (event: any, categoryTitle: string) => void }) {
   const catOn = visibleCount >= startIndex + 1;
 
   return (
@@ -50,6 +50,7 @@ export default function CategorySection({ category, startIndex, visibleCount, on
           title={category.title}
           subtitle={category.subtitle}
           image={category.image}
+          date={category.date}
         />
       </div>
 
@@ -73,7 +74,7 @@ export default function CategorySection({ category, startIndex, visibleCount, on
         flexDirection: 'column',
         gap:           '0.65rem',
       }}>
-        {category.items.map((event, index) => {
+        {category.items.map((event: any, index: number) => {
           const globalIndex = startIndex + index;
           const isVisible   = globalIndex < visibleCount;
           return (
