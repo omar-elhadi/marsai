@@ -90,7 +90,7 @@ const SECTIONS_RIGHT = [
   },
 ];
 
-function RuleSection({ section, isLast }) {
+function RuleSection({ section, isLast }: { section: any, isLast: boolean }) {
   const { id, title, content } = section;
 
   return (
@@ -112,7 +112,7 @@ function RuleSection({ section, isLast }) {
       </div>
 
       <div className="flex flex-col" style={{ gap: '1rem' }}>
-        {content.map((block, i) => {
+        {content.map((block: any, i: number) => {
           if (block.type === 'paragraph') return (
             <p key={i} className="text-white/60 font-light leading-relaxed m-0" style={{ fontSize: '1rem' }}>
               {block.text}
@@ -120,7 +120,7 @@ function RuleSection({ section, isLast }) {
           );
           if (block.type === 'list') return (
             <ul key={i} className="m-0 p-0 list-none flex flex-col" style={{ gap: '0.75rem' }}>
-              {block.items.map((item, j) => (
+              {block.items.map((item: any, j: number) => (
                 <li key={j} className="flex items-start" style={{ gap: '0.75rem' }}>
                   <span className="text-[#d1c7a3] shrink-0 leading-none" style={{ marginTop: '0.15em' }}>—</span>
                   <span className="text-white/60 font-light leading-relaxed" style={{ fontSize: '1rem' }}>{item}</span>
