@@ -53,7 +53,7 @@ import { Link }   from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import styles     from './MovieCard.module.css';
 
-export default function MovieCard({ movie, index }) {
+export default function MovieCard({ movie, index }: { movie: any, index: number }) {
   const filmRoute = ROUTES.FILM_DETAIL
     ? ROUTES.FILM_DETAIL.replace(':id', movie.id)
     : `/film/${movie.id}`;
