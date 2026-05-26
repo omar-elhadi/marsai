@@ -10,16 +10,17 @@ import { useState, useEffect, useCallback } from 'react';
 import { RotateCcw, Loader2, Trophy, ExternalLink, Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
-import VideoModal from '../../components/VideoModal.jsx';
+import VideoModal from '../../components/VideoModal'; // remove .jsx
+import { Film } from '../../types'; // If there's no Film, we'll cast using any locally for now, but better to import it or define it. We'll define a local type if needed, but 'any[]' should be `Film[]` or `any[]` initialized right.
 
 const API = import.meta.env.VITE_API_URL;
 
-const STATUS_BG = {
+const STATUS_BG: Record<string, string> = {
   APPROVED:  'bg-green-500/10 border-green-500/20 text-green-400',
   SELECTION: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400',
 };
 
-const STATUS_LABELS = {
+const STATUS_LABELS: Record<string, string> = {
   APPROVED:  'Approuvé',
   SELECTION: 'En sélection',
 };
@@ -31,11 +32,11 @@ const TABS = [
 ];
 
 export default function SelectionPage() {
-  const [films, setFilms]       = useState([]);
+  const [films, setFilms]       = useState<any[]>([]);
   const [loading, setLoading]   = useState(true);
-  const [updating, setUpdating] = useState(null);
+  const [updating, setUpdating] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('all');
-  const [videoModal, setVideoModal] = useState(null);
+  const [videoModal, setVideoModal] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const load = useCallback(async () => {
@@ -44,7 +45,7 @@ export default function SelectionPage() {
       const res  = await fetch(`${API}/awards/selection`, { credentials: 'include' });
       const data = await res.json();
       // On n'affiche que APPROVED et SELECTION — FINALIST/AWARD sont gérés dans Palmarès
-      setFilms(Array.isArray(data) ? data.filter(f => ['APPROVED', 'SELECTION'].includes(f.status)) : []);
+      setFilms(Array.isArray(data) ? data.filter((f: any) => ['APPROVED', 'SELECTION'].includes(f.status)) : []);
     } finally {
       setLoading(false);
     }
@@ -52,7 +53,7 @@ export default function SelectionPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const changeStatus = async (filmId, newStatus) => {
+  const changeStatus = async (filmId: string, newStatus: string) => {
     setUpdating(filmId);
     try {
       await fetch(`${API}/films/${filmId}/status`, {
@@ -67,8 +68,8 @@ export default function SelectionPage() {
     }
   };
 
-  const approved    = films.filter(f => f.status === 'APPROVED');
-  const inSelection = films.filter(f => f.status === 'SELECTION');
+  const approved    = films.filter((f: any) => f.status === 'APPROVED');
+  const inSelection = films.filter((f: any) => f.status === 'SELECTION');
 
   const visibleFilms = activeTab === 'approved'
     ? approved
