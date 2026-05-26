@@ -33,7 +33,7 @@ const FIELD = {
   borderRadius:   'var(--radius-sm)',
   outline:        'none',
   transition:     'border-color 260ms var(--ease-out), background 260ms var(--ease-out)',
-  boxSizing:      'border-box',
+  boxSizing: "border-box" as const,
 };
 
 const LABEL = {
@@ -53,11 +53,11 @@ const CONTACTS = [
   { label: 'Partenariats',  value: 'partenaires@marsai.fr' },
 ];
 
-function onFocus(e) {
+function onFocus(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
   e.target.style.borderColor = 'rgba(226,209,195,0.50)';
   e.target.style.background  = 'var(--color-surface-high)';
 }
-function onBlur(e) {
+function onBlur(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
   e.target.style.borderColor = 'var(--color-border)';
   e.target.style.background  = 'var(--color-surface)';
 }
@@ -66,11 +66,11 @@ function onBlur(e) {
 // COMPOSANT
 // ─────────────────────────────────────────────────────────────
 export default function Contact() {
-  const pageRef     = useRef(null);
-  const overlineRef = useRef(null);
-  const titleRef    = useRef(null);
-  const leftRef     = useRef(null);
-  const rightRef    = useRef(null);
+  const pageRef     = useRef<HTMLDivElement>(null);
+  const overlineRef = useRef<HTMLDivElement>(null);
+  const titleRef    = useRef<HTMLHeadingElement>(null);
+  const leftRef     = useRef<HTMLDivElement>(null);
+  const rightRef    = useRef<HTMLDivElement>(null);
   const [sent, setSent] = useState(false);
 
   useGSAP(() => {
@@ -86,7 +86,7 @@ export default function Contact() {
     tl.to(rightRef.current,    { opacity: 1, x: 0, duration: 0.80, ease: 'power3.out' }, 0.36);
   }, { scope: pageRef });
 
-  const handleSubmit = e => { e.preventDefault(); setSent(true); };
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); setSent(true); };
 
   return (
     <div
