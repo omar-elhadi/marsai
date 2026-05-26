@@ -42,7 +42,7 @@ import styles            from './HeroImpact.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const getStats = (t) => [
+const getStats = (t: any) => [
   { value: '600', label: t('hero.stat1'),  target: 600, suffix: '' },
   { value: '120', label: t('hero.stat2'), target: 120, suffix: '' },
   { value: '50',  label: t('hero.stat3'),    target: 50,  suffix: '' },
@@ -146,7 +146,7 @@ export default function HeroImpact() {
           duration: 0.7, stagger: 0.12, ease: 'power2.out',
         });
 
-        statItems.forEach((item) => {
+        statItems.forEach((item: any) => {
           const valueEl = item.querySelector('.stat-value');
           if (!valueEl) return;
           const target = parseInt(valueEl.dataset.target, 10);
