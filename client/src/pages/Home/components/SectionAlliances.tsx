@@ -204,16 +204,16 @@ function LogoSlider() {
 // ─────────────────────────────────────────────────────────────
 export default function SectionAlliances() {
   const { t } = useTranslation('common');
-  const sectionRef  = useRef(null);
-  const overlineRef = useRef(null);
-  const titleRef    = useRef(null);
-  const sliderRef   = useRef(null);
-  const gridRef     = useRef(null);
+  const sectionRef  = useRef<any>(null);
+  const overlineRef = useRef<any>(null);
+  const titleRef    = useRef<any>(null);
+  const sliderRef   = useRef<any>(null);
+  const gridRef     = useRef<any>(null);
 
   // ── activeCard : index string du partenaire dont le panel
   // est ouvert. null = toutes les cartes fermées.
   // Une seule ouverte à la fois — clarté éditoriale.
-  const [activeCard, setActiveCard] = useState(null);
+  const [activeCard, setActiveCard] = useState<string | null>(null);
 
   useGSAP(() => {
     // ── États initiaux ─────────────────────────────────────────
