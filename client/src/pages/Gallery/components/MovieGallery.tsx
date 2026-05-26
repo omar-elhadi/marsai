@@ -434,7 +434,7 @@ export default function MovieGallery() {
                 ease: "power2.out",
                 onComplete() {
                   if (scrollHintRef.current)
-                    scrollHintRef.current.style.display = "none";
+                    (scrollHintRef.current as HTMLElement).style.display = "none";
                 },
               });
             }
@@ -479,7 +479,7 @@ export default function MovieGallery() {
         />
 
         <div ref={wrapperRef} className={styles.wrapper}>
-          {films.map((movie, i) => (
+          {films.map((movie: any, i: number) => (
             <MovieCard key={movie.id + "-" + i} movie={movie} index={i} />
           ))}
         </div>
