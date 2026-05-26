@@ -77,7 +77,7 @@ import styles from "./FilmPage.module.css";
 
 // Extrait l'ID YouTube depuis une URL standard ou embed.
 // Identique à l'admin FilmDetail — source unique de logique.
-const getYoutubeId = (url) => {
+const getYoutubeId = (url: string) => {
   if (!url) return null;
   const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
   return m ? m[1] : null;
@@ -99,15 +99,17 @@ export default function FilmPage() {
   // DONNÉES STATIQUES — actives jusqu'à connexion backend.
   // Voir bloc CONTRAT DE MIGRATION BACKEND ci-dessus.
   // id dans l'URL est une string — comparaison via String() explicite.
-  const [film, setFilm] = useState(null);
+  const [film, setFilm] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadFilm = async () => {
       try {
         setLoading(true);
-        const data = await galleryService.getById(id);
-        setFilm(data);
+        if (id) {
+            const data = await galleryService.getById(id);
+            setFilm(data);
+        }
       } catch (err) {
         console.error("Erreur lors de la récupération du film:", err);
         setFilm(null);
