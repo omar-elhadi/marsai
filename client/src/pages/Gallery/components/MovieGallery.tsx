@@ -379,10 +379,13 @@ export default function MovieGallery() {
       const headerH = headerEl ? headerEl.offsetHeight : 64;
       const sectionH = window.innerHeight - headerH;
 
-      galleryRootRef.current.style.paddingTop = headerH + "px";
-      sectionRef.current.style.height = sectionH + "px";
+      const rootEl = galleryRootRef.current as HTMLElement;
+      rootEl.style.paddingTop = headerH + "px";
+      const secEl = sectionRef.current as HTMLElement;
+      secEl.style.height = sectionH + "px";
 
-      const scrollDistance = wrapperRef.current.scrollWidth - window.innerWidth;
+      const wrapperEl = wrapperRef.current as HTMLElement;
+      const scrollDistance = wrapperEl.scrollWidth - window.innerWidth;
       if (scrollDistance <= 0) return;
 
       if (scrollHintRef.current) {
@@ -406,7 +409,7 @@ export default function MovieGallery() {
           scrub: 1.2,
           start: "top top+=" + headerH,
           end: () =>
-            "+=" + (wrapperRef.current.scrollWidth - window.innerWidth),
+            "+=" + (wrapperEl.scrollWidth - window.innerWidth),
           invalidateOnRefresh: true,
 
           onRefresh() {
@@ -414,8 +417,8 @@ export default function MovieGallery() {
             const hEl = document.querySelector("header");
             const hH = hEl ? hEl.offsetHeight : 64;
             const sH = window.innerHeight - hH;
-            galleryRootRef.current.style.paddingTop = hH + "px";
-            sectionRef.current.style.height = sH + "px";
+            (galleryRootRef.current as HTMLElement).style.paddingTop = hH + "px";
+            (sectionRef.current as HTMLElement).style.height = sH + "px";
             window.dispatchEvent(new CustomEvent("lenis:resize"));
           },
 
@@ -449,7 +452,7 @@ export default function MovieGallery() {
       //   scale:1.3 en CSS (hors context) absorbe le déplacement :
       //   30% d'agrandissement = 15% de marge par côté → jamais de bord visible.
       //   Le scale étant en CSS et non dans le fromTo, revert() le laisse intact.
-      gsap.utils.toArray(".movie-card").forEach((card) => {
+      gsap.utils.toArray(".movie-card").forEach((card: any) => {
         const img = card.querySelector(".movie-image");
         if (img) tl.fromTo(img, { x: "15vw" }, { x: "-15vw", ease: "none" }, 0);
       });
