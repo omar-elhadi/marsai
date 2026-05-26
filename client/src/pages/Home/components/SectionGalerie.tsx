@@ -109,7 +109,7 @@ const ANIM_IN = [
 // SOUS-COMPOSANT : Carte film
 // Aucun handler JS de style — tout est CSS Module.
 // ─────────────────────────────────────────────────────────────
-function FilmCard({ film, cardRef, offsetTop = 0 }) {
+function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; offsetTop?: number }) {
   return (
     <Link
       ref={cardRef}
