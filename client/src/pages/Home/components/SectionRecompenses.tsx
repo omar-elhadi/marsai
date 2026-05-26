@@ -105,14 +105,14 @@ const PRIX_SECONDAIRES = [
 // ─────────────────────────────────────────────────────────────
 export default function SectionRecompenses() {
   const { t } = useTranslation("common");
-  const sectionRef = useRef(null);
-  const overlineRef = useRef(null);
-  const titleRef = useRef(null);
-  const counterRef = useRef(null);
-  const gpTitreRef = useRef(null);
-  const gpDescRef = useRef(null);
-  const gpColDroite = useRef(null);
-  const secondRef = useRef(null);
+  const sectionRef = useRef<any>(null);
+  const overlineRef = useRef<any>(null);
+  const titleRef = useRef<any>(null);
+  const counterRef = useRef<any>(null);
+  const gpTitreRef = useRef<any>(null);
+  const gpDescRef = useRef<any>(null);
+  const gpColDroite = useRef<any>(null);
+  const secondRef = useRef<any>(null);
 
   useGSAP(
     () => {

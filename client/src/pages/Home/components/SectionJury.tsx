@@ -131,7 +131,7 @@ const ANIM_CONFIGS = [
 // Tous les états hover sont gérés par CSS Module.
 // Aucun handler JS de style ne subsiste ici.
 // ─────────────────────────────────────────────────────────────
-function JuryCard({ juré, cardRef }) {
+function JuryCard({ juré, cardRef } : {juré: any, cardRef: any}) {
   return (
     <article
       ref={cardRef}
