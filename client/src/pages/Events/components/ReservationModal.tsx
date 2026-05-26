@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 
-export default function ReservationModal({ isOpen, onClose, event, categoryTitle }) {
+export default function ReservationModal({ isOpen, onClose, event, categoryTitle }: { isOpen: boolean, onClose: () => void, event: any, categoryTitle: string }) {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
   const [formData, setFormData] = useState({
@@ -56,7 +56,7 @@ export default function ReservationModal({ isOpen, onClose, event, categoryTitle
   }, [isOpen]);
 
   // Fermeture au clic sur l'overlay
-  const handleOverlayClick = (e) => {
+  const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === overlayRef.current) {
       onClose();
     }
@@ -65,21 +65,21 @@ export default function ReservationModal({ isOpen, onClose, event, categoryTitle
   // Fermeture à la touche Escape
   useEffect(() => {
     if (!isOpen) return;
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
