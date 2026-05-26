@@ -32,7 +32,7 @@ export default function EventActionButton({
   type = 'button',
   onClick,
   className = '',
-}) {
+}: { children?: React.ReactNode, type?: "button" | "submit" | "reset", onClick?: (e: React.MouseEvent) => void, className?: string }) {
   const [hovered, setHovered] = useState(false);
   injectKeyframes();
 
