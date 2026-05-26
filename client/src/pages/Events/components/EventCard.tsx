@@ -4,7 +4,7 @@
  */
 import EventActionButton from './EventActionButton';
 
-export default function EventCard({ event, isVisible, onReservation }) {
+export default function EventCard({ event, isVisible, onReservation }: { event: any, isVisible: boolean, onReservation: () => void }) {
   return (
     <li
       className={[
