@@ -77,20 +77,20 @@ function prefersReducedMotion() {
 // COMPOSANT
 // ─────────────────────────────────────────────────────────────
 export default function FestivalEvents() {
-  const sectionRef   = useRef(null);
-  const overlineRef  = useRef(null);
-  const line1Ref     = useRef(null);
-  const line2Ref     = useRef(null);
-  const subtitleRef  = useRef(null);
-  const timelineRef  = useRef(null);
-  const progressRef  = useRef(null);
-  const dotRef       = useRef(null);
+  const sectionRef   = useRef<HTMLElement>(null);
+  const overlineRef  = useRef<HTMLParagraphElement>(null);
+  const line1Ref     = useRef<HTMLSpanElement>(null);
+  const line2Ref     = useRef<HTMLSpanElement>(null);
+  const subtitleRef  = useRef<HTMLParagraphElement>(null);
+  const timelineRef  = useRef<HTMLDivElement>(null);
+  const progressRef  = useRef<HTMLDivElement>(null);
+  const dotRef       = useRef<HTMLDivElement>(null);
 
   const [started,      setStarted]      = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
-  const [modalState, setModalState] = useState({ isOpen: false, event: null, categoryTitle: '' });
+  const [modalState, setModalState] = useState<{isOpen: boolean, event: any, categoryTitle: string}>({ isOpen: false, event: null, categoryTitle: '' });
 
-  const handleReservation = (event, categoryTitle) => {
+  const handleReservation = (event: any, categoryTitle: string) => {
     setModalState({ isOpen: true, event, categoryTitle });
   };
 
@@ -105,7 +105,7 @@ export default function FestivalEvents() {
   const progress = total === 0 ? 0 : Math.min(1, visibleCount / total);
 
   const categoryStartIndex = useMemo(() => {
-    const result = {};
+    const result: Record<string, number> = {};
     let cursor   = 0;
     for (const cat of EVENT_CATEGORIES) {
       result[cat.key] = cursor;
