@@ -332,6 +332,55 @@ gsap.registerPlugin(ScrollTrigger);
 // const FILMS_PER_PAGE = 8; Cette constante sera réintroduite lors de la connexion backend. L'API recevra : GET /api/films?page=1&limit=8
 // Voir bloc CONTRAT D'INTERFACE BACKEND ci-dessus.
 
+// ─────────────────────────────────────────────────────────────
+// DONNÉES STATIQUES DE FALLBACK
+// Utilisées quand l'API retourne une liste vide.
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_FILMS = [
+  {
+    id: "fallback-1",
+    title: "Mémoire Synthétique",
+    director: "K. Okafor",
+    img: "https://images.unsplash.com/photo-1518893883800-45cd0a9d3101?q=88&w=900&auto=format&fit=crop",
+    country: "Nigeria · France",
+  },
+  {
+    id: "fallback-2",
+    title: "Éclat de Rien",
+    director: "M. Chen",
+    img: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=88&w=900&auto=format&fit=crop",
+    country: "Taiwan",
+  },
+  {
+    id: "fallback-3",
+    title: "La Dernière Fréquence",
+    director: "A. Petrov",
+    img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=88&w=900&auto=format&fit=crop",
+    country: "Russie · Allemagne",
+  },
+  {
+    id: "fallback-4",
+    title: "Nuit Synthétique",
+    director: "S. Laurent",
+    img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=88&w=900&auto=format&fit=crop",
+    country: "France",
+  },
+  {
+    id: "fallback-5",
+    title: "Horizons Artificiels",
+    director: "Y. Tanaka",
+    img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=88&w=900&auto=format&fit=crop",
+    country: "Japon",
+  },
+  {
+    id: "fallback-6",
+    title: "Le Dernier Script",
+    director: "M. Johansson",
+    img: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=88&w=900&auto=format&fit=crop",
+    country: "Suède · Danemark",
+  },
+];
+
 export default function MovieGallery() {
   // galleryRootRef : paddingTop = headerH (DOM direct, hors context GSAP).
   //   Non revert au cleanup → section toujours sous le header.
@@ -348,16 +397,20 @@ export default function MovieGallery() {
   const progressRef = useRef(null);
   const scrollHintRef = useRef(null);
 
-  const [films, setFilms] = useState([]);
+  const [films, setFilms] = useState<typeof FALLBACK_FILMS>([]);
 
   useEffect(() => {
     const loadGallery = async () => {
       try {
         const response = await galleryService.getAll({ page: 1, limit: 100 });
-        setFilms(response.data);
+        if (response.data && response.data.length > 0) {
+          setFilms(response.data);
+        } else {
+          setFilms(FALLBACK_FILMS);
+        }
       } catch (err) {
         console.error("Erreur lors de la récupération des films :", err);
-        // Fallbacks removed
+        setFilms(FALLBACK_FILMS);
       }
     };
 
