@@ -6,41 +6,42 @@ export const fetchGallery = async ({ page = 1, limit = 50 }: any = {}) => {
   const skip = (parseInt(page, 10) - 1) * take;
   try {
     const [films, total] = await Promise.all([
-    prisma.film.findMany({
-      skip,
-      take,
-      where: { status: "AWARD" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        country: true,
-        language: true,
-        posterUrl: true,
-        subtitleUrl: true,
-        youtubeUrl: true,
-        youtubeVideoId: true,
-        videoDuration: true,
-        avgRating: true,
-        totalVotes: true,
-        totalLikes: true,
-        totalDislikes: true,
-        submittedAt: true,
-        updatedAt: true,
-        submitter: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            bio: true,
-            website: true,
-            instagram: true,
+      prisma.film.findMany({
+        skip,
+        take,
+        where: { status: "AWARD" },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          country: true,
+          language: true,
+          posterUrl: true,
+          subtitleUrl: true,
+          youtubeUrl: true,
+          youtubeVideoId: true,
+          videoDuration: true,
+          avgRating: true,
+          totalVotes: true,
+          totalLikes: true,
+          totalDislikes: true,
+          submittedAt: true,
+          updatedAt: true,
+          submitter: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              bio: true,
+              website: true,
+              instagram: true,
+            },
           },
         },
-      },      orderBy: { updatedAt: "desc" },
-    }),
-    prisma.film.count({ where: { status: "AWARD" } }),
-  ]);
+        orderBy: { updatedAt: "desc" },
+      }),
+      prisma.film.count({ where: { status: "AWARD" } }),
+    ]);
 
     const formattedFilms = films.map((film) => ({
       id: film.id,
@@ -87,7 +88,7 @@ export const fetchGallery = async ({ page = 1, limit = 50 }: any = {}) => {
  * @param {number} filmId
  * @returns {Object} film avec informations publiques formatées
  */
-export const fetchFilmById = async (filmId) => {
+export const fetchFilmById = async (filmId: number) => {
   try {
     const film = await prisma.film.findFirst({
       where: {

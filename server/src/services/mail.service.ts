@@ -1,19 +1,18 @@
 import { emailQueue } from "../utils/emailQueue.js";
 import { logger } from "../utils/logger.js";
-import he from "he";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
-  port: process.env.MAIL_PORT,
+  port: Number(process.env.MAIL_PORT),
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
-});
+} as any);
 
 export const mailService = {
-  sendMagicLink: async (email, token, firstName) => {
+  sendMagicLink: async (email: string, token: string, firstName: string) => {
     try {
       const magicLink = `${process.env.FRONTEND_URL}/login/verify?token=${token}`;
 
@@ -41,25 +40,20 @@ export const mailService = {
       };
 
       await emailQueue.add(async () => {
-        const info = await transporter.sendMail(mailOptions);
-         
+        await transporter.sendMail(mailOptions);
       });
-       
-       
     } catch (error) {
-      logger.error(error.message, "❌ Erreur SMTP :");
+      logger.error({ err: (error as Error).message }, "Erreur SMTP :");
       throw new Error("Impossible d'envoyer l'email. Vérifiez MAIL_PASS.");
     }
   },
 
-  /**
-   * Email de confirmation envoyé au réalisateur après soumission de son film.
-   * @param {string} email - Adresse du réalisateur
-   * @param {string} firstName - Prénom
-   * @param {string} submissionToken - Token UUID unique du film (pour suivi)
-   * @param {string} filmTitle - Titre du film soumis
-   */
-  sendSubmissionConfirmation: async (email, firstName, submissionToken, filmTitle) => {
+  sendSubmissionConfirmation: async (
+    email: string,
+    firstName: string,
+    submissionToken: string,
+    filmTitle: string,
+  ) => {
     try {
       const trackingUrl = `${process.env.FRONTEND_URL}/suivi?token=${submissionToken}`;
 
@@ -87,27 +81,23 @@ export const mailService = {
       };
 
       await emailQueue.add(async () => {
-        const info = await transporter.sendMail(mailOptions);
-         
+        await transporter.sendMail(mailOptions);
       });
-       
-       
     } catch (error) {
-      logger.error(error.message, "❌ Erreur SMTP confirmation :");
-      // On ne bloque pas la soumission si l'email échoue
-      // Le film est déjà enregistré en base
+      logger.error(
+        { err: (error as Error).message },
+        "Erreur SMTP confirmation :",
+      );
     }
   },
 
-  /**
-   * Email envoyé au réalisateur quand l'admin demande des modifications.
-   * @param {string} email          - Adresse du réalisateur
-   * @param {string} firstName      - Prénom
-   * @param {string} filmTitle      - Titre du film concerné
-   * @param {string} token          - Token d'édition 7j (Submitter.loginToken)
-   * @param {string} message        - Message de l'admin expliquant les modifications
-   */
-  sendModificationRequest: async (email, firstName, filmTitle, token, message) => {
+  sendModificationRequest: async (
+    email: string,
+    firstName: string,
+    filmTitle: string,
+    token: string,
+    message: string,
+  ) => {
     try {
       const editUrl = `${process.env.FRONTEND_URL}/edit-film/${token}`;
 
@@ -143,14 +133,13 @@ export const mailService = {
       };
 
       await emailQueue.add(async () => {
-        const info = await transporter.sendMail(mailOptions);
-         
+        await transporter.sendMail(mailOptions);
       });
-       
-       
     } catch (error) {
-      logger.error(error.message, "❌ Erreur SMTP modification :");
-      // On ne bloque pas le workflow si l'email échoue
+      logger.error(
+        { err: (error as Error).message },
+        "Erreur SMTP modification :",
+      );
     }
   },
 };

@@ -4,8 +4,8 @@
 
 **Besoin de faire quelque chose ? Trouvez-le ici :**
 
-| Action                       | Convention                                    | Exemple                                |
-| ---------------------------- | --------------------------------------------- | -------------------------------------- |
+| Action                          | Convention                                    | Exemple                                |
+| ------------------------------- | --------------------------------------------- | -------------------------------------- |
 | 💬 **Message de commit**        | `type(scope): description`                    | `feat(auth): add login functionality`  |
 | 🌿 **Nom de branche**           | `description-courte-en-kebab-case`            | `user-authentication`                  |
 | 📝 **Types de commits**         | feat, fix, docs, style, refactor, test, chore | `fix(api): resolve data parsing error` |
@@ -13,6 +13,7 @@
 | 📦 **Flux de travail**          | develop → feature → develop → main            | Feature depuis develop                 |
 
 **Types de Commits :**
+
 - `feat` → Nouvelle fonctionnalité
 - `fix` → Correction de bug
 - `docs` → Documentation
@@ -22,6 +23,7 @@
 - `chore` → Tâches de maintenance
 
 **Flux de Travail Simplifié :**
+
 1. Créer une branche depuis `develop`
 2. Faire des commits atomiques
 3. Pousser les changements
@@ -35,6 +37,7 @@
 Ce document définit les conventions Git et GitHub pour notre équipe MarsAI. Suivre ces conventions garantit un historique Git propre, facilite la collaboration et améliore la qualité du code.
 
 **Technologies de notre stack :**
+
 - **M**ySQL - Base de données relationnelle
 - **E**xpress.js - Backend framework
 - **R**eact - Frontend library
@@ -70,19 +73,20 @@ main (production)
 
 ### Types de Branches
 
-| Type        | Base      | Merge vers         | Durée de vie | Utilisation                   |
-| ----------- | --------- | ------------------ | ------------ | ----------------------------- |
-| **Main**    | -         | -                  | Permanente   | Code en production            |
-| **Develop** | -         | -                  | Permanente   | Code en développement         |
-| **Feature** | `develop` | `develop`          | Temporaire   | Nouvelles fonctionnalités     |
-| **Bugfix**  | `develop` | `develop`          | Temporaire   | Corrections de bugs           |
-| **Hotfix**  | `main`    | `main` + `develop` | Temporaire   | Corrections urgentes en prod  |
+| Type        | Base      | Merge vers         | Durée de vie | Utilisation                  |
+| ----------- | --------- | ------------------ | ------------ | ---------------------------- |
+| **Main**    | -         | -                  | Permanente   | Code en production           |
+| **Develop** | -         | -                  | Permanente   | Code en développement        |
+| **Feature** | `develop` | `develop`          | Temporaire   | Nouvelles fonctionnalités    |
+| **Bugfix**  | `develop` | `develop`          | Temporaire   | Corrections de bugs          |
+| **Hotfix**  | `main`    | `main` + `develop` | Temporaire   | Corrections urgentes en prod |
 
 ### Convention de Nommage des Branches
 
 **Format :** `description-courte-en-kebab-case`
 
 **Règles :**
+
 - Utiliser des mots-clés descriptifs en anglais
 - Séparer les mots par des tirets (`-`)
 - Tout en minuscules
@@ -93,6 +97,7 @@ main (production)
 **Exemples :**
 
 ✅ **Bon :**
+
 ```bash
 # Frontend (React)
 user-dashboard
@@ -113,6 +118,7 @@ critical-data-leak
 ```
 
 ❌ **Mauvais :**
+
 ```bash
 UserAuth                              # Majuscules
 fix_bug                              # Underscores au lieu de tirets
@@ -125,6 +131,7 @@ feature/login                        # Avec préfixe (on ne les utilise pas)
 ### Création et Gestion des Branches
 
 **Créer une nouvelle branche :**
+
 ```bash
 # Mettre à jour develop
 git checkout develop
@@ -138,6 +145,7 @@ git push -u origin user-profile
 ```
 
 **Garder la branche à jour :**
+
 ```bash
 # Récupérer les derniers changements de develop
 git checkout develop
@@ -157,6 +165,7 @@ git push origin user-profile
 ```
 
 **Supprimer une branche après fusion :**
+
 ```bash
 # Supprimer localement
 git branch -d user-profile
@@ -184,21 +193,22 @@ type(scope): description courte
 
 ### Types de Commits
 
-| Type       | Description                      | Exemple Client                         | Exemple Server                           |
-| ---------- | -------------------------------- | -------------------------------------- | ---------------------------------------- |
-| `feat`     | Nouvelle fonctionnalité          | `feat(ui): add user dashboard`         | `feat(api): add user endpoints`          |
-| `fix`      | Correction de bug                | `fix(form): resolve validation error`  | `fix(db): resolve connection timeout`    |
-| `docs`     | Documentation uniquement         | `docs(readme): update setup steps`     | `docs(api): add endpoint documentation`  |
-| `style`    | Formatage, indentation           | `style(button): fix indentation`       | `style(routes): format code`             |
-| `refactor` | Ni fix ni feature                | `refactor(hooks): simplify useAuth`    | `refactor(middleware): optimize auth`    |
-| `test`     | Ajout ou correction de tests     | `test(login): add validation tests`    | `test(api): add user endpoint tests`     |
-| `chore`    | Maintenance, config              | `chore(deps): update react to v18`     | `chore(deps): update express to v5`      |
+| Type       | Description                  | Exemple Client                        | Exemple Server                          |
+| ---------- | ---------------------------- | ------------------------------------- | --------------------------------------- |
+| `feat`     | Nouvelle fonctionnalité      | `feat(ui): add user dashboard`        | `feat(api): add user endpoints`         |
+| `fix`      | Correction de bug            | `fix(form): resolve validation error` | `fix(db): resolve connection timeout`   |
+| `docs`     | Documentation uniquement     | `docs(readme): update setup steps`    | `docs(api): add endpoint documentation` |
+| `style`    | Formatage, indentation       | `style(button): fix indentation`      | `style(routes): format code`            |
+| `refactor` | Ni fix ni feature            | `refactor(hooks): simplify useAuth`   | `refactor(middleware): optimize auth`   |
+| `test`     | Ajout ou correction de tests | `test(login): add validation tests`   | `test(api): add user endpoint tests`    |
+| `chore`    | Maintenance, config          | `chore(deps): update react to v18`    | `chore(deps): update express to v5`     |
 
 ### Scope (Portée)
 
 Le scope indique quelle partie du code est affectée. Voici les scopes recommandés pour notre projet MarsAI :
 
 **Client (React) :**
+
 - `ui` - Interface utilisateur générale
 - `components` - Composants React
 - `pages` - Pages/Routes
@@ -210,6 +220,7 @@ Le scope indique quelle partie du code est affectée. Voici les scopes recommand
 - `routes` - Routing React
 
 **Server (Node/Express) :**
+
 - `api` - Endpoints API
 - `routes` - Routes Express
 - `controllers` - Contrôleurs
@@ -222,6 +233,7 @@ Le scope indique quelle partie du code est affectée. Voici les scopes recommand
 - `utils` - Utilitaires backend
 
 **Général :**
+
 - `deps` - Dépendances
 - `config` - Configuration projet
 - `docker` - Docker/Conteneurs
@@ -230,6 +242,7 @@ Le scope indique quelle partie du code est affectée. Voici les scopes recommand
 ### Description
 
 **Règles :**
+
 - Maximum 72 caractères
 - Commencer par un verbe à l'impératif en anglais
 - Pas de point final
@@ -237,6 +250,7 @@ Le scope indique quelle partie du code est affectée. Voici les scopes recommand
 - Être concis mais descriptif
 
 **Verbes recommandés :**
+
 - `add` - Ajouter quelque chose
 - `update` - Mettre à jour quelque chose
 - `remove` - Supprimer quelque chose
@@ -249,6 +263,7 @@ Le scope indique quelle partie du code est affectée. Voici les scopes recommand
 ### Exemples pour Projet MarsAI
 
 **Client (React) :**
+
 ```bash
 feat(components): add UserCard component
 feat(pages): create dashboard page
@@ -261,6 +276,7 @@ chore(deps): upgrade react-router to v6
 ```
 
 **Server (Node/Express) :**
+
 ```bash
 feat(api): add user registration endpoint
 feat(entities): create User entity
@@ -273,6 +289,7 @@ chore(deps): update express to v5
 ```
 
 **Fullstack :**
+
 ```bash
 feat(auth): implement complete authentication flow
 fix(api): resolve CORS configuration issue
@@ -283,11 +300,13 @@ chore(docker): add docker-compose configuration
 ### Corps du Message (Optionnel)
 
 Si nécessaire, expliquez :
+
 - **Pourquoi** le changement est nécessaire
 - **Comment** le problème est résolu
 - **Effets secondaires** potentiels
 
 **Règles :**
+
 - Séparer du titre par une ligne vide
 - Limiter à 72 caractères par ligne
 - Utiliser des listes à puces si nécessaire
@@ -295,17 +314,20 @@ Si nécessaire, expliquez :
 ### Footer (Optionnel)
 
 Utilisé pour :
+
 - Référencer des issues : `Refs #123`, `Closes #456`
 - Mentionner des breaking changes : `BREAKING CHANGE: description`
 
 ### Exemples Complets
 
 **Commit simple :**
+
 ```bash
 git commit -m "feat(auth): add login functionality"
 ```
 
 **Commit avec corps :**
+
 ```bash
 git commit -m "fix(api): resolve timeout error on user fetch
 
@@ -317,6 +339,7 @@ Closes #234"
 ```
 
 **Commit avec breaking change :**
+
 ```bash
 git commit -m "feat(api): change authentication endpoint structure
 
@@ -332,6 +355,7 @@ Refs #567"
 ### Exemples Bon vs Mauvais
 
 ✅ **Bon :**
+
 ```bash
 feat(auth): add password reset functionality
 fix(components): resolve button click event not firing
@@ -341,6 +365,7 @@ test(auth): add login integration tests
 ```
 
 ❌ **Mauvais :**
+
 ```bash
 Added stuff                          # Pas de type, pas descriptif
 fixed bug                            # Pas de scope, pas spécifique
@@ -355,6 +380,7 @@ wip                                  # Pas descriptif
 **Principe :** Un commit = Un changement logique
 
 ✅ **Bon :**
+
 ```bash
 git commit -m "feat(components): add LoginForm component"
 git commit -m "feat(auth): add login validation logic"
@@ -363,6 +389,7 @@ git commit -m "test(auth): add login form tests"
 ```
 
 ❌ **Mauvais :**
+
 ```bash
 git commit -m "feat(auth): add complete authentication system"
 # (Trop de changements en un seul commit : composant + validation + API + tests)
@@ -375,16 +402,19 @@ git commit -m "feat(auth): add complete authentication system"
 ### 1. Commits Fréquents et Atomiques
 
 ✅ **Faire :**
+
 - Committer souvent (plusieurs fois par jour)
 - Un commit = un changement logique
 - Committer du code qui fonctionne
 
 ❌ **Éviter :**
+
 - Commits massifs avec des centaines de lignes
 - Mélanger frontend et backend dans le même commit (sauf si étroitement liés)
 - Committer du code cassé
 
 **Exemple pour MarsAI :**
+
 ```bash
 # ✅ Bon : Commits séparés
 git add client/src/components/LoginForm.jsx
@@ -404,6 +434,7 @@ git commit -m "add login feature"
 ### 2. Ne Pas Committer de Fichiers Sensibles
 
 **Toujours dans `.gitignore` :**
+
 ```gitignore
 # Dependencies
 node_modules/
@@ -450,6 +481,7 @@ coverage/
 ```
 
 **Si accidentellement committé :**
+
 ```bash
 # Supprimer le fichier de Git mais le garder localement
 git rm --cached .env
@@ -492,6 +524,7 @@ marsai-1festival/
 ### 4. Garder les Branches à Jour
 
 **Synchroniser régulièrement avec develop :**
+
 ```bash
 # Au moins une fois par jour si vous travaillez sur une feature longue
 git checkout develop
@@ -503,6 +536,7 @@ git rebase develop  # Ou git merge develop
 ### 5. Messages de Commit Significatifs
 
 ✅ **Bon :**
+
 ```bash
 git commit -m "feat(api): add user registration endpoint
 
@@ -516,6 +550,7 @@ Closes #234"
 ```
 
 ❌ **Mauvais :**
+
 ```bash
 git commit -m "update"
 git commit -m "fix stuff"
@@ -528,6 +563,7 @@ git commit -m "please work"
 ### 6. Tester Avant de Committer
 
 **Checklist avant chaque commit :**
+
 ```bash
 # Client (React)
 cd client
@@ -1007,12 +1043,14 @@ git branch --merged | grep -v "\*" | xargs -n 1 git branch -d
 
 ```markdown
 #### Code
+
 - [ ] Le code fonctionne correctement
 - [ ] Pas de console.log() ou console.error() oubliés (frontend)
 - [ ] Pas de TODO/FIXME non documentés dans les issues
 - [ ] Le code respecte les conventions du projet
 
 #### Backend (Node/Express)
+
 - [ ] Le serveur démarre sans erreur
 - [ ] Les endpoints API répondent correctement
 - [ ] Les requêtes SQL sont optimisées
@@ -1020,6 +1058,7 @@ git branch --merged | grep -v "\*" | xargs -n 1 git branch -d
 - [ ] Pas de données sensibles dans les logs
 
 #### Frontend (React)
+
 - [ ] L'application compile sans erreur (npm run build)
 - [ ] Pas d'avertissements React dans la console
 - [ ] Les composants s'affichent correctement
@@ -1027,10 +1066,12 @@ git branch --merged | grep -v "\*" | xargs -n 1 git branch -d
 - [ ] Le formatage est cohérent
 
 #### Tests
+
 - [ ] Les tests existants passent
 - [ ] De nouveaux tests ont été ajoutés si nécessaire
 
 #### Git
+
 - [ ] Le message de commit suit les conventions
 - [ ] Le commit est atomique (un seul changement logique)
 - [ ] Les fichiers inutiles ne sont pas inclus
@@ -1051,23 +1092,27 @@ git branch --merged | grep -v "\*" | xargs -n 1 git branch -d
 
 ```markdown
 #### Fonctionnel
+
 - [ ] La fonctionnalité fonctionne comme prévu
 - [ ] Testé sur différents navigateurs (si frontend)
 - [ ] Testé avec différentes données (si backend)
 - [ ] Pas de régression introduite
 
 #### Code Quality
+
 - [ ] Le code est lisible et maintenable
 - [ ] Les noms de variables/fonctions sont descriptifs
 - [ ] Les commentaires expliquent le "pourquoi", pas le "quoi"
 - [ ] Pas de code dupliqué
 
 #### Documentation
+
 - [ ] README.md mis à jour si nécessaire
 - [ ] Variables d'environnement documentées
 - [ ] Instructions de setup à jour
 
 #### Sécurité
+
 - [ ] Pas de secrets committés
 - [ ] Les inputs utilisateur sont validés (frontend et backend)
 - [ ] Les requêtes API sont sécurisées
@@ -1081,6 +1126,7 @@ git branch --merged | grep -v "\*" | xargs -n 1 git branch -d
 ### Structure Recommandée
 
 **Server (`.env`) :**
+
 ```bash
 # Server
 NODE_ENV=development
@@ -1105,6 +1151,7 @@ CLIENT_URL=http://localhost:5173
 ```
 
 **Client (`.env`) :**
+
 ```bash
 # API
 VITE_API_URL=http://localhost:5000/api
@@ -1118,6 +1165,7 @@ VITE_YOUTUBE_API_KEY=yt_test_xxxxxx
 Créer un fichier `.env.example` (committé) :
 
 **Server (`.env.example`) :**
+
 ```bash
 # .env.example - Copier vers .env et remplir les valeurs
 
@@ -1144,6 +1192,7 @@ CLIENT_URL=http://localhost:5173
 ```
 
 **Client (`.env.example`) :**
+
 ```bash
 # .env.example - Copier vers .env et remplir les valeurs
 
@@ -1156,7 +1205,7 @@ VITE_YOUTUBE_API_KEY=your_youtube_api_key
 
 ### Documentation dans README
 
-```markdown
+````markdown
 ## Setup
 
 1. Cloner le repository
@@ -1164,8 +1213,10 @@ VITE_YOUTUBE_API_KEY=your_youtube_api_key
    git clone https://github.com/org/marsai-1festival.git
    cd marsai-1festival
    ```
+````
 
 2. Server setup
+
    ```bash
    cd server
    cp .env.example .env
@@ -1174,6 +1225,7 @@ VITE_YOUTUBE_API_KEY=your_youtube_api_key
    ```
 
 3. Client setup
+
    ```bash
    cd client
    cp .env.example .env
@@ -1182,6 +1234,7 @@ VITE_YOUTUBE_API_KEY=your_youtube_api_key
    ```
 
 4. Lancer le projet
+
    ```bash
    # Terminal 1 - Server
    cd server
@@ -1191,6 +1244,7 @@ VITE_YOUTUBE_API_KEY=your_youtube_api_key
    cd client
    npm run dev
    ```
+
 ```
 
 ---
@@ -1244,19 +1298,22 @@ Ces conventions sont conçues pour :
 
 **Q : Dois-je créer des branches séparées pour client et server ?**
 ```
+
 R : Non, sauf si les changements sont complètement indépendants.
 Généralement, une feature nécessite des changements des deux côtés.
 Utilisez une seule branche mais faites des commits séparés par couche.
-```
+
+````
 
 **Q : Comment gérer les dépendances (package.json) ?**
 ```bash
 # Committer les changements de dépendances séparément
 git add package.json package-lock.json
 git commit -m "chore(deps): add express-validator for input validation"
-```
+````
 
 **Q : Que faire si j'ai commité sur la mauvaise branche ?**
+
 ```bash
 # Annuler le commit en gardant les changements
 git reset --soft HEAD~1
@@ -1275,6 +1332,7 @@ git commit -m "feat(entities): add User entity"
 ```
 
 **Q : Comment synchroniser les changements de .env entre l'équipe ?**
+
 ```bash
 # NE JAMAIS committer .env
 # Utiliser .env.example pour documenter les variables nécessaires
@@ -1287,6 +1345,7 @@ git commit -m "feat(entities): add User entity"
 ```
 
 **Q : Mon serveur Node ne redémarre pas automatiquement après les changements ?**
+
 ```bash
 # Utiliser nodemon en développement
 npm install --save-dev nodemon
@@ -1302,6 +1361,7 @@ npm run dev
 ```
 
 **Q : Comment gérer les uploads de fichiers dans Git ?**
+
 ```bash
 # NE PAS committer les fichiers uploadés par les utilisateurs
 # Les ajouter dans .gitignore
@@ -1313,4 +1373,4 @@ public/uploads/
 
 ---
 
-**Dernière Mise à Jour :** 10/02/2026  
+**Dernière Mise à Jour :** 10/02/2026

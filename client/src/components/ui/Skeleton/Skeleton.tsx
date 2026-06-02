@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SkeletonProps {
   className?: string;
@@ -7,16 +7,16 @@ interface SkeletonProps {
   circle?: boolean;
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className = '', 
-  width, 
-  height, 
-  circle = false 
+export const Skeleton: React.FC<SkeletonProps> = ({
+  className = "",
+  width,
+  height,
+  circle = false,
 }) => {
   const style = {
-    width: width || '100%',
-    height: height || '100%',
-    borderRadius: circle ? '50%' : 'var(--radius-sm)',
+    width: width || "100%",
+    height: height || "100%",
+    borderRadius: circle ? "50%" : "var(--radius-sm)",
   };
 
   return (

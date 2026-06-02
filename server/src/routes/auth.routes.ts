@@ -12,7 +12,7 @@ const router = express.Router();
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // fenêtre glissante de 15 minutes
   max: 10,
-  standardHeaders: true,    // renvoie les headers RateLimit-* standard (RFC 6585)
+  standardHeaders: true, // renvoie les headers RateLimit-* standard (RFC 6585)
   legacyHeaders: false,
   message: {
     error: "Trop de tentatives de connexion. Réessayez dans 15 minutes.",
@@ -32,7 +32,12 @@ const verifyTokenLimiter = rateLimit({
 });
 
 // Route publique pour se connecter
-router.post("/login", loginLimiter, validate(loginSchema), authController.login);
+router.post(
+  "/login",
+  loginLimiter,
+  validate(loginSchema),
+  authController.login,
+);
 router.get("/me", verifyToken, authController.me);
 router.get("/verify-token", verifyTokenLimiter, authController.verifyToken);
 
@@ -41,7 +46,7 @@ router.post("/logout", (req, res) => {
   res.clearCookie("marsai_token", {
     httpOnly: true,
     sameSite: "strict",
-    secure:   process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production",
   });
   res.status(200).json({ message: "Déconnecté." });
 });

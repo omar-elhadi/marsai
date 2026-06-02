@@ -3,17 +3,18 @@ import { AppError } from "../utils/AppError.js";
 import { fetchGallery, fetchFilmById } from "../services/gallery.service.js";
 
 export const getGallery = catchAsync(async (req: any, res: any, next: any) => {
-    const { page, limit } = req.query;
-    const galleryData = await fetchGallery({ page, limit });
-    return res.json(galleryData);
+  const { page, limit } = req.query;
+  const galleryData = await fetchGallery({ page, limit });
+  return res.json(galleryData);
 });
 
 /**
  * GET /api/gallery/:id
  * Détail public d'un film APPROVED pour la page de détail.
  */
-export const getFilmDetail = catchAsync(async (req: any, res: any, next: any) => {
-  const filmId = parseInt(req.params.id);
+export const getFilmDetail = catchAsync(
+  async (req: any, res: any, next: any) => {
+    const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const film = await fetchFilmById(filmId);
 
@@ -45,4 +46,5 @@ export const getFilmDetail = catchAsync(async (req: any, res: any, next: any) =>
     };
 
     return res.json(formattedFilm);
-});
+  },
+);

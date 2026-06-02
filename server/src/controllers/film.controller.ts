@@ -20,61 +20,61 @@ import { uploadFileToS3 } from "../services/s3.service.js";
  */
 export const submit = catchAsync(async (req: any, res: any, next: any) => {
   const {
-      firstName,
-      lastName,
-      email,
-      bio,
-      instagram,
-      title,
-      description,
-      country,
-      language,
-      aiToolsUsed,
-      youtubeUrl,
-      s3VideoKey,
-    } = req.body;
+    firstName,
+    lastName,
+    email,
+    bio,
+    instagram,
+    title,
+    description,
+    country,
+    language,
+    aiToolsUsed,
+    youtubeUrl,
+    s3VideoKey,
+  } = req.body;
 
-    // Validation des champs obligatoires
-    const required = {
-      firstName,
-      lastName,
-      email,
-      title,
-      description,
-      country,
-      aiToolsUsed,
-    };
-    const missing = Object.entries(required)
-      .filter(([, v]) => !v || String(v).trim() === "")
-      .map(([k]) => k);
+  // Validation des champs obligatoires
+  const required = {
+    firstName,
+    lastName,
+    email,
+    title,
+    description,
+    country,
+    aiToolsUsed,
+  };
+  const missing = Object.entries(required)
+    .filter(([, v]) => !v || String(v).trim() === "")
+    .map(([k]) => k);
 
-    if (missing.length > 0) {
-      return res.status(400).json({
-        error: "Champs obligatoires manquants",
-        fields: missing,
-      });
-    }
-
-    const result = await submitFilm({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.trim().toLowerCase(),
-      bio,
-      instagram,
-      title: title.trim(),
-      description: description.trim(),
-      country: country.trim(),
-      language,
-      aiToolsUsed: aiToolsUsed.trim(),
-      youtubeUrl,
-      s3VideoKey,
+  if (missing.length > 0) {
+    return res.status(400).json({
+      error: "Champs obligatoires manquants",
+      fields: missing,
     });
+  }
 
-    return res.status(201).json({
-      message: "Film soumis avec succès",
-      submissionToken: result.submissionToken,
-      filmId: result.film.id,
-    });
+  const result = await submitFilm({
+    firstName: firstName.trim(),
+    lastName: lastName.trim(),
+    email: email.trim().toLowerCase(),
+    bio,
+    instagram,
+    title: title.trim(),
+    description: description.trim(),
+    country: country.trim(),
+    language,
+    aiToolsUsed: aiToolsUsed.trim(),
+    youtubeUrl,
+    s3VideoKey,
+  });
+
+  return res.status(201).json({
+    message: "Film soumis avec succès",
+    submissionToken: result.submissionToken,
+    filmId: result.film.id,
+  });
 });
 
 /**
@@ -84,7 +84,13 @@ export const submit = catchAsync(async (req: any, res: any, next: any) => {
  */
 export const getFilms = catchAsync(async (req: any, res: any, next: any) => {
   const { status, search, hasSuggestions, page, limit } = req.query;
-  const filmsData = await fetchFilms({ status, search, hasSuggestions, page, limit });
+  const filmsData = await fetchFilms({
+    status,
+    search,
+    hasSuggestions,
+    page,
+    limit,
+  });
   return res.json(filmsData);
 });
 
@@ -94,7 +100,7 @@ export const getFilms = catchAsync(async (req: any, res: any, next: any) => {
  */
 export const getStats = catchAsync(async (req: any, res: any, next: any) => {
   const stats = await fetchFilmsStats();
-    return res.json(stats);
+  return res.json(stats);
 });
 
 /**
@@ -103,9 +109,9 @@ export const getStats = catchAsync(async (req: any, res: any, next: any) => {
  */
 export const getOne = catchAsync(async (req: any, res: any, next: any) => {
   const filmId = parseInt(req.params.id);
-    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
-    const film = await fetchFilmById(filmId);
-    return res.json(film);
+  if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
+  const film = await fetchFilmById(filmId);
+  return res.json(film);
 });
 
 /**
@@ -113,8 +119,9 @@ export const getOne = catchAsync(async (req: any, res: any, next: any) => {
  * Changer le statut d'un film (transitions validées côté service).
  * Body : { status: "APPROVED" }
  */
-export const updateStatus = catchAsync(async (req: any, res: any, next: any) => {
-  const filmId = parseInt(req.params.id);
+export const updateStatus = catchAsync(
+  async (req: any, res: any, next: any) => {
+    const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { status } = req.body;
 
@@ -124,15 +131,17 @@ export const updateStatus = catchAsync(async (req: any, res: any, next: any) => 
 
     const film = await changeFilmStatus(filmId, status, req.user.role);
     return res.json(film);
-});
+  },
+);
 
 /**
  * POST /api/films/:id/request-modification
  * Demander des modifications au réalisateur.
  * Body : { message: "..." }
  */
-export const requestModification = catchAsync(async (req: any, res: any, next: any) => {
-  const filmId = parseInt(req.params.id);
+export const requestModification = catchAsync(
+  async (req: any, res: any, next: any) => {
+    const filmId = parseInt(req.params.id);
     if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
     const { message } = req.body;
 
@@ -148,16 +157,19 @@ export const requestModification = catchAsync(async (req: any, res: any, next: a
       req.user.id,
     );
     return res.json(film);
-});
+  },
+);
 
 /**
  * GET /api/films/edit/:token
  * Récupérer le film à modifier via le token du réalisateur (public).
  */
-export const getByEditToken = catchAsync(async (req: any, res: any, next: any) => {
-  const film = await fetchFilmByEditToken(req.params.token);
+export const getByEditToken = catchAsync(
+  async (req: any, res: any, next: any) => {
+    const film = await fetchFilmByEditToken(req.params.token);
     return res.json(film);
-});
+  },
+);
 
 /**
  * PUT /api/films/edit/:token
@@ -166,13 +178,13 @@ export const getByEditToken = catchAsync(async (req: any, res: any, next: any) =
  */
 export const applyEdit = catchAsync(async (req: any, res: any, next: any) => {
   const { title, description, youtubeUrl, aiToolsUsed } = req.body;
-    const film = await applyFilmEditService(req.params.token, {
-      title,
-      description,
-      youtubeUrl,
-      aiToolsUsed,
-    });
-    return res.json({ message: "Modifications enregistrées", film });
+  const film = await applyFilmEditService(req.params.token, {
+    title,
+    description,
+    youtubeUrl,
+    aiToolsUsed,
+  });
+  return res.json({ message: "Modifications enregistrées", film });
 });
 
 /**
@@ -182,7 +194,7 @@ export const applyEdit = catchAsync(async (req: any, res: any, next: any) => {
  */
 export const trackFilm = catchAsync(async (req: any, res: any, next: any) => {
   const film = await fetchFilmBySubmissionToken(req.params.token);
-    return res.json(film);
+  return res.json(film);
 });
 
 /**
@@ -192,17 +204,17 @@ export const trackFilm = catchAsync(async (req: any, res: any, next: any) => {
  */
 export const assign = catchAsync(async (req: any, res: any, next: any) => {
   const filmId = parseInt(req.params.id);
-    if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
-    const { userIds } = req.body;
+  if (isNaN(filmId)) return res.status(400).json({ message: "ID invalide" });
+  const { userIds } = req.body;
 
-    if (!Array.isArray(userIds)) {
-      return res
-        .status(400)
-        .json({ error: "userIds doit être un tableau d'IDs" });
-    }
+  if (!Array.isArray(userIds)) {
+    return res
+      .status(400)
+      .json({ error: "userIds doit être un tableau d'IDs" });
+  }
 
-    const film = await assignUsersToFilm(filmId, userIds.map(Number));
-    return res.json(film);
+  const film = await assignUsersToFilm(filmId, userIds.map(Number));
+  return res.json(film);
 });
 
 /**
@@ -212,17 +224,17 @@ export const assign = catchAsync(async (req: any, res: any, next: any) => {
  */
 export const uploadVideo = catchAsync(async (req: any, res: any, next: any) => {
   if (!req.file) {
-      return res.status(400).json({ error: "Aucun fichier reçu" });
-    }
+    return res.status(400).json({ error: "Aucun fichier reçu" });
+  }
 
-    const { buffer, originalname, mimetype } = req.file;
+  const { buffer, originalname, mimetype } = req.file;
 
-    // Upload vers S3
-    const { url, key } = await uploadFileToS3(buffer, originalname, mimetype);
+  // Upload vers S3
+  const { url, key } = await uploadFileToS3(buffer, originalname, mimetype);
 
-    return res.status(200).json({
-      message: "Vidéo uploadée avec succès",
-      url,
-      key,
-    });
+  return res.status(200).json({
+    message: "Vidéo uploadée avec succès",
+    url,
+    key,
+  });
 });

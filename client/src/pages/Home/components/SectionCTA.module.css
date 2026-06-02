@@ -40,62 +40,60 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-
 /* ─────────────────────────────────────────────────────────────
    SECTION WRAPPER
    ───────────────────────────────────────────────────────────── */
 
 .sectionCTA {
-  position:   relative;
+  position: relative;
   /* Fond image + overlay — polarité sombre retrouvée.
      Sur fond clair, var(--color-accent) se dilue dans le blanc.
      Sur fond sombre, "HEURE." en sable s'impose pleinement.
      L'overlay ramène la profondeur, l'image raconte. */
-  background:    #0a0a0a;
-  padding:       clamp(5rem, 12vw, 10rem) clamp(1.5rem, 5vw, 6rem);
-  overflow:      hidden;
+  background: #0a0a0a;
+  padding: clamp(5rem, 12vw, 10rem) clamp(1.5rem, 5vw, 6rem);
+  overflow: hidden;
 }
 
 /* Image de fond — projecteur de cinéma dans le noir.
    Un faisceau qui attend quelqu'un. C'est ton heure.
    Unsplash photo-1478720568477-152d9b164e26 — libre de droits. */
 .ctaBgImage {
-  position:        absolute;
-  inset:           0;
-  background-image: url('https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=88&w=2400&auto=format&fit=crop');
-  background-size:     cover;
+  position: absolute;
+  inset: 0;
+  background-image: url("https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=88&w=2400&auto=format&fit=crop");
+  background-size: cover;
   background-position: center 40%;
-  opacity:         0.35;
-  z-index:         0;
+  opacity: 0.35;
+  z-index: 0;
 }
 
 /* Overlay sombre — ramène le fond au noir profond.
    Deux couches : une couche uniforme + un gradient bas.
    Le texte lit parfaitement, l'image transparaît. */
 .ctaOverlay {
-  position:   absolute;
-  inset:      0;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.55) 0%,
-    rgba(0, 0, 0, 0.40) 50%,
-    rgba(0, 0, 0, 0.70) 100%
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.7) 100%
   );
   z-index: 1;
 }
 
 .container {
-  position:   relative;
-  max-width:  1200px;
-  margin:     0 auto;
-  z-index:    10;
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  z-index: 10;
   /* Tout est centré — c'est un autel, pas une liste */
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  align-items:    center;
-  text-align:     center;
+  align-items: center;
+  text-align: center;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    GRAIN INVERSÉ — texture cohérente sur fond clair
@@ -104,16 +102,15 @@
    ───────────────────────────────────────────────────────────── */
 
 .ctaGrain {
-  position:         absolute;
-  inset:            0;
+  position: absolute;
+  inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size:  200px 200px;
-  opacity:          0.025;
-  mix-blend-mode:   overlay;
-  pointer-events:   none;
-  z-index:          1;
+  background-size: 200px 200px;
+  opacity: 0.025;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 1;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    VIGNETTE RADIALE — projecteur de cinéma centré
@@ -123,61 +120,59 @@
 
 .ctaVignette {
   position: absolute;
-  inset:    0;
+  inset: 0;
   background: radial-gradient(
     ellipse 70% 80% at 50% 50%,
     rgba(226, 209, 195, 0.06) 0%,
-    transparent                55%,
-    rgba(0, 0, 0, 0.04)       100%
+    transparent 55%,
+    rgba(0, 0, 0, 0.04) 100%
   );
   pointer-events: none;
-  z-index:        2;
+  z-index: 2;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    FILET D'OUVERTURE — s'étire depuis la gauche (GSAP)
    ───────────────────────────────────────────────────────────── */
 
 .ctaLine {
-  width:         100%;
-  max-width:     1200px;
-  height:        1px;
-  background:    var(--color-accent);
-  opacity:       0.4;
+  width: 100%;
+  max-width: 1200px;
+  height: 1px;
+  background: var(--color-accent);
+  opacity: 0.4;
   margin-bottom: clamp(3rem, 6vw, 5rem);
   /* transformOrigin défini en inline dans le JSX pour GSAP */
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    TITRE — révélé mot par mot (GSAP yPercent rideau)
    ───────────────────────────────────────────────────────────── */
 
 .ctaTitleWrapper {
-  display:       flex;
-  flex-wrap:     wrap;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap:           0 clamp(0.5rem, 1.8vw, 1.4rem);
+  gap: 0 clamp(0.5rem, 1.8vw, 1.4rem);
   margin-bottom: clamp(2rem, 4vw, 3.5rem);
 }
 
 .ctaWordMask {
   /* Masque de débordement pour l'effet rideau GSAP */
-  overflow:    hidden;
+  overflow: hidden;
   line-height: 0.92;
 }
 
 .ctaWord {
-  display:        block;
-  font-family:    var(--font-display);
-  font-weight:    900;
-  font-size:      clamp(3.2rem, 10vw, 9rem);
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.2rem, 10vw, 9rem);
   /* Tracking ouvert — prestige festival, cohérent avec le héros */
   letter-spacing: 0.06em;
   text-transform: uppercase;
   /* Fond sombre → texte clair */
-  color:          var(--color-text);
+  color: var(--color-text);
   padding-bottom: 0.06em;
   /* text-shadow : profondeur sur fond image */
   text-shadow:
@@ -199,40 +194,38 @@
   }
 }
 
-
 /* ─────────────────────────────────────────────────────────────
    SOUS-TITRE — poétique, dense, centré
    ───────────────────────────────────────────────────────────── */
 
 .ctaSubtitle {
-  font-family:    var(--font-sans);
-  font-weight:    300;
-  font-size:      clamp(0.95rem, 1.8vw, 1.2rem);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
   letter-spacing: 0.06em;
   /* Texte clair sur fond sombre */
-  color:          rgba(241, 245, 249, 0.65);
-  margin-bottom:  clamp(2.5rem, 5vw, 4rem);
-  max-width:      38ch;
-  line-height:    1.7;
-  text-shadow:    0 1px 16px rgba(0, 0, 0, 0.6);
+  color: rgba(241, 245, 249, 0.65);
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  max-width: 38ch;
+  line-height: 1.7;
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.6);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    BLOC BOUTON — centré + halo pulsant CSS
    ───────────────────────────────────────────────────────────── */
 
 .ctaBtnBlock {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  align-items:    center;
-  gap:            1.4rem;
+  align-items: center;
+  gap: 1.4rem;
 }
 
 /* Wrapper du halo — position relative pour le pseudo-élément */
 .ctaBtnHalo {
   position: relative;
-  display:  inline-flex;
+  display: inline-flex;
 }
 
 /* Halo pulsant — CSS pur, permanent, organique.
@@ -240,31 +233,30 @@
    Jamais de GSAP : une présence permanente ne doit pas
    dépendre de la timeline d'animation de la page. */
 .ctaBtnHalo::before {
-  content:       '';
-  position:      absolute;
-  inset:         -12px;
+  content: "";
+  position: absolute;
+  inset: -12px;
   border-radius: var(--radius-pill);
-  background:    transparent;
-  border:        1px solid rgba(226, 209, 195, 0.25);
-  animation:     ctaHaloPulse 2.8s ease-in-out infinite;
+  background: transparent;
+  border: 1px solid rgba(226, 209, 195, 0.25);
+  animation: ctaHaloPulse 2.8s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes ctaHaloPulse {
-  0%   {
-    opacity:   0.6;
-    transform: scale(1.00);
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
   }
-  50%  {
-    opacity:   0;
+  50% {
+    opacity: 0;
     transform: scale(1.14);
   }
   100% {
-    opacity:   0.6;
-    transform: scale(1.00);
+    opacity: 0.6;
+    transform: scale(1);
   }
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    DATE DE CLÔTURE — rareté temporelle
@@ -272,17 +264,17 @@
    ───────────────────────────────────────────────────────────── */
 
 .ctaDeadline {
-  font-family:    var(--font-sans);
-  font-weight:    500;
-  font-size:      0.65rem;
-  letter-spacing: 0.20em;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color:          rgba(241, 245, 249, 0.30);
+  color: rgba(241, 245, 249, 0.3);
 }
 
 /* Le jour et la date s'imposent légèrement sur le reste */
 .ctaDeadlineAccent {
-  color:       var(--color-accent);
+  color: var(--color-accent);
   font-weight: 700;
-  opacity:     0.8;
+  opacity: 0.8;
 }

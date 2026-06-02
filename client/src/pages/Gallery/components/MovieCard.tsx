@@ -49,16 +49,22 @@
  *   index   position 0-based dans galleryMovies
  */
 
-import { Link }   from 'react-router-dom';
-import { ROUTES } from '@/constants/routes';
-import styles     from './MovieCard.module.css';
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/constants/routes";
+import styles from "./MovieCard.module.css";
 
-export default function MovieCard({ movie, index }: { movie: any, index: number }) {
+export default function MovieCard({
+  movie,
+  index,
+}: {
+  movie: any;
+  index: number;
+}) {
   const filmRoute = ROUTES.FILM_DETAIL
-    ? ROUTES.FILM_DETAIL.replace(':id', movie.id)
+    ? ROUTES.FILM_DETAIL.replace(":id", movie.id)
     : `/film/${movie.id}`;
 
-  const num = String(index + 1).padStart(2, '0');
+  const num = String(index + 1).padStart(2, "0");
 
   return (
     <Link
@@ -66,11 +72,9 @@ export default function MovieCard({ movie, index }: { movie: any, index: number 
       className={`${styles.card} movie-card`}
       aria-label={`Voir le film : ${movie.title}, dirigé par ${movie.director}`}
     >
-
       {/* ── Masque image ──────────────────────────────────── */}
       {/* overflow:hidden — clippe l'image animée par GSAP */}
       <div className={styles.cardMask}>
-
         {/* .movie-image : classe globale ciblée par GSAP (parallaxe x) */}
         <img
           src={movie.img}
@@ -91,22 +95,18 @@ export default function MovieCard({ movie, index }: { movie: any, index: number 
             <span className={styles.cardBadgeLabel}>{movie.category}</span>
           </div>
         )}
-
       </div>
 
       {/* ── Panneau éditorial asymétrique ─────────────────── */}
       <div className={styles.cardPanel}>
-
-        <span className={styles.cardNum} aria-hidden="true">{num}</span>
+        <span className={styles.cardNum} aria-hidden="true">
+          {num}
+        </span>
 
         <h3 className={styles.cardTitle}>{movie.title}</h3>
 
-        <p className={styles.cardDirector}>
-          Dirigé par {movie.director}
-        </p>
-
+        <p className={styles.cardDirector}>Dirigé par {movie.director}</p>
       </div>
-
     </Link>
   );
 }

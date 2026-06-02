@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --workspaces --if-present
+
+      - name: Build validators
+        run: npm run build --workspace=packages/validators
+
+      - name: Type check
+        run: npm run type-check --workspaces --if-present
+
+      - name: Lint client
+        working-directory: ./client
+        run: npm run lint
+        continue-on-error: true
+
+  test-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --workspaces --if-present
+
+      - name: Build validators
+        run: npm run build --workspace=packages/validators
+
+      - name: Test
+        working-directory: ./server
+        run: npm run test
+
+      - name: Build
+        working-directory: ./server
+        run: npm run build
+
+  test-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --workspaces --if-present
+
+      - name: Build validators
+        run: npm run build --workspace=packages/validators
+
+      - name: Test
+        working-directory: ./client
+        run: npm run test
+
+      - name: Build
+        working-directory: ./client
+        run: npm run build

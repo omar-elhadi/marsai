@@ -13,22 +13,19 @@ export const getSelectionCandidates = async () => {
       status: { in: ["APPROVED", "SELECTION", "FINALIST", "AWARD"] },
     },
     select: {
-      id:           true,
-      title:        true,
-      country:      true,
-      status:       true,
-      avgRating:    true,
-      totalVotes:   true,
-      totalLikes:   true,
-      totalDislikes:true,
-      youtubeUrl:   true,
-      submitter:    { select: { firstName: true, lastName: true, email: true } },
-      nominations:  { select: { id: true, categoryId: true, isWinner: true } },
+      id: true,
+      title: true,
+      country: true,
+      status: true,
+      avgRating: true,
+      totalVotes: true,
+      totalLikes: true,
+      totalDislikes: true,
+      youtubeUrl: true,
+      submitter: { select: { firstName: true, lastName: true, email: true } },
+      nominations: { select: { id: true, categoryId: true, isWinner: true } },
     },
-    orderBy: [
-      { avgRating:  "desc" },
-      { totalVotes: "desc" },
-    ],
+    orderBy: [{ avgRating: "desc" }, { totalVotes: "desc" }],
   });
 };
 
@@ -39,18 +36,18 @@ export const getSelectionCandidates = async () => {
  *
  * @param {number} edition - Année (ex: 2026)
  */
-export const getCategories = async (edition) => {
+export const getCategories = async (edition: number | string) => {
   return prisma.awardCategory.findMany({
-    where:   { edition: Number(edition) },
+    where: { edition: Number(edition) },
     include: {
       nominations: {
         include: {
           film: {
             select: {
-              id:      true,
-              title:   true,
+              id: true,
+              title: true,
               country: true,
-              status:  true,
+              status: true,
               submitter: { select: { firstName: true, lastName: true } },
             },
           },
@@ -67,16 +64,28 @@ export const getCategories = async (edition) => {
  *
  * @param {{ edition, name, description?, displayOrder? }} data
  */
-export const createCategory = async ({ edition, name, description, displayOrder }) => {
+export const createCategory = async ({
+  edition,
+  name,
+  description,
+  displayOrder,
+}: {
+  edition: number | string;
+  name: string;
+  description?: string;
+  displayOrder?: number;
+}) => {
   if (!edition || !name?.trim()) {
-    throw Object.assign(new Error("edition et name sont obligatoires"), { statusCode: 400 });
+    throw Object.assign(new Error("edition et name sont obligatoires"), {
+      statusCode: 400,
+    });
   }
 
   return prisma.awardCategory.create({
     data: {
-      edition:      Number(edition),
-      name:         name.trim(),
-      description:  description?.trim() ?? null,
+      edition: Number(edition),
+      name: name.trim(),
+      description: description?.trim() ?? null,
       displayOrder: displayOrder ?? 0,
     },
   });
@@ -85,18 +94,29 @@ export const createCategory = async ({ edition, name, description, displayOrder 
 /**
  * Modifier une catégorie existante.
  */
-export const updateCategory = async (categoryId, { name, description, displayOrder }) => {
-  const category = await prisma.awardCategory.findUnique({ where: { id: categoryId } });
+export const updateCategory = async (
+  categoryId: number,
+  {
+    name,
+    description,
+    displayOrder,
+  }: { name?: string; description?: string; displayOrder?: number },
+) => {
+  const category = await prisma.awardCategory.findUnique({
+    where: { id: categoryId },
+  });
   if (!category) {
-    throw Object.assign(new Error("Catégorie introuvable"), { statusCode: 404 });
+    throw Object.assign(new Error("Catégorie introuvable"), {
+      statusCode: 404,
+    });
   }
 
   return prisma.awardCategory.update({
     where: { id: categoryId },
     data: {
-      name:         name?.trim()        ?? category.name,
-      description:  description?.trim() ?? category.description,
-      displayOrder: displayOrder        ?? category.displayOrder,
+      name: name?.trim() ?? category.name,
+      description: description?.trim() ?? category.description,
+      displayOrder: displayOrder ?? category.displayOrder,
     },
   });
 };
@@ -104,18 +124,20 @@ export const updateCategory = async (categoryId, { name, description, displayOrd
 /**
  * Supprimer une catégorie (uniquement si aucune nomination active).
  */
-export const deleteCategory = async (categoryId) => {
+export const deleteCategory = async (categoryId: number) => {
   const category = await prisma.awardCategory.findUnique({
-    where:   { id: categoryId },
+    where: { id: categoryId },
     include: { _count: { select: { nominations: true } } },
   });
   if (!category) {
-    throw Object.assign(new Error("Catégorie introuvable"), { statusCode: 404 });
+    throw Object.assign(new Error("Catégorie introuvable"), {
+      statusCode: 404,
+    });
   }
   if (category._count.nominations > 0) {
     throw Object.assign(
       new Error("Impossible de supprimer une catégorie ayant des nominations."),
-      { statusCode: 409 }
+      { statusCode: 409 },
     );
   }
 
@@ -130,19 +152,23 @@ export const deleteCategory = async (categoryId) => {
  * @param {number} filmId
  * @param {number} categoryId
  */
-export const nominateFilm = async (filmId, categoryId) => {
+export const nominateFilm = async (filmId: number, categoryId: number) => {
   const [film, category] = await Promise.all([
     prisma.film.findUnique({ where: { id: filmId } }),
     prisma.awardCategory.findUnique({ where: { id: categoryId } }),
   ]);
 
-  if (!film)     throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
-  if (!category) throw Object.assign(new Error("Catégorie introuvable"), { statusCode: 404 });
+  if (!film)
+    throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
+  if (!category)
+    throw Object.assign(new Error("Catégorie introuvable"), {
+      statusCode: 404,
+    });
 
   if (!["SELECTION", "FINALIST", "AWARD"].includes(film.status)) {
     throw Object.assign(
       new Error("Seuls les films en SELECTION peuvent être nominés."),
-      { statusCode: 400 }
+      { statusCode: 400 },
     );
   }
 
@@ -155,7 +181,7 @@ export const nominateFilm = async (filmId, categoryId) => {
   if (film.status === "SELECTION") {
     await prisma.film.update({
       where: { id: filmId },
-      data:  { status: "FINALIST" },
+      data: { status: "FINALIST" },
     });
   }
 
@@ -168,12 +194,14 @@ export const nominateFilm = async (filmId, categoryId) => {
  *
  * @param {number} nominationId
  */
-export const removeNomination = async (nominationId) => {
+export const removeNomination = async (nominationId: number) => {
   const nomination = await prisma.filmNomination.findUnique({
     where: { id: nominationId },
   });
   if (!nomination) {
-    throw Object.assign(new Error("Nomination introuvable"), { statusCode: 404 });
+    throw Object.assign(new Error("Nomination introuvable"), {
+      statusCode: 404,
+    });
   }
 
   await prisma.filmNomination.delete({ where: { id: nominationId } });
@@ -187,7 +215,7 @@ export const removeNomination = async (nominationId) => {
   if (remaining === 0) {
     await prisma.film.update({
       where: { id: nomination.filmId },
-      data:  { status: "SELECTION" },
+      data: { status: "SELECTION" },
     });
   }
 
@@ -202,19 +230,21 @@ export const removeNomination = async (nominationId) => {
  *
  * @param {number} nominationId
  */
-export const setWinner = async (nominationId) => {
+export const setWinner = async (nominationId: number) => {
   const nomination = await prisma.filmNomination.findUnique({
-    where:   { id: nominationId },
+    where: { id: nominationId },
     include: { film: true, category: true },
   });
   if (!nomination) {
-    throw Object.assign(new Error("Nomination introuvable"), { statusCode: 404 });
+    throw Object.assign(new Error("Nomination introuvable"), {
+      statusCode: 404,
+    });
   }
 
   // Retirer isWinner des autres nominations de la même catégorie
   await prisma.filmNomination.updateMany({
     where: { categoryId: nomination.categoryId, isWinner: true },
-    data:  { isWinner: false },
+    data: { isWinner: false },
   });
 
   // Remettre l'ancien gagnant en FINALIST si nécessaire
@@ -227,18 +257,21 @@ export const setWinner = async (nominationId) => {
   // Désigner le nouveau gagnant
   await prisma.filmNomination.update({
     where: { id: nominationId },
-    data:  { isWinner: true },
+    data: { isWinner: true },
   });
 
   // Film → AWARD
   await prisma.film.update({
     where: { id: nomination.filmId },
-    data:  { status: "AWARD" },
+    data: { status: "AWARD" },
   });
 
   return prisma.filmNomination.findUnique({
-    where:   { id: nominationId },
-    include: { film: { select: { id: true, title: true, status: true } }, category: true },
+    where: { id: nominationId },
+    include: {
+      film: { select: { id: true, title: true, status: true } },
+      category: true,
+    },
   });
 };
 
@@ -247,22 +280,24 @@ export const setWinner = async (nominationId) => {
  *
  * @param {number} nominationId
  */
-export const unsetWinner = async (nominationId) => {
+export const unsetWinner = async (nominationId: number) => {
   const nomination = await prisma.filmNomination.findUnique({
     where: { id: nominationId },
   });
   if (!nomination) {
-    throw Object.assign(new Error("Nomination introuvable"), { statusCode: 404 });
+    throw Object.assign(new Error("Nomination introuvable"), {
+      statusCode: 404,
+    });
   }
 
   await prisma.filmNomination.update({
     where: { id: nominationId },
-    data:  { isWinner: false },
+    data: { isWinner: false },
   });
 
   await prisma.film.update({
     where: { id: nomination.filmId },
-    data:  { status: "FINALIST" },
+    data: { status: "FINALIST" },
   });
 
   return { success: true };
@@ -276,7 +311,7 @@ export const unsetWinner = async (nominationId) => {
  *
  * @param {number} edition
  */
-export const getPalmares = async (edition) => {
+export const getPalmares = async (edition: number | string) => {
   return prisma.awardCategory.findMany({
     where: { edition: Number(edition) },
     include: {
@@ -287,11 +322,11 @@ export const getPalmares = async (edition) => {
         include: {
           film: {
             select: {
-              id:        true,
-              title:     true,
-              country:   true,
-              youtubeUrl:true,
-              status:    true,
+              id: true,
+              title: true,
+              country: true,
+              youtubeUrl: true,
+              status: true,
               submitter: { select: { firstName: true, lastName: true } },
             },
           },
@@ -308,9 +343,9 @@ export const getPalmares = async (edition) => {
  */
 export const getEditions = async () => {
   const rows = await prisma.awardCategory.findMany({
-    select:  { edition: true },
+    select: { edition: true },
     distinct: ["edition"],
     orderBy: { edition: "desc" },
   });
-  return rows.map(r => r.edition);
+  return rows.map((r) => r.edition);
 };

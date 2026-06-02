@@ -16,15 +16,15 @@ import {
 const API = import.meta.env.VITE_API_URL;
 
 // Sentiment dérivé automatiquement — ≥6 = LIKE, ≤5 = DISLIKE
-const deriveSentiment = (rating) => (rating >= 6 ? "LIKE" : "DISLIKE");
+const deriveSentiment = (rating: number) => (rating >= 6 ? "LIKE" : "DISLIKE");
 
-const getYoutubeId = (url) => {
+const getYoutubeId = (url: string) => {
   if (!url) return null;
   const m = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?]+)/);
   return m ? m[1] : null;
 };
 
-const STATUS_LABELS = {
+const STATUS_LABELS: Record<string, any> = {
   SUBMITTED: "Soumis",
   IN_REVIEW: "En évaluation",
   APPROVED: "Approuvé",
@@ -35,7 +35,7 @@ const STATUS_LABELS = {
   AWARD: "Primé",
 };
 
-const STATUS_COLORS = {
+const STATUS_COLORS: Record<string, any> = {
   SUBMITTED: {
     color: "var(--color-text-muted)",
     border: "var(--color-border)",
@@ -90,7 +90,7 @@ export default function JuryFilmDetail() {
       const existing = data.votes?.[0];
       if (existing) {
         setRating(existing.rating ?? 5);
-        const suggComment = existing.comments?.find((c) => !c.isInternal);
+        const suggComment = existing.comments?.find((c: any) => !c.isInternal);
         setSuggestMod(
           existing.suggestModification && suggComment
             ? { checked: true, text: suggComment.content }
@@ -324,12 +324,12 @@ export default function JuryFilmDetail() {
   const youtubeId = getYoutubeId(film.youtubeUrl);
   const internalComments =
     currentVote?.comments
-      ?.filter((c) => c.isInternal)
+      ?.filter((c: any) => c.isInternal)
       .slice()
       .reverse() ?? [];
   // Commentaire de suggestion (isInternal: false) — transmis à l'admin
   const suggestionComment =
-    currentVote?.comments?.find((c) => !c.isInternal) ?? null;
+    currentVote?.comments?.find((c: any) => !c.isInternal) ?? null;
   const statusStyle = STATUS_COLORS[film.status] ?? STATUS_COLORS.SUBMITTED;
   // Évaluations verrouillées pour les films en phase finale
   const isLocked = ["FINALIST", "AWARD"].includes(film.status);
@@ -798,7 +798,7 @@ export default function JuryFilmDetail() {
                   }}
                   className="space-y-3"
                 >
-                  {internalComments.map((c) => (
+                  {internalComments.map((c: any) => (
                     <div key={c.id} className="space-y-1.5">
                       <p
                         style={{
@@ -1481,7 +1481,7 @@ export default function JuryFilmDetail() {
                   )}
 
                   {/* Événements 3+ — Notes internes (ordre chronologique) */}
-                  {[...internalComments].reverse().map((c) => (
+                  {[...internalComments].reverse().map((c: any) => (
                     <div
                       key={c.id}
                       style={{ position: "relative", marginBottom: "1.25rem" }}

@@ -5,19 +5,19 @@ const prismaClientSingleton = () => {
     query: {
       $allModels: {
         async findMany({ model, operation, args, query }) {
-          if (['User', 'Submitter', 'Film'].includes(model)) {
+          if (["User", "Submitter", "Film"].includes(model)) {
             args.where = { deletedAt: null, ...args.where } as any;
           }
           return query(args);
         },
         async findFirst({ model, operation, args, query }) {
-          if (['User', 'Submitter', 'Film'].includes(model)) {
+          if (["User", "Submitter", "Film"].includes(model)) {
             args.where = { deletedAt: null, ...args.where } as any;
           }
           return query(args);
         },
         async count({ model, operation, args, query }) {
-          if (['User', 'Submitter', 'Film'].includes(model)) {
+          if (["User", "Submitter", "Film"].includes(model)) {
             args.where = { deletedAt: null, ...args.where } as any;
           }
           return query(args);
@@ -27,7 +27,9 @@ const prismaClientSingleton = () => {
   });
 };
 
-const globalForPrisma = global as unknown as { prisma: ReturnType<typeof prismaClientSingleton> };
+const globalForPrisma = global as unknown as {
+  prisma: ReturnType<typeof prismaClientSingleton>;
+};
 
 const prisma = globalForPrisma.prisma || prismaClientSingleton();
 

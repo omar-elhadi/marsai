@@ -107,8 +107,8 @@ export default function FilmPage() {
       try {
         setLoading(true);
         if (id) {
-            const data = await galleryService.getById(id);
-            setFilm(data);
+          const data = await galleryService.getById(id);
+          setFilm(data);
         }
       } catch (err) {
         console.error("Erreur lors de la récupération du film:", err);

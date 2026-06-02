@@ -19,7 +19,7 @@ export const validateEnv = () => {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
     logger.error(
-      "❌ ERREUR DE CONFIGURATION : Variables d'environnement manquantes ou invalides"
+      "❌ ERREUR DE CONFIGURATION : Variables d'environnement manquantes ou invalides",
     );
     logger.error(result.error.issues);
     process.exit(1); // Arrête le processus

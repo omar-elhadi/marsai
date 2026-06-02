@@ -24,6 +24,6 @@ export function formatDuration(minutes?: number | null): string {
   if (!minutes && minutes !== 0) return "--";
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  if (h > 0) return `${h}h${m.toString().padStart(2, '0')}`;
+  if (h > 0) return `${h}h${m.toString().padStart(2, "0")}`;
   return `${m} min`;
 }

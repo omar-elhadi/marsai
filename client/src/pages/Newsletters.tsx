@@ -5,7 +5,7 @@ function NewsletterPopUp() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email) return;
 
@@ -20,34 +20,37 @@ function NewsletterPopUp() {
 
   if (!open) return null;
 
-const uploadFile = async (file) => {
-  const formData = new FormData();
-  formData.append("file", file);
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const res = await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
-  });
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-  const data = await res.json();
-  return data.key; // à stocker en BDD via ton backend
-};
+    const data = await res.json();
+    return data.key; // à stocker en BDD via ton backend
+  };
 
-const getFileUrl = async (key) => {
-  const res = await fetch(`/api/file?key=${encodeURIComponent(key)}`);
-  const data = await res.json();
-  return data.url;
-};
-
+  const getFileUrl = async (key: string) => {
+    const res = await fetch(`/api/file?key=${encodeURIComponent(key)}`);
+    const data = await res.json();
+    return data.url;
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         {!submitted ? (
           <>
-            <h2 className="mb-2 text-xl font-semibold text-black"> Inscris-toi à la newsletter du Festival de Marsai</h2>
+            <h2 className="mb-2 text-xl font-semibold text-black">
+              {" "}
+              Inscris-toi à la newsletter du Festival de Marsai
+            </h2>
             <p className="mb-4 text-sm text-gray-600">
-              Le festival de l’IA arrive avec ses nouveautés et offres exclusives !
+              Le festival de l’IA arrive avec ses nouveautés et offres
+              exclusives !
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -76,7 +79,7 @@ const getFileUrl = async (key) => {
                 Non merci
               </button>
               <button
-                onClick={() => console.log('Je participe au festival!')}
+                onClick={() => console.log("Je participe au festival!")}
                 className="text-xs text-blue-500 hover:underline"
               >
                 🚀 Je participe au festival !

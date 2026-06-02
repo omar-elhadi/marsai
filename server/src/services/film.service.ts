@@ -13,7 +13,20 @@ import { mailService } from "./mail.service.js";
  * @param {object} data - Champs issus du formulaire de soumission
  * @returns {{ film, submissionToken }}
  */
-export const submitFilm = async (data) => {
+export const submitFilm = async (data: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  bio?: string;
+  instagram?: string;
+  title: string;
+  description: string;
+  country: string;
+  language?: string;
+  aiToolsUsed: string;
+  youtubeUrl?: string;
+  s3VideoKey?: string;
+}) => {
   const {
     // Champs Submitter
     firstName,
@@ -66,7 +79,7 @@ export const submitFilm = async (data) => {
   // 3. Email de confirmation
   await mailService.sendSubmissionConfirmation(
     submitter.email,
-    submitter.firstName,
+    submitter.firstName || "",
     film.submissionToken,
     film.title,
   );
@@ -95,7 +108,13 @@ const VALID_TRANSITIONS = {
  *
  * @param {{ status?: string, search?: string }} filters
  */
-export const getFilms = async ({ status, search, hasSuggestions, page = 1, limit = 50 }: any = {}) => {
+export const getFilms = async ({
+  status,
+  search,
+  hasSuggestions,
+  page = 1,
+  limit = 50,
+}: any = {}) => {
   const where: any = {};
 
   if (status) {
@@ -118,27 +137,28 @@ export const getFilms = async ({ status, search, hasSuggestions, page = 1, limit
     ];
   }
 
-  
   const take = parseInt(limit, 10) || 50;
   const skip = (parseInt(page, 10) - 1) * take;
-  
+
   const [films, total] = await Promise.all([
     prisma.film.findMany({
       skip,
       take,
-    where,
-    include: {
-      submitter: {
-        select: { id: true, firstName: true, lastName: true, email: true },
+      where,
+      include: {
+        submitter: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        assignedUsers: {
+          select: { id: true, firstName: true, lastName: true },
+        },
+        _count: { select: { votes: true } },
       },
-      assignedUsers: { select: { id: true, firstName: true, lastName: true } },
-      _count: { select: { votes: true } },
-    },
-    orderBy: { submittedAt: "desc" },
-  }),
+      orderBy: { submittedAt: "desc" },
+    }),
     prisma.film.count({ where }),
   ]);
-  
+
   return {
     data: films,
     meta: {
@@ -180,7 +200,7 @@ export const getFilmsStats = async () => {
  * @param {number}   filmId
  * @param {number[]} userIds - tableau d'IDs (vide = tout désassigner)
  */
-export const assignUsersToFilm = async (filmId, userIds) => {
+export const assignUsersToFilm = async (filmId: number, userIds: number[]) => {
   const film = await prisma.film.findUnique({
     where: { id: filmId },
     include: { _count: { select: { votes: true } } },
@@ -213,7 +233,7 @@ export const assignUsersToFilm = async (filmId, userIds) => {
   return prisma.film.update({
     where: { id: filmId },
     data: {
-      assignedUsers: { set: userIds.map((id) => ({ id })) },
+      assignedUsers: { set: userIds.map((id: number) => ({ id })) },
       status: newStatus,
     },
     include: {
@@ -229,7 +249,7 @@ export const assignUsersToFilm = async (filmId, userIds) => {
  * @param {number} filmId
  * @returns {Film} film avec relations complètes
  */
-export const getFilmById = async (filmId) => {
+export const getFilmById = async (filmId: number) => {
   const film = await prisma.film.findUnique({
     where: { id: filmId },
     include: {
@@ -268,7 +288,11 @@ const ADMIN_ONLY_TARGETS = new Set(["SELECTION", "FINALIST", "AWARD"]);
  * @returns {Film} film mis à jour
  * @throws {Error} si la transition est invalide ou rôle insuffisant
  */
-export const changeFilmStatus = async (filmId, newStatus, role) => {
+export const changeFilmStatus = async (
+  filmId: number,
+  newStatus: string,
+  role?: string,
+) => {
   const film = await prisma.film.findUnique({ where: { id: filmId } });
 
   if (!film) {
@@ -285,7 +309,8 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
     );
   }
 
-  const allowed = VALID_TRANSITIONS[film.status] ?? [];
+  const allowed: string[] =
+    VALID_TRANSITIONS[film.status as keyof typeof VALID_TRANSITIONS] ?? [];
   if (!allowed.includes(newStatus)) {
     throw Object.assign(
       new Error(`Transition invalide : ${film.status} → ${newStatus}`),
@@ -295,7 +320,7 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
 
   return prisma.film.update({
     where: { id: filmId },
-    data: { status: newStatus },
+    data: { status: newStatus as any },
   });
 };
 
@@ -311,7 +336,11 @@ export const changeFilmStatus = async (filmId, newStatus, role) => {
  * @param {string} message     - Message de l'admin expliquant les modifications
  * @param {number} adminUserId - ID de l'admin/moderator qui fait la demande
  */
-export const requestModification = async (filmId, message, adminUserId) => {
+export const requestModification = async (
+  filmId: number,
+  message: string,
+  adminUserId: number,
+) => {
   const film = await prisma.film.findUnique({
     where: { id: filmId },
     include: { submitter: true },
@@ -361,7 +390,7 @@ export const requestModification = async (filmId, message, adminUserId) => {
   // Email au réalisateur (non bloquant)
   await mailService.sendModificationRequest(
     film.submitter.email,
-    film.submitter.firstName,
+    film.submitter.firstName || "",
     film.title,
     token,
     message,
@@ -376,7 +405,7 @@ export const requestModification = async (filmId, message, adminUserId) => {
  *
  * @param {string} token - Submitter.loginToken
  */
-export const getFilmByEditToken = async (token) => {
+export const getFilmByEditToken = async (token: string) => {
   const submitter = await prisma.submitter.findUnique({
     where: { loginToken: token },
   });
@@ -411,7 +440,7 @@ export const getFilmByEditToken = async (token) => {
  *
  * @param {string} submissionToken - UUID unique du film (Film.submissionToken)
  */
-export const trackFilmByToken = async (submissionToken) => {
+export const trackFilmByToken = async (submissionToken: string) => {
   const film = await prisma.film.findUnique({
     where: { submissionToken },
     select: {
@@ -451,8 +480,18 @@ export const trackFilmByToken = async (submissionToken) => {
  * @param {{ title, description, youtubeUrl, aiToolsUsed }} data
  */
 export const applyFilmEdit = async (
-  token,
-  { title, description, youtubeUrl, aiToolsUsed },
+  token: string,
+  {
+    title,
+    description,
+    youtubeUrl,
+    aiToolsUsed,
+  }: {
+    title?: string;
+    description?: string;
+    youtubeUrl?: string;
+    aiToolsUsed?: string;
+  },
 ) => {
   // Vérification token + récupération film
   const film = await getFilmByEditToken(token);

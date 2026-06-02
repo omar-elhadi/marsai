@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   const { user, loading, hasRole } = useAuth();
-  
+
   if (loading) return <div>Chargement...</div>;
 
   if (!user) {

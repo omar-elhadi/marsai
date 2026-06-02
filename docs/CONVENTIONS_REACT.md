@@ -20,8 +20,8 @@ Suivez toujours cet ordre dans vos composants :
 ```jsx
 // src/components/Button/Button.jsx
 
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 /**
  * Composant Button réutilisable
@@ -31,12 +31,12 @@ import PropTypes from 'prop-types';
  * @param {string} props.variant - Style du bouton ('primary' | 'secondary')
  * @param {boolean} props.disabled - État désactivé du bouton
  */
-const Button = ({ 
-  label, 
-  onClick, 
-  variant = 'primary', 
+const Button = ({
+  label,
+  onClick,
+  variant = "primary",
   disabled = false,
-  ariaLabel 
+  ariaLabel,
 }) => {
   // 1. HOOKS en premier
   const [isLoading, setIsLoading] = useState(false);
@@ -48,9 +48,7 @@ const Button = ({
 
   // 3. HANDLERS (fonctions internes)
   const handleClick = async () => {
-  
-  // Logique d'handler
-  
+    // Logique d'handler
   };
 
   // 4. RENDU en dernier
@@ -59,9 +57,7 @@ const Button = ({
       onClick={handleClick}
       aria-label={ariaLabel || label}
       aria-busy={isLoading}
-    >
-	
-    </button>
+    ></button>
   );
 };
 
@@ -69,9 +65,9 @@ const Button = ({
 Button.propTypes = {
   label: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
-  variant: PropTypes.oneOf(['primary', 'secondary']),
+  variant: PropTypes.oneOf(["primary", "secondary"]),
   disabled: PropTypes.bool,
-  ariaLabel: PropTypes.string
+  ariaLabel: PropTypes.string,
 };
 
 export default Button;
@@ -96,23 +92,31 @@ src/
 
 ```javascript
 // src/components/Button/index.js
-export { default } from './Button';
+export { default } from "./Button";
 ```
 
 ### 2.2 Noms de Variables
 
 ```jsx
 // ✅ BON
-const UserProfile = () => { /* ... */ };
-const handleSubmit = () => { /* ... */ };
+const UserProfile = () => {
+  /* ... */
+};
+const handleSubmit = () => {
+  /* ... */
+};
 const isLoading = true;
 const userList = [];
 
 // ❌ MAUVAIS
-const userprofile = () => { /* ... */ };  // Pas de PascalCase pour composant
-const SubmitHandler = () => { /* ... */ }; // Trop verbeux pour une fonction
-const loading = true;                      // Pas clair (boolean?)
-const users = [];                          // Ambigu (nombre? liste?)
+const userprofile = () => {
+  /* ... */
+}; // Pas de PascalCase pour composant
+const SubmitHandler = () => {
+  /* ... */
+}; // Trop verbeux pour une fonction
+const loading = true; // Pas clair (boolean?)
+const users = []; // Ambigu (nombre? liste?)
 ```
 
 ---
@@ -131,16 +135,12 @@ const UserDashboard = () => {
         <img src="..." alt="..." />
         <h2>Nom</h2>
       </div>
-      
+
       {/* Listes personnelles  */}
-      <div className="posts">
-        {/* ... */}
-      </div>
-      
+      <div className="posts">{/* ... */}</div>
+
       {/* Formulaire de commentaire */}
-      <form>
-        {/* ... */}
-      </form>
+      <form>{/* ... */}</form>
     </main>
   );
 };
@@ -155,16 +155,14 @@ const UserProfile = ({ name, avatarUrl }) => (
 
 const PostList = ({ posts }) => (
   <ul className="posts">
-    {posts.map(post => (
+    {posts.map((post) => (
       <PostItem key={post.id} post={post} />
     ))}
   </ul>
 );
 
 const CommentForm = ({ onSubmit }) => (
-  <form onSubmit={onSubmit}>
-    {/* Formulaire simple et réutilisable */}
-  </form>
+  <form onSubmit={onSubmit}>{/* Formulaire simple et réutilisable */}</form>
 );
 
 // Composant principal qui orchestre
@@ -183,12 +181,12 @@ const UserDashboard = () => {
 
 ```jsx
 // ✅ Composant flexible avec props optionnelles
-const Card = ({ 
-  title, 
-  children, 
-  footer, 
+const Card = ({
+  title,
+  children,
+  footer,
   className = '',
-  variant = 'default' 
+  variant = 'default'
 }) => {
   return (
     <div className={`card card--${variant} ${className}`}>
@@ -206,8 +204,8 @@ const Card = ({
   <p>Contenu basique</p>
 </Card>
 
-<Card 
-  title="Avec Footer" 
+<Card
+  title="Avec Footer"
   footer={<Button label="Action" />}
   variant="highlighted"
 >
@@ -226,13 +224,14 @@ const Card = ({
 const ProductList = ({ products }) => {
   return (
     <ul>
-      {products.filter(p => p.stock > 0 && p.price < 100 && !p.archived)
-               .sort((a, b) => b.rating - a.rating)
-               .map(product => (
-                 <li key={product.id}>
-                   {product.name} - {product.price}€
-                 </li>
-               ))}
+      {products
+        .filter((p) => p.stock > 0 && p.price < 100 && !p.archived)
+        .sort((a, b) => b.rating - a.rating)
+        .map((product) => (
+          <li key={product.id}>
+            {product.name} - {product.price}€
+          </li>
+        ))}
     </ul>
   );
 };
@@ -240,14 +239,11 @@ const ProductList = ({ products }) => {
 // ✅ BON : Logique extraite et nommée
 const ProductList = ({ products }) => {
   // Logique métier claire et nommée
-  const isAvailable = (product) => 
-    product.stock > 0 && !product.archived;
-  
-  const isAffordable = (product) => 
-    product.price < 100;
-  
-  const sortByRating = (a, b) => 
-    b.rating - a.rating;
+  const isAvailable = (product) => product.stock > 0 && !product.archived;
+
+  const isAffordable = (product) => product.price < 100;
+
+  const sortByRating = (a, b) => b.rating - a.rating;
 
   const availableProducts = products
     .filter(isAvailable)
@@ -256,7 +252,7 @@ const ProductList = ({ products }) => {
 
   return (
     <ul>
-      {availableProducts.map(product => (
+      {availableProducts.map((product) => (
         <ProductItem key={product.id} product={product} />
       ))}
     </ul>
@@ -267,25 +263,25 @@ const ProductList = ({ products }) => {
 ### 4.2 Commentaires Utiles
 
 ```jsx
-const FormInput = ({ value, onChange, type = 'text' }) => {
+const FormInput = ({ value, onChange, type = "text" }) => {
   // Normalise la valeur pour les emails (lowercase, trim)
   const handleChange = (e) => {
     let normalizedValue = e.target.value;
-    
-    if (type === 'email') {
+
+    if (type === "email") {
       normalizedValue = normalizedValue.toLowerCase().trim();
     }
-    
+
     onChange(normalizedValue);
   };
 
   return (
-    <input 
-      type={type} 
-      value={value} 
+    <input
+      type={type}
+      value={value}
       onChange={handleChange}
       // Pattern pour validation côté navigateur
-      pattern={type === 'email' ? '[^@]+@[^@]+\\.[^@]+' : undefined}
+      pattern={type === "email" ? "[^@]+@[^@]+\\.[^@]+" : undefined}
     />
   );
 };
@@ -302,20 +298,20 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   // Fermeture au clavier (Escape)
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    
+
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
     }
-    
-    return () => document.removeEventListener('keydown', handleEscape);
+
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="modal-overlay"
       role="dialog"
       aria-modal="true"
@@ -323,18 +319,16 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     >
       <div className="modal">
         <h2 id="modal-title">{title}</h2>
-        
-        <button 
+
+        <button
           onClick={onClose}
           aria-label="Fermer la modale"
           className="modal__close"
         >
           ×
         </button>
-        
-        <div className="modal__content">
-          {children}
-        </div>
+
+        <div className="modal__content">{children}</div>
       </div>
     </div>
   );
@@ -350,26 +344,24 @@ const Dropdown = ({ options, onSelect, label }) => {
 
   // Navigation avec les flèches
   const handleKeyDown = (e) => {
-    switch(e.key) {
-      case 'ArrowDown':
+    switch (e.key) {
+      case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex((prev) => 
-          Math.min(prev + 1, options.length - 1)
-        );
+        setSelectedIndex((prev) => Math.min(prev + 1, options.length - 1));
         break;
-      
-      case 'ArrowUp':
+
+      case "ArrowUp":
         e.preventDefault();
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
         break;
-      
-      case 'Enter':
+
+      case "Enter":
         e.preventDefault();
         onSelect(options[selectedIndex]);
         setIsOpen(false);
         break;
-      
-      case 'Escape':
+
+      case "Escape":
         setIsOpen(false);
         break;
     }
@@ -386,7 +378,7 @@ const Dropdown = ({ options, onSelect, label }) => {
       >
         {label}
       </button>
-      
+
       {isOpen && (
         <ul role="listbox" aria-label={`Options pour ${label}`}>
           {options.map((option, index) => (
@@ -445,11 +437,11 @@ const Counter = ({ initialValue = 0, onCountChange }) => {
 // ❌ MAUVAIS : Logique mélangée avec l'API
 const UserList = () => {
   const [users, setUsers] = useState([]);
-  
+
   useEffect(() => {
     // Difficile à tester : API call dans le composant
-    fetch('/api/users')
-      .then(res => res.json())
+    fetch("/api/users")
+      .then((res) => res.json())
       .then(setUsers);
   }, []);
 
@@ -459,10 +451,10 @@ const UserList = () => {
 // ✅ BON : Logique injectable
 const UserList = ({ users, isLoading }) => {
   if (isLoading) return <p>Chargement...</p>;
-  
+
   return (
     <ul>
-      {users.map(user => (
+      {users.map((user) => (
         <li key={user.id}>{user.name}</li>
       ))}
     </ul>
@@ -473,9 +465,9 @@ const UserList = ({ users, isLoading }) => {
 const UserListContainer = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
-    fetchUsers().then(data => {
+    fetchUsers().then((data) => {
       setUsers(data);
       setIsLoading(false);
     });

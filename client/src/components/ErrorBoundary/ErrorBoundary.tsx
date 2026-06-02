@@ -1,5 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { ErrorFallback } from "../ErrorFallback/ErrorFallback";
 
 interface Props {
   children?: ReactNode;
@@ -14,7 +14,7 @@ interface State {
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-    error: null
+    error: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -22,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error("Uncaught error:", error, errorInfo);
   }
 
   public reset = () => {
@@ -32,7 +32,12 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
-      return <ErrorFallback error={this.state.error} resetErrorBoundary={this.reset} />;
+      return (
+        <ErrorFallback
+          error={this.state.error}
+          resetErrorBoundary={this.reset}
+        />
+      );
     }
 
     return this.props.children;

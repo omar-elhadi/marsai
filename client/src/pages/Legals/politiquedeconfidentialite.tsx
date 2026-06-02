@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import gsap              from 'gsap';
-import { useGSAP }       from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState, useEffect, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,91 +55,119 @@ const CSS = `
 
 const MODULES = [
   {
-    key: 'collecte',
-    title: 'Données collectées',
-    tag: 'MODULE_01',
+    key: "collecte",
+    title: "Données collectées",
+    tag: "MODULE_01",
     items: [
       {
-        id: 'd1',
-        title: 'Informations personnelles',
-        content: 'Les données collectées incluent votre nom, votre adresse email et vos données de navigation. Ces informations sont utilisées uniquement dans le but d\'améliorer nos services.',
-        protocol: 'PROTOCOLE_RGPD_ACTIF',
+        id: "d1",
+        title: "Informations personnelles",
+        content:
+          "Les données collectées incluent votre nom, votre adresse email et vos données de navigation. Ces informations sont utilisées uniquement dans le but d'améliorer nos services.",
+        protocol: "PROTOCOLE_RGPD_ACTIF",
       },
       {
-        id: 'd2',
-        title: 'Données de navigation',
-        content: 'Nous collectons des données anonymisées relatives à votre parcours sur la plateforme afin d\'optimiser l\'expérience utilisateur et la fluidité du système.',
-        protocol: 'TRACKING_ANONYMISÉ',
+        id: "d2",
+        title: "Données de navigation",
+        content:
+          "Nous collectons des données anonymisées relatives à votre parcours sur la plateforme afin d'optimiser l'expérience utilisateur et la fluidité du système.",
+        protocol: "TRACKING_ANONYMISÉ",
       },
     ],
   },
   {
-    key: 'securite',
-    title: 'Mesures de sécurité',
-    tag: 'MODULE_02',
+    key: "securite",
+    title: "Mesures de sécurité",
+    tag: "MODULE_02",
     items: [
       {
-        id: 's1',
-        title: 'Chiffrement des données',
-        content: 'Nous utilisons un cryptage de pointe AES-256 pour protéger vos données contre tout accès non autorisé, interception ou divulgation à des tiers.',
-        protocol: 'CRYPTAGE_AES_256',
+        id: "s1",
+        title: "Chiffrement des données",
+        content:
+          "Nous utilisons un cryptage de pointe AES-256 pour protéger vos données contre tout accès non autorisé, interception ou divulgation à des tiers.",
+        protocol: "CRYPTAGE_AES_256",
       },
       {
-        id: 's2',
-        title: 'Accès restreint',
-        content: 'L\'accès aux données personnelles est strictement limité aux membres habilités de l\'équipe MarsAI, sous protocole d\'authentification renforcée.',
-        protocol: 'ACCESS_CONTROL_V2',
+        id: "s2",
+        title: "Accès restreint",
+        content:
+          "L'accès aux données personnelles est strictement limité aux membres habilités de l'équipe MarsAI, sous protocole d'authentification renforcée.",
+        protocol: "ACCESS_CONTROL_V2",
       },
     ],
   },
   {
-    key: 'acceptation',
-    title: 'Acceptation & droits',
-    tag: 'MODULE_03',
+    key: "acceptation",
+    title: "Acceptation & droits",
+    tag: "MODULE_03",
     items: [
       {
-        id: 'a1',
-        title: 'Acceptation des pratiques',
-        content: 'En naviguant sur MarsAi, vous acceptez les protocoles de confidentialité en vigueur pour l\'édition 2026. Vous pouvez retirer votre consentement à tout moment.',
-        protocol: 'ACCORD_UTILISATEUR_OK',
+        id: "a1",
+        title: "Acceptation des pratiques",
+        content:
+          "En naviguant sur MarsAi, vous acceptez les protocoles de confidentialité en vigueur pour l'édition 2026. Vous pouvez retirer votre consentement à tout moment.",
+        protocol: "ACCORD_UTILISATEUR_OK",
       },
       {
-        id: 'a2',
-        title: 'Vos droits RGPD',
-        content: 'Conformément au RGPD, vous disposez d\'un droit d\'accès, de rectification, de suppression et de portabilité de vos données. Toute demande peut être adressée à notre DPO.',
-        protocol: 'DROITS_RGPD_GARANTIS',
+        id: "a2",
+        title: "Vos droits RGPD",
+        content:
+          "Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression et de portabilité de vos données. Toute demande peut être adressée à notre DPO.",
+        protocol: "DROITS_RGPD_GARANTIS",
       },
     ],
   },
 ];
 
-const flatItems = MODULES.flatMap(m => m.items);
+const flatItems = MODULES.flatMap((m) => m.items);
 
 function prefersReducedMotion() {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function AccordionItem({ item, globalIndex, isVisible, isOpen, onToggle }) {
-  const rowRef  = useRef(null);
+function AccordionItem({
+  item,
+  globalIndex,
+  isVisible,
+  isOpen,
+  onToggle,
+}: {
+  item: any;
+  globalIndex: number;
+  isVisible: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const rowRef = useRef(null);
   const bodyRef = useRef(null);
 
   useGSAP(() => {
     if (!rowRef.current) return;
     gsap.to(rowRef.current, {
-      opacity:  isVisible ? 1 : 0,
-      x:        isVisible ? 0 : 18,
+      opacity: isVisible ? 1 : 0,
+      x: isVisible ? 0 : 18,
       duration: 0.45,
-      ease:     'power2.out',
+      ease: "power2.out",
     });
   }, [isVisible]);
 
   useGSAP(() => {
     if (!bodyRef.current) return;
     if (isOpen) {
-      gsap.to(bodyRef.current, { height: 'auto', opacity: 1, duration: 0.38, ease: 'power2.out' });
+      gsap.to(bodyRef.current, {
+        height: "auto",
+        opacity: 1,
+        duration: 0.38,
+        ease: "power2.out",
+      });
     } else {
-      gsap.to(bodyRef.current, { height: 0,      opacity: 0, duration: 0.28, ease: 'power2.in'  });
+      gsap.to(bodyRef.current, {
+        height: 0,
+        opacity: 0,
+        duration: 0.28,
+        ease: "power2.in",
+      });
     }
   }, [isOpen]);
 
@@ -148,14 +176,14 @@ function AccordionItem({ item, globalIndex, isVisible, isOpen, onToggle }) {
       <button onClick={onToggle} className="accordion-btn">
         <div className="accordion-btn-left">
           <span className="accordion-num">
-            {String(globalIndex + 1).padStart(2, '0')}
+            {String(globalIndex + 1).padStart(2, "0")}
           </span>
-          <span className={'accordion-title' + (isOpen ? ' is-open' : '')}>
+          <span className={"accordion-title" + (isOpen ? " is-open" : "")}>
             {item.title}
           </span>
         </div>
-        <span className={'accordion-toggle' + (isOpen ? ' is-open' : '')}>
-          {isOpen ? '−' : '+'}
+        <span className={"accordion-toggle" + (isOpen ? " is-open" : "")}>
+          {isOpen ? "−" : "+"}
         </span>
       </button>
 
@@ -173,7 +201,15 @@ function AccordionItem({ item, globalIndex, isVisible, isOpen, onToggle }) {
   );
 }
 
-function ModuleBlock({ module, startIndex, visibleCount }) {
+function ModuleBlock({
+  module,
+  startIndex,
+  visibleCount,
+}: {
+  module: any;
+  startIndex: number;
+  visibleCount: number;
+}) {
   const [openId, setOpenId] = useState(null);
 
   return (
@@ -182,7 +218,7 @@ function ModuleBlock({ module, startIndex, visibleCount }) {
         <h2 className="module-title">{module.title}</h2>
         <span className="label-overline module-tag">{module.tag}</span>
       </div>
-      {module.items.map((item, i) => (
+      {module.items.map((item: any, i: number) => (
         <AccordionItem
           key={item.id}
           item={item}
@@ -197,48 +233,74 @@ function ModuleBlock({ module, startIndex, visibleCount }) {
 }
 
 export default function PolitiqueDeConfidentialite() {
-  const sectionRef  = useRef(null);
+  const sectionRef = useRef(null);
   const overlineRef = useRef(null);
-  const line1Ref    = useRef(null);
-  const line2Ref    = useRef(null);
+  const line1Ref = useRef(null);
+  const line2Ref = useRef(null);
   const subtitleRef = useRef(null);
   const timelineRef = useRef(null);
   const progressRef = useRef(null);
-  const dotRef      = useRef(null);
+  const dotRef = useRef(null);
 
-  const [started,      setStarted]      = useState(false);
+  const [started, setStarted] = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
   const total = flatItems.length;
 
-  const moduleStartIndex = MODULES.reduce((acc, mod, i) => {
-    acc[mod.key] = MODULES.slice(0, i).reduce((s, m) => s + m.items.length, 0);
-    return acc;
-  }, {});
+  const moduleStartIndex = MODULES.reduce(
+    (acc, mod, i) => {
+      acc[mod.key] = MODULES.slice(0, i).reduce(
+        (s, m) => s + m.items.length,
+        0,
+      );
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
-  useGSAP(() => {
-    gsap.set(overlineRef.current,                  { opacity: 0, y: 12  });
-    gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110       });
-    gsap.set(subtitleRef.current,                  { opacity: 0, y: 18  });
-    ScrollTrigger.create({
-      trigger: sectionRef.current, start: 'top 75%', once: true,
-      onEnter() {
-        const tl = gsap.timeline();
-        tl.to(overlineRef.current,
-          { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' });
-        tl.to([line1Ref.current, line2Ref.current],
-          { yPercent: 0, duration: 0.85, stagger: 0.12, ease: 'power3.out' }, 0.15);
-        tl.to(subtitleRef.current,
-          { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.50);
-      },
-    });
-  }, { scope: sectionRef });
+  useGSAP(
+    () => {
+      gsap.set(overlineRef.current, { opacity: 0, y: 12 });
+      gsap.set([line1Ref.current, line2Ref.current], { yPercent: 110 });
+      gsap.set(subtitleRef.current, { opacity: 0, y: 18 });
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 75%",
+        once: true,
+        onEnter() {
+          const tl = gsap.timeline();
+          tl.to(overlineRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            ease: "power2.out",
+          });
+          tl.to(
+            [line1Ref.current, line2Ref.current],
+            { yPercent: 0, duration: 0.85, stagger: 0.12, ease: "power3.out" },
+            0.15,
+          );
+          tl.to(
+            subtitleRef.current,
+            { opacity: 1, y: 0, duration: 0.65, ease: "power2.out" },
+            0.5,
+          );
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   useEffect(() => {
     const el = timelineRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setStarted(true); observer.disconnect(); } },
-      { threshold: 0.15 }
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -246,7 +308,10 @@ export default function PolitiqueDeConfidentialite() {
 
   useEffect(() => {
     if (!started) return;
-    if (prefersReducedMotion()) { setVisibleCount(total); return; }
+    if (prefersReducedMotion()) {
+      setVisibleCount(total);
+      return;
+    }
     setVisibleCount(0);
     let current = 0;
     const id = setInterval(() => {
@@ -257,19 +322,23 @@ export default function PolitiqueDeConfidentialite() {
     return () => clearInterval(id);
   }, [started, total]);
 
-  useGSAP(() => {
-    if (!timelineRef.current || !progressRef.current || !dotRef.current) return;
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: timelineRef.current,
-        start:   'top center',
-        end:     'bottom center',
-        scrub:   0.4,
-      },
-    });
-    tl.to(progressRef.current, { height: '100%',          ease: 'none' }, 0);
-    tl.to(dotRef.current,      { top: 'calc(100% - 6px)', ease: 'none' }, 0);
-  }, { scope: sectionRef });
+  useGSAP(
+    () => {
+      if (!timelineRef.current || !progressRef.current || !dotRef.current)
+        return;
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: timelineRef.current,
+          start: "top center",
+          end: "bottom center",
+          scrub: 0.4,
+        },
+      });
+      tl.to(progressRef.current, { height: "100%", ease: "none" }, 0);
+      tl.to(dotRef.current, { top: "calc(100% - 6px)", ease: "none" }, 0);
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <>
@@ -277,25 +346,34 @@ export default function PolitiqueDeConfidentialite() {
 
       <section ref={sectionRef} id="politique" className="politique-section">
         <div className="politique-inner">
-
           <div className="politique-header">
             <div ref={overlineRef} className="politique-overline">
               <span className="politique-overline-bar" />
-              <span className="label-overline">Mars AI · Sécurité des données — 2026</span>
+              <span className="label-overline">
+                Mars AI · Sécurité des données — 2026
+              </span>
             </div>
 
             <div className="politique-titles">
               <div className="politique-title-line">
-                <span ref={line1Ref} className="title-section">Politique de</span>
+                <span ref={line1Ref} className="title-section">
+                  Politique de
+                </span>
               </div>
               <div className="politique-title-line">
-                <span ref={line2Ref} className="title-section politique-title-accent">Confidentialité</span>
+                <span
+                  ref={line2Ref}
+                  className="title-section politique-title-accent"
+                >
+                  Confidentialité
+                </span>
               </div>
             </div>
 
             <p ref={subtitleRef} className="body-editorial">
-              Vos données sont traitées avec la plus grande rigueur, dans le respect
-              du protocole de sécurité Marseille-2026 et des réglementations RGPD en vigueur.
+              Vos données sont traitées avec la plus grande rigueur, dans le
+              respect du protocole de sécurité Marseille-2026 et des
+              réglementations RGPD en vigueur.
             </p>
           </div>
 
@@ -307,7 +385,7 @@ export default function PolitiqueDeConfidentialite() {
             <div ref={dotRef} aria-hidden="true" className="politique-dot" />
 
             <div className="politique-modules">
-              {MODULES.map(module => (
+              {MODULES.map((module) => (
                 <ModuleBlock
                   key={module.key}
                   module={module}
@@ -317,7 +395,6 @@ export default function PolitiqueDeConfidentialite() {
               ))}
             </div>
           </div>
-
         </div>
       </section>
     </>

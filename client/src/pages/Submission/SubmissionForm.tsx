@@ -213,7 +213,7 @@ function SubmissionForm() {
     description: "",
     country: "",
     language: "",
-    aiToolsUsed: "",   // renommé depuis aiStack (cohérence avec le schéma DB)
+    aiToolsUsed: "", // renommé depuis aiStack (cohérence avec le schéma DB)
     youtubeUrl: "",
     acceptTerms: false,
     acceptPrivacy: false,
@@ -221,17 +221,17 @@ function SubmissionForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionToken, setSubmissionToken] = useState(null); // token reçu après succès
-  
+
   // États pour l'upload de vidéo
-  const [videoFile, setVideoFile] = useState(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [s3VideoKey, setS3VideoKey] = useState(null);
-  const [uploadError, setUploadError] = useState(null);
+  const [s3VideoKey, setS3VideoKey] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   /**
    * Gestion de la sélection de fichier vidéo
    */
-  const handleVideoFileChange = (e) => {
+  const handleVideoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setVideoFile(file);
@@ -251,8 +251,11 @@ function SubmissionForm() {
   /**
    * Gestion des changements de champs du formulaire
    */
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const target = e.target as HTMLInputElement;
+    const { name, value, type, checked } = target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -262,7 +265,7 @@ function SubmissionForm() {
   /**
    * Soumission du formulaire
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validations
@@ -278,7 +281,9 @@ function SubmissionForm() {
 
     // Validation : au moins une source vidéo (YouTube URL OU fichier sélectionné)
     if (!formData.youtubeUrl && !videoFile) {
-      alert("Veuillez fournir un lien YouTube/Vimeo ou sélectionner votre fichier vidéo");
+      alert(
+        "Veuillez fournir un lien YouTube/Vimeo ou sélectionner votre fichier vidéo",
+      );
       return;
     }
 
@@ -292,15 +297,20 @@ function SubmissionForm() {
         const videoFormData = new FormData();
         videoFormData.append("video", videoFile);
 
-        const uploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/films/upload-video`, {
-          method: "POST",
-          body: videoFormData,
-        });
+        const uploadResponse = await fetch(
+          `${import.meta.env.VITE_API_URL}/films/upload-video`,
+          {
+            method: "POST",
+            body: videoFormData,
+          },
+        );
 
         const uploadData = await uploadResponse.json();
 
         if (!uploadResponse.ok) {
-          throw new Error(uploadData.error || "Erreur lors de l'upload de la vidéo");
+          throw new Error(
+            uploadData.error || "Erreur lors de l'upload de la vidéo",
+          );
         }
 
         uploadedS3Key = uploadData.key;
@@ -309,36 +319,40 @@ function SubmissionForm() {
       }
 
       // Étape 2 : Soumettre le formulaire avec toutes les données
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/films/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName:   formData.firstName,
-          lastName:    formData.lastName,
-          email:       formData.email,
-          bio:         formData.bio,
-          instagram:   formData.instagram,
-          title:       formData.title,
-          description: formData.description,
-          country:     formData.country,
-          language:    formData.language,
-          aiToolsUsed: formData.aiToolsUsed,
-          youtubeUrl:  formData.youtubeUrl,
-          s3VideoKey:  uploadedS3Key,
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/films/submit`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            bio: formData.bio,
+            instagram: formData.instagram,
+            title: formData.title,
+            description: formData.description,
+            country: formData.country,
+            language: formData.language,
+            aiToolsUsed: formData.aiToolsUsed,
+            youtubeUrl: formData.youtubeUrl,
+            s3VideoKey: uploadedS3Key,
+          }),
+        },
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Une erreur est survenue lors de la soumission.");
+        throw new Error(
+          data.error || "Une erreur est survenue lors de la soumission.",
+        );
       }
 
       // Succès — affiche le token de suivi
       setSubmissionToken(data.submissionToken);
-
     } catch (err) {
-      alert(err.message);
+      alert((err as Error).message);
       setIsUploading(false);
     } finally {
       setIsSubmitting(false);
@@ -356,11 +370,23 @@ function SubmissionForm() {
         <div className="marsai-success-block">
           <p className="marsai-success-title">Candidature reçue ✓</p>
           <div className="marsai-success-body">
-            <p>Votre film a été soumis avec succès. Un email de confirmation vous a été envoyé.</p>
+            <p>
+              Votre film a été soumis avec succès. Un email de confirmation vous
+              a été envoyé.
+            </p>
             <p style={{ marginTop: "0.75rem" }}>Référence de suivi :</p>
-            <p><span className="marsai-token-code">{submissionToken}</span></p>
-            <p style={{ marginTop: "0.75rem", fontSize: "0.75rem", opacity: 0.7 }}>
-              Conservez cette référence. Vous serez contacté(e) pour toute décision ou demande de modification.
+            <p>
+              <span className="marsai-token-code">{submissionToken}</span>
+            </p>
+            <p
+              style={{
+                marginTop: "0.75rem",
+                fontSize: "0.75rem",
+                opacity: 0.7,
+              }}
+            >
+              Conservez cette référence. Vous serez contacté(e) pour toute
+              décision ou demande de modification.
             </p>
           </div>
         </div>
@@ -446,8 +472,8 @@ function SubmissionForm() {
         <textarea
           id="bio"
           name="bio"
-          rows="3"
-          maxLength="300"
+          rows={3}
+          maxLength={300}
           placeholder="Présentez-vous brièvement..."
           className={inputClass}
           value={formData.bio}
@@ -517,8 +543,8 @@ function SubmissionForm() {
         <textarea
           id="description"
           name="description"
-          rows="4"
-          maxLength="500"
+          rows={4}
+          maxLength={500}
           required
           placeholder="Pitch du film en quelques lignes..."
           className={inputClass}
@@ -535,8 +561,8 @@ function SubmissionForm() {
         <textarea
           id="aiToolsUsed"
           name="aiToolsUsed"
-          rows="3"
-          maxLength="500"
+          rows={3}
+          maxLength={500}
           required
           placeholder="Listez les outils IA utilisés (ex: Midjourney, RunwayML, 11Labs...)..."
           className={inputClass}
@@ -576,10 +602,8 @@ function SubmissionForm() {
       </div>
 
       <div>
-        <label className={labelClass}>
-          Upload direct de votre film
-        </label>
-        
+        <label className={labelClass}>Upload direct de votre film</label>
+
         {!videoFile && (
           <div>
             <input
@@ -592,16 +616,26 @@ function SubmissionForm() {
             <label
               htmlFor="videoFile"
               className="marsai-upload-zone marsai-upload-zone--lg"
-              style={{ 
-                display: "flex", 
-                flexDirection: "column", 
-                alignItems: "center", 
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
                 gap: "0.75rem",
-                textAlign: "center"
+                textAlign: "center",
               }}
             >
-              <svg className="marsai-upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              <svg
+                className="marsai-upload-icon"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
               </svg>
               <span style={{ fontSize: "0.80rem", fontWeight: 600 }}>
                 Cliquez pour sélectionner votre fichier vidéo
@@ -614,15 +648,47 @@ function SubmissionForm() {
         )}
 
         {videoFile && (
-          <div className="marsai-file-preview" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <svg style={{ width: "1.5rem", height: "1.5rem", color: "var(--color-accent)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <div
+            className="marsai-file-preview"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+            >
+              <svg
+                style={{
+                  width: "1.5rem",
+                  height: "1.5rem",
+                  color: "var(--color-accent)",
+                }}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <div>
-                <p style={{ fontWeight: 600, fontSize: "0.85rem" }}>{videoFile.name}</p>
-                <p style={{ fontSize: "0.75rem", opacity: 0.7, marginTop: "0.25rem" }}>
-                  {(videoFile.size / (1024 * 1024)).toFixed(2)} MB · Sera uploadé lors de la soumission
+                <p style={{ fontWeight: 600, fontSize: "0.85rem" }}>
+                  {videoFile.name}
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    opacity: 0.7,
+                    marginTop: "0.25rem",
+                  }}
+                >
+                  {(videoFile.size / (1024 * 1024)).toFixed(2)} MB · Sera
+                  uploadé lors de la soumission
                 </p>
               </div>
             </div>
@@ -638,7 +704,8 @@ function SubmissionForm() {
         )}
 
         <p className="marsai-finePrint">
-          Vous pouvez soit fournir un lien YouTube/Vimeo, soit uploader directement votre fichier vidéo
+          Vous pouvez soit fournir un lien YouTube/Vimeo, soit uploader
+          directement votre fichier vidéo
         </p>
       </div>
 
@@ -691,10 +758,17 @@ function SubmissionForm() {
         <Button
           type="submit"
           disabled={
-            !formData.acceptTerms || !formData.acceptPrivacy || isSubmitting || isUploading
+            !formData.acceptTerms ||
+            !formData.acceptPrivacy ||
+            isSubmitting ||
+            isUploading
           }
         >
-          {isUploading ? "Upload vidéo en cours..." : isSubmitting ? "Soumission en cours..." : "Soumettre le film"}
+          {isUploading
+            ? "Upload vidéo en cours..."
+            : isSubmitting
+              ? "Soumission en cours..."
+              : "Soumettre le film"}
         </Button>
       </div>
     </form>

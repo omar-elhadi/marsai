@@ -22,7 +22,7 @@
  * INLINE STYLES RESTANTS — justification
  * ═══════════════════════════════════════════════════════════════
  *
- * style={{ '--tag-color': tagColor }} — sur chaque .card
+ * style={{ '--tag-color': tagColor } as React.CSSProperties} — sur chaque .card
  *   Valeur calculée depuis tagColors[item.tag] par carte.
  *   CSS module lit var(--tag-color) pour .tag et .readMoreLabel.
  *   color-mix() dans le CSS gère l'alpha du border (remplace ${hex}33).
@@ -32,11 +32,10 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { Link }  from 'react-router-dom';
-import { ROUTES }                            from '@/constants/routes';
-import { newsItems as newsData, tagColors }  from '@/data/newsData';
-import styles                                from './News.module.css';
-
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/constants/routes";
+import { newsItems as newsData, tagColors } from "@/data/newsData";
+import styles from "./News.module.css";
 
 // ─── BentoCard ────────────────────────────────────────────────
 //
@@ -51,112 +50,124 @@ import styles                                from './News.module.css';
 //   onMouseEnter/Leave   → idem
 //   isHovered conditionnels sur les classes → .card:hover .child
 
-function BentoCard({ item, gridClass, textSize, horizontal }) {
-  const tagColor = tagColors[item.tag] || '#f0ece4';
+function BentoCard({
+  item,
+  gridClass,
+  textSize,
+  horizontal,
+}: {
+  item: any;
+  gridClass: string;
+  textSize: string;
+  horizontal?: boolean;
+}) {
+  const tagColor = tagColors[item.tag as keyof typeof tagColors] || "#f0ece4";
 
   const cardClass = [
     styles.card,
     styles[gridClass],
     horizontal ? styles.cardHorizontal : styles.cardVertical,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <Link
-      to={ROUTES.NEWS_DETAIL.replace(':id', item.id)}
+      to={ROUTES.NEWS_DETAIL.replace(":id", item.id)}
       className={styles.cardLink}
       aria-label={`Lire l'article : ${item.title}`}
     >
       {/* --tag-color : seule CSS variable inline sur la carte. */}
-      <div className={cardClass} style={{ '--tag-color': tagColor }}>
-
+      <div
+        className={cardClass}
+        style={{ "--tag-color": tagColor } as React.CSSProperties}
+      >
         {horizontal ? (
           /* ── Layout horizontal (carte wide / masterclass) ─────
              Comportement responsive géré entièrement par le CSS module :
                < 640px  → flex-direction: column (image au-dessus)
              ≥ 640px  → flex-direction: row (image à gauche)
            Transition fluide sans media query JS. */
-        <>
-          {/* Image gauche — backgroundImage seul inline */}
-          <div
-            className={styles.imgHorizontal}
-            style={{ backgroundImage: `url(${item.image})` }}
-          />
+          <>
+            {/* Image gauche — backgroundImage seul inline */}
+            <div
+              className={styles.imgHorizontal}
+              style={{ backgroundImage: `url(${item.image})` }}
+            />
 
-          {/* Contenu droit (ou bas sur mobile) */}
-          <div className={styles.contentHorizontal}>
-            <div className={styles.meta}>
-              <span className={styles.tag}>{item.tag}</span>
-              <span className={styles.date}>{item.date}</span>
+            {/* Contenu droit (ou bas sur mobile) */}
+            <div className={styles.contentHorizontal}>
+              <div className={styles.meta}>
+                <span className={styles.tag}>{item.tag}</span>
+                <span className={styles.date}>{item.date}</span>
+              </div>
+
+              {/* data-text-size → CSS module gère font-size via sélecteur attribut */}
+              <h2 className={styles.title} data-text-size={textSize}>
+                {item.title}
+              </h2>
+
+              {/* La condition textSize !== 'small' est logique (pas de style) — reste en JSX */}
+              {textSize !== "small" && (
+                <p className={styles.desc} data-text-size={textSize}>
+                  {item.content}
+                </p>
+              )}
+
+              {/* readMore — révélé par .card:hover .readMore dans le CSS module */}
+              <div className={styles.readMore}>
+                <span className={styles.readMoreLabel}>LIRE →</span>
+              </div>
             </div>
-
-            {/* data-text-size → CSS module gère font-size via sélecteur attribut */}
-            <h2 className={styles.title} data-text-size={textSize}>
-              {item.title}
-            </h2>
-
-            {/* La condition textSize !== 'small' est logique (pas de style) — reste en JSX */}
-            {textSize !== 'small' && (
-              <p className={styles.desc} data-text-size={textSize}>
-                {item.content}
-              </p>
-            )}
-
-            {/* readMore — révélé par .card:hover .readMore dans le CSS module */}
-            <div className={styles.readMore}>
-              <span className={styles.readMoreLabel}>LIRE →</span>
-            </div>
-          </div>
-        </>
-
-      ) : (
-        /* ── Layout vertical (hero, medium, small) ────────────
+          </>
+        ) : (
+          /* ── Layout vertical (hero, medium, small) ────────────
            Image en fond absolu, overlay gradient, contenu ancré en bas. */
-        <>
-          {/* Image de fond — backgroundImage seul inline */}
-          <div
-            className={styles.bg}
-            style={{ backgroundImage: `url(${item.image})` }}
-          />
+          <>
+            {/* Image de fond — backgroundImage seul inline */}
+            <div
+              className={styles.bg}
+              style={{ backgroundImage: `url(${item.image})` }}
+            />
 
-          {/* Overlay gradient — assombrit le bas pour la lisibilité du texte */}
-          <div className={styles.overlay} />
+            {/* Overlay gradient — assombrit le bas pour la lisibilité du texte */}
+            <div className={styles.overlay} />
 
-          {/* Contenu texte */}
-          <div className={`${styles.content} ${textSize === 'large' ? styles.contentLarge : ''}`}>
-            <div className={styles.meta}>
-              <span className={styles.tag}>{item.tag}</span>
-              <span className={styles.date}>{item.date}</span>
+            {/* Contenu texte */}
+            <div
+              className={`${styles.content} ${textSize === "large" ? styles.contentLarge : ""}`}
+            >
+              <div className={styles.meta}>
+                <span className={styles.tag}>{item.tag}</span>
+                <span className={styles.date}>{item.date}</span>
+              </div>
+
+              <h2 className={styles.title} data-text-size={textSize}>
+                {item.title}
+              </h2>
+
+              {textSize !== "small" && (
+                <p className={styles.desc} data-text-size={textSize}>
+                  {item.content}
+                </p>
+              )}
+
+              <div className={styles.readMore}>
+                <span className={styles.readMoreLabel}>LIRE →</span>
+              </div>
             </div>
-
-            <h2 className={styles.title} data-text-size={textSize}>
-              {item.title}
-            </h2>
-
-            {textSize !== 'small' && (
-              <p className={styles.desc} data-text-size={textSize}>
-                {item.content}
-              </p>
-            )}
-
-            <div className={styles.readMore}>
-              <span className={styles.readMoreLabel}>LIRE →</span>
-            </div>
-          </div>
-        </>
-      )}
-
+          </>
+        )}
       </div>
     </Link>
   );
 }
-
 
 // ─── Page principale ──────────────────────────────────────────
 
 export default function NewsBento() {
   return (
     <div className={styles.root}>
-
       {/* HEADER */}
       <header className={styles.header}>
         <div>
@@ -173,27 +184,14 @@ export default function NewsBento() {
             1440px → padding élargi
             2560px → max-width 2800px, typographie++ */}
       <main className={styles.grid}>
-
         {/* CARD 1 — Hero large : 7 cols × 2 rangées (lg) */}
-        <BentoCard
-          item={newsData[0]}
-          gridClass="cardHero"
-          textSize="large"
-        />
+        <BentoCard item={newsData[0]} gridClass="cardHero" textSize="large" />
 
         {/* CARD 2 — Medium : 5 cols × 1 rangée (lg) */}
-        <BentoCard
-          item={newsData[1]}
-          gridClass="cardMed1"
-          textSize="medium"
-        />
+        <BentoCard item={newsData[1]} gridClass="cardMed1" textSize="medium" />
 
         {/* CARD 3 — Medium : 5 cols × 1 rangée (lg) */}
-        <BentoCard
-          item={newsData[2]}
-          gridClass="cardMed2"
-          textSize="medium"
-        />
+        <BentoCard item={newsData[2]} gridClass="cardMed2" textSize="medium" />
 
         {/* CARD 6 — Wide horizontal : 8 cols × 1 rangée (lg) */}
         <BentoCard
@@ -204,24 +202,14 @@ export default function NewsBento() {
         />
 
         {/* CARD 4 — Small : 2 cols × 1 rangée (lg) */}
-        <BentoCard
-          item={newsData[3]}
-          gridClass="cardSmall1"
-          textSize="small"
-        />
+        <BentoCard item={newsData[3]} gridClass="cardSmall1" textSize="small" />
 
         {/* CARD 5 — Small : 2 cols × 1 rangée (lg) */}
-        <BentoCard
-          item={newsData[4]}
-          gridClass="cardSmall2"
-          textSize="small"
-        />
-
+        <BentoCard item={newsData[4]} gridClass="cardSmall2" textSize="small" />
       </main>
 
       {/* Grain overlay — texture de surface globale, fixed */}
       <div className={styles.grain} />
-
     </div>
   );
 }

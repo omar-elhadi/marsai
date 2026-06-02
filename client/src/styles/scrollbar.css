@@ -7,22 +7,22 @@
 /* ── Scrollbar globale du site ────────────────────────────────── */
 
 ::-webkit-scrollbar {
-  width:  6px;
+  width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background:    transparent;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background:    var(--color-surface-high);
+  background: var(--color-surface-high);
   border-radius: var(--radius-pill);
-  transition:    background var(--duration-base) var(--ease-out);
+  transition: background var(--duration-base) var(--ease-out);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background:    var(--color-accent);
+  background: var(--color-accent);
 }
 
 /* Firefox */
@@ -38,22 +38,22 @@
 }
 
 .chapters-scroll::-webkit-scrollbar-track {
-  background:    rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-pill);
 }
 
 .chapters-scroll::-webkit-scrollbar-thumb {
-  background:    rgba(226, 209, 195, 0.30); /* --color-accent avec opacité */
+  background: rgba(226, 209, 195, 0.3); /* --color-accent avec opacité */
   border-radius: var(--radius-pill);
 }
 
 .chapters-scroll::-webkit-scrollbar-thumb:hover {
-  background:    var(--color-accent);
+  background: var(--color-accent);
 }
 
 /* Firefox */
 .chapters-scroll {
-  scrollbar-color: rgba(226, 209, 195, 0.30) transparent;
+  scrollbar-color: rgba(226, 209, 195, 0.3) transparent;
   scrollbar-width: thin;
 }
 
@@ -63,5 +63,5 @@
 }
 .hide-scrollbar {
   -ms-overflow-style: none; /* IE 10+ */
-  scrollbar-width: none;    /* Firefox */
+  scrollbar-width: none; /* Firefox */
 }

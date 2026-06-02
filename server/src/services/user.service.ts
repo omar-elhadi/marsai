@@ -1,25 +1,40 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { PrismaClient, Role } from "@prisma/client";
+import argon2 from "argon2";
 
 const prisma = new PrismaClient();
 
+interface CreateUserInput {
+  email: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  role?: Role;
+}
+
+interface UpdateUserInput {
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: Role;
+}
+
 export const userService = {
-  create: async (userData) => {
+  create: async (userData: CreateUserInput) => {
     const { email, password, firstName, lastName, role } = userData;
-    const data: any = {
+    const data: Record<string, unknown> = {
       email,
       firstName,
       lastName,
-      role: role || "JURY",
+      role: role ?? "JURY",
     };
 
-    // LOGIQUE CRUCIALE : On ne hache le mot de passe que s'il est fourni
     if (password && password !== "") {
-      data.password = await bcrypt.hash(password, 10);
+      data.password = await argon2.hash(password);
     }
 
     return await prisma.user.create({
-      data,
+      data: data as any,
       select: {
         id: true,
         email: true,
@@ -31,16 +46,16 @@ export const userService = {
     });
   },
 
-  update: async (id, userData) => {
+  update: async (id: string, userData: UpdateUserInput) => {
     const dataToUpdate = { ...userData };
     if (dataToUpdate.password) {
-      dataToUpdate.password = await bcrypt.hash(dataToUpdate.password, 10);
+      dataToUpdate.password = await argon2.hash(dataToUpdate.password);
     } else {
       delete dataToUpdate.password;
     }
     return await prisma.user.update({
       where: { id: parseInt(id) },
-      data: dataToUpdate,
+      data: dataToUpdate as any,
       select: {
         id: true,
         email: true,
@@ -64,7 +79,7 @@ export const userService = {
     });
   },
 
-  delete: async (id) => {
+  delete: async (id: string) => {
     return await prisma.user.delete({ where: { id: parseInt(id) } });
   },
 };

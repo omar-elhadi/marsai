@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { votesService } from '../services/api/votes';
+import { useState } from "react";
+import { votesService } from "../services/api/votes";
 
 export const useVote = (filmId: number | string) => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,9 @@ export const useVote = (filmId: number | string) => {
       const result = await votesService.createVote(filmId, data);
       return result;
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to submit vote');
+      setError(
+        err.response?.data?.error || err.message || "Failed to submit vote",
+      );
       throw err;
     } finally {
       setLoading(false);
@@ -23,7 +25,9 @@ export const useVote = (filmId: number | string) => {
     try {
       return await votesService.getStats(filmId);
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to get stats');
+      setError(
+        err.response?.data?.error || err.message || "Failed to get stats",
+      );
       throw err;
     }
   };

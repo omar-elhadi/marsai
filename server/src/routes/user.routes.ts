@@ -15,13 +15,25 @@ const router = express.Router();
 router.get("/", verifyToken, isAdmin, userController.getAll);
 
 // Créer un nouveau membre (Jury ou Admin)
-router.post("/", verifyToken, isAdmin, validate(createUserSchema), userController.register);
+router.post(
+  "/",
+  verifyToken,
+  isAdmin,
+  validate(createUserSchema),
+  userController.register,
+);
 
 // Déclencher l'envoi du Magic Link
 router.post("/:id/invite", verifyToken, isAdmin, userController.sendInvite);
 
 // Modifier un membre
-router.put("/:id", verifyToken, isAdmin, validate(updateUserSchema), userController.update);
+router.put(
+  "/:id",
+  verifyToken,
+  isAdmin,
+  validate(updateUserSchema),
+  userController.update,
+);
 
 // Supprimer un membre
 router.delete("/:id", verifyToken, isAdmin, userController.delete);

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const PersonalMovieLists = () => {
-  const [lists, setLists] = useState({
+  const [lists, setLists] = useState<Record<string, string[]>>({
     like: [],
     discuss: [],
     dislike: [],
   });
 
-  const addToList = (listName, movie) => {
+  const addToList = (listName: string, movie: string) => {
     setLists((prevLists) => ({
       ...prevLists,
       [listName]: [...prevLists[listName], movie],
@@ -42,18 +42,38 @@ const PersonalMovieLists = () => {
         </ul>
       </div>
       <div>
-        <input
-          type="text"
-          placeholder="Movie name"
-          id="movieInput"
-        />
-        <button onClick={() => addToList('like', document.getElementById('movieInput').value)}>
+        <input type="text" placeholder="Movie name" id="movieInput" />
+        <button
+          onClick={() =>
+            addToList(
+              "like",
+              (document.getElementById("movieInput") as HTMLInputElement)
+                ?.value,
+            )
+          }
+        >
           Add to Like
         </button>
-        <button onClick={() => addToList('discuss', document.getElementById('movieInput').value)}>
+        <button
+          onClick={() =>
+            addToList(
+              "discuss",
+              (document.getElementById("movieInput") as HTMLInputElement)
+                ?.value,
+            )
+          }
+        >
           Add to Discuss
         </button>
-        <button onClick={() => addToList('dislike', document.getElementById('movieInput').value)}>
+        <button
+          onClick={() =>
+            addToList(
+              "dislike",
+              (document.getElementById("movieInput") as HTMLInputElement)
+                ?.value,
+            )
+          }
+        >
           Add to Dislike
         </button>
       </div>

@@ -6,4 +6,4 @@
  *
  * Convention : tout composant dans components/common/ expose un index.js.
  */
-export { default } from './LuminousButton';
+export { default } from "./LuminousButton";

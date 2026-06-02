@@ -30,20 +30,24 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useEffect, useRef, useState }           from 'react';
-import { Link, useParams }                        from 'react-router-dom';
-import gsap                                       from 'gsap';
-import { ROUTES }                                 from '@/constants/routes';
-import { tagColors, newsDetailData }              from '@/data/newsData';
-import styles                                     from './NewsDetail.module.css';
-
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import gsap from "gsap";
+import { ROUTES } from "@/constants/routes";
+import { tagColors, newsDetailData } from "@/data/newsData";
+import styles from "./NewsDetail.module.css";
 
 // ─── Rendu conditionnel des sections ─────────────────────────
 
-function SectionBlock({ section, tagColor }) {
+function SectionBlock({
+  section,
+  tagColor,
+}: {
+  section: any;
+  tagColor: string;
+}) {
   switch (section.type) {
-
-    case 'text':
+    case "text":
       return (
         <div className={styles.section}>
           <div className={styles.sectionEyebrow}>
@@ -53,7 +57,7 @@ function SectionBlock({ section, tagColor }) {
           {section.title && (
             <h2 className={styles.sectionTitle}>{section.title}</h2>
           )}
-          {section.paragraphs.map((p, i) => (
+          {section.paragraphs.map((p: string, i: number) => (
             <p
               key={i}
               className={i === 0 ? styles.paragraphAccent : styles.paragraph}
@@ -64,7 +68,7 @@ function SectionBlock({ section, tagColor }) {
         </div>
       );
 
-    case 'quote':
+    case "quote":
       return (
         <blockquote className={styles.quote}>
           <p className={styles.quoteText}>{section.text}</p>
@@ -72,7 +76,7 @@ function SectionBlock({ section, tagColor }) {
         </blockquote>
       );
 
-    case 'list':
+    case "list":
       return (
         <div className={styles.section}>
           <div className={styles.sectionEyebrow}>
@@ -80,14 +84,16 @@ function SectionBlock({ section, tagColor }) {
             <span className={styles.sectionLabel}>{section.label}</span>
           </div>
           <ul className={styles.list}>
-            {section.items.map((item, i) => (
-              <li key={i} className={styles.listItem}>{item}</li>
+            {section.items.map((item: any, i: number) => (
+              <li key={i} className={styles.listItem}>
+                {item}
+              </li>
             ))}
           </ul>
         </div>
       );
 
-    case 'stats':
+    case "stats":
       return (
         <div className={styles.section}>
           <div className={styles.sectionEyebrow}>
@@ -95,7 +101,7 @@ function SectionBlock({ section, tagColor }) {
             <span className={styles.sectionLabel}>{section.label}</span>
           </div>
           <div className={styles.statsGrid}>
-            {section.items.map((item, i) => (
+            {section.items.map((item: any, i: number) => (
               <div key={i} className={styles.statItem}>
                 <span className={styles.statValue}>{item.value}</span>
                 <span className={styles.statLabel}>{item.label}</span>
@@ -105,7 +111,7 @@ function SectionBlock({ section, tagColor }) {
         </div>
       );
 
-    case 'program':
+    case "program":
       return (
         <div className={styles.section}>
           <div className={styles.sectionEyebrow}>
@@ -113,7 +119,7 @@ function SectionBlock({ section, tagColor }) {
             <span className={styles.sectionLabel}>{section.label}</span>
           </div>
           <div className={styles.programGrid}>
-            {section.items.map((item, i) => (
+            {section.items.map((item: any, i: number) => (
               <div key={i} className={styles.programItem}>
                 <span className={styles.programTime}>{item.time}</span>
                 <div>
@@ -128,15 +134,18 @@ function SectionBlock({ section, tagColor }) {
         </div>
       );
 
-    case 'films':
+    case "films":
       return (
         <div className={styles.section}>
           <div className={styles.sectionEyebrow}>
             <span className={styles.sectionLine} />
             <span className={styles.sectionLabel}>{section.label}</span>
           </div>
-          <div className={styles.filmsGrid} style={{ '--tag-color': tagColor }}>
-            {section.items.map((item, i) => (
+          <div
+            className={styles.filmsGrid}
+            style={{ "--tag-color": tagColor } as React.CSSProperties}
+          >
+            {section.items.map((item: any, i: number) => (
               <div key={i} className={styles.filmCard}>
                 <span className={styles.filmTitle}>{item.title}</span>
                 <span className={styles.filmMeta}>{item.meta}</span>
@@ -152,14 +161,13 @@ function SectionBlock({ section, tagColor }) {
   }
 }
 
-
 // ─── Composant principal ──────────────────────────────────────
 
 export default function NewsDetail() {
-  const { id }       = useParams();
-  const article      = newsDetailData[Number(id)];
-  const heroRef      = useRef(null);
-  const bodyRef      = useRef(null);
+  const { id } = useParams();
+  const article = newsDetailData[Number(id) as keyof typeof newsDetailData];
+  const heroRef = useRef(null);
+  const bodyRef = useRef(null);
   const [imgLoaded, setImgLoaded] = useState(false);
 
   // Entrée GSAP — opacity + y sur hero et body
@@ -169,12 +177,25 @@ export default function NewsDetail() {
       gsap.fromTo(
         heroRef.current,
         { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', clearProps: 'all' }
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power2.out",
+          clearProps: "all",
+        },
       );
       gsap.fromTo(
         bodyRef.current,
         { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.15, ease: 'power2.out', clearProps: 'all' }
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          delay: 0.15,
+          ease: "power2.out",
+          clearProps: "all",
+        },
       );
     });
     return () => ctx.revert();
@@ -205,23 +226,22 @@ export default function NewsDetail() {
     );
   }
 
-  const tagColor  = tagColors[article.tag] || '#f0ece4';
+  const tagColor =
+    tagColors[article.tag as keyof typeof tagColors] || "#f0ece4";
   const relatedArticles = (article.related || [])
-    .map(rid => newsDetailData[rid])
+    .map((rid: number) => newsDetailData[rid as keyof typeof newsDetailData])
     .filter(Boolean);
 
   return (
     <div
       className={styles.page}
-      style={{ '--tag-color': tagColor }}
+      style={{ "--tag-color": tagColor } as React.CSSProperties}
     >
-
       {/* ── HERO ─────────────────────────────────────────────── */}
       <div ref={heroRef} className={styles.hero}>
-
         {/* Image de fond — backgroundImage inline (URL runtime) */}
         <div
-          className={`${styles.heroBg} ${imgLoaded ? styles.heroBgLoaded : ''}`}
+          className={`${styles.heroBg} ${imgLoaded ? styles.heroBgLoaded : ""}`}
           style={{ backgroundImage: `url(${article.image})` }}
         />
 
@@ -249,21 +269,15 @@ export default function NewsDetail() {
 
       {/* ── CORPS ────────────────────────────────────────────── */}
       <div ref={bodyRef} className={styles.body}>
-
         {/* Colonne principale */}
         <main className={styles.main}>
-          {article.sections.map((section, i) => (
-            <SectionBlock
-              key={i}
-              section={section}
-              tagColor={tagColor}
-            />
+          {article.sections.map((section: any, i: number) => (
+            <SectionBlock key={i} section={section} tagColor={tagColor} />
           ))}
         </main>
 
         {/* Sidebar */}
         <aside className={styles.sidebar}>
-
           {/* Infos article */}
           <div className={styles.sidebarBlock}>
             <span className={styles.sidebarTitle}>À propos</span>
@@ -281,7 +295,9 @@ export default function NewsDetail() {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Festival</span>
-              <span className={styles.infoValue}>MARSAI — Marseille, 20–22 Juin 2026</span>
+              <span className={styles.infoValue}>
+                MARSAI — Marseille, 20–22 Juin 2026
+              </span>
             </div>
           </div>
 
@@ -290,10 +306,10 @@ export default function NewsDetail() {
             <div className={styles.sidebarBlock}>
               <span className={styles.sidebarTitle}>Articles liés</span>
               <nav className={styles.relatedList} aria-label="Articles liés">
-                {relatedArticles.map(related => (
+                {relatedArticles.map((related: any) => (
                   <Link
                     key={related.id}
-                    to={ROUTES.NEWS_DETAIL.replace(':id', related.id)}
+                    to={ROUTES.NEWS_DETAIL.replace(":id", related.id)}
                     className={styles.relatedItem}
                   >
                     <span className={styles.relatedTitle}>{related.title}</span>
@@ -308,16 +324,15 @@ export default function NewsDetail() {
           <div className={styles.sidebarBlock}>
             <span className={styles.sidebarTitle}>Participer</span>
             <p className={styles.paragraph}>
-              Les soumissions pour l'édition 2026 sont ouvertes jusqu'au 28 février.
+              Les soumissions pour l'édition 2026 sont ouvertes jusqu'au 28
+              février.
             </p>
             <Link to={ROUTES.SOUMETTRE} className={styles.ctaButton}>
               Soumettre un film →
             </Link>
           </div>
-
         </aside>
       </div>
-
     </div>
   );
 }

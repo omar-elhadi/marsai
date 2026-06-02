@@ -1,10 +1,15 @@
-import multer from "multer";
+import multer, { FileFilterCallback } from "multer";
+import { Request } from "express";
 
 // Configuration de multer pour stocker les fichiers en mémoire (buffer)
 const storage = multer.memoryStorage();
 
 // Filtre pour accepter uniquement les fichiers vidéo
-const fileFilter = (req, file, cb) => {
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: FileFilterCallback,
+) => {
   const allowedMimeTypes = [
     "video/mp4",
     "video/quicktime", // .mov
@@ -18,9 +23,8 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(
       new Error(
-        "Format de fichier non supporté. Veuillez uploader un fichier vidéo (MP4, MOV, AVI, MKV, WEBM)."
+        "Format de fichier non supporté. Veuillez uploader un fichier vidéo (MP4, MOV, AVI, MKV, WEBM).",
       ),
-      false
     );
   }
 };

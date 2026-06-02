@@ -23,54 +23,52 @@
  */
 
 export const ROUTES = {
-
   // ── Pages publiques principales ──────────────────────────────
-  HOME:                      '/',
-  NEWS:                      '/news',
-  NEWS_DETAIL:               '/news/:id',
-  EVENTS:                    '/events',
-  GALERIE:                   '/galerie',
-  SOUMETTRE:                 '/soumettre',
-  CONTACT:                   '/contact',
-  REGLEMENT:                 '/reglement',
+  HOME: "/",
+  NEWS: "/news",
+  NEWS_DETAIL: "/news/:id",
+  EVENTS: "/events",
+  GALERIE: "/galerie",
+  SOUMETTRE: "/soumettre",
+  CONTACT: "/contact",
+  REGLEMENT: "/reglement",
 
   // ── Film ─────────────────────────────────────────────────────
   // FILM_DETAIL : chemin complet avec paramètre — usage dans <Route path=…>
   // FILM_BASE   : chemin sans paramètre — usage dans startsWith() (PageTransitionLayer)
-  FILM_DETAIL:               '/film/:id',
-  FILM_BASE:                 '/film',
-  EDIT_FILM:                 '/edit-film/:token',
-  TRACKING:                  '/suivi',
-  PALMARES:                  '/palmares',
+  FILM_DETAIL: "/film/:id",
+  FILM_BASE: "/film",
+  EDIT_FILM: "/edit-film/:token",
+  TRACKING: "/suivi",
+  PALMARES: "/palmares",
 
   // ── Pages secondaires ────────────────────────────────────────
-  NEWSLETTERS:               '/Newsletters',
-  FAQ:                       '/FAQ',
-  CALENDRIER:                '/calendrier',
-  REGLES_CONDITIONS:         '/regles-conditions',
+  NEWSLETTERS: "/Newsletters",
+  FAQ: "/FAQ",
+  CALENDRIER: "/calendrier",
+  REGLES_CONDITIONS: "/regles-conditions",
 
   // ── Pages légales ────────────────────────────────────────────
-  MENTION:                   '/Mention',
-  COOKIES:                   '/cookies',
-  POLITIQUE_CONFIDENTIALITE: '/PolitiqueDeConfidentialite',
-  CONDITIONS_UTILISATIONS:   '/conditions-utilisations',
+  MENTION: "/Mention",
+  COOKIES: "/cookies",
+  POLITIQUE_CONFIDENTIALITE: "/PolitiqueDeConfidentialite",
+  CONDITIONS_UTILISATIONS: "/conditions-utilisations",
 
   // ── Authentification ─────────────────────────────────────────
-  LOGIN:                     '/login',
-  LOGIN_VERIFY:              '/login/verify',
-  CONNECTION_PAGE:           '/ConnectionPage',
+  LOGIN: "/login",
+  LOGIN_VERIFY: "/login/verify",
+  CONNECTION_PAGE: "/ConnectionPage",
 
   // ── Jury ─────────────────────────────────────────────────────
-  VOTES_JURY:                '/VotesJury',
-  JURY_DASHBOARD:            '/jury/dashboard',
-  JURY_FILM_DETAIL:          '/jury/film/:id',
+  VOTES_JURY: "/VotesJury",
+  JURY_DASHBOARD: "/jury/dashboard",
+  JURY_FILM_DETAIL: "/jury/film/:id",
 
   // ── Admin — chemins RELATIFS (imbriqués sous /admin) ─────────
-  ADMIN:                     '/admin',
-  ADMIN_FILMS:               'films',
-  ADMIN_DETAILS:             'films/:id',
-  ADMIN_USERS:               'users',
-  ADMIN_SELECTION:           'selection',
-  ADMIN_AWARDS:              'awards',
-
+  ADMIN: "/admin",
+  ADMIN_FILMS: "films",
+  ADMIN_DETAILS: "films/:id",
+  ADMIN_USERS: "users",
+  ADMIN_SELECTION: "selection",
+  ADMIN_AWARDS: "awards",
 };

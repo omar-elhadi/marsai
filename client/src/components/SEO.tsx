@@ -1,5 +1,5 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import React from "react";
+import { Helmet } from "react-helmet-async";
 
 interface SEOProps {
   title: string;
@@ -8,7 +8,12 @@ interface SEOProps {
   url?: string;
 }
 
-export default function SEO({ title, description = 'MARSAI - Festival International de Films Générés par l\'IA', image = '/og-image.jpg', url = 'https://marsai.com' }: SEOProps) {
+export default function SEO({
+  title,
+  description = "MARSAI - Festival International de Films Générés par l'IA",
+  image = "/og-image.jpg",
+  url = "https://marsai.com",
+}: SEOProps) {
   return (
     <Helmet>
       <title>{title} | MARSAI Festival</title>

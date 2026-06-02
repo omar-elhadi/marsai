@@ -19,10 +19,11 @@
 | **Configuration des routes**     | `routes/`     | `routes/index.jsx`              |
 
 **Conventions de Nommage :**
+
 - Composants : `PascalCase` → `Button.jsx`
 - Hooks : `useCamelCase` → `useAuth.js`
 - Utils : `camelCase` → `formatDate.js`
-- Outils: `PascalCase` → `DomPurify.js` 
+- Outils: `PascalCase` → `DomPurify.js`
 - Constantes : `UPPER_SNAKE_CASE` → `API_BASE_URL`
 
 **Alias de Chemin d'Import :** Utilisez `@/` pour des imports plus propres → `import { Button } from '@/components/common/Button'`
@@ -58,10 +59,12 @@ src/
 
 ## Détails des Répertoires
 
-###  `assets/`
+### `assets/`
+
 **Objectif :** Stocker tous les fichiers statiques importés dans vos composants.
 
 **Ce qu'il faut ajouter :**
+
 - Images (`.png`, `.jpg`, `.svg`)
 - Galeries (`marsai_slider.mp4`)
 - Polices (`.woff`, `.woff2`, `.ttf`)
@@ -70,6 +73,7 @@ src/
 - Autres médias statiques
 
 **Exemple de Structure :**
+
 ```
 assets/
 ├── images/
@@ -87,22 +91,26 @@ assets/
 ```
 
 **Utilisation :**
+
 ```jsx
-import logo from '@/assets/images/logo.png';
+import logo from "@/assets/images/logo.png";
 ```
 
 ---
 
-###  `components/`
+### `components/`
+
 **Objectif :** Composants UI réutilisables pouvant être utilisés sur plusieurs pages.
 
 **Ce qu'il faut ajouter :**
+
 - Boutons, inputs, modales, cartes
 - Composants de navigation (Navbar, Sidebar, Footer)
 - Composants de formulaire
 - Tout composant utilisé à plus d'un endroit
 
 **Exemple de Structure :**
+
 ```
 components/
 ├── common/              # Composants génériques hautement réutilisables
@@ -123,16 +131,18 @@ components/
 ```
 
 **Convention de Nommage :**
+
 - Utilisez PascalCase pour les dossiers et fichiers de composants : `Button/Button.jsx`
 - Gardez les styles co-localisés : `Button.module.css` ou `Button.styles.js`
 - Incluez les tests : `Button.test.jsx`
 
 **Exemple de Structure de Composant :**
+
 ```jsx
 // components/common/Button/Button.jsx
-import styles from './Button.module.css';
+import styles from "./Button.module.css";
 
-export const Button = ({ children, variant = 'primary', ...props }) => {
+export const Button = ({ children, variant = "primary", ...props }) => {
   return (
     <button className={`${styles.button} ${styles[variant]}`} {...props}>
       {children}
@@ -144,15 +154,18 @@ export const Button = ({ children, variant = 'primary', ...props }) => {
 ---
 
 ### `hooks/`
+
 **Objectif :** Hooks React personnalisés pour la logique partagée et la gestion d'état.
 
 **Ce qu'il faut ajouter :**
+
 - Hooks personnalisés pour les appels API (`useApi`, `useFetch`)
 - Hooks de gestion de formulaire (`useForm`)
 - Hooks d'API du navigateur (`useLocalStorage`, `useMediaQuery`)
 - Hooks de logique métier
 
 **Exemple de Structure :**
+
 ```
 hooks/
 ├── useAuth.js
@@ -164,13 +177,15 @@ hooks/
 ```
 
 **Convention de Nommage :**
+
 - Toujours préfixer avec `use` : `useAuth`, `useFetch`
 - Utilisez camelCase
 
 **Exemple :**
+
 ```jsx
 // hooks/useLocalStorage.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export const useLocalStorage = (key, initialValue) => {
   const [value, setValue] = useState(() => {
@@ -189,14 +204,17 @@ export const useLocalStorage = (key, initialValue) => {
 ---
 
 ### `pages/`
+
 **Objectif :** Composants de route de niveau supérieur qui représentent des pages/vues entières.
 
 **Ce qu'il faut ajouter :**
+
 - Chaque composant de route (Accueil, À propos, Tableau de bord, Profil)
 - Composants spécifiques à une page qui ne sont utilisés que sur cette page
 - Récupération de données et gestion d'état au niveau de la page
 
 **Exemple de Structure :**
+
 ```
 pages/
 ├── Home/
@@ -222,17 +240,19 @@ pages/
 ```
 
 **Points Clés :**
+
 - Les pages sont connectées aux routes
 - Importer et composer des composants réutilisables depuis `components/`
 - Gérer l'état et la récupération de données au niveau de la page
 - Organiser les composants spécifiques à la page dans un dossier `components/` imbriqué
 
 **Exemple :**
+
 ```jsx
 // pages/Dashboard/Dashboard.jsx
-import { StatsCard } from '@/components/StatsCard';
-import { Button } from '@/components/common/Button';
-import styles from './Dashboard.module.css';
+import { StatsCard } from "@/components/StatsCard";
+import { Button } from "@/components/common/Button";
+import styles from "./Dashboard.module.css";
 
 export const Dashboard = () => {
   return (
@@ -248,15 +268,18 @@ export const Dashboard = () => {
 ---
 
 ### `layouts/`
+
 **Objectif :** Composants wrapper qui définissent la structure des pages (en-têtes, pieds de page, barres latérales).
 
 **Ce qu'il faut ajouter :**
+
 - Composant de mise en page principal
 - Mise en page authentifiée (avec sidebar/nav)
 - Mise en page publique (pour les pages de connexion/inscription)
 - Mise en page administrateur
 
 **Exemple de Structure :**
+
 ```
 layouts/
 ├── MainLayout.jsx        # Layout avec header et footer
@@ -266,10 +289,11 @@ layouts/
 ```
 
 **Exemple :**
+
 ```jsx
 // layouts/MainLayout.jsx
-import { Header } from '@/components/layouts/Header';
-import { Footer } from '@/components/layouts/Footer';
+import { Header } from "@/components/layouts/Header";
+import { Footer } from "@/components/layouts/Footer";
 
 export const MainLayout = ({ children }) => {
   return (
@@ -285,14 +309,17 @@ export const MainLayout = ({ children }) => {
 ---
 
 ### `services/`
+
 **Objectif :** Appels API, intégrations de services externes et logique de récupération de données.
 
 **Ce qu'il faut ajouter :**
+
 - Configuration du client API (axios)
 - Fichiers de service pour différents endpoints API
 - Intégrations externes (Analytics, Youtube)
 
 **Exemple de Structure :**
+
 ```
 services/
 ├── api.js                # Configuration de base de l'API
@@ -303,33 +330,36 @@ services/
 ```
 
 **Exemple :**
+
 ```jsx
 // services/api.js
-import axios from 'axios';
+import axios from "axios";
 
 export const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // services/userService.js
-import { api } from './api';
+import { api } from "./api";
 
 export const userService = {
-  getProfile: () => api.get('/user/profile'),
-  updateProfile: (data) => api.put('/user/profile', data),
-  deleteAccount: () => api.delete('/user/account'),
+  getProfile: () => api.get("/user/profile"),
+  updateProfile: (data) => api.put("/user/profile", data),
+  deleteAccount: () => api.delete("/user/account"),
 };
 ```
 
 ---
 
 ### `utils/`
+
 **Objectif :** Fonctions helper pures et utilitaires qui ne dépendent pas de React.
 
 **Ce qu'il faut ajouter :**
+
 - Fonctions de formatage de chaînes
 - Utilitaires de date/heure
 - Fonctions de validation
@@ -337,6 +367,7 @@ export const userService = {
 - Utilitaires mathématiques
 
 **Exemple de Structure :**
+
 ```
 utils/
 ├── formatters.js         # Formatage de chaînes/nombres
@@ -347,34 +378,36 @@ utils/
 ```
 
 **Exemple :**
+
 ```jsx
 // utils/formatters.js
-export const formatCurrency = (amount, currency = 'EUR') => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
+export const formatCurrency = (amount, currency = "EUR") => {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
     currency,
   }).format(amount);
 };
 
 export const truncateText = (text, maxLength = 100) => {
-  return text.length > maxLength 
-    ? `${text.substring(0, maxLength)}...` 
-    : text;
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 ```
 
 ---
 
 ### `contexts/`
+
 **Objectif :** Fournisseurs de Context React pour la gestion d'état global.
 
 **Ce qu'il faut ajouter :**
+
 - Context d'authentification
 - Context de thème
 - Context de préférences utilisateur
 - Tout état global de l'application qui doit être partagé
 
 **Exemple de Structure :**
+
 ```
 contexts/
 ├── AuthContext.jsx
@@ -384,9 +417,10 @@ contexts/
 ```
 
 **Exemple :**
+
 ```jsx
 // contexts/AuthContext.jsx
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -413,17 +447,19 @@ export const useAuth = () => useContext(AuthContext);
 
 ---
 
-
 ### `styles/`
+
 **Objectif :** Styles globaux, variables CSS, thèmes et utilitaires de style partagés.
 
 **Ce qu'il faut ajouter :**
+
 - Reset/normalize CSS global
 - Variables CSS et design tokens
 - Configuration de thème
 - Mixins/utilitaires partagés (pour SASS/SCSS)
 
 **Exemple de Structure :**
+
 ```
 styles/
 ├── global.css            # Styles globaux
@@ -434,6 +470,7 @@ styles/
 ```
 
 **Exemple :**
+
 ```css
 /* styles/variables.css */
 :root {
@@ -443,16 +480,16 @@ styles/
   --color-success: #10b981;
   --color-error: #ef4444;
   --color-warning: #f59e0b;
-  
+
   /* Espacement */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  
+
   /* Typographie */
-  --font-family-base: 'Inter', sans-serif;
+  --font-family-base: "Inter", sans-serif;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -463,15 +500,18 @@ styles/
 ---
 
 ### `constants/`
+
 **Objectif :** Constantes et valeurs de configuration de l'application.
 
 **Ce qu'il faut ajouter :**
+
 - Endpoints API
 - Routes de l'application
 - Valeurs d'énumération
 - Constantes de configuration
 
 **Exemple de Structure :**
+
 ```
 constants/
 ├── routes.js             # Chemins de route
@@ -481,27 +521,28 @@ constants/
 ```
 
 **Exemple :**
+
 ```jsx
 // constants/routes.js
 export const ROUTES = {
-  HOME: '/',
-  DASHBOARD: '/tableau-de-bord',
-  PROFILE: '/profil',
-  LOGIN: '/connexion',
-  REGISTER: '/inscription',
-  NOT_FOUND: '/404',
+  HOME: "/",
+  DASHBOARD: "/tableau-de-bord",
+  PROFILE: "/profil",
+  LOGIN: "/connexion",
+  REGISTER: "/inscription",
+  NOT_FOUND: "/404",
 };
 
 // constants/apiEndpoints.js
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
+    LOGIN: "/auth/login",
+    REGISTER: "/auth/register",
+    LOGOUT: "/auth/logout",
   },
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE: '/user/update',
+    PROFILE: "/user/profile",
+    UPDATE: "/user/update",
   },
 };
 ```
@@ -509,14 +550,17 @@ export const API_ENDPOINTS = {
 ---
 
 ### `routes/`
+
 **Objectif :** Configuration des routes et logique de protection des routes.
 
 **Ce qu'il faut ajouter :**
+
 - Définitions de routes
 - Composants de routes protégées
 - Gardes de route
 
 **Exemple de Structure :**
+
 ```
 routes/
 ├── index.jsx             # Configuration principale des routes
@@ -525,18 +569,19 @@ routes/
 ```
 
 **Exemple :**
+
 ```jsx
 // routes/ProtectedRoute.jsx
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
-  
+
   if (!user) {
     return <Navigate to="/connexion" replace />;
   }
-  
+
   return children;
 };
 ```
@@ -544,14 +589,17 @@ export const ProtectedRoute = ({ children }) => {
 ---
 
 ### `config/`
+
 **Objectif :** Fichiers de configuration de l'application.
 
 **Ce qu'il faut ajouter :**
+
 - Configurations spécifiques à l'environnement
 - Feature flags
 - Configurations de services tiers
 
 **Exemple de Structure :**
+
 ```
 config/
 ├── env.js                # Variables d'environnement
@@ -564,21 +612,25 @@ config/
 ## Approches de Stylisation
 
 ### Option 1 : CSS Modules (Recommandé)
+
 - **Emplacement :** Co-localisé avec les composants
 - **Nommage des fichiers :** `NomComposant.module.css`
 - **Utilisation :**
+
   ```jsx
-  import styles from './Button.module.css';
-  
-  <button className={styles.primary}>Cliquez-moi</button>
+  import styles from "./Button.module.css";
+
+  <button className={styles.primary}>Cliquez-moi</button>;
   ```
 
 ### Option 2 : Styled Components
+
 - **Emplacement :** Co-localisé avec les composants ou dans des fichiers `.styles.js` séparés
 - **Utilisation :**
+
   ```jsx
-  import styled from 'styled-components';
-  
+  import styled from "styled-components";
+
   const StyledButton = styled.button`
     background: var(--color-primary);
     padding: var(--spacing-md);
@@ -586,6 +638,7 @@ config/
   ```
 
 ### Option 3 : Tailwind CSS
+
 - **Emplacement :** En ligne avec JSX
 - **Configuration :** `vite.config.js` à la racine
 - **Utilisation :**
@@ -600,11 +653,13 @@ config/
 ## Meilleures Pratiques
 
 ### 1. **Organisation des Composants**
+
 - Gardez les composants petits et focalisés (Principe de Responsabilité Unique)
 - Co-localisez les fichiers liés (composant, styles, tests)
 - Utilisez des fichiers index pour des imports plus propres
 
 ### 2. **Conventions de Nommage**
+
 - Composants : PascalCase (`Button`, `UserProfile`)
 - Fichiers : Correspondent au nom du composant (`Button.jsx`)
 - Hooks : camelCase avec préfixe `use` (`useAuth`, `useFetch`)
@@ -612,6 +667,7 @@ config/
 - Constantes : UPPER_SNAKE_CASE (`API_BASE_URL`, `MAX_FILE_SIZE`)
 
 ### 3. **Organisation des Imports**
+
 - Dépendances externes en premier
 - Modules internes en second
 - Imports relatifs en dernier
@@ -619,20 +675,21 @@ config/
 
 ```jsx
 // Externes
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Modules internes
-import { Button } from '@/components/common/Button';
-import { useAuth } from '@/hooks/useAuth';
-import { formatDate } from '@/utils/formatters';
+import { Button } from "@/components/common/Button";
+import { useAuth } from "@/hooks/useAuth";
+import { formatDate } from "@/utils/formatters";
 
 // Imports relatifs
-import { Header } from './components/Header';
-import styles from './Dashboard.module.css';
+import { Header } from "./components/Header";
+import styles from "./Dashboard.module.css";
 ```
 
 ### 4. **Alias de Chemins**
+
 Configurez les alias de chemins dans `jsconfig.json` ou `tsconfig.json` :
 
 ```json
@@ -650,18 +707,19 @@ Configurez les alias de chemins dans `jsconfig.json` ou `tsconfig.json` :
 ```
 
 ### 5. **Division du Code**
+
 - Utilisez le chargement lazy pour les routes
 - Divisez les gros composants
 - Optimisez la taille du bundle
 
 ```jsx
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from "react";
 
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
 
 <Suspense fallback={<Loading />}>
   <Dashboard />
-</Suspense>
+</Suspense>;
 ```
 
 ---
@@ -669,6 +727,7 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 ## Scénarios Courants
 
 ### Scénario 1 : Ajouter une Nouvelle Page de Fonctionnalité
+
 1. Créer un dossier dans `pages/` → `pages/NouvelleFonctionnalite/`
 2. Créer le composant principal → `NouvelleFonctionnalite.jsx`
 3. Ajouter les styles → `NouvelleFonctionnalite.module.css`
@@ -677,6 +736,7 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 6. Ajouter la constante de route dans `constants/routes.js`
 
 ### Scénario 2 : Créer un Composant Réutilisable
+
 1. Décider de la catégorie : `common/`, `layout/`, ou `forms/`
 2. Créer le dossier du composant → `components/common/NouveauComposant/`
 3. Ajouter les fichiers :
@@ -686,12 +746,14 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 4. Exporter depuis `index.js` pour des imports plus propres
 
 ### Scénario 3 : Ajouter une Intégration API
+
 1. Créer le fichier service → `services/featureService.js`
 2. Définir les méthodes API en utilisant le client `api` de base
 3. Créer un hook personnalisé (si nécessaire) → `hooks/useFeature.js`
 4. Utiliser dans les composants/pages
 
 ### Scénario 4 : Ajouter un État Global
+
 1. **Context API :** Créer un context dans `contexts/FeatureContext.jsx`
 2. Fournir le context dans `App.jsx` ou le layout pertinent
 3. Consommer via `useContext` ou `useSelector`
@@ -716,6 +778,7 @@ Lors du démarrage d'une nouvelle fonctionnalité, posez-vous ces questions :
 ## Exemples de Bonnes vs Mauvaises Pratiques
 
 ### ❌ Mauvais : Tout dans un seul fichier
+
 ```jsx
 // pages/Dashboard.jsx (500 lignes de code)
 // - Appels API en ligne
@@ -725,15 +788,16 @@ Lors du démarrage d'une nouvelle fonctionnalité, posez-vous ces questions :
 ```
 
 ### ✅ Bon : Séparation appropriée des préoccupations
+
 ```jsx
 // pages/Dashboard/Dashboard.jsx
-import { useDashboard } from '@/hooks/useDashboard';
-import { StatsCard } from './components/StatsCard';
-import styles from './Dashboard.module.css';
+import { useDashboard } from "@/hooks/useDashboard";
+import { StatsCard } from "./components/StatsCard";
+import styles from "./Dashboard.module.css";
 
 export const Dashboard = () => {
   const { stats, loading } = useDashboard();
-  
+
   return (
     <div className={styles.dashboard}>
       <StatsCard data={stats} loading={loading} />
@@ -749,32 +813,36 @@ export const Dashboard = () => {
 ---
 
 ### ❌ Mauvais : Valeurs codées en dur partout
+
 ```jsx
-<a href="/tableau-de-bord">Tableau de bord</a>
-fetch('https://api.example.com/users')
+<a href="/tableau-de-bord">Tableau de bord</a>;
+fetch("https://api.example.com/users");
 ```
 
 ### ✅ Bon : Utilisation de constantes
-```jsx
-import { ROUTES } from '@/constants/routes';
-import { API_ENDPOINTS } from '@/constants/apiEndpoints';
 
-<Link to={ROUTES.DASHBOARD}>Tableau de bord</Link>
-api.get(API_ENDPOINTS.USER.PROFILE)
+```jsx
+import { ROUTES } from "@/constants/routes";
+import { API_ENDPOINTS } from "@/constants/apiEndpoints";
+
+<Link to={ROUTES.DASHBOARD}>Tableau de bord</Link>;
+api.get(API_ENDPOINTS.USER.PROFILE);
 ```
 
 ---
 
 ### ❌ Mauvais : Imports relatifs profonds
+
 ```jsx
-import { Button } from '../../../components/common/Button';
-import { formatDate } from '../../../../utils/formatters';
+import { Button } from "../../../components/common/Button";
+import { formatDate } from "../../../../utils/formatters";
 ```
 
 ### ✅ Bon : Utilisation d'alias de chemins
+
 ```jsx
-import { Button } from '@/components/common/Button';
-import { formatDate } from '@/utils/formatters';
+import { Button } from "@/components/common/Button";
+import { formatDate } from "@/utils/formatters";
 ```
 
 ---
@@ -801,4 +869,4 @@ Rappelez-vous : **La meilleure structure est celle que toute votre équipe compr
 
 ---
 
-**Dernière Mise à Jour :** 05/02/2026  
+**Dernière Mise à Jour :** 05/02/2026

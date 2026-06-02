@@ -51,18 +51,16 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-
 /* ─────────────────────────────────────────────────────────────
    ROOT
    ───────────────────────────────────────────────────────────── */
 
 .root {
-  min-height:  100vh;
-  background:  var(--color-bg);
+  min-height: 100vh;
+  background: var(--color-bg);
   font-family: var(--font-sans);
-  color:       var(--color-text);
+  color: var(--color-text);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    HEADER
@@ -70,42 +68,41 @@
 
 .header {
   border-bottom: 1px solid var(--color-border);
-  padding:       var(--space-xl) var(--container-pad) var(--space-md);
-  display:       flex;
-  align-items:   flex-end;
+  padding: var(--space-xl) var(--container-pad) var(--space-md);
+  display: flex;
+  align-items: flex-end;
   justify-content: space-between;
-  gap:           var(--space-md);
+  gap: var(--space-md);
 }
 
 /* Titre principal — display massif, fluide avec clamp */
 .headerTitle {
-  font-family:    var(--font-display);
-  font-weight:    var(--fw-ultra);
-  font-size:      clamp(2rem, 5vw, 4.5rem);
-  line-height:    1.0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-ultra);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 1;
   letter-spacing: -0.03em;
   text-transform: uppercase;
-  color:          var(--color-text);
-  margin:         0;
+  color: var(--color-text);
+  margin: 0;
 }
 
 /* Bloc méta droite */
 .headerMeta {
-  text-align:     right;
-  font-family:    var(--font-sans);
-  font-weight:    var(--fw-semibold);
-  font-size:      0.68rem;
+  text-align: right;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color:          var(--color-text-faint);
-  line-height:    1.8;
+  color: var(--color-text-faint);
+  line-height: 1.8;
 }
 
 .headerMetaArticles {
-  color:      var(--color-text-muted);
+  color: var(--color-text-muted);
   margin-top: 0.25rem;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    BENTO GRID — mobile-first
@@ -116,7 +113,7 @@
   padding: var(--space-md) var(--container-pad) var(--space-lg);
   display: grid;
   grid-template-columns: 1fr;
-  gap:     0;
+  gap: 0;
 }
 
 /* ── Toutes les cartes pleine largeur par défaut (mobile) ── */
@@ -127,7 +124,7 @@
 .cardSmall1,
 .cardSmall2 {
   grid-column: 1 / -1;
-  grid-row:    auto;
+  grid-row: auto;
 }
 
 /* ── sm : 640px — 2 colonnes ─────────────────────────────── */
@@ -137,59 +134,107 @@
   }
 
   /* Hero pleine largeur */
-  .cardHero   { grid-column: 1 / -1; }
+  .cardHero {
+    grid-column: 1 / -1;
+  }
 
   /* Medium : côte à côte */
-  .cardMed1   { grid-column: 1 / 2; }
-  .cardMed2   { grid-column: 2 / 3; }
+  .cardMed1 {
+    grid-column: 1 / 2;
+  }
+  .cardMed2 {
+    grid-column: 2 / 3;
+  }
 
   /* Wide pleine largeur */
-  .cardWide   { grid-column: 1 / -1; }
+  .cardWide {
+    grid-column: 1 / -1;
+  }
 
   /* Small : côte à côte */
-  .cardSmall1 { grid-column: 1 / 2; }
-  .cardSmall2 { grid-column: 2 / 3; }
+  .cardSmall1 {
+    grid-column: 1 / 2;
+  }
+  .cardSmall2 {
+    grid-column: 2 / 3;
+  }
 }
 
 /* ── md : 768px — 4 colonnes, bento commence ─────────────── */
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows:    repeat(2, minmax(200px, auto)) minmax(200px, auto);
+    grid-template-rows: repeat(2, minmax(200px, auto)) minmax(200px, auto);
   }
 
-  .cardHero   { grid-column: 1 / 3; grid-row: 1 / 3; }
-  .cardMed1   { grid-column: 3 / 5; grid-row: 1 / 2; }
-  .cardMed2   { grid-column: 3 / 5; grid-row: 2 / 3; }
-  .cardWide   { grid-column: 1 / 3; grid-row: 3 / 4; }
-  .cardSmall1 { grid-column: 3 / 4; grid-row: 3 / 4; }
-  .cardSmall2 { grid-column: 4 / 5; grid-row: 3 / 4; }
+  .cardHero {
+    grid-column: 1 / 3;
+    grid-row: 1 / 3;
+  }
+  .cardMed1 {
+    grid-column: 3 / 5;
+    grid-row: 1 / 2;
+  }
+  .cardMed2 {
+    grid-column: 3 / 5;
+    grid-row: 2 / 3;
+  }
+  .cardWide {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+  }
+  .cardSmall1 {
+    grid-column: 3 / 4;
+    grid-row: 3 / 4;
+  }
+  .cardSmall2 {
+    grid-column: 4 / 5;
+    grid-row: 3 / 4;
+  }
 }
 
 /* ── lg : 1024px — 12 colonnes, bento complet ───────────── */
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows:    repeat(2, minmax(240px, auto)) minmax(220px, auto);
+    grid-template-rows: repeat(2, minmax(240px, auto)) minmax(220px, auto);
   }
 
-  .cardHero   { grid-column: 1 / 8;   grid-row: 1 / 3; }
-  .cardMed1   { grid-column: 8 / 13;  grid-row: 1 / 2; }
-  .cardMed2   { grid-column: 8 / 13;  grid-row: 2 / 3; }
-  .cardWide   { grid-column: 1 / 9;   grid-row: 3 / 4; }
-  .cardSmall1 { grid-column: 9 / 11;  grid-row: 3 / 4; }
-  .cardSmall2 { grid-column: 11 / 13; grid-row: 3 / 4; }
+  .cardHero {
+    grid-column: 1 / 8;
+    grid-row: 1 / 3;
+  }
+  .cardMed1 {
+    grid-column: 8 / 13;
+    grid-row: 1 / 2;
+  }
+  .cardMed2 {
+    grid-column: 8 / 13;
+    grid-row: 2 / 3;
+  }
+  .cardWide {
+    grid-column: 1 / 9;
+    grid-row: 3 / 4;
+  }
+  .cardSmall1 {
+    grid-column: 9 / 11;
+    grid-row: 3 / 4;
+  }
+  .cardSmall2 {
+    grid-column: 11 / 13;
+    grid-row: 3 / 4;
+  }
 }
 
 /* ── xl : 1440px — padding++ pour contenir la largeur ───── */
 @media (min-width: 1440px) {
   .grid {
-    padding-left:  clamp(3rem, 6vw, 8rem);
+    padding-left: clamp(3rem, 6vw, 8rem);
     padding-right: clamp(3rem, 6vw, 8rem);
   }
 
   .header {
-    padding-left:  clamp(3rem, 6vw, 8rem);
+    padding-left: clamp(3rem, 6vw, 8rem);
     padding-right: clamp(3rem, 6vw, 8rem);
   }
 }
@@ -198,7 +243,7 @@
 @media (min-width: 2560px) {
   .root {
     max-width: 2800px;
-    margin:    0 auto;
+    margin: 0 auto;
   }
 
   .headerTitle {
@@ -210,7 +255,6 @@
     grid-template-rows: repeat(2, minmax(340px, auto)) minmax(300px, auto);
   }
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    HAUTEURS DE CARTE — fluides par breakpoint
@@ -239,20 +283,39 @@
 
 /* lg : hauteurs fixes pour le bento desktop */
 @media (min-width: 1024px) {
-  .cardHero               { min-height: 480px; }
-  .cardMed1, .cardMed2    { min-height: 220px; }
-  .cardWide               { min-height: 220px; }
-  .cardSmall1, .cardSmall2 { min-height: 220px; }
+  .cardHero {
+    min-height: 480px;
+  }
+  .cardMed1,
+  .cardMed2 {
+    min-height: 220px;
+  }
+  .cardWide {
+    min-height: 220px;
+  }
+  .cardSmall1,
+  .cardSmall2 {
+    min-height: 220px;
+  }
 }
 
 /* 2K : cartes plus hautes proportionnellement */
 @media (min-width: 2560px) {
-  .cardHero               { min-height: 680px; }
-  .cardMed1, .cardMed2    { min-height: 340px; }
-  .cardWide               { min-height: 320px; }
-  .cardSmall1, .cardSmall2 { min-height: 300px; }
+  .cardHero {
+    min-height: 680px;
+  }
+  .cardMed1,
+  .cardMed2 {
+    min-height: 340px;
+  }
+  .cardWide {
+    min-height: 320px;
+  }
+  .cardSmall1,
+  .cardSmall2 {
+    min-height: 300px;
+  }
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    LIEN WRAPPER — chaque carte est un <Link>
@@ -264,33 +327,32 @@
    Sans display:contents, le Link deviendrait un block anonyme
    qui casserait le placement grid de .card* enfant. */
 .cardLink {
-  display:         contents;
+  display: contents;
   text-decoration: none;
-  color:           inherit;
-  outline:         none;
+  color: inherit;
+  outline: none;
 }
 
 /* Focus clavier visible — outline sur la carte enfant directe.
    :focus-visible : uniquement au clavier, jamais au clic. */
 .cardLink:focus-visible > * {
-  outline:        2px solid var(--color-accent);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    CARTE — wrapper
    ───────────────────────────────────────────────────────────── */
 
 .card {
-  position:     relative;
-  overflow:     hidden;
-  cursor:       pointer;
-  border:       1px solid var(--color-surface);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--color-surface);
   border-radius: 0;
   transition:
     border-color var(--duration-base) var(--ease-out),
-    transform    var(--duration-base) var(--ease-out);
+    transform var(--duration-base) var(--ease-out);
 }
 
 /* ── Layout vertical (défaut) ── */
@@ -301,7 +363,7 @@
 /* ── Layout horizontal — carte wide ── */
 /* Mobile : stack vertical (colonne) */
 .cardHorizontal {
-  display:        flex;
+  display: flex;
   flex-direction: column;
 }
 
@@ -312,7 +374,6 @@
   }
 }
 
-
 /* ─────────────────────────────────────────────────────────────
    IMAGE DE FOND — cartes verticales
    ───────────────────────────────────────────────────────────── */
@@ -320,15 +381,14 @@
 /* backgroundImage : posée via style={{}} dans le JSX.
    Ce fichier gère uniquement les propriétés statiques. */
 .bg {
-  position:            absolute;
-  inset:               0;
-  width:               100%;
-  height:              100%;
-  background-size:     cover;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
   background-position: center;
-  transition:          transform var(--duration-slow) var(--ease-out);
+  transition: transform var(--duration-slow) var(--ease-out);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    IMAGE — cartes horizontales
@@ -336,23 +396,22 @@
 
 /* Mobile : pleine largeur, hauteur fixe */
 .imgHorizontal {
-  position:            relative;
-  width:               100%;
-  flex-shrink:         0;
-  min-height:          clamp(140px, 35vw, 220px);
-  background-size:     cover;
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+  min-height: clamp(140px, 35vw, 220px);
+  background-size: cover;
   background-position: center;
-  transition:          transform var(--duration-slow) var(--ease-out);
+  transition: transform var(--duration-slow) var(--ease-out);
 }
 
 /* sm : retour au mode latéral */
 @media (min-width: 640px) {
   .imgHorizontal {
-    width:      45%;
+    width: 45%;
     min-height: 100%;
   }
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    OVERLAY GRADIENT — cartes verticales
@@ -360,33 +419,32 @@
 
 /* rgba() sans token — gradient multi-stops, pas d'équivalent */
 .overlay {
-  position:   absolute;
-  inset:      0;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 0.92) 0%,
-    rgba(0, 0, 0, 0.40) 50%,
-    rgba(0, 0, 0, 0.10) 100%
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.1) 100%
   );
-  opacity:    1;
+  opacity: 1;
   transition: opacity var(--duration-base) var(--ease-out);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    CONTENU — cartes verticales
    ───────────────────────────────────────────────────────────── */
 
 .content {
-  position:        absolute;
-  bottom:          0;
-  left:            0;
-  right:           0;
-  display:         flex;
-  flex-direction:  column;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
   justify-content: flex-end;
-  gap:             var(--space-xs);
-  padding:         clamp(1rem, 2.5vw, 1.25rem);
+  gap: var(--space-xs);
+  padding: clamp(1rem, 2.5vw, 1.25rem);
 }
 
 /* Variante large — padding++ pour la carte hero */
@@ -394,45 +452,42 @@
   padding: clamp(1.25rem, 3vw, var(--space-md));
 }
 
-
 /* ─────────────────────────────────────────────────────────────
    CONTENU — cartes horizontales
    ───────────────────────────────────────────────────────────── */
 
 .contentHorizontal {
-  position:        relative;
-  flex:            1;
-  display:         flex;
-  flex-direction:  column;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  gap:             var(--space-xs);
-  padding:         clamp(1rem, 2.5vw, 1.25rem);
-  background:      var(--color-bg);
+  gap: var(--space-xs);
+  padding: clamp(1rem, 2.5vw, 1.25rem);
+  background: var(--color-bg);
   /* Mobile : séparation top (stack vertical) */
-  border-top:      1px solid var(--color-surface);
-  border-left:     none;
+  border-top: 1px solid var(--color-surface);
+  border-left: none;
 }
 
 /* sm : séparation gauche (layout côte à côte) */
 @media (min-width: 640px) {
   .contentHorizontal {
-    border-top:  none;
+    border-top: none;
     border-left: 1px solid var(--color-surface);
   }
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    META — tag + date
    ───────────────────────────────────────────────────────────── */
 
 .meta {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         0.75rem;
-  flex-wrap:   wrap;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    TAG
@@ -442,31 +497,29 @@
    color-mix() reproduit le ${hex}33 (20% alpha) du JSX original.
    color-mix(in srgb, ...) — support : Chrome 111+, FF 113+, Safari 16.2+ */
 .tag {
-  font-family:    var(--font-sans);
-  font-weight:    var(--fw-bold);
-  font-size:      0.6rem;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: 0.6rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding:        0.2rem 0.5rem;
-  border-radius:  var(--radius-sm);
-  color:          var(--tag-color);
-  border:         1px solid color-mix(in srgb, var(--tag-color) 20%, transparent);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--tag-color);
+  border: 1px solid color-mix(in srgb, var(--tag-color) 20%, transparent);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    DATE
    ───────────────────────────────────────────────────────────── */
 
 .date {
-  font-family:    var(--font-sans);
-  font-weight:    var(--fw-semibold);
-  font-size:      0.68rem;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color:          var(--color-text-faint);
+  color: var(--color-text-faint);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    TITRE
@@ -475,21 +528,26 @@
 /* font-size : piloté par data-text-size ci-dessous.
    Remplace l'objet JS titleFontSizes du composant original. */
 .title {
-  font-family:    var(--font-sans);
-  font-weight:    var(--fw-black);
-  line-height:    1.0;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-black);
+  line-height: 1;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-  color:          var(--color-text);
-  margin:         0;
-  transition:     color var(--duration-base) var(--ease-out);
+  color: var(--color-text);
+  margin: 0;
+  transition: color var(--duration-base) var(--ease-out);
 }
 
 /* Tailles fluides selon data-text-size */
-.title[data-text-size='large']  { font-size: clamp(1.1rem, 2.5vw, 2.2rem); }
-.title[data-text-size='medium'] { font-size: clamp(0.9rem, 1.8vw, 1.1rem); }
-.title[data-text-size='small']  { font-size: clamp(0.8rem, 1.5vw, 0.9rem); }
-
+.title[data-text-size="large"] {
+  font-size: clamp(1.1rem, 2.5vw, 2.2rem);
+}
+.title[data-text-size="medium"] {
+  font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+}
+.title[data-text-size="small"] {
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+}
 
 /* ─────────────────────────────────────────────────────────────
    DESCRIPTION
@@ -498,28 +556,27 @@
 /* font-size + line-clamp : pilotés par data-text-size.
    Remplace descFontSizes JS + WebkitLineClamp inline. */
 .desc {
-  font-family:        var(--font-sans);
-  font-weight:        var(--fw-light);
-  line-height:        1.6;
-  color:              var(--color-text-muted);
-  margin:             0;
-  display:            -webkit-box;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-light);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  margin: 0;
+  display: -webkit-box;
   -webkit-box-orient: vertical;
-  overflow:           hidden;
+  overflow: hidden;
 }
 
-.desc[data-text-size='large'] {
-  font-size:          0.9rem;
+.desc[data-text-size="large"] {
+  font-size: 0.9rem;
   -webkit-line-clamp: 3; /* support universel — Chrome <126, Safari, Firefox */
-  line-clamp:         3; /* standard CSS Overflow 4 — Chrome 126+             */
+  line-clamp: 3; /* standard CSS Overflow 4 — Chrome 126+             */
 }
 
-.desc[data-text-size='medium'] {
-  font-size:          0.78rem;
+.desc[data-text-size="medium"] {
+  font-size: 0.78rem;
   -webkit-line-clamp: 2;
-  line-clamp:         2;
+  line-clamp: 2;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    LIRE LA SUITE
@@ -528,27 +585,26 @@
 /* État par défaut : invisible, décalé.
    Révélé par .card:hover dans le bloc @media (hover: hover). */
 .readMore {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         0.4rem;
-  margin-top:  0.25rem;
-  opacity:     0;
-  transform:   translateX(-8px);
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+  opacity: 0;
+  transform: translateX(-8px);
   transition:
-    opacity   var(--duration-base) var(--ease-out),
+    opacity var(--duration-base) var(--ease-out),
     transform var(--duration-base) var(--ease-out);
 }
 
 /* color : lue depuis var(--tag-color) posée sur .card */
 .readMoreLabel {
-  font-family:    var(--font-sans);
-  font-weight:    var(--fw-bold);
-  font-size:      0.6rem;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: 0.6rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color:          var(--tag-color);
+  color: var(--tag-color);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    HOVER EFFECTS
@@ -558,11 +614,10 @@
    ───────────────────────────────────────────────────────────── */
 
 @media (hover: hover) and (pointer: fine) {
-
   /* Carte — élévation + bordure */
   .card:hover {
     border-color: var(--color-border-hover);
-    transform:    translateY(-2px);
+    transform: translateY(-2px);
   }
 
   /* Image verticale — zoom léger */
@@ -582,11 +637,10 @@
 
   /* Lire la suite — révélation */
   .card:hover .readMore {
-    opacity:   1;
+    opacity: 1;
     transform: translateX(0);
   }
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    GRAIN OVERLAY
@@ -594,14 +648,13 @@
 
 /* position:fixed, z-index élevé — texture de surface globale */
 .grain {
-  position:         fixed;
-  inset:            0;
+  position: fixed;
+  inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:   none;
-  z-index:          var(--z-cursor);
-  opacity:          0.4;
+  pointer-events: none;
+  z-index: var(--z-cursor);
+  opacity: 0.4;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    ACCESSIBILITÉ — prefers-reduced-motion

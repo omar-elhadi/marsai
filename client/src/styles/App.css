@@ -44,17 +44,17 @@
 
 @theme {
   /* Polices */
-  --font-sans:    "Manrope", sans-serif;
+  --font-sans: "Manrope", sans-serif;
   --font-display: "Manrope", sans-serif;
 
   /* Couleurs — accessibles via bg-*, text-*, border-* en Tailwind */
-  --color-bg:           #0f0f0f;
-  --color-bg-pure:      #000000;
-  --color-surface:      #1a1a1a;
+  --color-bg: #0f0f0f;
+  --color-bg-pure: #000000;
+  --color-surface: #1a1a1a;
   --color-surface-high: #242424;
-  --color-text:         #f1f5f9;
-  --color-text-muted:   #8a8a8a;
-  --color-text-faint:   #4a4a4a;
-  --color-accent:       #e2d1c3;
-  --color-border:       rgba(255, 255, 255, 0.08);
+  --color-text: #f1f5f9;
+  --color-text-muted: #8a8a8a;
+  --color-text-faint: #4a4a4a;
+  --color-accent: #e2d1c3;
+  --color-border: rgba(255, 255, 255, 0.08);
 }

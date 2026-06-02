@@ -44,14 +44,14 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef }        from 'react';
-import { useTranslation } from 'react-i18next';
-import gsap              from 'gsap';
-import { useGSAP }       from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ROUTES }        from '@/constants/routes';
-import LuminousButton    from '@/components/common/LuminousButton/LuminousButton';
-import styles            from './SectionCTA.module.css';
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ROUTES } from "@/constants/routes";
+import LuminousButton from "@/components/common/LuminousButton/LuminousButton";
+import styles from "./SectionCTA.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,75 +62,96 @@ gsap.registerPlugin(ScrollTrigger);
 // Trois mots — révélés un par un par rideau GSAP.
 // Le dernier reçoit la classe .ctaWordAccent (var(--color-accent)).
 const getMots = (t: any) => [
-  { text: t('cta.mots.1'), accent: false },
-  { text: t('cta.mots.2'), accent: false },
-  { text: t('cta.mots.3'), accent: true  },
+  { text: t("cta.mots.1"), accent: false },
+  { text: t("cta.mots.2"), accent: false },
+  { text: t("cta.mots.3"), accent: true },
 ];
 
 // ─────────────────────────────────────────────────────────────
 // COMPOSANT
 // ─────────────────────────────────────────────────────────────
 export default function SectionCTA() {
-  const { t } = useTranslation('common');
-  const sectionRef  = useRef(null);
-  const lineRef     = useRef(null);
-  const word1Ref    = useRef(null);
-  const word2Ref    = useRef(null);
-  const word3Ref    = useRef(null);
+  const { t } = useTranslation("common");
+  const sectionRef = useRef(null);
+  const lineRef = useRef(null);
+  const word1Ref = useRef(null);
+  const word2Ref = useRef(null);
+  const word3Ref = useRef(null);
   const subtitleRef = useRef(null);
-  const btnRef      = useRef(null);
+  const btnRef = useRef(null);
 
   const wordRefs = [word1Ref, word2Ref, word3Ref];
 
-  useGSAP(() => {
-    // ── États initiaux ─────────────────────────────────────────
-    gsap.set(lineRef.current, {
-      scaleX: 0, transformOrigin: 'center center',
-    });
-    wordRefs.forEach(r => gsap.set(r.current, { yPercent: 110 }));
-    gsap.set(subtitleRef.current, { opacity: 0, y: 20 });
-    gsap.set(btnRef.current,      { opacity: 0, y: 18 });
+  useGSAP(
+    () => {
+      // ── États initiaux ─────────────────────────────────────────
+      gsap.set(lineRef.current, {
+        scaleX: 0,
+        transformOrigin: "center center",
+      });
+      wordRefs.forEach((r) => gsap.set(r.current, { yPercent: 110 }));
+      gsap.set(subtitleRef.current, { opacity: 0, y: 20 });
+      gsap.set(btnRef.current, { opacity: 0, y: 18 });
 
-    // ── ScrollTrigger ─────────────────────────────────────────
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start:   'top 70%',
-      once:    true,
-      onEnter() {
-        const tl = gsap.timeline();
+      // ── ScrollTrigger ─────────────────────────────────────────
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 70%",
+        once: true,
+        onEnter() {
+          const tl = gsap.timeline();
 
-        // Filet — s'étire depuis le centre vers les deux bords
-        tl.to(lineRef.current, {
-          scaleX: 1, duration: 0.9, ease: 'power2.inOut',
-        });
+          // Filet — s'étire depuis le centre vers les deux bords
+          tl.to(lineRef.current, {
+            scaleX: 1,
+            duration: 0.9,
+            ease: "power2.inOut",
+          });
 
-        // Mots — rideau de bas en haut, stagger 130ms.
-        // clearProps: 'all' — GSAP nettoie ses styles inline
-        // après l'animation. Le CSS Module reprend le contrôle
-        // des couleurs et du letter-spacing.
-        tl.to(wordRefs.map(r => r.current), {
-          yPercent:   0,
-          duration:   0.88,
-          stagger:    0.13,
-          ease:       'power3.out',
-          clearProps: 'all',
-        }, 0.25);
+          // Mots — rideau de bas en haut, stagger 130ms.
+          // clearProps: 'all' — GSAP nettoie ses styles inline
+          // après l'animation. Le CSS Module reprend le contrôle
+          // des couleurs et du letter-spacing.
+          tl.to(
+            wordRefs.map((r) => r.current),
+            {
+              yPercent: 0,
+              duration: 0.88,
+              stagger: 0.13,
+              ease: "power3.out",
+              clearProps: "all",
+            },
+            0.25,
+          );
 
-        // Sous-titre
-        tl.to(subtitleRef.current, {
-          opacity: 1, y: 0,
-          duration: 0.65, ease: 'power2.out',
-        }, 0.72);
+          // Sous-titre
+          tl.to(
+            subtitleRef.current,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.65,
+              ease: "power2.out",
+            },
+            0.72,
+          );
 
-        // Bloc bouton + deadline
-        tl.to(btnRef.current, {
-          opacity: 1, y: 0,
-          duration: 0.62, ease: 'power2.out',
-        }, 0.90);
-      },
-    });
-
-  }, { scope: sectionRef });
+          // Bloc bouton + deadline
+          tl.to(
+            btnRef.current,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.62,
+              ease: "power2.out",
+            },
+            0.9,
+          );
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <section
@@ -139,7 +160,6 @@ export default function SectionCTA() {
       aria-label="Soumettre un film — appel à candidatures MARSAI"
       className={styles.sectionCTA}
     >
-
       {/* ── Image de fond — projecteur de cinéma dans le noir ──
           Un faisceau qui attend quelqu'un. C'est ton heure.
           Unsplash libre de droits — opacity 0.35 dans le CSS. */}
@@ -156,13 +176,8 @@ export default function SectionCTA() {
 
       {/* ── Contenu ──────────────────────────────────────────── */}
       <div className={styles.container}>
-
         {/* Filet d'ouverture — scaleX 0→1 depuis le centre */}
-        <div
-          ref={lineRef}
-          className={styles.ctaLine}
-          aria-hidden="true"
-        />
+        <div ref={lineRef} className={styles.ctaLine} aria-hidden="true" />
 
         {/* Titre — mots révélés un par un, rideau GSAP */}
         <div className={styles.ctaTitleWrapper}>
@@ -170,7 +185,7 @@ export default function SectionCTA() {
             <div key={text} className={styles.ctaWordMask}>
               <span
                 ref={wordRefs[i]}
-                className={`${styles.ctaWord} ${accent ? styles.ctaWordAccent : ''}`}
+                className={`${styles.ctaWord} ${accent ? styles.ctaWordAccent : ""}`}
               >
                 {text}
               </span>
@@ -180,30 +195,29 @@ export default function SectionCTA() {
 
         {/* Sous-titre — poétique, centré, dense */}
         <p ref={subtitleRef} className={styles.ctaSubtitle}>
-          {t('cta.subtitle')}
+          {t("cta.subtitle")}
         </p>
 
         {/* Bloc bouton + deadline — animé ensemble */}
         <div ref={btnRef} className={styles.ctaBtnBlock}>
-
           {/* Halo pulsant — wrapper CSS, jamais GSAP */}
           <div className={styles.ctaBtnHalo}>
             <LuminousButton
-              label   ={t('cta.btn')}
-              to      ={ROUTES.SOUMETTRE}
-              size    ="lg"
+              label={t("cta.btn")}
+              to={ROUTES.SOUMETTRE}
+              size="lg"
             />
           </div>
 
           {/* Date de clôture — rareté temporelle chuchotée.
               La tension de l'urgence, sans crier. */}
           <p className={styles.ctaDeadline}>
-            {t('cta.deadline')}
-            <span className={styles.ctaDeadlineAccent}>{t('cta.deadlineDate')}</span>
+            {t("cta.deadline")}
+            <span className={styles.ctaDeadlineAccent}>
+              {t("cta.deadlineDate")}
+            </span>
           </p>
-
         </div>
-
       </div>
     </section>
   );

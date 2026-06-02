@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient } from '../services/api/apiClient';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { apiClient } from "../services/api/apiClient";
 
 interface User {
   id: number;
@@ -18,16 +18,21 @@ interface AuthContextType {
   hasRole: (roles: string[]) => boolean;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Rehydrate from httpOnly cookie
-    apiClient.get('/auth/me')
-      .then(res => {
+    apiClient
+      .get("/auth/me")
+      .then((res) => {
         setUser(res.data.user || res.data);
       })
       .catch(() => {
@@ -39,11 +44,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (data: User) => setUser(data);
-  
+
   const logout = async () => {
     try {
-      await apiClient.post('/auth/logout');
-    } catch(e) {}
+      await apiClient.post("/auth/logout");
+    } catch (e) {}
     setUser(null);
   };
 
@@ -53,7 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAuthenticated: !!user, hasRole }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, logout, isAuthenticated: !!user, hasRole }}
+    >
       {children}
     </AuthContext.Provider>
   );

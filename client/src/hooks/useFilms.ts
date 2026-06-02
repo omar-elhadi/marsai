@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
-import { filmsService } from '../services/api/films';
-import { Film } from '../types';
+import { useState, useCallback, useEffect } from "react";
+import { filmsService } from "../services/api/films";
+import { Film } from "../types";
 
 export const useFilms = () => {
   const [films, setFilms] = useState<Film[]>([]);
@@ -14,7 +14,9 @@ export const useFilms = () => {
       const data = await filmsService.getAll();
       setFilms(data || []);
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to fetch films');
+      setError(
+        err.response?.data?.error || err.message || "Failed to fetch films",
+      );
     } finally {
       setLoading(false);
     }

@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { logger } from "../utils/logger.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/AppError.js";
@@ -13,13 +14,13 @@ export const userController = {
   /**
    * Récupérer tous les membres (Admin & Jury)
    */
-  getAll: async (req, res) => {
+  getAll: async (req: Request, res: Response) => {
     try {
       const users = await prisma.user.findMany({
         orderBy: { createdAt: "desc" },
       });
       res.json(users);
-    } catch (error) {
+    } catch {
       res
         .status(500)
         .json({ message: "Erreur lors de la récupération des membres" });
@@ -30,7 +31,7 @@ export const userController = {
    * Création d'un nouveau membre
    * Note : Si le password est absent, le compte reste "en attente" d'activation via Magic Link.
    */
-  register: async (req, res) => {
+  register: async (req: Request, res: Response) => {
     try {
       const { email, password, firstName, lastName, role } = req.body;
 
@@ -46,9 +47,9 @@ export const userController = {
 
       res.status(201).json(newUser);
     } catch (error) {
-      res
-        .status(400)
-        .json({ message: "Erreur lors de la création : " + error.message });
+      res.status(400).json({
+        message: "Erreur lors de la création : " + (error as Error).message,
+      });
     }
   },
 
@@ -56,9 +57,9 @@ export const userController = {
    * ENVOI DE L'INVITATION (Magic Link)
    * Génère un token unique, définit une expiration et envoie le mail.
    */
-  sendInvite: async (req, res) => {
+  sendInvite: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
 
       // 1. Récupération du membre
       const user = await prisma.user.findUnique({
@@ -73,7 +74,7 @@ export const userController = {
       const token = crypto.randomBytes(32).toString("hex");
 
       // 3. Calcul de l'expiration — valable jusqu'à la fin du festival (22 juin 2026)
-      const expires = new Date('2026-06-22T23:59:59.000Z');
+      const expires = new Date("2026-06-22T23:59:59.000Z");
 
       // 4. Mise à jour en base de données
       // On utilise les noms de colonnes exacts de ton schéma : loginToken et tokenExpires
@@ -92,7 +93,7 @@ export const userController = {
         message: `Lien magique envoyé avec succès à ${user.firstName} (${user.email})`,
       });
     } catch (error) {
-      logger.error(error, "Erreur sendInvite:");
+      logger.error({ err: error }, "Erreur sendInvite:");
       res.status(500).json({
         message:
           "Échec de l'envoi de l'invitation. Vérifiez la configuration SMTP.",
@@ -103,9 +104,9 @@ export const userController = {
   /**
    * Mise à jour d'un membre
    */
-  update: async (req, res) => {
+  update: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const data = req.body;
 
       const updatedUser = await prisma.user.update({
@@ -114,7 +115,7 @@ export const userController = {
       });
 
       res.json(updatedUser);
-    } catch (error) {
+    } catch {
       res.status(400).json({ message: "Erreur lors de la mise à jour" });
     }
   },
@@ -122,14 +123,14 @@ export const userController = {
   /**
    * Suppression d'un membre
    */
-  delete: async (req, res) => {
+  delete: async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       await prisma.user.delete({
         where: { id: parseInt(id) },
       });
       res.json({ message: "Membre supprimé" });
-    } catch (error) {
+    } catch {
       res.status(400).json({ message: "Erreur lors de la suppression" });
     }
   },

@@ -23,76 +23,89 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SectionTheme() {
-  const { t } = useTranslation('common');
-  const sectionRef  = useRef(null);
-  const imageRef    = useRef(null);
-  const contentRef  = useRef(null);
+  const { t } = useTranslation("common");
+  const sectionRef = useRef(null);
+  const imageRef = useRef(null);
+  const contentRef = useRef(null);
   const overlineRef = useRef(null);
-  const titleRef    = useRef(null);
-  const quoteRef    = useRef(null);
+  const titleRef = useRef(null);
+  const quoteRef = useRef(null);
 
-  useGSAP(() => {
+  useGSAP(
+    () => {
+      // ── États initiaux ────────────────────────────────────────
+      gsap.set(overlineRef.current, { opacity: 0, y: 14 });
+      gsap.set(titleRef.current, {
+        opacity: 0,
+        scale: 0.96,
+        filter: "blur(6px)",
+      });
+      gsap.set(quoteRef.current, { opacity: 0, y: 18 });
 
-    // ── États initiaux ────────────────────────────────────────
-    gsap.set(overlineRef.current, { opacity: 0, y: 14 });
-    gsap.set(titleRef.current,    { opacity: 0, scale: 0.96, filter: 'blur(6px)' });
-    gsap.set(quoteRef.current,    { opacity: 0, y: 18 });
+      // ── Parallaxe image — douce et non déstabilisante ─────────
+      gsap.to(imageRef.current, {
+        yPercent: -12,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
 
-    // ── Parallaxe image — douce et non déstabilisante ─────────
-    gsap.to(imageRef.current, {
-      yPercent: -12,
-      ease:     'none',
-      scrollTrigger: {
-        trigger:          sectionRef.current,
-        start:            'top bottom',
-        end:              'bottom top',
-        scrub:            true,
-        invalidateOnRefresh: true,
-      },
-    });
+      // ── Révélation du texte au scroll ─────────────────────────
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 65%",
+        once: true,
+        onEnter() {
+          const tl = gsap.timeline();
 
-    // ── Révélation du texte au scroll ─────────────────────────
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start:   'top 65%',
-      once:    true,
-      onEnter() {
-        const tl = gsap.timeline();
+          tl.to(overlineRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power2.out",
+          });
 
-        tl.to(overlineRef.current, {
-          opacity:  1,
-          y:        0,
-          duration: 0.6,
-          ease:     'power2.out',
-        });
+          tl.to(
+            titleRef.current,
+            {
+              opacity: 1,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 0.9,
+              ease: "power2.out",
+            },
+            0.2,
+          );
 
-        tl.to(titleRef.current, {
-          opacity:  1,
-          scale:    1,
-          filter:   'blur(0px)',
-          duration: 0.9,
-          ease:     'power2.out',
-        }, 0.2);
-
-        tl.to(quoteRef.current, {
-          opacity:  1,
-          y:        0,
-          duration: 0.7,
-          ease:     'power2.out',
-        }, 0.65);
-      },
-    });
-
-  }, { scope: sectionRef });
+          tl.to(
+            quoteRef.current,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.7,
+              ease: "power2.out",
+            },
+            0.65,
+          );
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <section
@@ -100,22 +113,21 @@ export default function SectionTheme() {
       id="theme"
       aria-label="Thème 2026 — Imaginer des futurs souhaitables"
       style={{
-        position:   'relative',
-        width:      '100%',
-        overflow:   'hidden',
+        position: "relative",
+        width: "100%",
+        overflow: "hidden",
         /* Ratio cinémascope 21:9 sur desktop, plus généreux sur mobile */
-        aspectRatio: 'auto',
-        minHeight:  'clamp(420px, 56vw, 720px)',
-        background: 'var(--color-bg-pure)',
+        aspectRatio: "auto",
+        minHeight: "clamp(420px, 56vw, 720px)",
+        background: "var(--color-bg-pure)",
       }}
     >
-
       {/* ── Image plein-largeur avec parallaxe ─────────────── */}
       <div
         style={{
-          position: 'absolute',
-          inset:    '-15% 0',   /* Espace pour le mouvement parallaxe */
-          zIndex:   0,
+          position: "absolute",
+          inset: "-15% 0" /* Espace pour le mouvement parallaxe */,
+          zIndex: 0,
         }}
       >
         <img
@@ -123,11 +135,11 @@ export default function SectionTheme() {
           src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=88&w=2400&auto=format&fit=crop"
           alt="Un cinéaste face à l'horizon — futurs souhaitables"
           style={{
-            width:      '100%',
-            height:     '100%',
-            objectFit:  'cover',
-            objectPosition: 'center 40%',
-            willChange: 'transform',
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center 40%",
+            willChange: "transform",
           }}
         />
       </div>
@@ -138,9 +150,9 @@ export default function SectionTheme() {
           ──────────────────────────────────────────────────── */}
       <div
         style={{
-          position:   'absolute',
-          inset:      0,
-          zIndex:     1,
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
           background: `
             radial-gradient(
               ellipse at center,
@@ -154,14 +166,14 @@ export default function SectionTheme() {
       {/* ── Grain — cohérence avec le héros ────────────────── */}
       <div
         style={{
-          position:        'absolute',
-          inset:           0,
-          zIndex:          2,
+          position: "absolute",
+          inset: 0,
+          zIndex: 2,
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize:  '180px 180px',
-          opacity:         0.035,
-          mixBlendMode:    'overlay',
-          pointerEvents:   'none',
+          backgroundSize: "180px 180px",
+          opacity: 0.035,
+          mixBlendMode: "overlay",
+          pointerEvents: "none",
         }}
       />
 
@@ -169,19 +181,18 @@ export default function SectionTheme() {
       <div
         ref={contentRef}
         style={{
-          position:       'relative',
-          zIndex:         10,
-          height:         '100%',
-          display:        'flex',
-          flexDirection:  'column',
-          alignItems:     'center',
-          justifyContent: 'center',
-          textAlign:      'center',
-          padding:        'clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 6rem)',
-          minHeight:      'clamp(420px, 56vw, 720px)',
+          position: "relative",
+          zIndex: 10,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 6rem)",
+          minHeight: "clamp(420px, 56vw, 720px)",
         }}
       >
-
         {/* Overline */}
         <div
           ref={overlineRef}
@@ -189,20 +200,20 @@ export default function SectionTheme() {
         >
           <span
             style={{
-              display:    'block',
-              width:      'clamp(1.5rem, 2.5vw, 2.5rem)',
-              height:     '1px',
-              background: 'var(--color-accent)',
+              display: "block",
+              width: "clamp(1.5rem, 2.5vw, 2.5rem)",
+              height: "1px",
+              background: "var(--color-accent)",
               flexShrink: 0,
             }}
           />
           <span className="label-overline">Thème 2026</span>
           <span
             style={{
-              display:    'block',
-              width:      'clamp(1.5rem, 2.5vw, 2.5rem)',
-              height:     '1px',
-              background: 'var(--color-accent)',
+              display: "block",
+              width: "clamp(1.5rem, 2.5vw, 2.5rem)",
+              height: "1px",
+              background: "var(--color-accent)",
               flexShrink: 0,
             }}
           />
@@ -212,41 +223,42 @@ export default function SectionTheme() {
         <h2
           ref={titleRef}
           style={{
-            fontFamily:    'var(--font-display)',
-            fontWeight:    900,
-            fontSize:      'clamp(2.2rem, 6vw, 6.5rem)',
-            lineHeight:    0.95,
-            letterSpacing: '-0.035em',
-            textTransform: 'uppercase',
-            color:         'var(--color-text)',
-            marginBottom:  'clamp(1.5rem, 3vw, 2.5rem)',
-            maxWidth:      '22ch',
-            willChange:    'transform, filter, opacity',
+            fontFamily: "var(--font-display)",
+            fontWeight: 900,
+            fontSize: "clamp(2.2rem, 6vw, 6.5rem)",
+            lineHeight: 0.95,
+            letterSpacing: "-0.035em",
+            textTransform: "uppercase",
+            color: "var(--color-text)",
+            marginBottom: "clamp(1.5rem, 3vw, 2.5rem)",
+            maxWidth: "22ch",
+            willChange: "transform, filter, opacity",
           }}
         >
-          Imaginer des<br />
-          <span style={{ color: 'var(--color-accent)' }}>{t('theme.title2')}</span>
+          Imaginer des
+          <br />
+          <span style={{ color: "var(--color-accent)" }}>
+            {t("theme.title2")}
+          </span>
         </h2>
 
         {/* Citation — sobre, sans guillemets tape-à-l'œil */}
         <p
           ref={quoteRef}
           style={{
-            fontFamily:    'var(--font-sans)',
-            fontWeight:    300,
-            fontStyle:     'italic',
-            fontSize:      'clamp(0.95rem, 1.6vw, 1.15rem)',
-            letterSpacing: '0.02em',
-            color:         'rgba(241, 245, 249, 0.60)',
-            maxWidth:      '44ch',
-            lineHeight:    1.7,
+            fontFamily: "var(--font-sans)",
+            fontWeight: 300,
+            fontStyle: "italic",
+            fontSize: "clamp(0.95rem, 1.6vw, 1.15rem)",
+            letterSpacing: "0.02em",
+            color: "rgba(241, 245, 249, 0.60)",
+            maxWidth: "44ch",
+            lineHeight: 1.7,
           }}
         >
-          {t('theme.quote')}
+          {t("theme.quote")}
         </p>
-
       </div>
-
     </section>
   );
 }

@@ -408,8 +408,7 @@ export default function MovieGallery() {
           pinSpacing: true,
           scrub: 1.2,
           start: "top top+=" + headerH,
-          end: () =>
-            "+=" + (wrapperEl.scrollWidth - window.innerWidth),
+          end: () => "+=" + (wrapperEl.scrollWidth - window.innerWidth),
           invalidateOnRefresh: true,
 
           onRefresh() {
@@ -417,7 +416,8 @@ export default function MovieGallery() {
             const hEl = document.querySelector("header");
             const hH = hEl ? hEl.offsetHeight : 64;
             const sH = window.innerHeight - hH;
-            (galleryRootRef.current as HTMLElement).style.paddingTop = hH + "px";
+            (galleryRootRef.current as HTMLElement).style.paddingTop =
+              hH + "px";
             (sectionRef.current as HTMLElement).style.height = sH + "px";
             window.dispatchEvent(new CustomEvent("lenis:resize"));
           },
@@ -434,7 +434,8 @@ export default function MovieGallery() {
                 ease: "power2.out",
                 onComplete() {
                   if (scrollHintRef.current)
-                    (scrollHintRef.current as HTMLElement).style.display = "none";
+                    (scrollHintRef.current as HTMLElement).style.display =
+                      "none";
                 },
               });
             }

@@ -127,4 +127,5 @@ audit-output/
 .pull-journal/
 audit-system/audit-output/
 
-.github/
+*.orig
+*.patch

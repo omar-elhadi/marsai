@@ -43,15 +43,14 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import gsap                 from 'gsap';
-import { useGSAP }          from '@gsap/react';
-import { ScrollTrigger }    from 'gsap/ScrollTrigger';
-import styles               from './SectionAlliances.module.css';
+import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import styles from "./SectionAlliances.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
-
 
 // ─────────────────────────────────────────────────────────────
 // §C — LOGOS SVG MONOCHROMES
@@ -62,13 +61,29 @@ gsap.registerPlugin(ScrollTrigger);
 /* Sora Studio — cadre vidéo + objectif caméra */
 function LogoSoraStudio() {
   return (
-    <svg width="42" height="26" viewBox="0 0 42 26" fill="none" aria-hidden="true">
-      <rect x="1" y="1" width="24" height="18" rx="2"
-        stroke="currentColor" strokeWidth="1.4" />
-      <path d="M25 6L41 2V24L25 20V6Z"
-        stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <circle cx="10" cy="10" r="2.5"
-        stroke="currentColor" strokeWidth="1.2" />
+    <svg
+      width="42"
+      height="26"
+      viewBox="0 0 42 26"
+      fill="none"
+      aria-hidden="true"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="24"
+        height="18"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+      />
+      <path
+        d="M25 6L41 2V24L25 20V6Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.2" />
     </svg>
   );
 }
@@ -76,11 +91,25 @@ function LogoSoraStudio() {
 /* Anthropic Labs — triangle constitutionnel + ligne de seuil */
 function LogoAnthropicLabs() {
   return (
-    <svg width="28" height="26" viewBox="0 0 28 26" fill="none" aria-hidden="true">
-      <path d="M14 3L26 23H2L14 3Z"
-        stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-      <path d="M9 17H19"
-        stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <svg
+      width="28"
+      height="26"
+      viewBox="0 0 28 26"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M14 3L26 23H2L14 3Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 17H19"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -88,14 +117,21 @@ function LogoAnthropicLabs() {
 /* CNC — bobine de film : cercle + moyeu + rayons */
 function LogoCNC() {
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <circle cx="14" cy="14" r="12"
-        stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="14" cy="14" r="3"
-        fill="currentColor" opacity="0.8" />
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 28 28"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="14" cy="14" r="3" fill="currentColor" opacity="0.8" />
       <path
         d="M14 2V6M14 22V26M2 14H6M22 14H26M5.5 5.5L8.2 8.2M19.8 19.8L22.5 22.5M22.5 5.5L19.8 8.2M8.2 19.8L5.5 22.5"
-        stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -103,14 +139,23 @@ function LogoCNC() {
 /* EDF Pulse — onde vitale, ligne d'énergie */
 function LogoEDFPulse() {
   return (
-    <svg width="48" height="22" viewBox="0 0 48 22" fill="none" aria-hidden="true">
-      <path d="M2 11H9L13 3L19 21L25 7L30 15L34 11H46"
-        stroke="currentColor" strokeWidth="1.5"
-        strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      width="48"
+      height="22"
+      viewBox="0 0 48 22"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M2 11H9L13 3L19 21L25 7L30 15L34 11H46"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
-
 
 // ─────────────────────────────────────────────────────────────
 // DONNÉES PARTENAIRES
@@ -120,43 +165,46 @@ function LogoEDFPulse() {
 // ─────────────────────────────────────────────────────────────
 const PARTENAIRES = [
   {
-    index:      '01',
-    nom:        'Sora Studio',
-    secteur:    'Génération Vidéo',
-    Logo:       LogoSoraStudio,
-    desc:       'Pionnier de la génération vidéo haute fidélité. Partenaire technologique officiel pour les ateliers du festival.',
-    descLongue: 'Sora Studio repousse les limites de la génération vidéo depuis 2022. Leur moteur de diffusion temporelle permet de créer des séquences cinématographiques cohérentes sur plusieurs minutes — une révolution pour les réalisateurs indépendants. Pour MARSAI, Sora Studio met à disposition ses API en accès anticipé pour les 600 participants du concours.',
-    href:       'https://sora.com',
+    index: "01",
+    nom: "Sora Studio",
+    secteur: "Génération Vidéo",
+    Logo: LogoSoraStudio,
+    desc: "Pionnier de la génération vidéo haute fidélité. Partenaire technologique officiel pour les ateliers du festival.",
+    descLongue:
+      "Sora Studio repousse les limites de la génération vidéo depuis 2022. Leur moteur de diffusion temporelle permet de créer des séquences cinématographiques cohérentes sur plusieurs minutes — une révolution pour les réalisateurs indépendants. Pour MARSAI, Sora Studio met à disposition ses API en accès anticipé pour les 600 participants du concours.",
+    href: "https://sora.com",
   },
   {
-    index:      '02',
-    nom:        'Anthropic Labs',
-    secteur:    'Intelligence Artificielle',
-    Logo:       LogoAnthropicLabs,
-    desc:       "Recherche fondamentale en IA responsable. Soutien à la création d'outils narratifs de nouvelle génération.",
-    descLongue: "Anthropic Labs est à la pointe de la recherche en IA constitutionnelle. Leur travail sur la narrativité générée ouvre de nouveaux territoires pour les créateurs. Pour MARSAI, Anthropic contribue aux outils de direction artistique accessibles à tous les participants, quel que soit leur niveau technique.",
-    href:       'https://anthropic.com',
+    index: "02",
+    nom: "Anthropic Labs",
+    secteur: "Intelligence Artificielle",
+    Logo: LogoAnthropicLabs,
+    desc: "Recherche fondamentale en IA responsable. Soutien à la création d'outils narratifs de nouvelle génération.",
+    descLongue:
+      "Anthropic Labs est à la pointe de la recherche en IA constitutionnelle. Leur travail sur la narrativité générée ouvre de nouveaux territoires pour les créateurs. Pour MARSAI, Anthropic contribue aux outils de direction artistique accessibles à tous les participants, quel que soit leur niveau technique.",
+    href: "https://anthropic.com",
   },
   {
-    index:      '03',
-    nom:        'CNC',
-    secteur:    'Soutien au Cinéma',
-    Logo:       LogoCNC,
-    desc:       "Centre National du Cinéma et de l'image animée. Reconnaissance officielle du festival dans le paysage culturel français.",
-    descLongue: "Le CNC apporte sa légitimité institutionnelle à MARSAI. Cette reconnaissance officielle permet aux œuvres primées d'accéder aux dispositifs de soutien du CNC pour leur développement en long-métrage — une passerelle concrète entre la création expérimentale et l'industrie cinématographique française.",
-    href:       'https://cnc.fr',
+    index: "03",
+    nom: "CNC",
+    secteur: "Soutien au Cinéma",
+    Logo: LogoCNC,
+    desc: "Centre National du Cinéma et de l'image animée. Reconnaissance officielle du festival dans le paysage culturel français.",
+    descLongue:
+      "Le CNC apporte sa légitimité institutionnelle à MARSAI. Cette reconnaissance officielle permet aux œuvres primées d'accéder aux dispositifs de soutien du CNC pour leur développement en long-métrage — une passerelle concrète entre la création expérimentale et l'industrie cinématographique française.",
+    href: "https://cnc.fr",
   },
   {
-    index:      '04',
-    nom:        'EDF Pulse',
-    secteur:    'Innovation & Énergie',
-    Logo:       LogoEDFPulse,
-    desc:       "Programme d'accélération pour les projets culturels innovants. Dotation en infrastructure pour les finalistes.",
-    descLongue: "EDF Pulse accompagne les projets à l'intersection de la technologie et de la culture depuis 2015. Leur programme dédié à la création numérique offre aux finalistes de MARSAI un accès à des infrastructures de calcul haute performance — indispensables pour les rendus vidéo exigeants de la génération IA.",
-    href:       'https://edf.fr/pulse',
+    index: "04",
+    nom: "EDF Pulse",
+    secteur: "Innovation & Énergie",
+    Logo: LogoEDFPulse,
+    desc: "Programme d'accélération pour les projets culturels innovants. Dotation en infrastructure pour les finalistes.",
+    descLongue:
+      "EDF Pulse accompagne les projets à l'intersection de la technologie et de la culture depuis 2015. Leur programme dédié à la création numérique offre aux finalistes de MARSAI un accès à des infrastructures de calcul haute performance — indispensables pour les rendus vidéo exigeants de la génération IA.",
+    href: "https://edf.fr/pulse",
   },
 ];
-
 
 // ─────────────────────────────────────────────────────────────
 // §A — LOGO SLIDER — COMPOSANT INTERNE
@@ -191,79 +239,95 @@ function LogoSlider() {
         Boucle invisible — aucun saut.
       */}
       <div className={styles.sliderTrack}>
-        <SliderItems />   {/* Piste originale */}
-        <SliderItems />   {/* Duplicata — boucle seamless */}
+        <SliderItems /> {/* Piste originale */}
+        <SliderItems /> {/* Duplicata — boucle seamless */}
       </div>
     </div>
   );
 }
 
-
 // ─────────────────────────────────────────────────────────────
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export default function SectionAlliances() {
-  const { t } = useTranslation('common');
-  const sectionRef  = useRef<any>(null);
+  const { t } = useTranslation("common");
+  const sectionRef = useRef<any>(null);
   const overlineRef = useRef<any>(null);
-  const titleRef    = useRef<any>(null);
-  const sliderRef   = useRef<any>(null);
-  const gridRef     = useRef<any>(null);
+  const titleRef = useRef<any>(null);
+  const sliderRef = useRef<any>(null);
+  const gridRef = useRef<any>(null);
 
   // ── activeCard : index string du partenaire dont le panel
   // est ouvert. null = toutes les cartes fermées.
   // Une seule ouverte à la fois — clarté éditoriale.
   const [activeCard, setActiveCard] = useState<string | null>(null);
 
-  useGSAP(() => {
-    // ── États initiaux ─────────────────────────────────────────
-    gsap.set(overlineRef.current, { opacity: 0, y: 14 });
-    gsap.set(titleRef.current,    { opacity: 0, y: 28 });
-    gsap.set(sliderRef.current,   { opacity: 0 });
+  useGSAP(
+    () => {
+      // ── États initiaux ─────────────────────────────────────────
+      gsap.set(overlineRef.current, { opacity: 0, y: 14 });
+      gsap.set(titleRef.current, { opacity: 0, y: 28 });
+      gsap.set(sliderRef.current, { opacity: 0 });
 
-    const cols = gridRef.current
-      ? Array.from(gridRef.current.children)
-      : [];
-    gsap.set(cols, { opacity: 0, y: 35 });
+      const cols = gridRef.current ? Array.from(gridRef.current.children) : [];
+      gsap.set(cols, { opacity: 0, y: 35 });
 
-    // ── ScrollTrigger ─────────────────────────────────────────
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start:   'top 72%',
-      once:    true,
-      onEnter() {
-        const tl = gsap.timeline();
+      // ── ScrollTrigger ─────────────────────────────────────────
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 72%",
+        once: true,
+        onEnter() {
+          const tl = gsap.timeline();
 
-        tl.to(overlineRef.current, {
-          opacity: 1, y: 0,
-          duration: 0.55, ease: 'power2.out',
-        });
+          tl.to(overlineRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            ease: "power2.out",
+          });
 
-        tl.to(titleRef.current, {
-          opacity: 1, y: 0,
-          duration: 0.75, ease: 'power2.out',
-        }, 0.12);
+          tl.to(
+            titleRef.current,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.75,
+              ease: "power2.out",
+            },
+            0.12,
+          );
 
-        // clearProps: 'opacity' — l'animation CSS reprend le contrôle
-        tl.to(sliderRef.current, {
-          opacity:    1,
-          duration:   0.9,
-          ease:       'power2.out',
-          clearProps: 'opacity',
-        }, 0.30);
+          // clearProps: 'opacity' — l'animation CSS reprend le contrôle
+          tl.to(
+            sliderRef.current,
+            {
+              opacity: 1,
+              duration: 0.9,
+              ease: "power2.out",
+              clearProps: "opacity",
+            },
+            0.3,
+          );
 
-        // clearProps: 'all' — hover CSS du module reprend le contrôle
-        tl.to(cols, {
-          opacity:    1,
-          y:          0,
-          duration:   0.65,
-          stagger:    0.12,
-          ease:       'power2.out',
-          clearProps: 'all',
-        }, 0.45);
-      },
-    });
-  }, { scope: sectionRef });
+          // clearProps: 'all' — hover CSS du module reprend le contrôle
+          tl.to(
+            cols,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.65,
+              stagger: 0.12,
+              ease: "power2.out",
+              clearProps: "all",
+            },
+            0.45,
+          );
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <section
@@ -273,7 +337,6 @@ export default function SectionAlliances() {
       className={styles.section}
     >
       <div className={styles.container}>
-
         {/* ── Overline ───────────────────────────────────────── */}
         <div ref={overlineRef} className={styles.overlineRow}>
           <span className={styles.overlineLine} aria-hidden="true" />
@@ -281,14 +344,11 @@ export default function SectionAlliances() {
         </div>
 
         {/* ── Titre ──────────────────────────────────────────── */}
-        <h2
-          ref={titleRef}
-          className={`title-section ${styles.title}`}
-        >
-          Les Architectes<br />
+        <h2 ref={titleRef} className={`title-section ${styles.title}`}>
+          Les Architectes
+          <br />
           <span className={styles.titleAccent}>du Possible</span>
         </h2>
-
       </div>
 
       {/* ── §A : Logo Slider ─────────────────────────────────────
@@ -304,109 +364,123 @@ export default function SectionAlliances() {
           un <button> dans un <a> = HTML invalide. */}
       <div className={styles.container}>
         <div ref={gridRef} className={styles.grid}>
-          {PARTENAIRES.map(({ index, nom, secteur, desc, descLongue, href }, i) => {
-            const isOpen = activeCard === index;
+          {PARTENAIRES.map(
+            ({ index, nom, secteur, desc, descLongue, href }, i) => {
+              const isOpen = activeCard === index;
 
-            return (
-              <div
-                key={index}
-                className={styles.card}
-                aria-label={`Partenaire ${nom} — ${secteur}`}
-                style={{
-                  /* borderLeft calculé depuis l'index i.
+              return (
+                <div
+                  key={index}
+                  className={styles.card}
+                  aria-label={`Partenaire ${nom} — ${secteur}`}
+                  style={{
+                    /* borderLeft calculé depuis l'index i.
                      Dynamique — inline documenté. */
-                  borderLeft: i > 0 ? '1px solid var(--color-border)' : 'none',
-                }}
-              >
-                {/* Numéro décoratif — arrière-plan profond */}
-                <span className={styles.cardIndex} aria-hidden="true">
-                  {index}
-                </span>
+                    borderLeft:
+                      i > 0 ? "1px solid var(--color-border)" : "none",
+                  }}
+                >
+                  {/* Numéro décoratif — arrière-plan profond */}
+                  <span className={styles.cardIndex} aria-hidden="true">
+                    {index}
+                  </span>
 
-                {/* Index small */}
-                <span className={styles.cardNum} aria-hidden="true">
-                  {index}
-                </span>
+                  {/* Index small */}
+                  <span className={styles.cardNum} aria-hidden="true">
+                    {index}
+                  </span>
 
-                {/* Nom */}
-                <h3 className={styles.cardName}>{nom}</h3>
+                  {/* Nom */}
+                  <h3 className={styles.cardName}>{nom}</h3>
 
-                {/* Secteur */}
-                <span className="label-category">{secteur}</span>
+                  {/* Secteur */}
+                  <span className="label-category">{secteur}</span>
 
-                {/* Filet */}
-                <hr className={styles.cardHr} />
+                  {/* Filet */}
+                  <hr className={styles.cardHr} />
 
-                {/* Description courte — toujours visible */}
-                <p className={`body-meta ${styles.cardDesc}`}>{desc}</p>
+                  {/* Description courte — toujours visible */}
+                  <p className={`body-meta ${styles.cardDesc}`}>{desc}</p>
 
-                {/* ── Expand block ───────────────────────────────
+                  {/* ── Expand block ───────────────────────────────
                     .cardExpand : margin-top:auto → colle en bas
                     de carte quelle que soit la hauteur du contenu.
                     Bouton et panel ensemble dans un seul wrapper
                     → un seul gap appliqué par le flex parent. */}
-                <div className={styles.cardExpand}>
-
-                  {/* Bouton Découvrir / Fermer */}
-                  <button
-                    className={`${styles.cardBtn} ${isOpen ? styles.cardBtnOpen : ''}`}
-                    onClick={() => setActiveCard(isOpen ? null : index)}
-                    aria-expanded={isOpen}
-                    aria-controls={`alliance-desc-${index}`}
-                  >
-                    <span>{isOpen ? 'Fermer' : 'Découvrir'}</span>
-                    {/* Chevron — pivoté 180° à l'ouverture via CSS */}
-                    <svg
-                      width="10" height="6" viewBox="0 0 10 6"
-                      fill="none" aria-hidden="true"
-                      className={`${styles.cardBtnChevron} ${isOpen ? styles.cardBtnChevronOpen : ''}`}
+                  <div className={styles.cardExpand}>
+                    {/* Bouton Découvrir / Fermer */}
+                    <button
+                      className={`${styles.cardBtn} ${isOpen ? styles.cardBtnOpen : ""}`}
+                      onClick={() => setActiveCard(isOpen ? null : index)}
+                      aria-expanded={isOpen}
+                      aria-controls={`alliance-desc-${index}`}
                     >
-                      <path
-                        d="M1 1L5 5L9 1"
-                        stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"
-                      />
-                    </svg>
-                  </button>
+                      <span>{isOpen ? "Fermer" : "Découvrir"}</span>
+                      {/* Chevron — pivoté 180° à l'ouverture via CSS */}
+                      <svg
+                        width="10"
+                        height="6"
+                        viewBox="0 0 10 6"
+                        fill="none"
+                        aria-hidden="true"
+                        className={`${styles.cardBtnChevron} ${isOpen ? styles.cardBtnChevronOpen : ""}`}
+                      >
+                        <path
+                          d="M1 1L5 5L9 1"
+                          stroke="currentColor"
+                          strokeWidth="1.3"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
 
-                  {/* Panel description étendue ──────────────────
+                    {/* Panel description étendue ──────────────────
                       max-height: 0 → 20rem via classe CSS.
                       CSS ne peut pas animer vers height:auto —
                       max-height est la seule solution sans JS.
                       tabIndex={-1} sur le lien quand panel fermé :
                       empêche la navigation clavier sur un élément
                       invisible. */}
-                  <div
-                    id={`alliance-desc-${index}`}
-                    className={`${styles.cardDescPanel} ${isOpen ? styles.cardDescPanelOpen : ''}`}
-                    aria-hidden={!isOpen}
-                  >
-                    <p className={`body-meta ${styles.cardDescLongue}`}>
-                      {descLongue}
-                    </p>
-                    <a
-                      href={href}
-                      className={styles.cardDescLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      tabIndex={isOpen ? 0 : -1}
+                    <div
+                      id={`alliance-desc-${index}`}
+                      className={`${styles.cardDescPanel} ${isOpen ? styles.cardDescPanelOpen : ""}`}
+                      aria-hidden={!isOpen}
                     >
-                      <span>Visiter le site</span>
-                      <svg width="12" height="8" viewBox="0 0 12 8"
-                        fill="none" aria-hidden="true">
-                        <path d="M1 4H11M8 1L11 4L8 7"
-                          stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
-                      </svg>
-                    </a>
+                      <p className={`body-meta ${styles.cardDescLongue}`}>
+                        {descLongue}
+                      </p>
+                      <a
+                        href={href}
+                        className={styles.cardDescLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        tabIndex={isOpen ? 0 : -1}
+                      >
+                        <span>Visiter le site</span>
+                        <svg
+                          width="12"
+                          height="8"
+                          viewBox="0 0 12 8"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M1 4H11M8 1L11 4L8 7"
+                            stroke="currentColor"
+                            strokeWidth="1.1"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </a>
+                    </div>
                   </div>
-
-                </div>{/* fin .cardExpand */}
-
-              </div>
-            );
-          })}
+                  {/* fin .cardExpand */}
+                </div>
+              );
+            },
+          )}
         </div>
       </div>
-
     </section>
   );
 }

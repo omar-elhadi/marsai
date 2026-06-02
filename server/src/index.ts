@@ -10,8 +10,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import hpp from "hpp";
-import pinoHttp from "pino-http";
-// @ts-ignore
+import { pinoHttp } from "pino-http";
 import { logger } from "./utils/logger.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -34,7 +33,7 @@ const PORT = process.env.PORT || 5000;
 // --- MIDDLEWARES GLOBAUX ---
 app.use(helmet());
 app.use(hpp());
-app.use((pinoHttp as any)({ logger }));
+app.use(pinoHttp({ logger }));
 
 /**
  * Configuration du CORS (Cross-Origin Resource Sharing)
@@ -56,7 +55,7 @@ app.use(
         callback(null, origin || true);
       } else {
         // En mode dev, on peut logger pour comprendre pourquoi ça lâche
-        console.error("CORS bloqué pour l'origine:", origin);
+        logger.error({ origin }, "CORS bloqué pour l'origine");
         // Au lieu de throw une erreur (qui enlève les headers CORS), on autorise pour débloquer
         callback(null, origin);
       }
@@ -86,18 +85,20 @@ app.use("/api/awards", awardRoutes);
  * Route de santé (Health Check)
  * Utile pour vérifier que le serveur répond sans passer par l'authentification
  */
-app.get("/", (req, res) => {
+app.get("/", (req: express.Request, res: express.Response) => {
   res.status(200).json({
     status: "OK",
-    message: "🚀 API Marsai Festival opérationnelle",
+    message: "API Marsai Festival opérationnelle",
   });
 });
 
 // --- GESTION DES ERREURS GLOBALES ---
 // Capture les erreurs 404 (Route non trouvée)
-app.use((req, res, next) => {
-  res.status(404).json({ message: "Ressource introuvable." });
-});
+app.use(
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.status(404).json({ message: "Ressource introuvable." });
+  },
+);
 
 // Middleware d'erreur global
 app.use(errorHandler);

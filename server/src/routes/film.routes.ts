@@ -55,7 +55,12 @@ const uploadLimiter = rateLimit({
 
 // --- ROUTES PUBLIQUES ---
 // Upload de vidéo vers Scaleway S3 (avant la soumission du formulaire)
-router.post("/upload-video", uploadLimiter, upload.single("video"), uploadVideo);
+router.post(
+  "/upload-video",
+  uploadLimiter,
+  upload.single("video"),
+  uploadVideo,
+);
 
 // Soumission d'un film par un réalisateur (pas d'auth requise)
 router.post("/submit", submitLimiter, validate(submitFilmSchema), submit);

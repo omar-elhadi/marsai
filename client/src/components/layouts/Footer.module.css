@@ -37,39 +37,36 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-
 /* ─────────────────────────────────────────────────────────────
    WRAPPER PRINCIPAL
    ───────────────────────────────────────────────────────────── */
 
 .footer {
-  position:   relative;
+  position: relative;
   background: #000000;
-  color:      var(--color-text-muted);
-  overflow:   hidden;
+  color: var(--color-text-muted);
+  overflow: hidden;
   /* border-t supprimée — remplacée par .footerTopFade */
 }
-
 
 /* ── Transition douce depuis la section précédente ───────────
    Posée en absolute haut du footer. Gradient depuis la couleur
    de fond du site (--color-bg-pure) vers transparent.
    Le visiteur perçoit une dissolution naturelle, pas une coupure. */
 .footerTopFade {
-  position:       absolute;
-  top:            0;
-  left:           0;
-  right:          0;
-  height:         10rem;
-  background:     linear-gradient(
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10rem;
+  background: linear-gradient(
     to bottom,
     var(--color-bg-pure) 0%,
-    transparent          100%
+    transparent 100%
   );
   pointer-events: none;
-  z-index:        1;
+  z-index: 1;
 }
-
 
 /* ── Fond numérique — vignette subtile, sans violet ─────────── */
 .footerBg {
@@ -79,22 +76,21 @@
     transparent 70%
   );
   pointer-events: none;
-  z-index:        0;
+  z-index: 0;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    CONTENU — z:10 au-dessus des particules et du fade
    ───────────────────────────────────────────────────────────── */
 
 .footerContent {
-  position:   relative;
-  z-index:    10;
-  max-width:  1440px;
-  margin:     0 auto;
-  padding:    clamp(6rem, 12vw, 10rem) clamp(1.5rem, 5vw, 6rem) clamp(2.5rem, 4vw, 3.5rem);
+  position: relative;
+  z-index: 10;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(6rem, 12vw, 10rem) clamp(1.5rem, 5vw, 6rem)
+    clamp(2.5rem, 4vw, 3.5rem);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    SIGNATURE — MARSAI massif + tagline
@@ -106,15 +102,15 @@
 }
 
 .signatureTitle {
-  font-family:    var(--font-display);
-  font-weight:    900;
+  font-family: var(--font-display);
+  font-weight: 900;
   /* Même taille et même respiration que le héros */
-  font-size:      clamp(4rem, 12vw, 11rem);
-  line-height:    0.88;
+  font-size: clamp(4rem, 12vw, 11rem);
+  line-height: 0.88;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color:          var(--color-text);
-  margin-bottom:  clamp(1.2rem, 2vw, 2rem);
+  color: var(--color-text);
+  margin-bottom: clamp(1.2rem, 2vw, 2rem);
   /* text-shadow : profondeur sur fond noir, cohérent avec le héros */
   text-shadow:
     0 2px 60px rgba(226, 209, 195, 0.08),
@@ -122,123 +118,121 @@
 }
 
 .signatureDivider {
-  display:       flex;
-  align-items:   center;
-  gap:           1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
   margin-bottom: clamp(1rem, 1.8vw, 1.5rem);
 }
 
 .signatureLine {
-  display:     block;
-  width:       clamp(2.5rem, 5vw, 5rem);
-  height:      1px;
-  background:  var(--color-accent);
-  opacity:     0.5;
+  display: block;
+  width: clamp(2.5rem, 5vw, 5rem);
+  height: 1px;
+  background: var(--color-accent);
+  opacity: 0.5;
   flex-shrink: 0;
 }
 
 .signatureDate {
-  font-family:    var(--font-sans);
-  font-weight:    600;
-  font-size:      clamp(0.7rem, 1.1vw, 0.85rem);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(0.7rem, 1.1vw, 0.85rem);
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color:          var(--color-accent);
-  opacity:        0.8;
+  color: var(--color-accent);
+  opacity: 0.8;
 }
 
 .signatureTagline {
-  font-family:    var(--font-sans);
-  font-weight:    300;
-  font-size:      clamp(0.9rem, 1.6vw, 1.15rem);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
   letter-spacing: 0.05em;
-  color:          var(--color-text-muted);
-  max-width:      40ch;
+  color: var(--color-text-muted);
+  max-width: 40ch;
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    NAVIGATION — 3 colonnes éditoriales
    ───────────────────────────────────────────────────────────── */
 
 .navGrid {
-  display:               grid;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap:                   clamp(2rem, 5vw, 5rem);
-  margin-bottom:         clamp(3.5rem, 6vw, 5.5rem);
-  padding-top:           clamp(2.5rem, 4vw, 3.5rem);
-  border-top:            1px solid var(--color-border);
+  gap: clamp(2rem, 5vw, 5rem);
+  margin-bottom: clamp(3.5rem, 6vw, 5.5rem);
+  padding-top: clamp(2.5rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--color-border);
 }
 
 @media (max-width: 640px) {
   .navGrid {
     grid-template-columns: 1fr;
-    gap:                   2.5rem;
+    gap: 2.5rem;
   }
 }
 
 /* Numéro de colonne discret */
 .navColNum {
-  font-family:    var(--font-sans);
-  font-weight:    900;
-  font-size:      0.55rem;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 0.55rem;
   letter-spacing: 0.2em;
-  color:          var(--color-accent);
-  opacity:        0.4;
-  display:        block;
-  margin-bottom:  0.6rem;
+  color: var(--color-accent);
+  opacity: 0.4;
+  display: block;
+  margin-bottom: 0.6rem;
 }
 
 .navColTitle {
-  font-family:    var(--font-sans);
-  font-weight:    700;
-  font-size:      0.68rem;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.68rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color:          var(--color-text);
-  opacity:        0.45;
-  margin-bottom:  clamp(1.2rem, 2vw, 1.8rem);
+  color: var(--color-text);
+  opacity: 0.45;
+  margin-bottom: clamp(1.2rem, 2vw, 1.8rem);
 }
 
 .navList {
-  list-style:     none;
-  margin:         0;
-  padding:        0;
-  display:        flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
   flex-direction: column;
-  gap:            0.9rem;
+  gap: 0.9rem;
 }
 
 .navLink {
-  font-family:     var(--font-sans);
-  font-weight:     400;
-  font-size:       clamp(0.82rem, 1.1vw, 0.9rem);
-  letter-spacing:  0.04em;
-  color:           var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: clamp(0.82rem, 1.1vw, 0.9rem);
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
   text-decoration: none;
-  display:         inline-block;
+  display: inline-block;
   transition:
-    color     0.28s var(--ease-out),
+    color 0.28s var(--ease-out),
     transform 0.28s var(--ease-out);
 }
 
 .navLink:hover {
-  color:     var(--color-accent);
+  color: var(--color-accent);
   transform: translateX(5px);
 }
-
 
 /* ─────────────────────────────────────────────────────────────
    BARRE INFÉRIEURE — copyright + socials
    ───────────────────────────────────────────────────────────── */
 
 .bottomBar {
-  display:         flex;
-  flex-direction:  column;
-  align-items:     center;
-  gap:             1.2rem;
-  padding-top:     clamp(1.5rem, 2.5vw, 2.2rem);
-  border-top:      1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding-top: clamp(1.5rem, 2.5vw, 2.2rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @media (min-width: 768px) {
@@ -249,68 +243,74 @@
 }
 
 .copyright {
-  font-family:    var(--font-sans);
-  font-weight:    400;
-  font-size:      0.7rem;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.7rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color:          var(--color-text-faint);
+  color: var(--color-text-faint);
 }
 
 .copyrightBrand {
-  color:       var(--color-text);
+  color: var(--color-text);
   font-weight: 700;
 }
 
 .socialList {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         1.2rem;
-  list-style:  none;
-  margin:      0;
-  padding:     0;
+  gap: 1.2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .socialLink {
-  display:    flex;
-  color:      var(--color-text-faint);
+  display: flex;
+  color: var(--color-text-faint);
   transition:
-    color     0.28s var(--ease-out),
+    color 0.28s var(--ease-out),
     transform 0.28s var(--ease-out);
 }
 
 .socialLink:hover {
-  color:     var(--color-accent);
+  color: var(--color-accent);
   transform: translateY(-3px);
 }
 
 /* Badge "Festival 2026" */
 .festivalBadge {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         0.6rem;
+  gap: 0.6rem;
 }
 
 .festivalDot {
-  width:        6px;
-  height:       6px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background:   var(--color-accent);
-  box-shadow:   0 0 10px rgba(226, 209, 195, 0.6);
-  flex-shrink:  0;
-  animation:    dotPulse 2.5s ease-in-out infinite alternate;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px rgba(226, 209, 195, 0.6);
+  flex-shrink: 0;
+  animation: dotPulse 2.5s ease-in-out infinite alternate;
 }
 
 @keyframes dotPulse {
-  0%   { opacity: 0.5; box-shadow: 0 0 6px  rgba(226, 209, 195, 0.3); }
-  100% { opacity: 1;   box-shadow: 0 0 14px rgba(226, 209, 195, 0.8); }
+  0% {
+    opacity: 0.5;
+    box-shadow: 0 0 6px rgba(226, 209, 195, 0.3);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 14px rgba(226, 209, 195, 0.8);
+  }
 }
 
 .festivalLabel {
-  font-family:    var(--font-sans);
-  font-weight:    600;
-  font-size:      0.65rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.65rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color:          var(--color-text-muted);
+  color: var(--color-text-muted);
 }

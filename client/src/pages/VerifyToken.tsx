@@ -23,7 +23,7 @@ export default function VerifyToken() {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/auth/verify-token?token=${token}`,
-          { credentials: "include" } // Le cookie httpOnly est posé automatiquement
+          { credentials: "include" }, // Le cookie httpOnly est posé automatiquement
         );
         const data = await response.json();
 

@@ -12,7 +12,11 @@ import {
   palmares,
   editions,
 } from "../controllers/award.controller.js";
-import { verifyToken, isAdmin, isAdminOrModerator } from "../middlewares/auth.middleware.js";
+import {
+  verifyToken,
+  isAdmin,
+  isAdminOrModerator,
+} from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { categorySchema, nominationSchema } from "@marsai/validators";
 
@@ -31,15 +35,33 @@ router.get("/editions", editions);
 router.get("/selection", verifyToken, isAdminOrModerator, getSelection);
 
 // Catégories
-router.get("/categories",        verifyToken, isAdminOrModerator, listCategories);
-router.post("/categories",       verifyToken, isAdmin, validate(categorySchema), addCategory);
-router.put("/categories/:id",    verifyToken, isAdmin, validate(categorySchema), editCategory);
+router.get("/categories", verifyToken, isAdminOrModerator, listCategories);
+router.post(
+  "/categories",
+  verifyToken,
+  isAdmin,
+  validate(categorySchema),
+  addCategory,
+);
+router.put(
+  "/categories/:id",
+  verifyToken,
+  isAdmin,
+  validate(categorySchema),
+  editCategory,
+);
 router.delete("/categories/:id", verifyToken, isAdmin, removeCategory);
 
 // Nominations — ADMIN uniquement (impact sur le statut des films)
-router.post("/nominations",              verifyToken, isAdmin, validate(nominationSchema), addNomination);
-router.delete("/nominations/:id",        verifyToken, isAdmin, deleteNomination);
-router.put("/nominations/:id/winner",    verifyToken, isAdmin, markWinner);
+router.post(
+  "/nominations",
+  verifyToken,
+  isAdmin,
+  validate(nominationSchema),
+  addNomination,
+);
+router.delete("/nominations/:id", verifyToken, isAdmin, deleteNomination);
+router.put("/nominations/:id/winner", verifyToken, isAdmin, markWinner);
 router.delete("/nominations/:id/winner", verifyToken, isAdmin, clearWinner);
 
 export default router;

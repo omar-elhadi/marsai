@@ -37,14 +37,14 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import { useRef }        from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link }          from 'react-router-dom';
-import gsap              from 'gsap';
-import { useGSAP }       from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ROUTES }        from '@/constants/routes';
-import styles            from './SectionGalerie.module.css';
+import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ROUTES } from "@/constants/routes";
+import styles from "./SectionGalerie.module.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -53,37 +53,37 @@ gsap.registerPlugin(ScrollTrigger);
 // ─────────────────────────────────────────────────────────────
 const getFilms = (t: any) => [
   {
-    id:          'film-01',
-    titre:       'Mémoire Synthétique',
-    realisateur: 'K. Okafor',
-    pays:        'Nigeria · France',
-    genre:       'Drame / Mémoire',
-    mention:     'Sélection Officielle',
-    isFeatured:  true,
-    img: 'https://images.unsplash.com/photo-1518893883800-45cd0a9d3101?q=88&w=900&auto=format&fit=crop',
-    alt: 'Mémoire Synthétique — film IA en sélection officielle MARSAI',
+    id: "film-01",
+    titre: "Mémoire Synthétique",
+    realisateur: "K. Okafor",
+    pays: "Nigeria · France",
+    genre: "Drame / Mémoire",
+    mention: "Sélection Officielle",
+    isFeatured: true,
+    img: "https://images.unsplash.com/photo-1518893883800-45cd0a9d3101?q=88&w=900&auto=format&fit=crop",
+    alt: "Mémoire Synthétique — film IA en sélection officielle MARSAI",
   },
   {
-    id:          'film-02',
-    titre:       'Éclat de Rien',
-    realisateur: 'M. Chen',
-    pays:        'Taiwan',
-    genre:       'Poésie Visuelle',
-    mention:     'Mention Spéciale',
-    isFeatured:  false,
-    img: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=88&w=900&auto=format&fit=crop',
-    alt: 'Éclat de Rien — poésie visuelle IA MARSAI',
+    id: "film-02",
+    titre: "Éclat de Rien",
+    realisateur: "M. Chen",
+    pays: "Taiwan",
+    genre: "Poésie Visuelle",
+    mention: "Mention Spéciale",
+    isFeatured: false,
+    img: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=88&w=900&auto=format&fit=crop",
+    alt: "Éclat de Rien — poésie visuelle IA MARSAI",
   },
   {
-    id:          'film-03',
-    titre:       'La Dernière Fréquence',
-    realisateur: 'A. Petrov',
-    pays:        'Russie · Allemagne',
-    genre:       'Science-fiction',
-    mention:     'Compétition',
-    isFeatured:  false,
-    img: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=88&w=900&auto=format&fit=crop',
-    alt: 'La Dernière Fréquence — science-fiction IA MARSAI',
+    id: "film-03",
+    titre: "La Dernière Fréquence",
+    realisateur: "A. Petrov",
+    pays: "Russie · Allemagne",
+    genre: "Science-fiction",
+    mention: "Compétition",
+    isFeatured: false,
+    img: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=88&w=900&auto=format&fit=crop",
+    alt: "La Dernière Fréquence — science-fiction IA MARSAI",
   },
 ];
 
@@ -93,15 +93,21 @@ const getFilms = (t: any) => [
 const ANIM_IN = [
   {
     from: { scale: 0.95, opacity: 0 },
-    to:   { scale: 1,    opacity: 1, duration: 1.0,  ease: 'power2.out' },
+    to: { scale: 1, opacity: 1, duration: 1.0, ease: "power2.out" },
   },
   {
     from: { y: 60, opacity: 0 },
-    to:   { y: 0,  opacity: 1, duration: 0.85, ease: 'power3.out' },
+    to: { y: 0, opacity: 1, duration: 0.85, ease: "power3.out" },
   },
   {
-    from: { x: 50, filter: 'blur(6px)', opacity: 0 },
-    to:   { x: 0,  filter: 'blur(0px)', opacity: 1, duration: 0.90, ease: 'power2.out' },
+    from: { x: 50, filter: "blur(6px)", opacity: 0 },
+    to: {
+      x: 0,
+      filter: "blur(0px)",
+      opacity: 1,
+      duration: 0.9,
+      ease: "power2.out",
+    },
   },
 ];
 
@@ -109,44 +115,43 @@ const ANIM_IN = [
 // SOUS-COMPOSANT : Carte film
 // Aucun handler JS de style — tout est CSS Module.
 // ─────────────────────────────────────────────────────────────
-function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; offsetTop?: number }) {
+function FilmCard({
+  film,
+  cardRef,
+  offsetTop = 0,
+}: {
+  film: any;
+  cardRef: any;
+  offsetTop?: number;
+}) {
   return (
     <Link
       ref={cardRef}
       to={`${ROUTES.GALERIE}#${film.id}`}
       aria-label={`${film.titre} — ${film.realisateur}`}
-      className={`${styles.filmCard} ${film.isFeatured ? styles.filmCardFeatured : ''}`}
+      className={`${styles.filmCard} ${film.isFeatured ? styles.filmCardFeatured : ""}`}
       style={
         /* offsetTop est une valeur dynamique transmise par prop (60px sur carte 3).
            Non extractible vers CSS sans classe utilitaire dédiée — exception documentée. */
         offsetTop ? { marginTop: `${offsetTop}px` } : undefined
       }
     >
-
       {/* ── Image ──────────────────────────────────────── */}
-      <img
-        src={film.img}
-        alt={film.alt}
-        className={styles.filmImg}
-      />
+      <img src={film.img} alt={film.alt} className={styles.filmImg} />
 
       {/* ── Overlay gradient ─────────────────────────── */}
-      <div
-        className={styles.filmOverlay}
-        aria-hidden="true"
-      />
+      <div className={styles.filmOverlay} aria-hidden="true" />
 
       {/* ── Grain ────────────────────────────────────── */}
-      <div
-        className={styles.filmGrain}
-        aria-hidden="true"
-      />
+      <div className={styles.filmGrain} aria-hidden="true" />
 
       {/* ── Badge mention — haut gauche ──────────────── */}
       <div className={styles.mentionWrapper}>
         <span
           className={`${styles.mentionBadge} ${
-            film.isFeatured ? styles.mentionBadgeFeatured : styles.mentionBadgeStandard
+            film.isFeatured
+              ? styles.mentionBadgeFeatured
+              : styles.mentionBadgeStandard
           }`}
         >
           {film.mention}
@@ -155,7 +160,6 @@ function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; o
 
       {/* ── Texte — bas de carte ─────────────────────── */}
       <div className={styles.filmTextContent}>
-
         {/* Genre */}
         <span className={`label-overline ${styles.filmGenre}`}>
           {film.genre}
@@ -164,7 +168,7 @@ function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; o
         {/* Titre */}
         <h3
           className={`${styles.filmTitre} ${
-            film.isFeatured ? styles.filmTitreFeatured : ''
+            film.isFeatured ? styles.filmTitreFeatured : ""
           }`}
         >
           {film.titre}
@@ -173,15 +177,14 @@ function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; o
         {/* Réalisateur + pays */}
         <div className={styles.filmMeta}>
           <span className={styles.filmRealisateur}>{film.realisateur}</span>
-          <span className={styles.filmSeparator} aria-hidden="true">·</span>
+          <span className={styles.filmSeparator} aria-hidden="true">
+            ·
+          </span>
           <span className={styles.filmPays}>{film.pays}</span>
         </div>
 
         {/* "Voir le film" — révélé au hover via CSS */}
-        <div
-          className={styles.filmVoir}
-          aria-hidden="true"
-        >
+        <div className={styles.filmVoir} aria-hidden="true">
           <span className={styles.filmVoirLabel}>Voir le film</span>
           <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
             <path
@@ -192,7 +195,6 @@ function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; o
             />
           </svg>
         </div>
-
       </div>
     </Link>
   );
@@ -202,70 +204,88 @@ function FilmCard({ film, cardRef, offsetTop = 0 }: { film: any; cardRef: any; o
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────────────────────
 export default function SectionGalerie() {
-  const { t } = useTranslation('common');
-  const sectionRef  = useRef(null);
+  const { t } = useTranslation("common");
+  const sectionRef = useRef(null);
   const overlineRef = useRef(null);
-  const line1Ref    = useRef(null);
-  const line2Ref    = useRef(null);
-  const ctaRef      = useRef(null);
-  const card1Ref    = useRef(null);
-  const card2Ref    = useRef(null);
-  const card3Ref    = useRef(null);
+  const line1Ref = useRef(null);
+  const line2Ref = useRef(null);
+  const ctaRef = useRef(null);
+  const card1Ref = useRef(null);
+  const card2Ref = useRef(null);
+  const card3Ref = useRef(null);
 
   const cardRefs = [card1Ref, card2Ref, card3Ref];
 
-  useGSAP(() => {
-    // ── États initiaux ────────────────────────────────────────
-    gsap.set(overlineRef.current,  { opacity: 0, y: 14 });
-    gsap.set([line1Ref.current, line2Ref.current], { yPercent: 105 });
-    gsap.set(ctaRef.current,       { opacity: 0, x: -10 });
+  useGSAP(
+    () => {
+      // ── États initiaux ────────────────────────────────────────
+      gsap.set(overlineRef.current, { opacity: 0, y: 14 });
+      gsap.set([line1Ref.current, line2Ref.current], { yPercent: 105 });
+      gsap.set(ctaRef.current, { opacity: 0, x: -10 });
 
-    cardRefs.forEach((ref, i) => {
-      gsap.set(ref.current, ANIM_IN[i].from);
-    });
+      cardRefs.forEach((ref, i) => {
+        gsap.set(ref.current, ANIM_IN[i].from);
+      });
 
-    // ── ScrollTrigger principal ───────────────────────────────
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start:   'top 70%',
-      once:    true,
-      onEnter() {
-        const tl = gsap.timeline();
+      // ── ScrollTrigger principal ───────────────────────────────
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top 70%",
+        once: true,
+        onEnter() {
+          const tl = gsap.timeline();
 
-        // Overline
-        tl.to(overlineRef.current, {
-          opacity: 1, y: 0,
-          duration: 0.55, ease: 'power2.out',
-        });
+          // Overline
+          tl.to(overlineRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            ease: "power2.out",
+          });
 
-        // Titre — effet rideau, 2 lignes
-        tl.to([line1Ref.current, line2Ref.current], {
-          yPercent:  0,
-          duration:  0.85,
-          stagger:   0.13,
-          ease:      'power3.out',
-        }, 0.15);
+          // Titre — effet rideau, 2 lignes
+          tl.to(
+            [line1Ref.current, line2Ref.current],
+            {
+              yPercent: 0,
+              duration: 0.85,
+              stagger: 0.13,
+              ease: "power3.out",
+            },
+            0.15,
+          );
 
-        // Cartes — gestes individuels + clearProps.
-        // clearProps: 'all' → GSAP nettoie ses styles inline
-        // à la fin de chaque animation. Les :hover CSS du module
-        // prennent le contrôle sans conflit de transform/opacity.
-        cardRefs.forEach((ref, i) => {
-          tl.to(ref.current, {
-            ...ANIM_IN[i].to,
-            clearProps: 'all',
-          }, 0.40 + i * 0.15);
-        });
+          // Cartes — gestes individuels + clearProps.
+          // clearProps: 'all' → GSAP nettoie ses styles inline
+          // à la fin de chaque animation. Les :hover CSS du module
+          // prennent le contrôle sans conflit de transform/opacity.
+          cardRefs.forEach((ref, i) => {
+            tl.to(
+              ref.current,
+              {
+                ...ANIM_IN[i].to,
+                clearProps: "all",
+              },
+              0.4 + i * 0.15,
+            );
+          });
 
-        // CTA
-        tl.to(ctaRef.current, {
-          opacity: 1, x: 0,
-          duration: 0.65, ease: 'power2.out',
-        }, 0.90);
-      },
-    });
-
-  }, { scope: sectionRef });
+          // CTA
+          tl.to(
+            ctaRef.current,
+            {
+              opacity: 1,
+              x: 0,
+              duration: 0.65,
+              ease: "power2.out",
+            },
+            0.9,
+          );
+        },
+      });
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <section
@@ -275,10 +295,8 @@ export default function SectionGalerie() {
       className={styles.sectionGalerie}
     >
       <div className={styles.container}>
-
         {/* ── En-tête ───────────────────────────────────────── */}
         <div className={styles.header}>
-
           <div ref={overlineRef} className="flex items-center gap-4">
             <span className={styles.overlineLine} />
             <span className="label-overline">Sélection Officielle 2026</span>
@@ -309,15 +327,13 @@ export default function SectionGalerie() {
               Placé dans le header, au même niveau que le titre —
               lu naturellement après le titre, avant la grille. */}
           <p className={styles.headerTagline}>
-            Films d'une minute créés avec l'I.A. —
-            par des passionnés de tous horizons.
+            Films d'une minute créés avec l'I.A. — par des passionnés de tous
+            horizons.
           </p>
-
         </div>
 
         {/* ── Grille asymétrique ───────────────────────────────── */}
         <div className={styles.galerieGrid}>
-
           {/* Carte 1 — grande, span 2 rangées */}
           <div className={styles.featuredWrapper}>
             <FilmCard film={getFilms(t)[0]} cardRef={card1Ref} />
@@ -328,15 +344,11 @@ export default function SectionGalerie() {
 
           {/* Carte 3 — décalée vers le bas (offsetTop dynamique) */}
           <FilmCard film={getFilms(t)[2]} cardRef={card3Ref} offsetTop={60} />
-
         </div>
 
         {/* ── CTA typographique ────────────────────────────────── */}
         <div ref={ctaRef} className={styles.ctaWrapper}>
-          <Link
-            to={ROUTES.GALERIE}
-            className={styles.ctaLink}
-          >
+          <Link to={ROUTES.GALERIE} className={styles.ctaLink}>
             <span className={styles.ctaTexte}>
               Découvrir toute la sélection
             </span>
@@ -352,7 +364,6 @@ export default function SectionGalerie() {
             </span>
           </Link>
         </div>
-
       </div>
     </section>
   );
