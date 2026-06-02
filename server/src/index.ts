@@ -21,6 +21,9 @@ import filmRoutes from "./routes/film.routes.js";
 import galleryRoutes from "./routes/gallery.routes.js";
 import juryRoutes from "./routes/vote.routes.js";
 import awardRoutes from "./routes/award.routes.js";
+import settingsRoutes from "./routes/settings.routes.js";
+import newsletterRoutes from "./routes/newsletter.routes.js";
+import juryMemberRoutes from "./routes/juryMember.routes.js";
 import { validateEnv } from "./utils/validateEnv.js";
 
 // --- GARDE-FOU (FAIL-SAFE) ---
@@ -80,6 +83,9 @@ app.use("/api/films", filmRoutes);
 app.use("/api/gallery", galleryRoutes); // Alias pour la galerie
 app.use("/api/jury", juryRoutes);
 app.use("/api/awards", awardRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/jury-members", juryMemberRoutes);
 
 /**
  * Route de santé (Health Check)

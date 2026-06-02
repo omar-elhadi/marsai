@@ -5,12 +5,19 @@ function NewsletterPopUp() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email) return;
 
-    // Ici tu peux appeler ton API backend
-    console.log("Inscription newsletter :", email);
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/newsletter/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+    } catch {
+      // Silently fail — don't block UI
+    }
 
     localStorage.setItem("newsletter_subscribed", "true");
     setSubmitted(true);
