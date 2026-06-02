@@ -20,7 +20,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@marsai/validators": "^1.0.0",
     "@prisma/client": "6.19.2",
     "argon2": "^0.44.0",
     "cookie-parser": "^1.4.7",

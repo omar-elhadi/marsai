@@ -8,7 +8,7 @@ import {
 } from "../controllers/vote.controller.js";
 import { verifyToken, isJury } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { castVoteSchema, addCommentSchema } from "@marsai/validators";
+import { castVoteSchema, addCommentSchema } from "../validators/index.js";
 
 const router = express.Router();
 

@@ -18,3 +18,4 @@ audit-output/
 !01-extract.sh
 !02-analyze.sh
 !03-pull-journal.sh
+.vercel

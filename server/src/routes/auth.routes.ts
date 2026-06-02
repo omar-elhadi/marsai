@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import * as authController from "../controllers/auth.controller.js";
 import { verifyToken, isAdmin } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { loginSchema } from "@marsai/validators";
+import { loginSchema } from "../validators/index.js";
 
 const router = express.Router();
 

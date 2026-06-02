@@ -2,7 +2,7 @@ import express from "express";
 import { userController } from "../controllers/user.controller.js";
 import { verifyToken, isAdmin } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { createUserSchema, updateUserSchema } from "@marsai/validators";
+import { createUserSchema, updateUserSchema } from "../validators/index.js";
 
 const router = express.Router();
 

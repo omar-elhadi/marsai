@@ -23,7 +23,7 @@ import {
   assignSchema,
   requestModificationSchema,
   applyEditSchema,
-} from "@marsai/validators";
+} from "../validators/index.js";
 const router = express.Router();
 
 // Limiteur pour la soumission publique : 5 soumissions / heure / IP

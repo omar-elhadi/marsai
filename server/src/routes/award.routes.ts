@@ -18,7 +18,7 @@ import {
   isAdminOrModerator,
 } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { categorySchema, nominationSchema } from "@marsai/validators";
+import { categorySchema, nominationSchema } from "../validators/index.js";
 
 const router = express.Router();
 
