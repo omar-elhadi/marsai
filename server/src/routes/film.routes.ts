@@ -11,7 +11,6 @@ import {
   getByEditToken,
   applyEdit,
   trackFilm,
-  uploadVideo,
 } from "../controllers/film.controller.js";
 import {
   verifyToken,
@@ -25,8 +24,6 @@ import {
   requestModificationSchema,
   applyEditSchema,
 } from "@marsai/validators";
-import { upload } from "../config/multer.js";
-
 const router = express.Router();
 
 // Limiteur pour la soumission publique : 5 soumissions / heure / IP
@@ -42,26 +39,7 @@ const submitLimiter = rateLimit({
   },
 });
 
-// Limiteur pour l'upload de vidéos : 10 uploads / heure / IP
-const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 heure
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    error: "Vous avez atteint la limite d'uploads. Réessayez dans une heure.",
-  },
-});
-
 // --- ROUTES PUBLIQUES ---
-// Upload de vidéo vers Scaleway S3 (avant la soumission du formulaire)
-router.post(
-  "/upload-video",
-  uploadLimiter,
-  upload.single("video"),
-  uploadVideo,
-);
-
 // Soumission d'un film par un réalisateur (pas d'auth requise)
 router.post("/submit", submitLimiter, validate(submitFilmSchema), submit);
 

@@ -12,8 +12,6 @@ import {
   applyFilmEdit as applyFilmEditService,
   trackFilmByToken as fetchFilmBySubmissionToken,
 } from "../services/film.service.js";
-import { uploadFileToS3 } from "../services/s3.service.js";
-
 /**
  * POST /api/films/submit
  * Reçoit le formulaire de soumission, crée le Submitter + Film, envoie l'email.
@@ -31,7 +29,6 @@ export const submit = catchAsync(async (req: any, res: any, next: any) => {
     language,
     aiToolsUsed,
     youtubeUrl,
-    s3VideoKey,
   } = req.body;
 
   // Validation des champs obligatoires
@@ -67,7 +64,6 @@ export const submit = catchAsync(async (req: any, res: any, next: any) => {
     language,
     aiToolsUsed: aiToolsUsed.trim(),
     youtubeUrl,
-    s3VideoKey,
   });
 
   return res.status(201).json({
@@ -215,26 +211,4 @@ export const assign = catchAsync(async (req: any, res: any, next: any) => {
 
   const film = await assignUsersToFilm(filmId, userIds.map(Number));
   return res.json(film);
-});
-
-/**
- * POST /api/films/upload-video
- * Upload d'une vidéo vers Scaleway S3
- * Multipart form-data avec le fichier vidéo
- */
-export const uploadVideo = catchAsync(async (req: any, res: any, next: any) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "Aucun fichier reçu" });
-  }
-
-  const { buffer, originalname, mimetype } = req.file;
-
-  // Upload vers S3
-  const { url, key } = await uploadFileToS3(buffer, originalname, mimetype);
-
-  return res.status(200).json({
-    message: "Vidéo uploadée avec succès",
-    url,
-    key,
-  });
 });
