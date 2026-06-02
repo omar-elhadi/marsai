@@ -1,21 +1,15 @@
 import { catchAsync } from "../utils/catchAsync.js";
-import {
-  getJuryMembers as fetchAll,
-  getJuryMemberById as fetchById,
-  createJuryMember as create,
-  updateJuryMember as update,
-  deleteJuryMember as remove,
-} from "../services/juryMember.service.js";
+import * as juryMemberService from "../services/juryMember.service.js";
 
 export const list = catchAsync(async (req: any, res: any, next: any) => {
-  const members = await fetchAll();
+  const members = await juryMemberService.getJuryMembers();
   return res.json(members);
 });
 
 export const getOne = catchAsync(async (req: any, res: any, next: any) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-  const member = await fetchById(id);
+  const member = await juryMemberService.getJuryMemberById(id);
   return res.json(member);
 });
 
@@ -36,7 +30,7 @@ export const create = catchAsync(async (req: any, res: any, next: any) => {
       .status(400)
       .json({ error: "firstName, lastName, title et bio sont requis" });
   }
-  const member = await create({
+  const member = await juryMemberService.createJuryMember({
     firstName,
     lastName,
     title,
@@ -64,7 +58,7 @@ export const update = catchAsync(async (req: any, res: any, next: any) => {
     instagram,
     twitter,
   } = req.body;
-  const member = await update(id, {
+  const member = await juryMemberService.updateJuryMember(id, {
     firstName,
     lastName,
     title,
@@ -81,6 +75,6 @@ export const update = catchAsync(async (req: any, res: any, next: any) => {
 export const remove = catchAsync(async (req: any, res: any, next: any) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) return res.status(400).json({ message: "ID invalide" });
-  const result = await remove(id);
+  const result = await juryMemberService.deleteJuryMember(id);
   return res.json(result);
 });

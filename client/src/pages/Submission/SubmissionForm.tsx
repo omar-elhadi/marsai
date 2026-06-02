@@ -79,40 +79,6 @@ const FORM_STYLES = `
     color: var(--color-text-muted);
     white-space: nowrap;
   }
-  .marsai-upload-zone {
-    width: 100%;
-    background: var(--color-surface);
-    border: 2px dashed var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 1.5rem 1rem;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    transition: border-color 280ms var(--ease-out), background 280ms var(--ease-out);
-    box-sizing: border-box;
-  }
-  .marsai-upload-zone--lg { padding: 2rem 1rem; }
-  .marsai-upload-zone:hover {
-    border-color: rgba(226,209,195,0.40);
-    background: var(--color-surface-high);
-  }
-  .marsai-upload-icon { width: 3rem; height: 3rem; color: var(--color-text-faint); }
-  .marsai-file-preview {
-    background: var(--color-surface-high);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 1rem;
-  }
-  .marsai-thumb-video { width: 12rem; height: 8rem; object-fit: cover; border-radius: var(--radius-sm); }
-  .marsai-thumb-poster { width: 8rem; height: 12rem; object-fit: cover; border-radius: var(--radius-sm); }
-  .marsai-delete-btn {
-    color: var(--color-text-muted);
-    transition: color 200ms;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-  }
-  .marsai-delete-btn:hover { color: var(--color-text); }
   .marsai-finePrint {
     font-family: var(--font-sans);
     font-size: 0.62rem;
