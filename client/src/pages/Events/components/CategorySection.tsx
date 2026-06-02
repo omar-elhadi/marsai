@@ -70,19 +70,6 @@ export default function CategorySection({
         />
       </div>
 
-      {/* Date de la catégorie */}
-      {category.date && (
-        <div className="mt-6 mb-4 flex items-center gap-3">
-          <span
-            className="h-px w-10 bg-[var(--color-accent)]"
-            aria-hidden="true"
-          />
-          <span className="label-overline tracking-[0.18em] text-[var(--color-accent)]">
-            {category.date}
-          </span>
-        </div>
-      )}
-
       {/* Liste événements */}
       <ul
         style={{
