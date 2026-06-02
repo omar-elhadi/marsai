@@ -7,6 +7,16 @@ export interface NewsItem {
   content: string;
 }
 
+export interface NewsSectionItem {
+  value?: string;
+  label?: string;
+  time?: string;
+  title?: string;
+  sub?: string;
+  meta?: string;
+  category?: string;
+}
+
 export interface NewsSection {
   type: string;
   label?: string;
@@ -14,15 +24,7 @@ export interface NewsSection {
   paragraphs?: string[];
   text?: string;
   author?: string;
-  items?: Array<{
-    value?: string;
-    label?: string;
-    time?: string;
-    title?: string;
-    sub?: string;
-    meta?: string;
-    category?: string;
-  }>;
+  items?: (string | NewsSectionItem)[];
 }
 
 export interface NewsDetail {

@@ -27,49 +27,57 @@ export default function ReservationModal({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Animation d'ouverture/fermeture
   useEffect(() => {
     if (!overlayRef.current || !modalRef.current) return;
-
-    if (isOpen) {
-      // Ouverture
-      gsap.set(overlayRef.current, { display: "flex" });
-      gsap.to(overlayRef.current, {
-        opacity: 1,
-        duration: 0.3,
-        ease: "power2.out",
-      });
-      gsap.fromTo(
-        modalRef.current,
-        { scale: 0.92, y: 30, opacity: 0 },
-        {
-          scale: 1,
-          y: 0,
+    const ctx = gsap.context(() => {
+      if (isOpen) {
+        gsap.set(overlayRef.current, { display: "flex" });
+        gsap.to(overlayRef.current, {
           opacity: 1,
-          duration: 0.45,
-          ease: "power3.out",
-          delay: 0.1,
-        },
-      );
-    } else {
-      // Fermeture
-      gsap.to(modalRef.current, {
-        scale: 0.92,
-        y: 30,
-        opacity: 0,
-        duration: 0.3,
-        ease: "power2.in",
-      });
-      gsap.to(overlayRef.current, {
-        opacity: 0,
-        duration: 0.3,
-        ease: "power2.in",
-        onComplete: () => {
-          gsap.set(overlayRef.current, { display: "none" });
-        },
-      });
-    }
+          duration: 0.3,
+          ease: "power2.out",
+        });
+        gsap.fromTo(
+          modalRef.current,
+          { scale: 0.92, y: 30, opacity: 0 },
+          {
+            scale: 1,
+            y: 0,
+            opacity: 1,
+            duration: 0.45,
+            ease: "power3.out",
+            delay: 0.1,
+          },
+        );
+      } else {
+        gsap.to(modalRef.current, {
+          scale: 0.92,
+          y: 30,
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.in",
+        });
+        gsap.to(overlayRef.current, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.in",
+          onComplete: () => {
+            gsap.set(overlayRef.current, { display: "none" });
+          },
+        });
+      }
+    });
+    return () => ctx.revert();
   }, [isOpen]);
 
   // Fermeture au clic sur l'overlay
@@ -114,6 +122,7 @@ export default function ReservationModal({
 
     // Réinitialisation après succès
     setTimeout(() => {
+      if (!mountedRef.current) return;
       setSubmitSuccess(false);
       setFormData({ nom: "", prenom: "", email: "" });
       onClose();

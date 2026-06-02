@@ -220,17 +220,20 @@ export default function FestivalEvents() {
   // ── Progression barre + point vivant ─────────────────────
   useEffect(() => {
     if (!progressRef.current || !dotRef.current) return;
-    const pct = `${progress * 100}%`;
-    gsap.to(progressRef.current, {
-      height: pct,
-      duration: 0.42,
-      ease: "power2.out",
+    const ctx = gsap.context(() => {
+      const pct = `${progress * 100}%`;
+      gsap.to(progressRef.current, {
+        height: pct,
+        duration: 0.42,
+        ease: "power2.out",
+      });
+      gsap.to(dotRef.current, {
+        top: `calc(${pct} - 6px)`,
+        duration: 0.42,
+        ease: "power2.out",
+      });
     });
-    gsap.to(dotRef.current, {
-      top: `calc(${pct} - 6px)`,
-      duration: 0.42,
-      ease: "power2.out",
-    });
+    return () => ctx.revert();
   }, [progress]);
 
   return (

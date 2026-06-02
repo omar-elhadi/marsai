@@ -50,6 +50,32 @@ const BASE_OV = [
   "pointer-events:none",
 ].join(";");
 
+// ─── ABORT MÉCANISME — évite l'accumulation d'overlays ───────
+// Stocke les éléments DOM et la timeline de la transition en cours.
+// killActiveTransition() les détruit avant d'en lancer une nouvelle.
+// ─────────────────────────────────────────────────────────────
+let activeOverlays: HTMLElement[] = [];
+let activeTimeline: gsap.core.Timeline | null = null;
+
+function killActiveTransition() {
+  if (activeTimeline) {
+    activeTimeline.kill();
+    activeTimeline = null;
+  }
+  activeOverlays.forEach((el) => {
+    if (el.parentNode) el.remove();
+  });
+  activeOverlays = [];
+}
+
+function registerElements(...els: HTMLElement[]) {
+  activeOverlays.push(...els);
+}
+
+function registerTimeline(tl: gsap.core.Timeline) {
+  activeTimeline = tl;
+}
+
 // ─────────────────────────────────────────────────────────────
 // HELPERS — création d'éléments DOM
 // ─────────────────────────────────────────────────────────────
@@ -58,6 +84,7 @@ function mkDiv(extra = "") {
   d.setAttribute("aria-hidden", "true");
   d.style.cssText = `${BASE_OV};${extra}`;
   document.body.appendChild(d);
+  registerElements(d);
   return d;
 }
 
@@ -94,6 +121,7 @@ function transitionLames(onDone: () => void) {
 
   for (let i = 0; i < N; i++) {
     const s = document.createElement("div");
+    registerElements(s);
     s.style.cssText = [
       "position:absolute",
       "top:0",
@@ -115,6 +143,7 @@ function transitionLames(onDone: () => void) {
   );
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   gsap.set(strips, { scaleY: 1 });
 
@@ -147,6 +176,7 @@ function transitionIris(onDone: () => void) {
   mkGrain(ov, 0.038);
 
   const halo = document.createElement("div");
+  registerElements(halo);
   halo.style.cssText = [
     "position:absolute",
     "top:50%",
@@ -164,6 +194,7 @@ function transitionIris(onDone: () => void) {
   gsap.set(ov, { clipPath: "circle(150% at 50% 50%)" });
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   tl.to(ov, {
     clipPath: "circle(55% at 50% 50%)",
@@ -203,6 +234,7 @@ function transitionGrainDissolve(onDone: () => void) {
   const grain2 = mkGrain(ov, 0.09);
 
   const scan = document.createElement("div");
+  registerElements(scan);
   scan.style.cssText = [
     "position:absolute",
     "inset:0",
@@ -217,6 +249,7 @@ function transitionGrainDissolve(onDone: () => void) {
   ov.appendChild(scan);
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   tl.to([grain1, grain2], {
     opacity: "+=0.06",
@@ -276,6 +309,7 @@ function transitionSplit(onDone: () => void) {
   `);
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   tl.to(top, { y: 4, duration: 0.12, ease: "power1.in" }).to(
     bot,
@@ -321,6 +355,7 @@ function transitionSweep(onDone: () => void) {
   mkGrain(ov, 0.048);
 
   const edge = document.createElement("div");
+  registerElements(edge);
   edge.style.cssText = [
     "position:absolute",
     "top:0",
@@ -337,6 +372,7 @@ function transitionSweep(onDone: () => void) {
   gsap.set(ov, { scaleX: 1, x: 0 });
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   tl.to(ov, {
     x: "-105%",
@@ -357,6 +393,7 @@ function transitionFlashArgentique(onDone: () => void) {
   mkGrain(ov, 0.055);
 
   const halo = document.createElement("div");
+  registerElements(halo);
   halo.style.cssText = [
     "position:absolute",
     "top:50%",
@@ -377,6 +414,7 @@ function transitionFlashArgentique(onDone: () => void) {
 
   ["top:0;height:2px", "bottom:0;height:2px"].forEach((pos) => {
     const r = document.createElement("div");
+    registerElements(r);
     r.style.cssText = [
       "position:absolute",
       "left:0",
@@ -391,6 +429,7 @@ function transitionFlashArgentique(onDone: () => void) {
   });
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   tl.to(halo, {
     width: "180vmax",
@@ -459,6 +498,7 @@ function transitionVoileDechiquete(onDone: () => void) {
     mkGrain(band, grain);
 
     const edge = document.createElement("div");
+    registerElements(edge);
     edge.style.cssText = [
       "position:absolute",
       "bottom:0",
@@ -476,6 +516,7 @@ function transitionVoileDechiquete(onDone: () => void) {
   });
 
   const tl = gsap.timeline({ onComplete: onDone });
+  registerTimeline(tl);
 
   BANDS.forEach(({ dir, val, delay }, i) => {
     tl.to(
@@ -498,6 +539,9 @@ function transitionVoileDechiquete(onDone: () => void) {
 // Toutes les comparaisons référencent ROUTES — zéro string brute.
 // ─────────────────────────────────────────────────────────────
 function runTransition(pathname: string, onDone: () => void) {
+  // Tue la transition précédente — évite l'accumulation d'overlays
+  killActiveTransition();
+
   // Scroll to top instantané — la nouvelle page part du sommet
   window.scrollTo({ top: 0, behavior: "instant" });
 
@@ -553,6 +597,11 @@ export default function PageTransitionLayer() {
     // Lance la transition
     runTransition(current, () => {});
   }, [location.pathname]);
+
+  // Cleanup au démontage du composant — tue les tweens et enlève les overlays
+  useEffect(() => {
+    return () => killActiveTransition();
+  }, []);
 
   // Ce composant ne rend rien dans React —
   // tout est impératif sur document.body
