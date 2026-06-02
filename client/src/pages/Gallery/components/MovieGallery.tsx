@@ -393,11 +393,11 @@ export default function MovieGallery() {
   // wrapperRef  : translateX animé par la timeline.
   // progressRef : scaleX animé par onUpdate (0 → 1).
   // scrollHintRef : disparaît après 3% de progression.
-  const wrapperRef = useRef(null);
-  const progressRef = useRef(null);
-  const scrollHintRef = useRef(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
-  const [films, setFilms] = useState<typeof FALLBACK_FILMS>([]);
+  const [films, setFilms] = useState<typeof FALLBACK_FILMS>(FALLBACK_FILMS);
 
   useEffect(() => {
     const loadGallery = async () => {
@@ -405,12 +405,9 @@ export default function MovieGallery() {
         const response = await galleryService.getAll({ page: 1, limit: 100 });
         if (response.data && response.data.length > 0) {
           setFilms(response.data);
-        } else {
-          setFilms(FALLBACK_FILMS);
         }
       } catch (err) {
         console.error("Erreur lors de la récupération des films :", err);
-        setFilms(FALLBACK_FILMS);
       }
     };
 
@@ -477,9 +474,14 @@ export default function MovieGallery() {
 
           onUpdate(self) {
             if (progressRef.current) {
-              gsap.set(progressRef.current, { scaleX: self.progress });
+              progressRef.current.style.transform = `scaleX(${self.progress})`;
             }
-            if (scrollHintRef.current && self.progress > 0.03) {
+            if (
+              scrollHintRef.current &&
+              self.progress > 0.03 &&
+              !scrollHintRef.current.dataset.hidden
+            ) {
+              scrollHintRef.current.dataset.hidden = "true";
               gsap.to(scrollHintRef.current, {
                 opacity: 0,
                 y: 6,
