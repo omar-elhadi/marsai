@@ -6,13 +6,14 @@ const envSchema = z.object({
   PORT: z.string().regex(/^\d+$/).optional().default("5000"),
   JWT_SECRET: z.string().min(1),
   FRONTEND_URL: z.string().url(),
-  AWS_ACCESS_KEY_ID: z.string().optional(),
-  AWS_SECRET_ACCESS_KEY: z.string().optional(),
-  S3_BUCKET_NAME: z.string().optional(),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.string().optional(),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
+  SCALEWAY_ACCESS_KEY: z.string().optional(),
+  SCALEWAY_SECRET_KEY: z.string().optional(),
+  SCALEWAY_BUCKET_NAME: z.string().optional(),
+  SCALEWAY_ENDPOINT: z.string().optional(),
+  MAIL_HOST: z.string().optional(),
+  MAIL_PORT: z.string().optional(),
+  MAIL_USER: z.string().optional(),
+  MAIL_PASS: z.string().optional(),
 });
 
 export const validateEnv = () => {
