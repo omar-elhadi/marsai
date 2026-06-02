@@ -33,7 +33,8 @@ RUN npm ci --omit=dev
 COPY --from=builder /usr/src/app/packages/validators/dist ./packages/validators/dist
 COPY --from=builder /usr/src/app/server/dist ./server/dist
 COPY --from=builder /usr/src/app/server/prisma ./server/prisma
+COPY --from=builder /usr/src/app/server/start.sh ./server/start.sh
 
 EXPOSE 5000
 
-CMD ["npm", "start", "--workspace=server"]
+CMD ["sh", "server/start.sh"]

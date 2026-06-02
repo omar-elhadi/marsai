@@ -36,8 +36,8 @@ services:
   # Express API Server (Production)
   server:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: production
     container_name: marsai_server_prod
     restart: always
@@ -51,12 +51,6 @@ services:
       MAIL_PORT: ${MAIL_PORT}
       MAIL_USER: ${MAIL_USER}
       MAIL_PASS: ${MAIL_PASS}
-      SCALEWAY_ENDPOINT: ${SCALEWAY_ENDPOINT}
-      SCALEWAY_REGION: ${SCALEWAY_REGION}
-      SCALEWAY_BUCKET_NAME: ${SCALEWAY_BUCKET_NAME}
-      SCALEWAY_FOLDER: ${SCALEWAY_FOLDER}
-      SCALEWAY_ACCESS_KEY: ${SCALEWAY_ACCESS_KEY}
-      SCALEWAY_SECRET_KEY: ${SCALEWAY_SECRET_KEY}
     ports:
       - "5000:5000"
     depends_on:
@@ -70,8 +64,8 @@ services:
   # React Frontend (Nginx - Production)
   client:
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: client/Dockerfile
       target: production
     container_name: marsai_client_prod
     restart: always
