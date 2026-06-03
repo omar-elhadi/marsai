@@ -129,6 +129,3 @@ audit-system/audit-output/
 
 *.orig
 *.patch
-
-# License (customize before committing)
-LICENSE
