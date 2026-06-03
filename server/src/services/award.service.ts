@@ -347,5 +347,5 @@ export const getEditions = async () => {
     distinct: ["edition"],
     orderBy: { edition: "desc" },
   });
-  return rows.map((r) => r.edition);
+  return rows.map((r: { edition: number }) => r.edition);
 };

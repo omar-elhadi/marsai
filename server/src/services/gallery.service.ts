@@ -43,7 +43,7 @@ export const fetchGallery = async ({ page = 1, limit = 50 }: any = {}) => {
       prisma.film.count({ where: { status: "AWARD" } }),
     ]);
 
-    const formattedFilms = films.map((film) => ({
+    const formattedFilms = films.map((film: any) => ({
       id: film.id,
       title: film.title,
       description: film.description,
