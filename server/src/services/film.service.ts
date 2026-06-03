@@ -184,7 +184,12 @@ export const getFilmsStats = async () => {
   ]);
 
   const counts = Object.fromEntries(
-    byStatus.map(({ status, _count }: { status: string; _count: { id: number } }) => [status, _count.id]),
+    byStatus.map(
+      ({ status, _count }: { status: string; _count: { id: number } }) => [
+        status,
+        _count.id,
+      ],
+    ),
   );
 
   return { total, byStatus: counts, suggestions };

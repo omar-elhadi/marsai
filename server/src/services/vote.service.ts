@@ -183,7 +183,9 @@ export const getFilmForJury = async (filmId: number, userId: number) => {
   });
   if (!film)
     throw Object.assign(new Error("Film introuvable"), { statusCode: 404 });
-  const isAssigned = film.assignedUsers.some((u: { id: number }) => u.id === userId);
+  const isAssigned = film.assignedUsers.some(
+    (u: { id: number }) => u.id === userId,
+  );
   if (!isAssigned)
     throw Object.assign(new Error("Film non assigné à ce jury"), {
       statusCode: 403,
