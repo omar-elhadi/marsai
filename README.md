@@ -4,6 +4,12 @@ Marsai Festival is a web platform for submitting, reviewing, and voting on AI-ge
 
 Built as a full-stack JavaScript/TypeScript monorepo with an Express API backend and a React frontend.
 
+![Homepage](docs/demos/homepage.png)
+![Submit your film](docs/demos/submit_your_film.png)
+![Gallery](docs/demos/galery.png)
+![Jury dashboard](docs/demos/jurys.png)
+![Events](docs/demos/events.png)
+
 ## Project Structure
 
 ```
