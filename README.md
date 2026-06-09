@@ -136,15 +136,15 @@ docker-compose -f docker-compose.prod.yml up --build
 
 ## API Overview
 
-| Endpoint | Description |
-|----------|-------------|
-| `POST /api/auth/login` | Admin login |
-| `GET /api/auth/me` | Current user |
-| `POST /api/films/submit` | Public film submission |
-| `GET /api/films` | List films (admin) |
-| `PUT /api/films/:id/status` | Change film status |
-| `POST /api/jury/votes` | Cast a vote |
-| `GET /api/awards/palmares` | Public award results |
-| `GET /api/settings` | Site settings |
-| `POST /api/newsletter/subscribe` | Newsletter signup |
-| `GET /api/jury-members` | Public jury list |
+| Endpoint                         | Description            |
+| -------------------------------- | ---------------------- |
+| `POST /api/auth/login`           | Admin login            |
+| `GET /api/auth/me`               | Current user           |
+| `POST /api/films/submit`         | Public film submission |
+| `GET /api/films`                 | List films (admin)     |
+| `PUT /api/films/:id/status`      | Change film status     |
+| `POST /api/jury/votes`           | Cast a vote            |
+| `GET /api/awards/palmares`       | Public award results   |
+| `GET /api/settings`              | Site settings          |
+| `POST /api/newsletter/subscribe` | Newsletter signup      |
+| `GET /api/jury-members`          | Public jury list       |

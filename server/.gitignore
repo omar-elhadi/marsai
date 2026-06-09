@@ -19,3 +19,4 @@ audit-output/
 !02-analyze.sh
 !03-pull-journal.sh
 .vercel
+.env*.local
