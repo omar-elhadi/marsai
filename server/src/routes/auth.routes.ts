@@ -17,6 +17,30 @@ const loginLimiter = rateLimit({
   message: {
     error: "Trop de tentatives de connexion. Réessayez dans 15 minutes.",
   },
+  keyGenerator: (req) => {
+    // Handle both string and string[] cases safely
+    const forwardedFor = req.headers["x-forwarded-for"];
+    const realIp = req.headers["x-real-ip"];
+    const vercelForwardedFor = req.headers["x-vercel-forwarded-for"];
+
+    let clientIp: string | undefined;
+
+    // Priority: x-vercel-forwarded-for > x-real-ip > x-forwarded-for > req.ip
+    if (typeof vercelForwardedFor === "string") {
+      clientIp = vercelForwardedFor.split(",")[0]?.trim();
+    } else if (typeof realIp === "string") {
+      clientIp = realIp;
+    } else if (typeof forwardedFor === "string") {
+      clientIp = forwardedFor.split(",")[0]?.trim();
+    } else if (Array.isArray(forwardedFor)) {
+      clientIp = forwardedFor[0]?.split(",")[0]?.trim();
+    }
+
+    return clientIp || req.ip || "unknown";
+  },
+  validate: {
+    xForwardedForHeader: false,
+  },
 });
 
 // Limiteur pour les magic links jury : 20 vérifications / heure / IP
@@ -28,6 +52,30 @@ const verifyTokenLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     error: "Trop de tentatives. Réessayez dans une heure.",
+  },
+  keyGenerator: (req) => {
+    // Handle both string and string[] cases safely
+    const forwardedFor = req.headers["x-forwarded-for"];
+    const realIp = req.headers["x-real-ip"];
+    const vercelForwardedFor = req.headers["x-vercel-forwarded-for"];
+
+    let clientIp: string | undefined;
+
+    // Priority: x-vercel-forwarded-for > x-real-ip > x-forwarded-for > req.ip
+    if (typeof vercelForwardedFor === "string") {
+      clientIp = vercelForwardedFor.split(",")[0]?.trim();
+    } else if (typeof realIp === "string") {
+      clientIp = realIp;
+    } else if (typeof forwardedFor === "string") {
+      clientIp = forwardedFor.split(",")[0]?.trim();
+    } else if (Array.isArray(forwardedFor)) {
+      clientIp = forwardedFor[0]?.split(",")[0]?.trim();
+    }
+
+    return clientIp || req.ip || "unknown";
+  },
+  validate: {
+    xForwardedForHeader: false,
   },
 });
 
