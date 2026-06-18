@@ -129,12 +129,12 @@ function AdminLayout() {
               transform: "translateY(-50%)",
               width: "18px",
               height: "52px",
-              background: "var(--color-surface)",
+              background: "rgba(99,102,241,0.08)",
               borderTop: "1px solid var(--color-border)",
               borderBottom: "1px solid var(--color-border)",
               borderRight: "1px solid var(--color-border)",
               cursor: "pointer",
-              color: "var(--color-text-faint)",
+              color: "#818cf8",
               transition: "background 0.2s, color 0.2s",
             }}
             onMouseEnter={(e) => {
@@ -142,8 +142,8 @@ function AdminLayout() {
               e.currentTarget.style.color = "white";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface)";
-              e.currentTarget.style.color = "var(--color-text-faint)";
+              e.currentTarget.style.background = "rgba(99,102,241,0.08)";
+              e.currentTarget.style.color = "#818cf8";
             }}
           >
             {isCollapsed ? (
@@ -199,7 +199,7 @@ function AdminLayout() {
               className={({ isActive }) =>
                 `flex items-center transition-all duration-200 border-l-2 group
                 ${isCollapsed && !isMobileMenuOpen ? "justify-center py-4 px-3" : "gap-4 px-5 py-4"}
-                ${isMobileMenuOpen ? "py-6 px-10 gap-6" : ""}
+                ${isMobileMenuOpen ? "py-5 px-8 gap-5" : ""}
                 ${isActive ? "border-indigo-500" : "border-transparent"}`
               }
               style={({ isActive }) => ({
