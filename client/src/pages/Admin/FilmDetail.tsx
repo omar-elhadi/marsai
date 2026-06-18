@@ -206,7 +206,7 @@ function FilmDetail() {
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm px-4"
-          style={{ background: "rgba(0,0,0,0.85)" }}
+          style={{ background: "rgba(0,0,0,0.75)" }}
           onClick={() => setShowModal(false)}
         >
           <div
@@ -214,6 +214,7 @@ function FilmDetail() {
             style={{
               background: "var(--color-bg)",
               border: "1px solid rgba(249,115,22,0.3)",
+              borderRadius: "var(--radius-sm)",
               padding: "clamp(1.5rem, 4vw, 2rem)",
               width: "100%",
               maxWidth: "28rem",
@@ -492,6 +493,7 @@ function FilmDetail() {
               style={{
                 background: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
                 overflow: "hidden",
               }}
             >
@@ -512,6 +514,7 @@ function FilmDetail() {
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               padding: "clamp(1.25rem, 2.5vw, 1.75rem)",
             }}
           >
@@ -591,6 +594,7 @@ function FilmDetail() {
               style={{
                 background: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
                 padding: "clamp(1.25rem, 2.5vw, 1.75rem)",
               }}
             >
@@ -680,6 +684,7 @@ function FilmDetail() {
               style={{
                 background: "var(--color-surface)",
                 border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-sm)",
                 padding: "clamp(1.25rem, 2.5vw, 1.75rem)",
               }}
             >
@@ -845,6 +850,7 @@ function FilmDetail() {
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               padding: "clamp(1.25rem, 2.5vw, 1.5rem)",
             }}
           >
@@ -904,6 +910,7 @@ function FilmDetail() {
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               padding: "clamp(1.25rem, 2.5vw, 1.5rem)",
             }}
           >
@@ -984,6 +991,7 @@ function FilmDetail() {
                 <div
                   style={{
                     border: "1px solid rgba(249,115,22,0.2)",
+                    borderRadius: "var(--radius-sm)",
                     overflow: "hidden",
                   }}
                 >
