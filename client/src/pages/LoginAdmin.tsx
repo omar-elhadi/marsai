@@ -1,22 +1,23 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-const loginSchema = z.object({
-  email: z.string().email("Email invalide"),
-  password: z.string().min(6, "6 caractères minimum"),
-});
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { apiClient } from "../services/api/apiClient";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useTranslation } from "react-i18next";
 
+const loginSchema = z.object({
+  email: z.string().email("Email invalide"),
+  password: z.string().min(6, "6 caractères minimum"),
+});
+
 export default function LoginAdmin() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { t } = useTranslation("admin"); // Assuming we create admin.json
+  const { t } = useTranslation("admin");
 
   const pageRef = useRef<HTMLDivElement>(null);
   const overlineRef = useRef<HTMLDivElement>(null);
@@ -94,20 +95,27 @@ export default function LoginAdmin() {
           ref={overlineRef}
           className="flex items-center justify-center gap-4 mb-5"
         >
-          <span className="block w-8 h-[1px] bg-accent" />
+          <span className="block w-8 h-[1px] bg-indigo-500" />
           <span className="text-xs uppercase tracking-widest text-text">
             {t("login.overline")}
           </span>
-          <span className="block w-8 h-[1px] bg-accent" />
+          <span className="block w-8 h-[1px] bg-indigo-500" />
         </div>
-        <h1 ref={titleRef} className="text-4xl text-text font-serif mb-4">
+        <h1
+          ref={titleRef}
+          className="text-4xl text-text uppercase italic font-black mb-4"
+          style={{
+            fontFamily: "var(--font-display)",
+            letterSpacing: "-0.03em",
+          }}
+        >
           {t("login.title")}
         </h1>
       </div>
 
       <div
         ref={cardRef}
-        className="w-full max-w-[440px] p-8 border border-border border-l-2 border-l-accent bg-surface relative"
+        className="w-full max-w-[440px] p-8 border border-border border-l-2 border-l-indigo-500 bg-surface relative"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
@@ -118,7 +126,7 @@ export default function LoginAdmin() {
               type="email"
               placeholder="admin@marsai.fr"
               {...register("email")}
-              className="w-full bg-surface border border-border px-4 py-3 text-text placeholder:text-text-faint focus:border-accent focus:outline-none transition-colors"
+              className="w-full bg-surface border border-border px-4 py-3 text-text placeholder:text-text-faint focus:border-indigo-500 focus:outline-none transition-colors"
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1">
@@ -135,7 +143,7 @@ export default function LoginAdmin() {
               type="password"
               placeholder="••••••••"
               {...register("password")}
-              className="w-full bg-surface border border-border px-4 py-3 text-text placeholder:text-text-faint focus:border-accent focus:outline-none transition-colors"
+              className="w-full bg-surface border border-border px-4 py-3 text-text placeholder:text-text-faint focus:border-indigo-500 focus:outline-none transition-colors"
             />
             {errors.password && (
               <p className="text-red-500 text-xs mt-1">
@@ -151,7 +159,7 @@ export default function LoginAdmin() {
           )}
 
           {success && (
-            <div className="p-3 bg-accent/10 border border-accent/20 border-l-2 border-l-accent text-accent text-xs tracking-wider">
+            <div className="p-3 bg-green-500/10 border border-green-500/20 border-l-2 border-l-green-500 text-green-400 text-xs tracking-wider">
               {success}
             </div>
           )}
@@ -159,7 +167,7 @@ export default function LoginAdmin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-4 px-6 bg-accent text-pure text-xs tracking-widest uppercase font-bold hover:bg-text transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-2 py-4 px-6 bg-indigo-600 text-white text-xs tracking-widest uppercase font-bold hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t("login.loading") : t("login.submit")}
           </button>
