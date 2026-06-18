@@ -193,6 +193,7 @@ export default function SelectionPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1rem",
           }}
         >
@@ -210,6 +211,7 @@ export default function SelectionPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1rem",
           }}
         >
@@ -224,6 +226,7 @@ export default function SelectionPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1rem",
           }}
         >
@@ -324,6 +327,7 @@ export default function SelectionPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             overflow: "hidden",
           }}
         >
