@@ -20,3 +20,4 @@ audit-output/
 !03-pull-journal.sh
 .vercel
 .env*.local
+dist
