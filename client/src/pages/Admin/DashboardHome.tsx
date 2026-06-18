@@ -30,7 +30,6 @@ function DashboardHome() {
     fetchStats();
   }, []);
 
-  // Carte de statistique — fond et bordure via CSS variables, icône garde sa couleur Tailwind
   const StatCard = ({
     title,
     count,
@@ -46,16 +45,14 @@ function DashboardHome() {
       style={{
         background: "var(--color-surface)",
         border: "1px solid var(--color-border)",
-        borderRadius: "4px",
+        borderRadius: "var(--radius-sm)",
         padding: "1.5rem",
         display: "flex",
         alignItems: "center",
         gap: "1rem",
       }}
     >
-      <div className={`p-3 bg-opacity-10 ${color.bg} ${color.text} shrink-0`}>
-        {icon}
-      </div>
+      <div className={`p-3 shrink-0 ${color.bg} ${color.text}`}>{icon}</div>
       <div>
         <p className="label-overline" style={{ marginBottom: "0.25rem" }}>
           {title}
@@ -141,13 +138,13 @@ function DashboardHome() {
           title="Total Films"
           count={stats?.total}
           icon={<Film size={24} />}
-          color={{ bg: "bg-indigo-500", text: "text-indigo-400" }}
+          color={{ bg: "bg-indigo-500/10", text: "text-indigo-400" }}
         />
         <StatCard
           title="En attente"
           count={(by.SUBMITTED ?? 0) + (by.IN_REVIEW ?? 0)}
           icon={<Clock size={24} />}
-          color={{ bg: "bg-yellow-500", text: "text-yellow-400" }}
+          color={{ bg: "bg-yellow-500/10", text: "text-yellow-400" }}
         />
         <StatCard
           title="Acceptés"
@@ -158,37 +155,37 @@ function DashboardHome() {
             (by.AWARD ?? 0)
           }
           icon={<CheckCircle size={24} />}
-          color={{ bg: "bg-green-500", text: "text-green-400" }}
+          color={{ bg: "bg-green-500/10", text: "text-green-400" }}
         />
         <StatCard
           title="Refusés"
           count={by.REJECTED ?? 0}
           icon={<XCircle size={24} />}
-          color={{ bg: "bg-red-500", text: "text-red-400" }}
+          color={{ bg: "bg-red-500/10", text: "text-red-400" }}
         />
         <StatCard
           title="Sélectionnés"
           count={by.SELECTION ?? 0}
           icon={<Star size={24} />}
-          color={{ bg: "bg-indigo-500", text: "text-indigo-400" }}
+          color={{ bg: "bg-indigo-500/10", text: "text-indigo-400" }}
         />
         <StatCard
           title="Finalistes"
           count={by.FINALIST ?? 0}
           icon={<Star size={24} />}
-          color={{ bg: "bg-purple-500", text: "text-purple-400" }}
+          color={{ bg: "bg-purple-500/10", text: "text-purple-400" }}
         />
         <StatCard
           title="Primés"
           count={by.AWARD ?? 0}
           icon={<Trophy size={24} />}
-          color={{ bg: "bg-amber-500", text: "text-amber-400" }}
+          color={{ bg: "bg-amber-500/10", text: "text-amber-400" }}
         />
         <StatCard
           title="À modifier"
           count={by.TO_MODIFY ?? 0}
           icon={<Clock size={24} />}
-          color={{ bg: "bg-orange-500", text: "text-orange-400" }}
+          color={{ bg: "bg-orange-500/10", text: "text-orange-400" }}
         />
       </div>
 
@@ -197,18 +194,32 @@ function DashboardHome() {
         style={{
           background: "var(--color-surface)",
           border: "1px solid var(--color-border)",
-          borderRadius: "4px",
+          borderRadius: "var(--radius-sm)",
           padding: "2rem",
           textAlign: "center",
           color: "var(--color-text-faint)",
           height: "16rem",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          gap: "0.75rem",
           fontSize: "0.875rem",
         }}
       >
-        Zone pour les graphiques futurs ou les activités récentes
+        <span
+          style={{
+            fontSize: "0.75rem",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            fontWeight: 700,
+          }}
+        >
+          À venir
+        </span>
+        <span style={{ fontStyle: "italic", opacity: 0.6 }}>
+          Graphiques et activités récentes
+        </span>
       </div>
     </div>
   );
