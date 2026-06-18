@@ -280,6 +280,7 @@ function FilmsList() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "0.875rem",
           }}
         >
@@ -305,6 +306,7 @@ function FilmsList() {
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               padding: "0.875rem",
             }}
           >
@@ -456,6 +458,7 @@ function FilmsList() {
         style={{
           background: "var(--color-surface)",
           border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-sm)",
           overflow: "hidden",
         }}
       >
@@ -792,13 +795,14 @@ function FilmsList() {
       {assignPopup && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
-          style={{ background: "rgba(0,0,0,0.8)" }}
+          style={{ background: "rgba(0,0,0,0.75)" }}
           onClick={() => setAssignPopup(null)}
         >
           <div
             style={{
               background: "var(--color-bg)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               width: "100%",
               maxWidth: "26rem",
               overflow: "hidden",
