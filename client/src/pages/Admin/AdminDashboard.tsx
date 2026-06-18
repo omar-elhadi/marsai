@@ -139,14 +139,14 @@ export const AdminDashboard = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          gap: "0.75rem",
           height: "16rem",
-          fontFamily: "monospace",
-          fontSize: "0.625rem",
-          letterSpacing: "0.5em",
+          fontSize: "0.875rem",
           color: "var(--color-text-muted)",
         }}
       >
-        SYNC_IN_PROGRESS_
+        <Loader2 size={20} className="animate-spin" />
+        Chargement...
       </div>
     );
 
@@ -223,14 +223,13 @@ export const AdminDashboard = () => {
               }}
             >
               <p
+                className="label-overline"
                 style={{
                   color: "#6366f1",
-                  fontWeight: 700,
                   marginBottom: "0.25rem",
-                  letterSpacing: "0.2em",
                 }}
               >
-                Live_Activity_Logs
+                Activité récente
               </p>
               {logs.map((log) => (
                 <div
@@ -279,10 +278,14 @@ export const AdminDashboard = () => {
               color: "var(--color-text)",
               padding: "0.75rem 1.5rem",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#6366f1")}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "#6366f1";
+              e.currentTarget.style.color = "#fff";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--color-text)";
+            }}
           >
             <UserPlus size={16} strokeWidth={3} style={{ color: "#818cf8" }} />
             <span
@@ -386,7 +389,7 @@ export const AdminDashboard = () => {
                   <>
                     <button
                       onClick={() => handleSendInvite(user)}
-                      className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 hover:bg-emerald-600 hover:text-white transition-all"
+                      className="flex-1 md:flex-none flex justify-center items-center p-3 md:p-2.5 hover:bg-emerald-600 hover:text-white transition-all"
                       style={{
                         background: "var(--color-surface)",
                         color: "var(--color-text-muted)",
@@ -409,7 +412,7 @@ export const AdminDashboard = () => {
                         });
                         setIsModalOpen(true);
                       }}
-                      className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 hover:bg-orange-500 hover:text-white transition-all"
+                      className="flex-1 md:flex-none flex justify-center items-center p-3 md:p-2.5 hover:bg-orange-500 hover:text-white transition-all"
                       style={{
                         background: "var(--color-surface)",
                         color: "var(--color-text-muted)",
@@ -419,7 +422,7 @@ export const AdminDashboard = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(user)}
-                      className="flex-1 md:flex-none flex justify-center items-center p-4 md:p-2.5 hover:bg-red-600 hover:text-white transition-all"
+                      className="flex-1 md:flex-none flex justify-center items-center p-3 md:p-2.5 hover:bg-red-600 hover:text-white transition-all"
                       style={{
                         background: "var(--color-surface)",
                         color: "var(--color-text-muted)",
@@ -454,8 +457,8 @@ export const AdminDashboard = () => {
       {/* ── Modale création/édition ── */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md p-4 sm:p-6"
-          style={{ background: "rgba(0,0,0,0.95)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4 sm:p-6"
+          style={{ background: "rgba(0,0,0,0.75)" }}
           onClick={() => setIsModalOpen(false)}
         >
           <form
@@ -558,8 +561,8 @@ export const AdminDashboard = () => {
               <button
                 type="submit"
                 style={{
-                  background: "var(--color-text)",
-                  color: "var(--color-bg-pure)",
+                  background: "#6366f1",
+                  color: "#fff",
                   padding: "1rem",
                   fontWeight: 900,
                   fontSize: "0.625rem",
@@ -567,16 +570,12 @@ export const AdminDashboard = () => {
                   textTransform: "uppercase",
                   border: "none",
                   cursor: "pointer",
-                  transition: "background 0.2s",
+                  transition: "opacity 0.2s",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#6366f1")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "var(--color-text)")
-                }
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
               >
-                Valider configuration
+                Valider
               </button>
               <button
                 type="button"
