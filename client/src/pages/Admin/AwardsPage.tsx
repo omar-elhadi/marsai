@@ -211,6 +211,7 @@ function TabCategories({
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1.25rem",
             position: "sticky",
             top: "1rem",
@@ -341,6 +342,7 @@ function TabCategories({
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               overflow: "hidden",
             }}
           >
@@ -580,6 +582,7 @@ function TabNominations({ edition }: { edition: number }) {
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               overflow: "hidden",
             }}
           >
@@ -871,6 +874,7 @@ function TabWinners({ edition }: { edition: number }) {
             style={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
               overflow: "hidden",
             }}
           >
@@ -1316,6 +1320,7 @@ export default function AwardsPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1rem",
           }}
         >
@@ -1330,6 +1335,7 @@ export default function AwardsPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1rem",
           }}
         >
@@ -1344,6 +1350,7 @@ export default function AwardsPage() {
           style={{
             background: "var(--color-surface)",
             border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
             padding: "1rem",
           }}
         >
