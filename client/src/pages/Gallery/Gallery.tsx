@@ -15,7 +15,7 @@ export default function GalleryPage() {
   return (
     <>
       <SEO
-        title={`${t("navigation.gallery")} | Marsai Film Festival`}
+        title={`${t("nav.gallery")} | Marsai Film Festival`}
         description="Découvrez la sélection officielle du Marsai Film Festival."
       />
       <MovieGallery />

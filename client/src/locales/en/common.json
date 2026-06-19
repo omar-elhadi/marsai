@@ -4,11 +4,18 @@
     "gallery": "Gallery",
     "events": "Events",
     "submit": "Submit",
-    "contact": "Contact"
+    "contact": "Contact",
+    "news": "News"
   },
   "header": {
     "submitButton": "Submit a film",
-    "teamAccess": "Team access"
+    "teamAccess": "Team access",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "close": "Close",
+    "panelDate": "June 20 — 22, 2026",
+    "panelCity": "Marseille",
+    "submitDesktop": "Submit"
   },
   "footer": {
     "privacy": "Privacy policy",
@@ -17,7 +24,10 @@
     "rules": "Competition rules",
     "contact": "Contact",
     "credits": "Created by",
-    "allRightsReserved": "All rights reserved"
+    "allRightsReserved": "All rights reserved",
+    "signatureDate": "June 20 — 22, 2026 · Marseille",
+    "signatureTagline": "The pinnacle of generative cinema.",
+    "festivalLabel": "Festival 2026"
   },
   "footerNav": {
     "col1Title": "Participate",
@@ -48,7 +58,7 @@
     "scrollBtn": "Scroll"
   },
   "manifeste": {
-    "overline": "MANIFESTO",
+    "overline": "Manifesto",
     "title1": "The Art",
     "title2": "of",
     "title3": "Constraint",
@@ -115,30 +125,38 @@
     }
   },
   "recompenses": {
-    "overline": "AWARDS 2026",
-    "title1": "The Prizes",
-    "title2": "of the 1st Edition",
-    "intro": "The festival rewards creators who push the boundaries. Four categories for a historic turning point in cinematic art.",
+    "overline": "Endowments & Recognition",
+    "title1": "What you can",
+    "title2": "win",
+    "gpIndex": "Grand Prix — 01",
+    "gpTitle": "MARSAI Grand Prix",
+    "gpDesc": "Awarded to the film that best embodies the festival's vision: genuine emotion carried by AI. Open to all — first film or tenth, emotion alone counts. The jury votes unanimously.",
+    "gpConditionLabel": "Conditions",
+    "gpJuryNote": "Unanimous jury vote",
+    "separatorLabel": "Secondary Prizes",
+    "conditions": {
+      "01": "60-second film",
+      "02": "Fully AI-generated",
+      "03": "Mandatory world premiere"
+    },
     "awards": {
-      "grand-prix": {
-        "title": "Marsai Grand Prize",
-        "subtitle": "Best Short Film",
-        "desc": "Rewards the work that most accurately marries human emotion with algorithmic innovation. The complete film, where technique fades behind the narrative."
+      "jury": {
+        "index": "02",
+        "title": "Jury Prize",
+        "value": "$15,000",
+        "desc": "Awarded to the most formally audacious work. The one that breaks the rules in the most convincing way."
       },
-      "realisation": {
-        "title": "Best Direction",
-        "subtitle": "Directing Award",
-        "desc": "Hails the director's vision, their ability to direct AI tools and create a coherent aesthetic universe."
+      "revelation": {
+        "index": "03",
+        "title": "Revelation Prize",
+        "value": "$8,000",
+        "desc": "For those submitting their very first film. No résumé required — just a story to tell. This prize exists precisely for you."
       },
-      "scenaristique": {
-        "title": "Innovation Prize",
-        "subtitle": "Screenwriting",
-        "desc": "Distinguishes an original narrative, innovative prompt-engineering and a bold narrative structure."
-      },
-      "public": {
-        "title": "Audience Award",
-        "subtitle": "Online Vote",
-        "desc": "The international community votes for its favorite film throughout the festival."
+      "certification": {
+        "index": "04",
+        "title": "MARSAI Certification",
+        "value": "All finalists",
+        "desc": "Awarded to the 50 finalist films, regardless of experience. International recognition and access to the MARSAI community."
       }
     }
   },
@@ -148,10 +166,9 @@
       "architecte": "Architect",
       "pionnier": "Pioneer"
     },
-    "overline": "ALLIANCES",
-    "title1": "They Build",
-    "title2": "the Future",
-    "title3": "With Us",
+    "overline": "Official Partners",
+    "title1": "The Architects",
+    "title2": "of the Possible",
     "intro": "The Marsai ecosystem brings together world leaders in artificial intelligence and digital creation. More than sponsors, they are the architects of tomorrow's cinema, without whom this revolution would not be possible.",
     "partnerBlock": {
       "title1": "Become a",
@@ -162,28 +179,68 @@
         "2": "VIP access to masterclasses",
         "3": "Meetings with creators"
       }
-    }
+    },
+    "partners": {
+      "01": {
+        "name": "Sora Studio",
+        "sector": "Video Generation",
+        "desc": "Pioneer of high-fidelity video generation. Official technology partner for festival workshops.",
+        "descLong": "Sora Studio has been pushing the limits of video generation since 2022. Their temporal diffusion engine can create coherent cinematographic sequences spanning several minutes — a revolution for independent filmmakers. For MARSAI, Sora Studio provides early API access for all 600 competition participants."
+      },
+      "02": {
+        "name": "Anthropic Labs",
+        "sector": "Artificial Intelligence",
+        "desc": "Fundamental research in responsible AI. Supporting the creation of next-generation narrative tools.",
+        "descLong": "Anthropic Labs is at the forefront of constitutional AI research. Their work on generated narrativity opens new territories for creators. For MARSAI, Anthropic contributes art direction tools accessible to all participants regardless of technical level."
+      },
+      "03": {
+        "name": "CNC",
+        "sector": "Cinema Support",
+        "desc": "National Center for Cinema and the moving image. Official recognition of the festival in the French cultural landscape.",
+        "descLong": "The CNC brings its institutional legitimacy to MARSAI. This official recognition allows award-winning works to access CNC support programs for feature-length development — a concrete bridge between experimental creation and the French film industry."
+      },
+      "04": {
+        "name": "EDF Pulse",
+        "sector": "Innovation & Energy",
+        "desc": "Acceleration program for innovative cultural projects. Infrastructure endowment for finalists.",
+        "descLong": "EDF Pulse has been supporting projects at the intersection of technology and culture since 2015. Their dedicated digital creation program offers MARSAI finalists access to high-performance computing infrastructure — essential for the demanding video rendering of AI generation."
+      }
+    },
+    "cardShowLabel": "Discover",
+    "cardHideLabel": "Close",
+    "cardVisitLabel": "Visit website"
   },
   "galerie": {
-    "overline": "SELECTION",
-    "title1": "They Made",
-    "title2": "History",
-    "intro": "Discover the pioneering works that have redefined the standards of generative cinema. A selection that proves AI is above all an instrument for amplifying the human soul.",
-    "exploreLabel": "Explore",
-    "festivalImagesBtn": "The festival in pictures",
-    "directedBy": "Directed by",
+    "overline": "Official Selection 2026",
+    "title1": "The Official",
+    "title2": "Selection",
+    "tagline": "One-minute films created with A.I. — by enthusiasts from all walks of life.",
+    "cta": "Discover the full selection",
+    "voirFilm": "Watch the film",
     "films": {
       "f1": {
+        "title": "Synthetic Memory",
+        "director": "K. Okafor",
+        "origin": "Nigeria · France",
+        "genre": "Drama / Memory",
+        "mention": "Official Selection",
         "desc": "A poetic exploration of urban memory through the eye of a failing algorithm."
       },
       "f2": {
+        "title": "Shatter of Nothing",
+        "director": "M. Chen",
+        "origin": "Taiwan",
+        "genre": "Visual Poetry",
+        "mention": "Special Mention",
         "desc": "Artificial intelligence reinvents the myth of Icarus in a breathtaking visual symphony."
       },
       "f3": {
+        "title": "The Last Frequency",
+        "director": "A. Petrov",
+        "origin": "Russia · Germany",
+        "genre": "Science Fiction",
+        "mention": "Competition",
         "desc": "When the machine learns to cry. A fictitious documentary about the first synthetic feelings."
-      },
-      "f4": {
-        "desc": "Hypnotic dystopia where humanity has delegated its dreams to quantum servers."
       }
     }
   },

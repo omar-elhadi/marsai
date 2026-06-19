@@ -1,87 +1,11 @@
-/**
- * Footer.jsx — MARSAI Festival
- * "La Générique" — Refactoring & Révision cinématographique
- *
- * ═══════════════════════════════════════════════════════════════
- * CONCEPT : Le générique de fin
- * ═══════════════════════════════════════════════════════════════
- *
- * Le footer est la clôture de l'expérience. Pas une liste de
- * liens — une signature. MARSAI y est aussi massif que dans le
- * héros : c'est la dernière image que le visiteur emporte.
- * Les particules montent dans le noir. Les rayons respirent.
- * Le titre s'impose une dernière fois.
- *
- * ═══════════════════════════════════════════════════════════════
- * DÉCISIONS D'ARCHITECTURE — Kodawari
- * ═══════════════════════════════════════════════════════════════
- *
- * 1. .footerTopFade — transition douce depuis SectionAlliance.
- *    Gradient var(--color-bg-pure) → transparent en haut du footer.
- *    Supprime la coupure dure, le fond de la section précédente
- *    se dissout naturellement dans le noir du footer.
- *
- * 2. Palette : suppression du violet (hors système MARSAI).
- *    Tout passe par var(--color-accent) — sable/ivoire.
- *
- * 3. MARSAI : clamp(4rem, 13vw, 11rem) + letter-spacing 0.08em.
- *    Même respiration que le héros — signature finale mémorable.
- *
- * 4. ROUTES constants : tous les href hardcodés corrigés.
- *    Link React Router pour les liens internes.
- *
- * 5. `.ray` et `.particle` restent en classes globales —
- *    ciblés par gsap.utils.toArray() dans les sous-composants.
- *    Leurs styles visuels minimaux (dot 2px, blur) restent en
- *    Tailwind pour ne pas perturber la logique GSAP existante.
- * ═══════════════════════════════════════════════════════════════
- */
-
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ROUTES } from "@/constants/routes";
 import styles from "./Footer.module.css";
 
-// ─────────────────────────────────────────────────────────────
-// LIENS DE NAVIGATION
-// ─────────────────────────────────────────────────────────────
-const NAV_COLUMNS = [
-  {
-    num: "01",
-    title: "Participer",
-    links: [
-      { label: "Soumettre un film", to: ROUTES.SOUMETTRE },
-      { label: "Règlement du concours", to: "/reglement" },
-      { label: "Calendrier", to: "/calendrier" },
-      { label: "Se connecter", to: "/login" },
-    ],
-  },
-  {
-    num: "02",
-    title: "Ressources",
-    links: [
-      { label: "FAQ", to: "/faq" },
-      { label: "Contact", to: ROUTES.CONTACT },
-    ],
-  },
-  {
-    num: "03",
-    title: "Légal",
-    links: [
-      { label: "Mentions légales", to: ROUTES.MENTION },
-      { label: "Confidentialité", to: ROUTES.POLITIQUE_CONFIDENTIALITE },
-      { label: "CGU", to: ROUTES.CONDITIONS_UTILISATIONS },
-      { label: "Cookies", to: ROUTES.COOKIES },
-    ],
-  },
-];
-
-// ─────────────────────────────────────────────────────────────
-// MOTEUR ATMOSPHÉRIQUE — Rayons de lumière
-// Classes globales .ray conservées — ciblées par GSAP
-// ─────────────────────────────────────────────────────────────
 const SunRays = () => {
   const raysRef = useRef(null);
 
@@ -101,26 +25,18 @@ const SunRays = () => {
   );
 
   return (
-    /* mix-blend-screen : additionne la lumière des rayons aux particules */
     <div
       ref={raysRef}
       className="absolute inset-0 overflow-hidden pointer-events-none z-0 mix-blend-screen opacity-70"
       aria-hidden="true"
     >
-      {/* Faisceau principal — sable chaud au lieu d'amber pur */}
       <div className="ray absolute top-[-10%] left-[-10%] w-[150%] h-[150%] bg-gradient-to-b from-amber-500/12 via-amber-400/4 to-transparent origin-top-left -rotate-[35deg] blur-3xl" />
-      {/* Faisceau secondaire */}
       <div className="ray absolute top-[-20%] left-[20%] w-[100%] h-[150%] bg-gradient-to-b from-amber-300/10 via-amber-200/3 to-transparent origin-top-left -rotate-[42deg] blur-[100px]" />
-      {/* Faisceau périphérique */}
       <div className="ray absolute top-[-5%] left-[40%] w-[120%] h-[150%] bg-gradient-to-b from-amber-600/8 via-amber-500/3 to-transparent origin-top-left -rotate-[28deg] blur-2xl" />
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────
-// MOTEUR PARTICULAIRE — Essaim doré ascendant
-// Classes globales .particle conservées — ciblées par GSAP
-// ─────────────────────────────────────────────────────────────
 const ParticleSystem = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -128,24 +44,17 @@ const ParticleSystem = () => {
     () => {
       const particles = gsap.utils.toArray<HTMLElement>(".particle");
 
-      // ── Initialisation et lancement des animations ─────────
-      // Extrait en fonction pour pouvoir être rappelé au resize.
       function initParticles() {
-        // Tuer toutes les animations de position existantes
-        // avant de réinitialiser — évite l'accumulation de tweens.
         gsap.killTweensOf(particles);
 
         particles.forEach((p) => {
           gsap.set(p, {
-            // window.innerWidth réévalué à chaque appel —
-            // c'est la valeur actuelle post-rotation qui compte.
             x: () => Math.random() * window.innerWidth,
             y: () => Math.random() * 500,
             opacity: 0,
             scale: () => Math.random() * 1.5 + 0.5,
           });
 
-          // Ascension continue
           gsap.to(p, {
             y: "-=280",
             x: "+=random(-50, 50)",
@@ -155,7 +64,6 @@ const ParticleSystem = () => {
             delay: () => Math.random() * -15,
           });
 
-          // Scintillement stochastique
           gsap.to(p, {
             opacity: () => Math.random() * 0.75 + 0.15,
             duration: () => Math.random() * 0.4 + 0.1,
@@ -167,14 +75,8 @@ const ParticleSystem = () => {
         });
       }
 
-      // Lancement initial
       initParticles();
 
-      // ── Resize / rotation d'écran ──────────────────────────
-      // Debounce 200ms : évite de relancer à chaque pixel pendant
-      // le redimensionnement continu sur desktop. Sur mobile,
-      // la rotation déclenche un seul événement — le debounce
-      // absorbe les quelques événements intermédiaires du browser.
       let resizeTimer: ReturnType<typeof setTimeout>;
       function onResize() {
         clearTimeout(resizeTimer);
@@ -183,7 +85,6 @@ const ParticleSystem = () => {
 
       window.addEventListener("resize", onResize);
 
-      // Nettoyage à la destruction du composant
       return () => {
         window.removeEventListener("resize", onResize);
         clearTimeout(resizeTimer);
@@ -208,9 +109,6 @@ const ParticleSystem = () => {
   );
 };
 
-// ─────────────────────────────────────────────────────────────
-// ICÔNES SOCIALES
-// ─────────────────────────────────────────────────────────────
 type Social = {
   label: string;
   href: string;
@@ -239,55 +137,70 @@ const SOCIALS: Social[] = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// COMPOSANT PRINCIPAL
-// ─────────────────────────────────────────────────────────────
 function Footer() {
+  const { t } = useTranslation("common");
   const currentYear = new Date().getFullYear();
+
+  const NAV_COLUMNS = [
+    {
+      num: "01",
+      title: t("footerNav.col1Title"),
+      links: [
+        { label: t("footerNav.submit"), to: ROUTES.SOUMETTRE },
+        { label: t("footerNav.rules"), to: "/reglement" },
+        { label: t("footerNav.calendar"), to: "/calendrier" },
+        { label: t("footerNav.login"), to: "/login" },
+      ],
+    },
+    {
+      num: "02",
+      title: t("footerNav.col2Title"),
+      links: [
+        { label: t("footerNav.faq"), to: "/faq" },
+        { label: t("footerNav.contact"), to: ROUTES.CONTACT },
+      ],
+    },
+    {
+      num: "03",
+      title: t("footerNav.col3Title"),
+      links: [
+        { label: t("footerNav.legal"), to: ROUTES.MENTION },
+        { label: t("footerNav.privacy"), to: ROUTES.POLITIQUE_CONFIDENTIALITE },
+        { label: t("footerNav.cgu"), to: ROUTES.CONDITIONS_UTILISATIONS },
+        { label: t("footerNav.cookies"), to: ROUTES.COOKIES },
+      ],
+    },
+  ];
 
   return (
     <footer className={styles.footer}>
-      {/* ── Transition douce depuis la section précédente ─────────
-          Gradient var(--color-bg-pure) → transparent.
-          Dissout le fond sombre de SectionAlliance dans le noir
-          du footer — la coupure dure disparaît. */}
       <div className={styles.footerTopFade} aria-hidden="true" />
 
-      {/* ── Fond numérique — vignette sable subtile ──────────── */}
       <div
         className={`absolute inset-0 ${styles.footerBg}`}
         aria-hidden="true"
       />
 
-      {/* ── Moteur atmosphérique ─────────────────────────────── */}
       <ParticleSystem />
       <SunRays />
 
-      {/* ── Contenu typographique ────────────────────────────── */}
       <div className={styles.footerContent}>
-        {/* ════════════════════════════════════════════════════
-            SIGNATURE — MARSAI massif + date + tagline
-            La clôture cinématographique. La dernière image.
-            ════════════════════════════════════════════════ */}
         <div className={styles.signature}>
           <h2 className={styles.signatureTitle}>MARSAI</h2>
 
           <div className={styles.signatureDivider}>
             <span className={styles.signatureLine} />
             <span className={styles.signatureDate}>
-              20 — 22 Juin 2026 · Marseille
+              {t("footer.signatureDate")}
             </span>
           </div>
 
           <p className={styles.signatureTagline}>
-            L'apogée du cinéma génératif.
+            {t("footer.signatureTagline")}
           </p>
         </div>
 
-        {/* ════════════════════════════════════════════════════
-            NAVIGATION — 3 colonnes
-            ════════════════════════════════════════════════ */}
-        <nav className={styles.navGrid} aria-label="Navigation de pied de page">
+        <nav className={styles.navGrid} aria-label={t("footerNav.col1Title")}>
           {NAV_COLUMNS.map(({ num, title, links }) => (
             <div key={num}>
               <span className={styles.navColNum}>{num}</span>
@@ -305,25 +218,24 @@ function Footer() {
           ))}
         </nav>
 
-        {/* ════════════════════════════════════════════════════
-            BARRE INFÉRIEURE — copyright + badge + socials
-            ════════════════════════════════════════════════ */}
         <div className={styles.bottomBar}>
-          {/* Copyright */}
           <p className={styles.copyright}>
             &copy; {currentYear}{" "}
-            <span className={styles.copyrightBrand}>MARSAI</span> — Tous droits
-            réservés.
+            <span className={styles.copyrightBrand}>MARSAI</span> —{" "}
+            {t("footer.allRightsReserved")}
           </p>
 
-          {/* Badge festival */}
           <div className={styles.festivalBadge}>
             <span className={styles.festivalDot} aria-hidden="true" />
-            <span className={styles.festivalLabel}>Festival 2026</span>
+            <span className={styles.festivalLabel}>
+              {t("footer.festivalLabel")}
+            </span>
           </div>
 
-          {/* Réseaux sociaux */}
-          <ul className={styles.socialList} aria-label="Réseaux sociaux">
+          <ul
+            className={styles.socialList}
+            aria-label={t("footerNav.col2Title")}
+          >
             {SOCIALS.map(({ label, href, path, fillRule, clipRule }) => (
               <li key={label}>
                 <a
