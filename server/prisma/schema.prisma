@@ -15,7 +15,7 @@ datasource db {
 
 /// Rôles utilisateurs — hiérarchie : ADMIN > MODERATOR > JURY
 enum Role {
-  ADMIN // Contrôle total (Bruno, Jules)
+  ADMIN // Contrôle total (Alexandre, Jules)
   MODERATOR // Gestion films uniquement, pas les jurys
   JURY // Vote sur films assignés uniquement
 }

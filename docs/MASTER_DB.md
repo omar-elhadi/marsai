@@ -14,7 +14,7 @@ L'architecture de données de **MARSAI-1festival** est conçue pour supporter un
 
 ### A. Utilisateurs & Gouvernance (`users`)
 
-- **Rôles** : `ADMIN` (Gestion globale par Bruno Smadja) et `JURY` (Évaluation par les experts).
+- **Rôles** : `ADMIN` (Gestion globale par Alexandre Moreau) et `JURY` (Évaluation par les experts).
 - **Attributs clés** :
   - `bio` : Valorisation de l'expertise du juré pour l'affichage public.
   - `loginToken` : Système d'accès sécurisé _passwordless_ pour une expérience utilisateur fluide.

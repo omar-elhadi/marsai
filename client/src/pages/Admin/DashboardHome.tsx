@@ -19,6 +19,10 @@ function DashboardHome() {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/films/stats`, {
           credentials: "include",
         });
+        if (!res.ok) {
+          setStats(null);
+          return;
+        }
         const data = await res.json();
         setStats(data);
       } catch {

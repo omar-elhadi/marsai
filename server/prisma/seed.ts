@@ -30,12 +30,12 @@ async function main() {
 
   const hashedPassword = await argon2.hash("admin123");
 
-  const bruno = await prisma.user.create({
+  const alexandre = await prisma.user.create({
     data: {
-      email: "bruno.smadja@marsai.com",
+      email: "alexandre.moreau@marsai.com",
       password: hashedPassword,
-      firstName: "Bruno",
-      lastName: "Smadja",
+      firstName: "Alexandre",
+      lastName: "Moreau",
       role: "ADMIN",
       bio: "Fondateur marsAI Festival. Passionné par l'intersection entre intelligence artificielle et cinéma expérimental.",
       photoUrl:
@@ -43,7 +43,7 @@ async function main() {
     },
   });
   console.log(
-    `  ✅ ADMIN     : ${bruno.firstName} ${bruno.lastName} — bruno.smadja@marsai.com / admin123`,
+    `  ✅ ADMIN     : ${alexandre.firstName} ${alexandre.lastName} — alexandre.moreau@marsai.com / admin123`,
   );
 
   const jules = await prisma.user.create({
@@ -613,7 +613,7 @@ async function main() {
       modificationRequest:
         "Bonjour Léna,\n\nVotre film présente un potentiel artistique remarquable. Pour poursuivre le processus de sélection, nous vous demandons d'apporter les corrections suivantes :\n\n• Synchronisation audio/vidéo — décalage d'environ 0.4s perceptible à partir de la 2e minute\n• Résolution export final insuffisante (720p → minimum 1080p requis)\n• Crédits finaux incomplets — ajouter la mention de chaque outil IA utilisé\n\nVous disposez de 7 jours pour soumettre une version corrigée via votre lien personnel.\n\nL'équipe marsAI Festival",
       modificationRequestedAt: new Date("2026-02-28"),
-      modificationRequestedBy: bruno.id,
+      modificationRequestedBy: alexandre.id,
       submittedAt: new Date("2026-02-20"),
       assignedUsers: { connect: [{ id: bela.id }] },
     },
@@ -1003,7 +1003,7 @@ async function main() {
   console.log("  ⚙️  SiteSettings  : 1 configuration complète");
   console.log("  📧 Newsletter    : 7 abonnés");
   console.log("");
-  console.log("  🔑 Admin     : bruno.smadja@marsai.com  / admin123");
+  console.log("  🔑 Admin     : alexandre.moreau@marsai.com  / admin123");
   console.log("  🔑 Admin     : jules.fournier@marsai.com / admin123");
   console.log("  🔑 Modérat.  : sophie.martin@marsai.com / admin123");
   console.log(sep);

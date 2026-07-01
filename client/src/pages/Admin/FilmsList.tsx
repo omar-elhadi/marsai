@@ -49,6 +49,7 @@ function FilmsList() {
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch(`${API}/films/stats`, { credentials: "include" });
+      if (!res.ok) return;
       const data = await res.json();
       setStats(data);
     } catch {
@@ -66,6 +67,10 @@ function FilmsList() {
       const res = await fetch(`${API}/films?${params}`, {
         credentials: "include",
       });
+      if (!res.ok) {
+        setFilms([]);
+        return;
+      }
       const json = await res.json();
       const data = json.data || json;
       // On exclut les films de la phase compétition (Sélection / Palmarès)
