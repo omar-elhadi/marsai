@@ -37,12 +37,15 @@ const SunRays = () => {
   );
 };
 
+const PARTICLE_COUNT = 80;
+
 const ParticleSystem = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       const particles = gsap.utils.toArray<HTMLElement>(".particle");
+      if (particles.length === 0) return;
 
       function initParticles() {
         gsap.killTweensOf(particles);
@@ -80,7 +83,7 @@ const ParticleSystem = () => {
       let resizeTimer: ReturnType<typeof setTimeout>;
       function onResize() {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(initParticles, 200);
+        resizeTimer = setTimeout(initParticles, 400);
       }
 
       window.addEventListener("resize", onResize);
@@ -99,10 +102,10 @@ const ParticleSystem = () => {
       className="absolute inset-0 overflow-hidden pointer-events-none z-0"
       aria-hidden="true"
     >
-      {Array.from({ length: 220 }).map((_, i) => (
+      {Array.from({ length: PARTICLE_COUNT }).map((_, i) => (
         <div
           key={i}
-          className="particle absolute w-[2px] h-[2px] bg-amber-100 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.9)]"
+          className="particle absolute w-[2px] h-[2px] bg-amber-100 rounded-full shadow-[0_0_4px rgba(251,191,36,0.6)]"
         />
       ))}
     </div>
