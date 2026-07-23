@@ -150,6 +150,7 @@ export default function HeroImpact() {
       );
 
       // Indicateur scroll — apparition puis loop
+      // Arrêté automatiquement au premier scroll via ScrollTrigger
       tl.to(
         scrollIndRef.current,
         {
@@ -157,13 +158,20 @@ export default function HeroImpact() {
           duration: 0.5,
           ease: "power1.out",
           onComplete() {
-            gsap.to(scrollIndRef.current, {
+            const bounce = gsap.to(scrollIndRef.current, {
               y: 10,
               opacity: 0.3,
               duration: 1.2,
               repeat: -1,
               yoyo: true,
               ease: "sine.inOut",
+            });
+
+            ScrollTrigger.create({
+              trigger: scrollIndRef.current,
+              start: "top bottom",
+              once: true,
+              onEnter: () => bounce.kill(),
             });
           },
         },
