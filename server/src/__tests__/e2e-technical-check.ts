@@ -42,10 +42,19 @@ async function main() {
     `;
     const names = tables.map((t) => t.tablename);
     const expected = [
-      "_FilmAssignments", "award_categories", "film_nominations",
-      "film_status_history", "film_versions", "films",
-      "jury_members", "newsletter_subscribers", "review_comments",
-      "site_settings", "submitters", "users", "votes",
+      "_FilmAssignments",
+      "award_categories",
+      "film_nominations",
+      "film_status_history",
+      "film_versions",
+      "films",
+      "jury_members",
+      "newsletter_subscribers",
+      "review_comments",
+      "site_settings",
+      "submitters",
+      "users",
+      "votes",
     ];
     for (const name of expected) {
       if (!names.includes(name)) throw new Error(`Missing table: ${name}`);
@@ -64,8 +73,11 @@ async function main() {
   });
 
   await assert("Users table has correct schema", async () => {
-    const cols: { column_name: string; data_type: string; is_nullable: string }[] =
-      await prisma.$queryRaw`
+    const cols: {
+      column_name: string;
+      data_type: string;
+      is_nullable: string;
+    }[] = await prisma.$queryRaw`
         SELECT column_name, data_type, is_nullable
         FROM information_schema.columns
         WHERE table_name = 'users' AND table_schema = 'public'
@@ -96,21 +108,36 @@ async function main() {
       orderBy: { email: "asc" },
       select: { email: true, role: true },
     });
-    if (users.length !== 6) throw new Error(`Expected 6 users, got ${users.length}`);
+    if (users.length !== 6)
+      throw new Error(`Expected 6 users, got ${users.length}`);
     const adminCount = users.filter((u) => u.role === "ADMIN").length;
     const modCount = users.filter((u) => u.role === "MODERATOR").length;
     const juryCount = users.filter((u) => u.role === "JURY").length;
-    if (adminCount !== 2) throw new Error(`Expected 2 ADMINS, got ${adminCount}`);
-    if (modCount !== 1) throw new Error(`Expected 1 MODERATOR, got ${modCount}`);
+    if (adminCount !== 2)
+      throw new Error(`Expected 2 ADMINS, got ${adminCount}`);
+    if (modCount !== 1)
+      throw new Error(`Expected 1 MODERATOR, got ${modCount}`);
     if (juryCount !== 3) throw new Error(`Expected 3 JURY, got ${juryCount}`);
-    console.log(`     (${adminCount} ADMINS, ${modCount} MODERATOR, ${juryCount} JURY)`);
+    console.log(
+      `     (${adminCount} ADMINS, ${modCount} MODERATOR, ${juryCount} JURY)`,
+    );
   });
 
   await assert("14 films covering all 8 statuses", async () => {
     const films = await prisma.film.findMany({ select: { status: true } });
-    if (films.length !== 14) throw new Error(`Expected 14 films, got ${films.length}`);
+    if (films.length !== 14)
+      throw new Error(`Expected 14 films, got ${films.length}`);
     const statuses = new Set(films.map((f) => f.status));
-    const expected: any[] = ["SUBMITTED", "IN_REVIEW", "APPROVED", "REJECTED", "TO_MODIFY", "SELECTION", "FINALIST", "AWARD"];
+    const expected: any[] = [
+      "SUBMITTED",
+      "IN_REVIEW",
+      "APPROVED",
+      "REJECTED",
+      "TO_MODIFY",
+      "SELECTION",
+      "FINALIST",
+      "AWARD",
+    ];
     for (const s of expected) {
       if (!statuses.has(s)) throw new Error(`Missing film status: ${s}`);
     }
@@ -119,12 +146,18 @@ async function main() {
 
   await assert("26+ votes with likes and dislikes", async () => {
     const votes = await prisma.vote.findMany({ select: { sentiment: true } });
-    if (votes.length < 23) throw new Error(`Expected >=23 votes, got ${votes.length}`);
+    if (votes.length < 23)
+      throw new Error(`Expected >=23 votes, got ${votes.length}`);
     const likes = votes.filter((v) => v.sentiment === "LIKE").length;
     const dislikes = votes.filter((v) => v.sentiment === "DISLIKE").length;
-    if (likes <= dislikes) throw new Error(`Expected more likes than dislikes (${likes} vs ${dislikes})`);
+    if (likes <= dislikes)
+      throw new Error(
+        `Expected more likes than dislikes (${likes} vs ${dislikes})`,
+      );
     if (dislikes === 0) throw new Error("Expected at least 1 dislike");
-    console.log(`     (${votes.length} votes: ${likes} LIKE, ${dislikes} DISLIKE)`);
+    console.log(
+      `     (${votes.length} votes: ${likes} LIKE, ${dislikes} DISLIKE)`,
+    );
   });
 
   await assert("4 award categories with 7 nominations", async () => {
@@ -148,7 +181,8 @@ async function main() {
   await assert("Site settings configured for 2026", async () => {
     const settings = await prisma.siteSettings.findFirst();
     if (!settings) throw new Error("No site settings found");
-    if (settings.currentYear !== 2026) throw new Error(`Year is ${settings.currentYear}, expected 2026`);
+    if (settings.currentYear !== 2026)
+      throw new Error(`Year is ${settings.currentYear}, expected 2026`);
     if (!settings.festivalDates) throw new Error("Missing festival dates");
   });
 
@@ -199,15 +233,18 @@ async function main() {
     if (!valid) throw new Error("Password verification failed");
   });
 
-  await assert("Sophie (moderator) password verifies with admin123", async () => {
-    const argon2 = await import("argon2");
-    const user = await prisma.user.findUnique({
-      where: { email: "sophie.martin@marsai.com" },
-    });
-    if (!user?.password) throw new Error("User has no password");
-    const valid = await argon2.verify(user.password, "admin123");
-    if (!valid) throw new Error("Password verification failed");
-  });
+  await assert(
+    "Sophie (moderator) password verifies with admin123",
+    async () => {
+      const argon2 = await import("argon2");
+      const user = await prisma.user.findUnique({
+        where: { email: "sophie.martin@marsai.com" },
+      });
+      if (!user?.password) throw new Error("User has no password");
+      const valid = await argon2.verify(user.password, "admin123");
+      if (!valid) throw new Error("Password verification failed");
+    },
+  );
 
   // ─────────────────────────────────────────────────
   console.log("\n5️⃣  SOFT DELETE & AUDIT TRAIL");
@@ -224,23 +261,26 @@ async function main() {
     const tables: { tablename: string }[] = await prisma.$queryRaw`
       SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = 'film_status_history'
     `;
-    if (tables.length === 0) throw new Error("film_status_history table missing");
+    if (tables.length === 0)
+      throw new Error("film_status_history table missing");
   });
 
   await assert("No hard-deleted data (soft delete pattern)", async () => {
-    const deletedFilms = await prisma.$queryRaw`
+    const deletedFilms = (await prisma.$queryRaw`
       SELECT COUNT(*)::int as count FROM films WHERE "deletedAt" IS NOT NULL
-    ` as any;
-    const deletedUsers = await prisma.$queryRaw`
+    `) as any;
+    const deletedUsers = (await prisma.$queryRaw`
       SELECT COUNT(*)::int as count FROM users WHERE "deletedAt" IS NOT NULL
-    ` as any;
+    `) as any;
   });
 
   // ─────────────────────────────────────────────────
   console.log("\n6️⃣  AWARD CATEGORIES DETAILS");
   // ─────────────────────────────────────────────────
   await assert("Award categories have proper structure", async () => {
-    const cats = await prisma.awardCategory.findMany({ orderBy: { displayOrder: "asc" } });
+    const cats = await prisma.awardCategory.findMany({
+      orderBy: { displayOrder: "asc" },
+    });
     if (cats.length !== 4) throw new Error("Expected 4 categories");
     for (let i = 0; i < cats.length; i++) {
       if (cats[i].displayOrder !== i + 1) {
@@ -251,13 +291,21 @@ async function main() {
     console.log(`     ${names.join(" · ")}`);
   });
 
-  await assert("Winners have isWinner=true and no duplicate winners per category", async () => {
-    const winners = await prisma.filmNomination.findMany({ where: { isWinner: true } });
-    const catIds = winners.map((w) => w.categoryId);
-    const unique = new Set(catIds);
-    if (unique.size !== catIds.length) throw new Error("Duplicate winners in same category");
-    console.log(`     (${winners.length} winner(s) across ${unique.size} categories)`);
-  });
+  await assert(
+    "Winners have isWinner=true and no duplicate winners per category",
+    async () => {
+      const winners = await prisma.filmNomination.findMany({
+        where: { isWinner: true },
+      });
+      const catIds = winners.map((w) => w.categoryId);
+      const unique = new Set(catIds);
+      if (unique.size !== catIds.length)
+        throw new Error("Duplicate winners in same category");
+      console.log(
+        `     (${winners.length} winner(s) across ${unique.size} categories)`,
+      );
+    },
+  );
 
   // ─────────────────────────────────────────────────
   console.log("\n7️⃣  PERFORMANCE & INTEGRITY");
@@ -273,11 +321,11 @@ async function main() {
   });
 
   await assert("No orphaned votes (referential integrity)", async () => {
-    const orphaned = await prisma.$queryRaw`
+    const orphaned = (await prisma.$queryRaw`
       SELECT COUNT(*)::int as count FROM votes v
       LEFT JOIN films f ON f.id = v."filmId"
       WHERE f.id IS NULL
-    ` as any;
+    `) as any;
     if (Array.isArray(orphaned) && orphaned[0]?.count > 0) {
       throw new Error(`${orphaned[0].count} orphaned votes found`);
     }

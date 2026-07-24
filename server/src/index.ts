@@ -43,29 +43,29 @@ app.use(pinoHttp({ logger }));
  * Autorise les requêtes provenant de plusieurs origines locales
  */
 const allowedOrigins = [
-	process.env.FRONTEND_URL,
-	"https://localhost:5173",
-	"https://localhost:5173",
-	"http://localhost:5174",
-	"http://localhost:5175",
-	"http://127.0.0.1:5173",
-	"http://127.0.0.1:5174",
+  process.env.FRONTEND_URL,
+  "https://localhost:5173",
+  "https://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
 ].filter(Boolean) as string[];
 
 app.use(
-	cors({
-		origin: (origin, callback) => {
-			if (!origin || allowedOrigins.includes(origin)) {
-				callback(null, origin || true);
-			} else {
-				// En mode dev, on peut logger pour comprendre pourquoi ça lâche
-				logger.error({ origin }, "CORS bloqué pour l'origine");
-				// Au lieu de throw une erreur (qui enlève les headers CORS), on autorise pour débloquer
-				callback(null, origin);
-			}
-		},
-		credentials: true,
-	}),
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin || true);
+      } else {
+        // En mode dev, on peut logger pour comprendre pourquoi ça lâche
+        logger.error({ origin }, "CORS bloqué pour l'origine");
+        // Au lieu de throw une erreur (qui enlève les headers CORS), on autorise pour débloquer
+        callback(null, origin);
+      }
+    },
+    credentials: true,
+  }),
 );
 
 /**
@@ -93,18 +93,18 @@ app.use("/api/jury-members", juryMemberRoutes);
  * Utile pour vérifier que le serveur répond sans passer par l'authentification
  */
 app.get("/", (req: express.Request, res: express.Response) => {
-	res.status(200).json({
-		status: "OK",
-		message: "API Marsai Festival opérationnelle",
-	});
+  res.status(200).json({
+    status: "OK",
+    message: "API Marsai Festival opérationnelle",
+  });
 });
 
 // --- GESTION DES ERREURS GLOBALES ---
 // Capture les erreurs 404 (Route non trouvée)
 app.use(
-	(req: express.Request, res: express.Response, next: express.NextFunction) => {
-		res.status(404).json({ message: "Ressource introuvable." });
-	},
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.status(404).json({ message: "Ressource introuvable." });
+  },
 );
 
 // Middleware d'erreur global
@@ -112,12 +112,12 @@ app.use(errorHandler);
 
 // --- DÉMARRAGE DU SERVEUR ---
 if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
-	app.listen(PORT, () => {
-		logger.info("-------------------------------------------------");
-		logger.info(`✅ Serveur prêt sur : http://localhost:${PORT}`);
-		logger.info(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
-		logger.info("-------------------------------------------------");
-	});
+  app.listen(PORT, () => {
+    logger.info("-------------------------------------------------");
+    logger.info(`✅ Serveur prêt sur : http://localhost:${PORT}`);
+    logger.info(`🔒 Sécurité : JWT_SECRET et CORS configurés`);
+    logger.info("-------------------------------------------------");
+  });
 }
 
 export default app;

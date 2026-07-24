@@ -341,7 +341,7 @@ const FALLBACK_FILMS = [
     id: "fallback-1",
     title: "Mémoire Synthétique",
     director: "K. Okafor",
-    img: "https://images.unsplash.com/photo-1518893883800-45cd0a9d3101?q=88&w=900&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1705249190144-19d7b6d28574?q=80&w=1677&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     country: "Nigeria · France",
   },
   {
