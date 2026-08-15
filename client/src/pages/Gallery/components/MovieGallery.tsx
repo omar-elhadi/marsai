@@ -536,7 +536,9 @@ export default function MovieGallery() {
         // évite le flash du fallback (6 cartes) puis le swap brutal vers
         // les films réels (2 cartes) qui cassait le pin GSAP.
         <div className={styles.loading} aria-label="Chargement de la galerie">
-          <span className={styles.loadingText}>Galerie en cours de chargement</span>
+          <span className={styles.loadingText}>
+            Galerie en cours de chargement
+          </span>
         </div>
       ) : (
         <section
@@ -544,25 +546,25 @@ export default function MovieGallery() {
           className={styles.section}
           aria-label="Galerie des films — défilement horizontal"
         >
-        <div
-          ref={progressRef}
-          className={styles.progressBar}
-          aria-hidden="true"
-        />
+          <div
+            ref={progressRef}
+            className={styles.progressBar}
+            aria-hidden="true"
+          />
 
-        <div ref={wrapperRef} className={styles.wrapper}>
-          {films.map((movie: any, i: number) => (
-            <MovieCard key={movie.id + "-" + i} movie={movie} index={i} />
-          ))}
-        </div>
+          <div ref={wrapperRef} className={styles.wrapper}>
+            {films.map((movie: any, i: number) => (
+              <MovieCard key={movie.id + "-" + i} movie={movie} index={i} />
+            ))}
+          </div>
 
-        <div
-          ref={scrollHintRef}
-          className={styles.scrollHint}
-          aria-hidden="true"
-        >
-          <span className={styles.scrollHintText}>Défiler</span>
-          <span className={styles.scrollHintArrow}>→</span>
+          <div
+            ref={scrollHintRef}
+            className={styles.scrollHint}
+            aria-hidden="true"
+          >
+            <span className={styles.scrollHintText}>Défiler</span>
+            <span className={styles.scrollHintArrow}>→</span>
           </div>
         </section>
       )}
