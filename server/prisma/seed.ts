@@ -762,7 +762,8 @@ async function main() {
       language: "Suédois",
       aiToolsUsed:
         "Stable Diffusion XL, Suno AI, Luma Dream Machine, AudioCraft",
-      posterUrl: poster(1470252649427),
+      posterUrl:
+        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=900&fit=crop&q=80",
       youtubeUrl: VIDEO_URL,
       youtubeVideoId: VIDEO_ID,
       status: "AWARD",
@@ -797,7 +798,8 @@ async function main() {
       language: "Anglais / Français",
       aiToolsUsed:
         "Climate ML models, Stable Diffusion XL, ElevenLabs, World Models",
-      posterUrl: poster(1464822759023),
+      posterUrl:
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&h=900&fit=crop&q=80",
       youtubeUrl: VIDEO_URL,
       youtubeVideoId: VIDEO_ID,
       status: "AWARD",
