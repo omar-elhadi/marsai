@@ -397,17 +397,25 @@ export default function MovieGallery() {
   const progressRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLDivElement>(null);
 
-  const [films, setFilms] = useState<typeof FALLBACK_FILMS>(FALLBACK_FILMS);
+  const [films, setFilms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadGallery = async () => {
       try {
         const response = await galleryService.getAll({ page: 1, limit: 100 });
+        // N'utiliser le fallback que si l'API échoue ou renvoie 0 film,
+        // jamais au montage initial (évite le flash 6→2 images + pin GSAP stale).
         if (response.data && response.data.length > 0) {
           setFilms(response.data);
+        } else {
+          setFilms(FALLBACK_FILMS);
         }
       } catch (err) {
         console.error("Erreur lors de la récupération des films :", err);
+        setFilms(FALLBACK_FILMS);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -523,11 +531,19 @@ export default function MovieGallery() {
 
   return (
     <div ref={galleryRootRef} className={styles.galleryRoot}>
-      <section
-        ref={sectionRef}
-        className={styles.section}
-        aria-label="Galerie des films — défilement horizontal"
-      >
+      {loading ? (
+        // On ne montre rien tant que la galerie API n'est pas prête :
+        // évite le flash du fallback (6 cartes) puis le swap brutal vers
+        // les films réels (2 cartes) qui cassait le pin GSAP.
+        <div className={styles.loading} aria-label="Chargement de la galerie">
+          <span className={styles.loadingText}>Galerie en cours de chargement</span>
+        </div>
+      ) : (
+        <section
+          ref={sectionRef}
+          className={styles.section}
+          aria-label="Galerie des films — défilement horizontal"
+        >
         <div
           ref={progressRef}
           className={styles.progressBar}
@@ -547,8 +563,9 @@ export default function MovieGallery() {
         >
           <span className={styles.scrollHintText}>Défiler</span>
           <span className={styles.scrollHintArrow}>→</span>
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
