@@ -26,7 +26,7 @@ export const login = catchAsync(async (req: any, res: any, next: any) => {
   // Pose le JWT dans un cookie httpOnly — inaccessible depuis JS (protection XSS)
   res.cookie("marsai_token", result.token, {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 24 * 60 * 60 * 1000, // 24h en ms
   });
@@ -88,7 +88,7 @@ export const verifyToken = catchAsync(async (req: any, res: any, next: any) => {
   // Pose le JWT dans un cookie httpOnly (même logique que le login admin)
   res.cookie("marsai_token", sessionToken, {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     maxAge: 24 * 60 * 60 * 1000,
   });

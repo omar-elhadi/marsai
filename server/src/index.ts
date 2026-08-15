@@ -44,6 +44,7 @@ app.use(pinoHttp({ logger }));
  */
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  "https://marsai-festival.vercel.app",
   "https://localhost:5173",
   "https://localhost:5173",
   "http://localhost:5174",
@@ -55,13 +56,12 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Requêtes sans Origin (curl, mêmes domaines, proxys internes) : on autorise
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, origin || true);
       } else {
-        // En mode dev, on peut logger pour comprendre pourquoi ça lâche
         logger.error({ origin }, "CORS bloqué pour l'origine");
-        // Au lieu de throw une erreur (qui enlève les headers CORS), on autorise pour débloquer
-        callback(null, origin);
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,

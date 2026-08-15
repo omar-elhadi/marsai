@@ -45,7 +45,7 @@ router.get("/verify-token", verifyTokenLimiter, authController.verifyToken);
 router.post("/logout", (req, res) => {
   res.clearCookie("marsai_token", {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
   res.status(200).json({ message: "Déconnecté." });
