@@ -73,8 +73,8 @@ export const userController = {
       // 2. Génération d'un token sécurisé de 64 caractères (hex)
       const token = crypto.randomBytes(32).toString("hex");
 
-      // 3. Calcul de l'expiration — valable jusqu'à la fin du festival (22 juin 2026)
-      const expires = new Date("2026-06-22T23:59:59.000Z");
+      // 3. Calcul de l'expiration — valable 7 jours
+      const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
       // 4. Mise à jour en base de données
       // On utilise les noms de colonnes exacts de ton schéma : loginToken et tokenExpires
