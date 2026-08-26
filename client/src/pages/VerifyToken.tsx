@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function VerifyToken() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [status, setStatus] = useState("Vérification de votre accès...");
   const token = searchParams.get("token");
   // Ref pour éviter le double appel causé par React.StrictMode en développement
@@ -28,7 +30,9 @@ export default function VerifyToken() {
         const data = await response.json();
 
         if (response.ok) {
-          // Le token est dans un cookie httpOnly — on stocke uniquement les infos utilisateur
+          // Peupler AuthContext pour que ProtectedRoute fonctionne
+          login(data.user);
+          // Garder localStorage pour JuryDashboard (lit encore de là)
           localStorage.setItem("marsai_user", JSON.stringify(data.user));
 
           setStatus("Accès validé ! Redirection...");
@@ -42,7 +46,7 @@ export default function VerifyToken() {
     };
 
     verify();
-  }, [token, navigate]);
+  }, [token, navigate, login]);
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center font-sans">

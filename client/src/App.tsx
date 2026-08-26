@@ -178,14 +178,6 @@ function AppInner() {
           <Route path={ROUTES.CALENDRIER} element={<Calendrier />} />
           <Route path={ROUTES.LOGIN_VERIFY} element={<VerifyToken />} />
           <Route
-            path={ROUTES.JURY_DASHBOARD}
-            element={
-              <Suspense fallback={<SuspenseLoader />}>
-                <JuryDashboard />
-              </Suspense>
-            }
-          />
-          <Route
             path={ROUTES.REGLES_CONDITIONS}
             element={<ReglesConditions />}
           />
